@@ -84,11 +84,6 @@ variable "github_ssh_key" {
   type = string
 }
 
-variable "sops_age_key" {
-  description = "SOPS AGE key for decrypting repo secrets."
-  type = string
-}
-
 variable "rancher_admin_token" {
   description = "Admin token for accessing rancher_admin_url"
   type = string
@@ -96,5 +91,15 @@ variable "rancher_admin_token" {
 
 variable "rancher_admin_url" {
   description = "URL of rancher server"
+  type = string
+}
+
+variable "access_key_id" {
+  description = "Access key ID for external secrets"
+  type = string
+}
+
+variable "access_key_secret" {
+  description = "Access key secret for external secrets"
   type = string
 }

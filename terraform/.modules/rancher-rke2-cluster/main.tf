@@ -62,7 +62,6 @@ resource "rancher2_machine_config_v2" "worker" {
 resource "rancher2_cluster_v2" "cluster" {
   depends_on = [ data.local_file.cloud_provider_kubeconfig ]
   name = "${var.name}"
-  //namespace = "${var.namespace}"
   kubernetes_version = "${var.kubernetes_version}"
   rke_config {
     machine_pools {

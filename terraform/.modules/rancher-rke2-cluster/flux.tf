@@ -43,7 +43,21 @@ resource "kubernetes_secret" "sops_key" {
   }
 
   data = {
-    "age.encrypted.agekey" = "${var.sops_age_key}"
+    "age.encrypted.agekey" = "blank"
+  }
+}
+
+
+resource "kubernetes_secret" "access_key" {
+  depends_on = [ kubernetes_namespace.flux_system ]
+  metadata {
+    name = "external-secrets-access-key"
+    namespace = "kube-system"
+  }
+
+  data = {
+    access_key = "${var.access_key_id}"
+    secret_access_key = "${var.access_key_secret}"
   }
 }
 

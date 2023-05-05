@@ -16,8 +16,8 @@ data "aws_ssm_parameter" "flux_ssh_key" {
   name = "terraform-flux-key"
 }
 
-data "aws_ssm_parameter" "sops_age_key" {
-  name = "sops-age-key"
+resource "aws_iam_access_key" "external_secrets_access_key" {
+  user = "k8s-external-secrets"
 }
 
 data "harvester_network" "kubernetes" {
@@ -32,7 +32,9 @@ module "cluster_01" {
   github_url = "ssh://git@github.com/ionfury/homelab.git"
   github_ssh_key =  data.aws_ssm_parameter.flux_ssh_key.value
   github_ssh_pub = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMCrYcFCCCpSN4EhzZ7vtjIsOx3P7DTb8KKwhDPXxZfs flux@tomnowak.work"
-  sops_age_key = data.aws_ssm_parameter.sops_age_key.value
+
+  access_key_id = aws_iam_access_key.external_secrets_access_key.id
+  access_key_secret = aws_iam_access_key.external_secrets_access_key.secret
 
   rancher_admin_token = data.aws_ssm_parameter.rancher_admin_token.value
   rancher_admin_url = data.aws_ssm_parameter.rancher_admin_url.value
