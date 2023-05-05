@@ -5,8 +5,6 @@ resources:
   - gotk-sync.yaml
 patches:
   - target:
-      kind: Kustomization
-  - target:
       kind: GitRepository
     patch: |
       - op: replace
