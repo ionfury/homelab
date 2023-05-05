@@ -6,13 +6,6 @@ resources:
 patches:
   - target:
       kind: Kustomization
-    patch: |
-      - op: add
-        path: /spec/decryption
-        value:
-          provider: sops
-          secretRef:
-            name: sops-key
   - target:
       kind: GitRepository
     patch: |
