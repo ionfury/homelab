@@ -3,10 +3,6 @@ kind: Kustomization
 metadata:
   name: not-used
 spec:
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-key
   postBuild:
     substituteFrom:
       - kind: ConfigMap
