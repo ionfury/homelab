@@ -1,4 +1,4 @@
-namePrefix: external-secrets
+namePrefix: external-secrets-
 components:
   - ../.templates/helm-release
 configMapGenerator:
