@@ -1,0 +1,12 @@
+namePrefix: loki-
+components:
+  - ../.templates/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+patches:
+  - target:
+      kind: HelmRelease
+    path: patch-helm-release.yaml

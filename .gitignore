@@ -1,0 +1,17 @@
+*.secret
+kubeconfig.yaml
+*.kubeconfig
+age.agekey
+
+.certs/
+.secrets/
+
+*.tfvars
+**/./terraform/
+**/.terraform.*
+**/.terraform
+terraform.*
+*/secrets.hcl
+tfplan
+.DS_Store
+**/rke_debug.log

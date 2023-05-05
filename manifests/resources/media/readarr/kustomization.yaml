@@ -1,0 +1,10 @@
+namePrefix: readarr-
+components:
+  - ../../../components/helm-app-template
+resources:
+  - image-automation.yaml
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

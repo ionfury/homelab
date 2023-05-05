@@ -1,0 +1,6 @@
+resources:
+  - alertmanager-ingress.yaml
+  - grafana-ingress.yaml
+  - prometheus-ingress.yaml
+  - flux-pod-monitor.yaml
+  - flux-notifications-grafana.yaml

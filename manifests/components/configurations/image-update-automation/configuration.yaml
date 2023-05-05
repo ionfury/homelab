@@ -1,0 +1,5 @@
+nameReference:
+  - kind: GitRepository
+    fieldSpecs:
+      - path: spec/sourceRef/name
+        kind: ImageUpdateAutomation

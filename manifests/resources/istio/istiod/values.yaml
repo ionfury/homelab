@@ -1,0 +1,33 @@
+pilot:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+  env:
+    ENABLE_CA_SERVER: false
+
+#meshConfig:
+#  ca:
+#    address: cert-manager-istio-csr.cert-manager.svc:443
+
+global:
+  caAddress: "cert-manager-istio-csr.cert-manager.svc:443"
+# caCertificates:
+#   - pem: |-
+# https://github.com/cert-manager/istio-csr/issues/103#issuecomment-923882792
+  defaultResources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+      ephemeral-storage: 128Mi
+  proxy:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 128Mi
+  proxy_init:
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi

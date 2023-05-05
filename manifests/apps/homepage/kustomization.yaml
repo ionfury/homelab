@@ -1,0 +1,13 @@
+namePrefix: homepage-
+components:
+  - ../.templates/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+secretGenerator:
+  - name: secret-values
+    behavior: replace
+    files:
+      - values.yaml=secret-values.encrypted.yaml

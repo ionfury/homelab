@@ -1,0 +1,14 @@
+namespace: metallb-system
+
+configurations:
+  - configurations.yaml
+
+resources:
+  - helm-release.yaml
+  - helm-repository.yaml
+  - namespace.yaml
+
+configMapGenerator:
+  - name: values
+    files:
+      - values.yaml

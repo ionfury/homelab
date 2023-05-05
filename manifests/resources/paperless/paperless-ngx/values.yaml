@@ -1,0 +1,74 @@
+image:
+  repository: ghcr.io/paperless-ngx/paperless-ngx # {"$imagepolicy": "paperless:paperless-ngx-automation:name"}
+  tag: 1.14.4 # {"$imagepolicy": "paperless:paperless-ngx-automation:tag"}
+automountServiceToken: false
+service:
+  main:
+    ports:
+      http:
+        port: 8000
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Paperless-ngx is a document management system that transforms your physical documents into a searchable online archive so you can keep, well, less paper.
+      gethomepage.dev/group: Share
+      gethomepage.dev/icon: paperless-ng.png
+      gethomepage.dev/name: Paperless
+      gethomepage.dev/widget.type: paperlessngx
+      gethomepage.dev/widget.url: http://paperless-ngx-app.paperless.svc.cluster.local:8000
+    hosts:
+      - host: paperless.tomnowak.work
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - paperless.tomnowak.work
+        secretName: paperless-tls
+probes:
+  liveness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        port: http
+  readiness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        port: http
+  startup:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        port: http
+persistence:
+  data:
+    enabled: true
+    retain: true
+    storageClass: harvester-hdd-weekly
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    mountPath: /usr/src/paperless/data
+  media:
+    enabled: true
+    retain: true
+    storageClass: harvester-hdd-weekly
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    mountPath: /usr/src/paperless/media
+  consume:
+    enabled: true
+    retain: true
+    storageClass: harvester-hdd
+    size: 5Gi
+    accessMode: ReadWriteOnce
+    mountPath: /usr/src/paperless/consume

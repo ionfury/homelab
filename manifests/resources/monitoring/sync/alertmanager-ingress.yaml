@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alertmanager
+  annotations:
+    kubernetes.io/ingress.class: "nginx"    
+    cert-manager.io/cluster-issuer: "cloudflare"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: An open-source alerting system.
+    gethomepage.dev/group: Monitoring
+    gethomepage.dev/icon: alertmanager.png
+    gethomepage.dev/name: Alertmanager
+spec:
+  tls:
+  - hosts:
+    - alertmanager.tomnowak.work
+    secretName: alertmanager-internal-tls
+  rules:
+  - host: alertmanager.tomnowak.work
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-prometheus-stack-alertmanager
+            port:
+              number: 9093

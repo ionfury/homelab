@@ -1,0 +1,25 @@
+# Depends on gateway
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: gateway-sync
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  secretRef:
+    name: gateway-sync
+  url: ssh://git@github.com/ionfury/homelab
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: gateway-sync
+spec:
+  interval: 10m0s
+  targetNamespace: istio-gateway
+  path: ./manifests/resources/istio/gateway/ingress
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: gateway-sync

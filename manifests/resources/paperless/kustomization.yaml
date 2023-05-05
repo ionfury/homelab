@@ -1,0 +1,10 @@
+namespace: paperless
+
+components:
+  - ../../../manifests/components/namespace
+
+resources:
+  - image-update-automation.yaml
+  - postgres
+  - redis
+  - paperless-ngx

@@ -1,0 +1,25 @@
+worldName: plexheim
+serverName: valheim.tomnowak.dev
+
+resources:
+  requests:
+    memory: 8Gi
+    cpu: 2000m
+
+networking:
+  serviceType: LoadBalancer
+
+storage:
+  kind: persistentVolumeClaim
+  pvc:
+    storageClassName: harvester-hdd
+    size: 20Gi
+    
+extraEnvironmentVars:
+  BACKUPS_MAX_COUNT: 10  
+
+serverStorage:
+  kind: persistentVolumeClaim
+  pvc:
+    storageClassName: harvester-hdd
+    size: 10Gi

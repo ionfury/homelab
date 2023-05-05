@@ -1,0 +1,28 @@
+
+
+app:
+  logLevel: 5
+  metrics:
+    service:
+      servicemonitor:
+        enabled: true
+  certmanager:
+    namespace: cert-manager
+    issuer:
+      group: cert-manager.k8s.cloudflare.com
+      kind: OriginIssuer
+      name: prod-issuer
+  tls:
+    certificateDNSNames:
+      - test.tomnowak.dev
+    certificateDuration: 1460h # 2 Months
+    istiodCertificateDuration: 1460h # 2 Months
+    istiodCertificateRenewBefore: 730h # 1 Month
+  server:
+    maxCertificateDuration: 1460h # 2 Months
+  controller:
+    leaderElectionNamespace: cert-manager
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi

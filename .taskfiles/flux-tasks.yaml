@@ -1,0 +1,13 @@
+version: "3"
+
+tasks:
+  reconcile-kustomization:
+    desc: Force reconciliation of flux-system kustomization to pull in latest changes from Git
+    cmds:
+      - flux reconcile -n flux-system source git flux-system
+      - flux reconcile -n flux-system kustomization flux-system
+  reconcile-helm:
+    desc: Force reconciliation of all failed helm releases.
+    cmds:
+      - kubectl get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -L 1 bash -c 'flux suspend hr $0 -n $1'
+      - kubectl get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -L 1 bash -c 'flux resume hr $0 -n $1'

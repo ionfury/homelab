@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: not-important
+spec:
+  template:
+    spec:
+      containers:
+        - image: gluetun
+          imagePullPolicy: IfNotPresent
+          name: gluetun
+          envFrom:
+            - secretRef:
+                name: gluetun-secret
+          securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN

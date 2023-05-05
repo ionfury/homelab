@@ -1,0 +1,14 @@
+global:
+  dnsService: coredns
+  dnsNamespace: kube-system
+loki:
+  storage:
+    type: filesystem
+  # https://github.com/grafana/mimir/issues/2030 ???
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1 # I believe this is needed due to using singleBinary
+
+singleBinary:
+  persistence:
+    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED:=default}

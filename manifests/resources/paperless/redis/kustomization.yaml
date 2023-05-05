@@ -1,0 +1,32 @@
+namePrefix: redis-
+
+components:
+  - ../../../../manifests/components/helm
+
+patches:
+  - target:
+      kind: HelmRelease
+      name: helm-release
+    patch: |
+      - op: replace
+        path: /spec/chart/spec/chart
+        value: redis
+      - op: replace
+        path: /spec/chart/spec/version
+        value: 17.6.0
+      - op: add
+        path: /spec/targetNamespace
+        value: paperless
+  - target:
+      kind: HelmRepository
+      name: helm-repository
+    patch: |
+      - op: replace
+        path: /spec/url
+        value: https://charts.bitnami.com/bitnami
+        
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

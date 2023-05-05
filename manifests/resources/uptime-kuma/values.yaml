@@ -1,0 +1,69 @@
+image:
+  repository: louislam/uptime-kuma # {"$imagepolicy": "uptime-kuma:uptime-kuma-automation:name"}
+  tag: 1.21.2 # {"$imagepolicy": "uptime-kuma:uptime-kuma-automation:tag"}
+service:
+  main:
+    ports:
+      http:
+        port: 3001
+serviceMonitor:
+  metrics:
+    enabled: true
+    serviceName: uptime-kuma-app
+    endpoints:
+      - port: http
+        interval: 30s
+        scrapeTimeout: 10s
+        path: /metrics
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
+      gethomepage.dev/group: Monitoring
+      gethomepage.dev/icon: uptime-kuma.png
+      gethomepage.dev/name: Uptime Kuma
+      gethomepage.dev/widget.type: uptimekuma
+      gethomepage.dev/widget.url: http://uptime-kuma-app.uptime-kuma.svc.cluster.local:3001
+    hosts:
+      - host: uptime-kuma.tomnowak.work
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - uptime-kuma.tomnowak.work
+        secretName: uptime-kuma-tls
+persistence:
+  data:
+    enabled: true
+    retain: true
+    storageClass: harvester-hdd
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    mountPath: /app/data
+probes:
+  liveness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        path: /
+        port: http
+  readiness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        path: /
+        port: http
+  startup:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        path: /
+        port: http

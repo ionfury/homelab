@@ -1,0 +1,6 @@
+{
+  "yaml.schemaStore.enable": true,
+  "yaml.schemas": {
+    "kubernetes": "manifests/**/*.yaml, clusters/**/*.yaml"
+  }
+}

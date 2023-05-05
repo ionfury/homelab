@@ -1,0 +1,61 @@
+image:
+  repository: ghcr.io/0xerr0r/blocky # {"$imagepolicy": "blocky:blocky-automation:name"}
+  tag: v0.21 # {"$imagepolicy": "blocky:blocky-automation:tag"}
+  pullPolicy: IfNotPresent
+service:
+  main:
+    annotations:
+      cloudprovider.harvesterhci.io/ipam: dhcp
+    externalTrafficPolicy: Cluster
+    type: LoadBalancer
+    ports:
+      http:
+        enabled: false
+      dns:
+        port: 53
+        protocol: UDP
+  metrics:
+    ports:
+      metrics:
+        port: 4000
+serviceMonitor:
+  metrics:
+    enabled: true
+    serviceName: blocky-metrics
+    endpoints:
+      - port: metrics
+        interval: 30s
+        scrapeTimeout: 10s
+        path: /metrics
+controller:
+  replicas: 2
+  strategy: RollingUpdate
+  rollingUpdate:
+    surge: 25%
+    unavailable: 25%
+probes:
+  liveness:
+    port: dns
+  readiness:
+    port: dns
+  startup:
+    port: dns
+persistence:
+  config:
+    enabled: true
+    type: secret
+    name: blocky-config
+    mountPath: /app/config.yml
+    subPath: config.yml
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - blocky-app
+          topologyKey: kubernetes.io/hostname

@@ -1,0 +1,110 @@
+namespaceOverride: ${NAMESPACE}
+defaultRules:
+  create: true
+alertmanager:
+  enabled: true
+  ingress:
+    enabled: true
+    pathType: Prefix
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: An open-source alerting system.
+      gethomepage.dev/group: Monitoring
+      gethomepage.dev/icon: alertmanager.png
+      gethomepage.dev/name: Alertmanager
+    hosts:
+      - alertmanager.${INTERNAL_DOMAIN}
+    tls:
+      - hosts:
+          - alertmanager.${INTERNAL_DOMAIN}
+grafana:
+  enabled: false
+  forceDeployDashboards: true
+  sidecar:
+    dashboards:
+      multicluster:
+        etcd:
+          enabled: true
+kubeApiServer:
+  enabled: true
+
+kubelet:
+  enabled: true
+
+kubeControllerManager:
+  enabled: false
+
+coreDns:
+  enabled: true
+
+kubeDns:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeProxy:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: true
+
+kube-state-metrics:
+  namespaceOverride: ${NAMESPACE}
+
+nodeExporter:
+  enabled: true
+
+prometheus-node-exporter:
+  namespaceOverride: ${NAMESPACE}
+
+prometheus:
+  enabled: true
+  ingress:
+    enabled: true
+    pathType: Prefix
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Combine Prometheus metric alerts with log & trace alerts to improve accuracy.
+      gethomepage.dev/group: Monitoring
+      gethomepage.dev/icon: prometheus.png
+      gethomepage.dev/name: Prometheus
+    hosts:
+      - prometheus.${INTERNAL_DOMAIN}
+    tls:
+      - hosts:
+          - prometheus.${INTERNAL_DOMAIN}
+  prometheusSpec:
+    externalLabels:
+      prometheus_source: ${CLUSTER_NAME}
+    retentionSize: 99GiB
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ${STORAGE_CLASS_SLOW_UNREPLICATED:=default}
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Gi
+
+prometheusOperator:
+  admissionWebhooks:
+    certManager:
+      enabled: false
+  prometheusConfigReloader:
+    image:
+      registry: quay.io
+      repository: prometheus-operator/prometheus-config-reloader
+      # if not set appVersion field from Chart.yaml is used
+      tag: v0.65.0
+
+cleanPrometheusOperatorObjectNames: true

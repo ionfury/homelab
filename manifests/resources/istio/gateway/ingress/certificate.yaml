@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: services-ingress-tls
+spec:
+  commonName: "tomnowak.dev"
+  dnsNames:
+  - "*.tomnowak.dev"
+  issuerRef:
+    group: cert-manager.k8s.cloudflare.com
+    kind: OriginIssuer
+    name: prod-issuer
+  secretName: services-ingress-tls

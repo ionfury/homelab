@@ -1,0 +1,43 @@
+namePrefix: homepage-
+namespace: homepage
+
+components:
+  - ../../../manifests/components/helm
+  - ../../../manifests/components/namespace
+
+resources:
+  - image-automation.yaml
+
+patches:
+  - target:
+      kind: HelmRelease
+      name: helm-release
+    patch: |
+      - op: replace
+        path: /spec/chart/spec/chart
+        value: homepage
+      - op: replace
+        path: /spec/chart/spec/version
+        value: 1.0.0
+      - op: add
+        path: /spec/targetNamespace
+        value: homepage
+  - target:
+      kind: HelmRepository
+      name: helm-repository
+    patch: |
+      - op: replace
+        path: /spec/url
+        value: https://jameswynn.github.io/helm-charts
+
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+
+secretGenerator:
+  - name: secret-values
+    behavior: replace
+    files:
+      - values.yaml=secret-values.encrypted.yaml

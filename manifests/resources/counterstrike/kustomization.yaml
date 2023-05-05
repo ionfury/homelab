@@ -1,0 +1,18 @@
+namespace: counterstrike
+
+components:
+  - ../../../manifests/components/namespace
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+commonLabels:
+  app.kubernetes.io/name: counterstrike
+  app.kubernetes.io/version: "1.6"
+  app.kubernetes.io/component: server
+
+configMapGenerator:
+  - name: counterstrike-env
+    envs: [values.env]
+    behavior: create

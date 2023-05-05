@@ -1,0 +1,25 @@
+# Depends on gateway
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: cluster-issuer-sync
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  secretRef:
+    name: cluster-issuer-sync
+  url: ssh://git@github.com/ionfury/homelab
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: cluster-issuer-sync
+spec:
+  interval: 10m0s
+  targetNamespace: cert-manager
+  path: ./manifests/resources/cloudflare-issuer/sync
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: cluster-issuer-sync

@@ -1,0 +1,14 @@
+namespace: cert-manager
+
+components:
+  - ../../components/configurations/helm-release
+
+resources:
+  - helm-release.yaml
+  - helm-repository.yaml
+  - namespace.yaml
+
+configMapGenerator:
+  - name: cert-manager-values
+    files:
+      - values.yaml

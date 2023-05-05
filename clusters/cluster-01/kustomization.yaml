@@ -1,0 +1,33 @@
+components:
+  - ../../manifests/components/configurations/kustomization
+resources:
+  - image-update-automation.yaml
+
+  - cert-manager
+  - default
+  - flux-system
+  - kube-system
+  - monitoring
+  - network
+  - policy
+configMapGenerator:
+  - name: cluster-vars
+    namespace: flux-system
+    envs:
+      - cluster-vars.env
+patches:
+  - target:
+      kind: Kustomization
+    path: patch-kustomization.yaml
+  - target:
+      kind: Kustomization
+    patch: |
+      - op: replace
+        path: /metadata/namespace
+        value: flux-system
+  - target:
+      kind: GitRepository
+    patch: |
+      - op: replace
+        path: /spec/secretRef/name
+        value: flux-ssh-key

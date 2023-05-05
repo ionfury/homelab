@@ -1,0 +1,15 @@
+namespace: uptime-kuma
+namePrefix: uptime-kuma-
+
+components:
+  - ../../components/namespace
+  - ../../components/helm-app-template
+
+resources:
+  - image-automation.yaml
+
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

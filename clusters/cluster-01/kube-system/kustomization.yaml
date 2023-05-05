@@ -1,0 +1,5 @@
+namespace: kube-system
+components:
+  - ../../../manifests/components/configurations/namespace
+resources:
+  - sync.yaml

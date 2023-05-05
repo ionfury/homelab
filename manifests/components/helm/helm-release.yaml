@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: helm-release
+spec:
+  targetNamespace: default
+  interval: 10m
+  chart:
+    spec:
+      chart: PATCHME
+      version: PATCHME
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repository
+      interval: 10m
+  maxHistory: 3
+  install:
+    remediation:
+      retries: 3
+  test:
+    enable: true
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: values
+    - kind: Secret
+      name: secret-values

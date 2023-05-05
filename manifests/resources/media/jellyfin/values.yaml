@@ -1,0 +1,71 @@
+image:
+  repository: ghcr.io/onedr0p/jellyfin # {"$imagepolicy": "media:jellyfin-automation:name"}
+  tag: 10.8.10 # {"$imagepolicy": "media:jellyfin-automation:tag"}
+service:
+  main:
+    ports:
+      http:
+        port: 8096
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached.
+      gethomepage.dev/group: Media
+      gethomepage.dev/icon: jellyfin.png
+      gethomepage.dev/name: Jellyfin
+      gethomepage.dev/widget.type: jellyfin
+      gethomepage.dev/widget.url: http://jellyfin.media.svc.cluster.local:8096
+    hosts:
+      - host: jellyfin.tomnowak.work
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - jellyfin.tomnowak.work
+        secretName: jellyfin-tls
+podSecurityContext:
+  runAsUser: 568
+  runAsGroup: 568
+  fsGroup: 568
+  fsGroupChangePolicy: OnRootMismatch
+  supplementalGroups:
+    - 44
+    - 109
+    - 10000
+persistence:
+  config:
+    enabled: true
+    retain: true
+    storageClass: harvester-hdd-weekly
+    size: 1Gi
+  transcode:
+    enabled: true
+    type: emptyDir
+  media:
+    enabled: true
+    existingClaim: media
+    mountPath: /media
+podLabels:
+  required-volume: media
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: required-volume
+              operator: In
+              values:
+                - media
+        topologyKey: kubernetes.io/hostname
+#nodeSelector:
+#  intel.feature.node.kubernetes.io/gpu: "true"
+resources:
+  requests:
+    cpu: 1
+    memory: 3Gi
+    #gpu.intel.com/i915: 1

@@ -1,0 +1,7 @@
+resources:
+  - harvester-hdd-nightly.yaml
+  - harvester-hdd-weekly.yaml
+  - harvester-hdd.yaml
+  - harvester-ssd-nightly.yaml
+  - harvester-ssd-weekly.yaml
+  - harvester-ssd.yaml

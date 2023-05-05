@@ -1,0 +1,33 @@
+namespace: kube-system
+namePrefix: descheduler-
+
+components:
+  - ../../components/helm
+
+patches:
+  - target:
+      kind: HelmRelease
+      name: helm-release
+    patch: |
+      - op: replace
+        path: /spec/chart/spec/chart
+        value: descheduler
+      - op: replace
+        path: /spec/chart/spec/version
+        value: 0.26.0
+      - op: replace
+        path: /spec/targetNamespace
+        value: kube-system
+  - target:
+      kind: HelmRepository
+      name: helm-repository
+    patch: |
+      - op: replace
+        path: /spec/url
+        value: https://kubernetes-sigs.github.io/descheduler
+
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

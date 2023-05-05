@@ -1,0 +1,65 @@
+values:
+image:
+  repository: ghcr.io/onedr0p/readarr-nightly # {"$imagepolicy": "media:readarr-automation:name"}
+  tag: 0.1.5.1709 # {"$imagepolicy": "media:readarr-automation:tag"}
+#envFrom:
+#  - secretRef:
+#      name: *app
+service:
+  main:
+    ports:
+      http:
+        port: 8787
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Readarr is a ebook collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new books from your favorite authors and will interface with clients and indexers to grab, sort, and rename them.
+      gethomepage.dev/group: Media
+      gethomepage.dev/icon: readarr.png
+      gethomepage.dev/name: readarr
+      gethomepage.dev/widget.type: readarr
+      gethomepage.dev/widget.url: http://readarr.media.svc.cluster.local:80
+    hosts:
+      - host: readarr.tomnowak.work
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - readarr.tomnowak.work
+        secretName: readarr-tls
+podSecurityContext:
+  runAsUser: 568
+  runAsGroup: 568
+  fsGroup: 568
+  fsGroupChangePolicy: OnRootMismatch
+persistence:
+  config:
+    enabled: true
+    retain: true
+    storageClass: harvester-hdd-weekly
+    size: 1Gi
+  media:
+    enabled: true
+    existingClaim: media
+    mountPath: /media
+podLabels:
+  required-volume: media
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: required-volume
+              operator: In
+              values:
+                - media
+        topologyKey: kubernetes.io/hostname
+resources:
+  requests:
+    cpu: 200m
+    memory: 300Mi

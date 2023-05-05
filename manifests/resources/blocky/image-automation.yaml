@@ -1,0 +1,41 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+  name: automation
+spec:
+  image: ghcr.io/0xerr0r/blocky
+  interval: 12h0m0s
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: automation
+spec:
+  imageRepositoryRef:
+    name: automation
+  filterTags:
+    pattern: ^v0\.(?P<version>.*)
+    extract: '$version'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: automation
+spec:
+  interval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  git:
+    commit:
+      author:
+        email: fluxcdbot@users.tomnowak.work
+        name: fluxcdbot
+      messageTemplate: '{{range .Updated.Images}}{{println .}}{{end}}'
+  update:
+    path: ./manifests/resources/blocky
+    strategy: Setters

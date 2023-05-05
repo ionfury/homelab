@@ -1,0 +1,34 @@
+namespace: blocky
+namePrefix: blocky-
+
+components:
+  - ../../components/namespace
+  - ../../components/helm-app-template
+
+resources:
+  - image-automation.yaml
+
+configurations:
+  - config/configuration.yaml
+
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+
+secretGenerator:
+  - name: config
+    files:
+      - config.yml=config/config.encrypted.yaml
+
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/values
+        value:
+          persistence:
+            config:
+              name: config

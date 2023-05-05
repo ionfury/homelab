@@ -1,0 +1,7 @@
+resources:
+  - storage-classes/harvester-hdd-nightly.yaml
+  - storage-classes/harvester-hdd-weekly.yaml
+  - storage-classes/harvester-hdd.yaml
+  - storage-classes/harvester-ssd-nightly.yaml
+  - storage-classes/harvester-ssd-weekly.yaml
+  - storage-classes/harvester-ssd.yaml

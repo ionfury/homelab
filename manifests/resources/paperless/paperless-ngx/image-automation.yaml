@@ -1,0 +1,18 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+  name: automation
+spec:
+  image: ghcr.io/paperless-ngx/paperless-ngx
+  interval: 12h0m0s
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: automation
+spec:
+  imageRepositoryRef:
+    name: automation
+  policy:
+    semver:
+      range: "> 0.0.0"

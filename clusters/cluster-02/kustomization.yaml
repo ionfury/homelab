@@ -1,0 +1,17 @@
+resources:
+  - flux-system
+  - ../../manifests/resources/storage
+  - ../../manifests/resources/cert-manager-namecheap-issuer
+  - ../../manifests/resources/cloudflare-issuer
+  - ../../manifests/resources/monitoring
+  - ../../manifests/resources/valheim
+  #- ../../manifests/resources/uptime-kuma
+  - ../../manifests/resources/ingress-nginx
+  - ../../manifests/resources/blocky
+  - ../../manifests/resources/paperless
+  - ../../manifests/resources/filebrowser
+  #- ../../manifests/resources/homepage
+  #- ../../manifests/resources/media
+  #- ../../manifests/resources/project-zomboid
+  #- ../../manifests/resources/code-server
+  - ../../manifests/resources/descheduler

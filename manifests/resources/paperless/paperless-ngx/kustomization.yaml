@@ -1,0 +1,48 @@
+namePrefix: paperless-ngx-
+
+components:
+  - ../../../components/helm-app-template
+  
+resources:
+  - image-automation.yaml
+
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+  - name: paperless-config
+    literals:
+      - PAPERLESS_DBHOST=paperless-postgres-helm-release-postgresql.paperless.svc.cluster.local
+      - PAPERLESS_PORT=8000
+      - PAPERLESS_URL=https://paperless.tomnowak.work
+      - PAPERLESS_ALLOWED_HOSTS=*
+      - PAPERLESS_TIME_ZONE=America/Chicago
+      - PAPERLESS_OCR_ROTATE_PAGES_THRESHOLD=8
+
+secretGenerator:
+  - name: paperless-secret
+    files:
+      - PAPERLESS_REDIS=config/redis-connection.encrypted
+      - PAPERLESS_SECRET_KEY=config/secret-key.encrypted
+      - PAPERLESS_DBPASS=config/postgres-password.encrypted
+      - PAPERLESS_ADMIN_USER=config/admin-user.encrypted
+      - PAPERLESS_ADMIN_PASSWORD=config/admin-user-password.encrypted
+
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/dependsOn
+        value:
+          - name: postgres-helm-release
+          - name: redis-helm-release
+      - op: add
+        path: /spec/values
+        value:
+          envFrom:
+            - configMapRef:
+                name: paperless-config
+            - secretRef:
+                name: paperless-secret

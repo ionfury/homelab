@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: ingress-nginx
+spec:
+  interval: 10m
+  path: ./manifests/apps/ingress-nginx
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: ingress-nginx
+      VERSION: 4.4.2
+      REPO: https://kubernetes.github.io/ingress-nginx

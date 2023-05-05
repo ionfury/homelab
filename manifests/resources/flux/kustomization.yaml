@@ -1,0 +1,5 @@
+resources:
+- helm-repositories
+- gotk-components.yaml
+- gotk-sync.yaml
+- image-update-automation.yaml

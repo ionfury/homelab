@@ -1,0 +1,4 @@
+resources:
+  - gateway
+  - issuer-csr
+  - istiod

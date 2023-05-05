@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ut2004
+  annotations:
+    cloudprovider.harvesterhci.io/ipam: dhcp
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ports:
+    - name: game
+      port: 7777
+      targetPort: 7777
+      protocol: UDP
+    - port: 7778
+      targetPort: 7778
+      protocol: UDP
+      name: game1
+    - port: 7787
+      targetPort: 7787
+      protocol: UDP
+      name: game2
+    - port: 33306
+      targetPort: 33306
+      name: game3
+    - name: admin
+      port: 8080  
+      targetPort: 80
+      protocol: TCP

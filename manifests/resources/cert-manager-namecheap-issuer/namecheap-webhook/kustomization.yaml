@@ -1,0 +1,14 @@
+namespace: cert-manager
+
+components:
+  - ../../../components/configurations/helm-release
+
+resources:
+  - helm-release.yaml
+  - helm-repository.yaml
+
+configMapGenerator:
+  - name: namecheap-webhook-values
+    files:
+      - values.yaml
+      

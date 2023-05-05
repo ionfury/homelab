@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: letsencrypt-namecheap-issuer
+spec:
+  interval: 10m
+  url: https://danajp.org/cert-manager-webhook-namecheap/

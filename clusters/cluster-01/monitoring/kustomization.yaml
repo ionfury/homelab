@@ -1,0 +1,6 @@
+namespace: monitoring
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - sync.yaml
+

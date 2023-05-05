@@ -1,0 +1,8 @@
+namePrefix: grafana-
+components:
+  - ../.templates/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

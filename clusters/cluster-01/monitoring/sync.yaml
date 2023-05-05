@@ -1,0 +1,72 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: kube-prometheus-stack
+spec:
+  interval: 10m
+  path: ./manifests/apps/kube-prometheus-stack
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: kube-prometheus-stack
+      VERSION: 42.3.0
+      REPO: https://prometheus-community.github.io/helm-charts
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: loki
+spec:
+  interval: 10m
+  path: ./manifests/apps/loki
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: loki
+      VERSION: 4.4.2
+      REPO: https://grafana.github.io/helm-charts
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: promtail
+spec:
+  interval: 10m
+  path: ./manifests/apps/promtail
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: promtail
+      VERSION: 6.8.2
+      REPO: https://grafana.github.io/helm-charts
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: grafana
+spec:
+  interval: 10m
+  path: ./manifests/apps/grafana
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: grafana
+      VERSION: 6.56.1
+      REPO: https://grafana.github.io/helm-charts

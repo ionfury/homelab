@@ -1,0 +1,14 @@
+image:
+  repository: quay.io/jetstack/cert-manager-controller
+global:
+  leaderElection:
+    namespace: "${NAMESPACE:kube-system}"
+namespace: "${NAMESPACE:kube-system}"
+cert-manager:
+  deploymentAnnotations:
+    certmanager.k8s.io/disable-validation: "true"
+installCRDs: true
+prometheus:
+  enabled: false
+startupapicheck:
+  enabled: false

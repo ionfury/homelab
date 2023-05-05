@@ -1,0 +1,16 @@
+components:
+  - ../../../components/configurations/helm-release
+
+resources:
+  - helm-release.yaml
+  - helm-repository.yaml
+
+configMapGenerator:
+  - name: kube-prometheus-stack-values
+    files:
+      - values.yaml
+
+secretGenerator:
+  - name: kube-prometheus-stack-secrets
+    files:
+      - values.yaml=secret-values.encrypted.yaml

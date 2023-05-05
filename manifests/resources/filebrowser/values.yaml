@@ -1,0 +1,39 @@
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    cert-manager.io/cluster-issuer: cloudflare
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: Network file management share.
+    gethomepage.dev/group: Share
+    gethomepage.dev/icon: filebrowser.png
+    gethomepage.dev/name: Filebrowser
+  hosts:
+    - host: filebrowser.tomnowak.work
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: filebrowser-tls
+      hosts:
+        - filebrowser.tomnowak.work
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+rootDir:
+  type: pvc
+  pvc:
+    storageClassName: harvester-hdd
+    accessModes:
+      - ReadWriteOnce
+    size: 50Gi
+dv:
+  pvc:
+    storageClassName: harvester-hdd
+    accessModes:
+      - ReadWriteOnce
+    size: 50Gi
