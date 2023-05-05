@@ -7,4 +7,6 @@ webhook:
     enabled: true
     interval: 1m
 certController:
-  create: false
+  serviceMonitor:
+    enabled: true
+    interval: 1m
