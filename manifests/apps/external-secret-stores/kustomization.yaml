@@ -1,2 +1,3 @@
 resources:
   - cluster-secret-store.yaml
+  - external-secret-test.yaml
