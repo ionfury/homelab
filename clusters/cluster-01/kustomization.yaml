@@ -6,7 +6,7 @@ resources:
   - cert-manager
   - default
   - flux-system
-  - kube-system
+  - system
   - monitoring
   - network
   - policy
