@@ -1,5 +1,5 @@
 namespace: system
 components:
-  - ../../../manifests/components/configurations/namespace
+  - ../../../manifests/components/namespace
 resources:
   - sync.yaml
