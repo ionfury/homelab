@@ -3,8 +3,4 @@ components:
 
 resources:
   - cluster-issuer.yaml
-
-secretGenerator:
-  - name: cloudflare-api-token-secret
-    files:
-      - api-token=cloudflare-api-token.encrypted
+  - external-secret.yaml
