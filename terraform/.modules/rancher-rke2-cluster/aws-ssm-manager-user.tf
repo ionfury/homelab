@@ -2,7 +2,7 @@ data "aws_iam_policy_document" "read_ssm" {
   statement {
     effect    = "Allow"
     actions   = ["ssm:GetParameter*"]
-    resources = ["arn:aws:ssm:us-east-2:850584657866:parameter/${var.name}-*"]
+    resources = ["arn:aws:ssm:us-east-2:850584657866:parameter/k8s-*"]
   }
 }
 
