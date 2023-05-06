@@ -32,5 +32,5 @@ spec:
   postBuild:
     substitute:
       CHART: cloudflare-dyndns
-      VERSION: 0.1.2
+      VERSION: 0.1.1
       REPO: https://charts.pascaliske.dev
