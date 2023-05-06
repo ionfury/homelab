@@ -16,3 +16,21 @@ spec:
       CHART: ingress-nginx
       VERSION: 4.4.2
       REPO: https://kubernetes.github.io/ingress-nginx
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: cloudflare-dyndns
+spec:
+  interval: 10m
+  path: ./manifests/apps/cloudflare-ddns
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: cloudflare-dyndns
+      VERSION: 0.1.2
+      REPO: https://charts.pascaliske.dev
