@@ -1,4 +1,4 @@
-namespace: kube-system
+namespace: system
 components:
   - ../../../manifests/components/configurations/namespace
 resources:

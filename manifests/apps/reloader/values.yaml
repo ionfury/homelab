@@ -1,0 +1,4 @@
+reloader:
+  podMonitor:
+    enabled: true
+  reloadStrategy: annotations

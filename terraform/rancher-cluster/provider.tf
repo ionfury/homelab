@@ -18,15 +18,15 @@ terraform {
       version = ">=4.62.0"
     }
     github = {
-      source = "integrations/github"
+      source  = "integrations/github"
       version = ">=5.23.0"
     }
     cloudflare = {
-      source = "cloudflare/cloudflare"
+      source  = "cloudflare/cloudflare"
       version = ">=4.4.0"
     }
     rancher2 = {
-      source = "rancher/rancher2"
+      source  = "rancher/rancher2"
       version = "2.0.0"
     }
   }
@@ -41,7 +41,7 @@ provider "harvester" {
 }
 // Configured via `~/.aws`
 provider "aws" {
-  region = "us-east-2"
+  region  = "us-east-2"
   profile = "terragrunt"
 }
 provider "rke" {
@@ -51,6 +51,6 @@ provider "github" {
   owner = "ionfury"
 }
 provider "cloudflare" {
-  email = "ionfury@gmail.com"
-  api_key = "${data.aws_ssm_parameter.cloudflare_api_key.value}"
+  email   = "ionfury@gmail.com"
+  api_key = data.aws_ssm_parameter.cloudflare_api_key.value
 }

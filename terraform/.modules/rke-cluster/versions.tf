@@ -17,11 +17,11 @@ terraform {
       version = ">=4.62.0"
     }
     github = {
-      source = "integrations/github"
+      source  = "integrations/github"
       version = ">=5.23.0"
     }
     flux = {
-      source = "fluxcd/flux"
+      source  = "fluxcd/flux"
       version = "1.0.0-rc.1"
     }
   }

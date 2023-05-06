@@ -1,22 +1,22 @@
 provider "helm" {
   kubernetes {
-    host = var.api_server_url
-    client_certificate = var.cluster_client_cert
-    client_key = var.cluster_client_key
+    host                   = var.api_server_url
+    client_certificate     = var.cluster_client_cert
+    client_key             = var.cluster_client_key
     cluster_ca_certificate = var.cluster_ca_certificate
   }
 }
 
 provider "kubectl" {
-  host = var.api_server_url
-  client_certificate = var.cluster_client_cert
-  client_key = var.cluster_client_key
+  host                   = var.api_server_url
+  client_certificate     = var.cluster_client_cert
+  client_key             = var.cluster_client_key
   cluster_ca_certificate = var.cluster_ca_certificate
 }
 
 resource "helm_release" "cert_manager" {
-  name = "cert-manager"
-  namespace = "cert-manager"
+  name       = "cert-manager"
+  namespace  = "cert-manager"
   chart      = "cert-manager"
   version    = "1.11.0"
   repository = "https://charts.jetstack.io"
@@ -31,7 +31,7 @@ resource "helm_release" "cert_manager" {
     value = true
   }
   set {
-    name = "prometheus.enabled"
+    name  = "prometheus.enabled"
     value = false
   }
 }
@@ -67,7 +67,7 @@ YAML
 
 resource "kubectl_manifest" "cloudflare_issuer" {
   depends_on = [helm_release.cert_manager]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -89,16 +89,16 @@ YAML
 }
 
 resource "random_password" "rancher_bootstrap_password" {
-  length = 24
+  length  = 24
   special = false
 }
 
 resource "helm_release" "rancher" {
   depends_on = [helm_release.cert_manager]
-  name = "rancher"
-  namespace = "cattle-system"
-  chart = "rancher"
-  version = "2.7.1"
+  name       = "rancher"
+  namespace  = "cattle-system"
+  chart      = "rancher"
+  version    = "2.7.1"
   repository = "https://releases.rancher.com/server-charts/stable"
 
   wait             = true
@@ -107,7 +107,7 @@ resource "helm_release" "rancher" {
   replace          = true
 
   set {
-    name = "hostname"
+    name  = "hostname"
     value = "${var.rancher_domain_prefix}.${var.cloudflare_domain}"
   }
   set {
@@ -119,7 +119,7 @@ resource "helm_release" "rancher" {
     value = "secret"
   }
   set {
-    name = "ingress.extraAnnotations.cert-manager\\.io/cluster-issuer"
+    name  = "ingress.extraAnnotations.cert-manager\\.io/cluster-issuer"
     value = "cloudflare"
   }
 }

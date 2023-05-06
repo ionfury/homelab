@@ -6,8 +6,3 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
-secretGenerator:
-  - name: secret-values
-    behavior: replace
-    files:
-      - values.yaml=secret-values.encrypted.yaml
