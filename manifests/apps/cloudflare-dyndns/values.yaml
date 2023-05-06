@@ -1,5 +1,4 @@
 cronJob:
-  schedule: "@hourly"
   nameservers:
     - 1.1.1.1
 
