@@ -23,7 +23,7 @@ metadata:
   name: cloudflare-dyndns
 spec:
   interval: 10m
-  path: ./manifests/apps/cloudflare-ddns
+  path: ./manifests/apps/cloudflare-dyndns
   prune: true
   sourceRef:
     kind: GitRepository
