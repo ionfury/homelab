@@ -2,8 +2,7 @@ image:
   tag: "2023.00"
 replicaCount: 3
 dnsHostPort:
-  enabled: true
-  port: 53
+  enabled: false
 serviceDns:
   type: LoadBalancer
   externalTrafficPolicy: Cluster
