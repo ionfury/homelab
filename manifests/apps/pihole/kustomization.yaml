@@ -11,3 +11,4 @@ secretGenerator:
     options:
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: password
+      disableNameSuffixHash: true
