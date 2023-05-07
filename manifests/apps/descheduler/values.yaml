@@ -1,0 +1,26 @@
+kind: Deployment
+replicas: 3
+leaderElection:
+  enabled: true
+  leaseDuration: 15s
+  renewDeadline: 10s
+  retryPeriod: 2s
+  resourceLock: "leases"
+  resourceName: "descheduler"
+  resourceNamescape: "kube-system"
+service:
+  enabled: true
+serviceMonitor:
+  enabled: true
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - descheduler-app
+          topologyKey: kubernetes.io/hostname

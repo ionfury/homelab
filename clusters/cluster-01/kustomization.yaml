@@ -6,10 +6,11 @@ resources:
   - cert-manager
   - default
   - flux-system
-  - system
+  - kube-system
   - monitoring
   - network
   - policy
+  - system
 configMapGenerator:
   - name: cluster-vars
     namespace: flux-system
