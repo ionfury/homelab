@@ -35,23 +35,23 @@ spec:
       VERSION: 0.1.1
       REPO: https://charts.pascaliske.dev
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
-kind: Kustomization
-metadata:
-  name: pihole
-spec:
-  interval: 10m
-  path: ./manifests/apps/pihole
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  postBuild:
-    substitute:
-      CHART: pihole
-      VERSION: 2.14.0
-      REPO: https://mojo2600.github.io/pihole-kubernetes/
+#apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+#kind: Kustomization
+#metadata:
+#  name: pihole
+#spec:
+#  interval: 10m
+#  path: ./manifests/apps/pihole
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
+#    namespace: flux-system
+#  postBuild:
+#    substitute:
+#      CHART: pihole
+#      VERSION: 2.14.0
+#      REPO: https://mojo2600.github.io/pihole-kubernetes/
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
@@ -69,4 +69,4 @@ spec:
     substitute:
       CHART: external-dns
       VERSION: 0.13.4
-      REPO: https://mojo2600.github.io/pihole-kubernetes/
+      REPO: external-dns/external-dns
