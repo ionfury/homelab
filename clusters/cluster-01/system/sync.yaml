@@ -42,7 +42,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
@@ -61,3 +60,21 @@ spec:
       CHART: reloader
       VERSION: v1.0.24
       REPO: https://stakater.github.io/stakater-charts
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: secret-generator
+spec:
+  interval: 10m
+  path: ./manifests/apps/secret-generator
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: kubernetes-secret-generator
+      VERSION: 3.4.0
+      REPO: https://helm.mittwald.de

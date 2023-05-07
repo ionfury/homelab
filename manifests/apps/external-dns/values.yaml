@@ -1,0 +1,12 @@
+interval: 1m
+serviceMonitor:
+  enabled: true
+provider: pihole-
+env:
+  - name: EXTERNAL_DNS_PIHOLE_SERVER
+    value: ${PIHOLE_SVC:=http://pihole-app-web.svc.network.cluster.local}
+  - name: EXTERNAL_DNS_PIHOLE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: ${PIHOLE_SECRET:=pihole-app-password}
+        key: ${PIHOLE_SECRET_KEY:=password}

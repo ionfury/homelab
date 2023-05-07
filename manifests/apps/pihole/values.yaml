@@ -1,4 +1,4 @@
-replicaCount: 3
+replicaCount: 2
 dnsHostPort:
   enabled: false
 serviceDns:
@@ -10,21 +10,18 @@ serviceDhcp:
   enabled: false
 serviceWeb:
   http:
-    enabled: true
+    enabled: false
   https:
     enabled: false
 ingress:
   enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: cloudflare
-    kubernetes.io/ingress.class: nginx
-  hosts:
-    - pihole.tomnowak.work
-  tls:
-    - secretName: pihole-internal-tls
-      hosts:
-        - pihole.tomnowak.work
-antiaff:
+monitoring:
+  podMonitor:
+    enabled: true
+  sidecar:
+    enabled: true
+persistentVolumeClaim:
   enabled: true
-  avoidRelease: pihole-app
-  strict: false
+  storageClassName: harvester-ssd
+admin:
+  existingSecret: ${CHART}-app-password
