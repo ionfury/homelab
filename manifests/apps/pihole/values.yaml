@@ -25,10 +25,6 @@ ingress:
     - secretName: pihole-internal-tls
       hosts:
         - pihole.tomnowak.work
-resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
 antiaff:
   enabled: true
   avoidRelease: pihole-app
