@@ -1,7 +1,7 @@
 interval: 1m
 serviceMonitor:
   enabled: true
-provider: pihole-
+provider: pihole
 env:
   - name: EXTERNAL_DNS_PIHOLE_SERVER
     value: ${PIHOLE_SVC:=http://pihole-app-web.svc.network.cluster.local}
