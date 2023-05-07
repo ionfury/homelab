@@ -17,20 +17,20 @@ spec:
       VERSION: 2.7.2
       REPO: https://kyverno.github.io/kyverno/
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
-kind: Kustomization
-metadata:
-  name: kyverno-policies
-spec:
-  interval: 10m
-  path: ./manifests/apps/kyverno-policies
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  postBuild:
-    substitute:
-      CHART: kyverno-policies
-      VERSION: 2.5.5
-      REPO: https://kyverno.github.io/kyverno/
+#apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+#kind: Kustomization
+#metadata:
+#  name: kyverno-policies
+#spec:
+#  interval: 10m
+#  path: ./manifests/apps/kyverno-policies
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
+#    namespace: flux-system
+#  postBuild:
+#    substitute:
+#      CHART: kyverno-policies
+#      VERSION: 2.5.5
+#      REPO: https://kyverno.github.io/kyverno/

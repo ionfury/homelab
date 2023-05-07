@@ -14,9 +14,9 @@ storage:
   pvc:
     storageClassName: harvester-hdd
     size: 20Gi
-    
+
 extraEnvironmentVars:
-  BACKUPS_MAX_COUNT: 10  
+  BACKUPS_MAX_COUNT: 10
 
 serverStorage:
   kind: persistentVolumeClaim

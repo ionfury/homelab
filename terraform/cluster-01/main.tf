@@ -28,7 +28,6 @@ resource "aws_iam_access_key" "external_secrets_access_key" {
   user = "k8s-external-secrets"
 }
 
-
 module "cluster_01" {
   source       = "../.modules/rancher-rke2-cluster"
   name         = "cluster-01"
@@ -38,8 +37,16 @@ module "cluster_01" {
   github_ssh_key = data.aws_ssm_parameter.flux_ssh_key.value
   github_ssh_pub = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMCrYcFCCCpSN4EhzZ7vtjIsOx3P7DTb8KKwhDPXxZfs flux@tomnowak.work"
 
+  access_key_id     = aws_iam_access_key.external_secrets_access_key.id
+  access_key_secret = aws_iam_access_key.external_secrets_access_key.secret
+
   rancher_admin_token = data.aws_ssm_parameter.rancher_admin_token.value
   rancher_admin_url   = data.aws_ssm_parameter.rancher_admin_url.value
+
+
+  worker_cpu        = 4
+  worker_memory     = 16
+  worker_node_count = 2
 
   providers = {
     rancher2 = rancher2

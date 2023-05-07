@@ -93,3 +93,13 @@ variable "rancher_admin_url" {
   description = "URL of rancher server"
   type        = string
 }
+
+variable "access_key_id" {
+  description = "Access key ID for external secrets"
+  type        = string
+}
+
+variable "access_key_secret" {
+  description = "Access key secret for external secrets"
+  type        = string
+}

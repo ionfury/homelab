@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "read_ssm" {
+/*data "aws_iam_policy_document" "read_ssm" {
   statement {
     effect    = "Allow"
     actions   = ["ssm:GetParameter*"]
@@ -19,3 +19,4 @@ resource "aws_iam_user_policy" "read_ssm" {
 resource "aws_iam_access_key" "this" {
   user = aws_iam_user.this.name
 }
+*/

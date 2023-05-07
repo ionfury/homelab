@@ -56,8 +56,8 @@ resource "kubernetes_secret" "access_key" {
   }
 
   data = {
-    access_key        = "${aws_iam_access_key.this.id}"
-    secret_access_key = "${aws_iam_access_key.this.secret}"
+    access_key        = "${var.access_key_id}"
+    secret_access_key = "${var.access_key_secret}"
   }
 }
 
