@@ -9,12 +9,10 @@ serviceDns:
 serviceDhcp:
   enabled: false
 serviceWeb:
-  http:
-    enabled: false
   https:
     enabled: false
 ingress:
-  enabled: true
+  enabled: false
 monitoring:
   podMonitor:
     enabled: true
