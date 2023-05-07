@@ -69,4 +69,4 @@ spec:
     substitute:
       CHART: external-dns
       VERSION: 0.13.4
-      REPO: external-dns/external-dns
+      REPO: https://kubernetes-sigs.github.io/external-dns/
