@@ -1,5 +1,3 @@
-image:
-  tag: "2023.00"
 replicaCount: 3
 dnsHostPort:
   enabled: false
