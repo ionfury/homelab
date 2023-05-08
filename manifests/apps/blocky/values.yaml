@@ -43,7 +43,7 @@ probes:
 persistence:
   config:
     enabled: true
-    type: configmap
+    type: configMap
     name: blocky-config
     mountPath: /app/config.yml
     subPath: config.yml
