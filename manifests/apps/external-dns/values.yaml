@@ -4,7 +4,7 @@ serviceMonitor:
 provider: pihole
 env:
   - name: EXTERNAL_DNS_PIHOLE_SERVER
-    value: ${PIHOLE_SVC:=http://pihole-app-web.svc.network.cluster.local}
+    value: ${PIHOLE_SVC:=http://pihole-app-web.network.svc.cluster.local}
   - name: EXTERNAL_DNS_PIHOLE_PASSWORD
     valueFrom:
       secretKeyRef:
