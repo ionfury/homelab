@@ -1,6 +1,8 @@
 namePrefix: grafana-
 components:
   - ../.templates/helm-release
+resources:
+  - external-secret.yaml
 configMapGenerator:
   - name: values
     behavior: replace
@@ -9,6 +11,7 @@ configMapGenerator:
 secretGenerator:
   - name: grafana-admin-user
     options:
+      disableNameSuffixHash: true
       annotations:
         secret-generator.v1.mittwald.de/type: basic-auth
 patches:
