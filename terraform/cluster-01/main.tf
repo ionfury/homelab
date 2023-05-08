@@ -44,8 +44,8 @@ module "cluster_01" {
   rancher_admin_url   = data.aws_ssm_parameter.rancher_admin_url.value
 
 
-  worker_cpu        = 4
-  worker_memory     = 16
+  worker_cpu        = 8
+  worker_memory     = 32
   worker_node_count = 2
 
   providers = {

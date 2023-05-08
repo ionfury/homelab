@@ -12,3 +12,7 @@ secretGenerator:
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: password
       disableNameSuffixHash: true
+patches:
+  - target:
+      kind: HelmRelease
+    path: patch-affinity.yaml
