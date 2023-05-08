@@ -13,6 +13,7 @@ secretGenerator:
         secret-generator.v1.mittwald.de/autogenerate: password
       disableNameSuffixHash: true
 patches:
+  # Harvester doesn't support RWX
   - target:
       kind: HelmRelease
     path: patch-affinity.yaml
