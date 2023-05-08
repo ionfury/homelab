@@ -7,8 +7,6 @@ grafana.ini:
   analytics:
     check_for_updates: false
     check_for_plugin_updates: false
-  auth:
-    oauth_auto_login: true
   auth.anonymous:
     enabled: false
   server:
