@@ -17,7 +17,8 @@ alertmanager:
     hosts:
       - alertmanager.${INTERNAL_DOMAIN}
     tls:
-      - hosts:
+      - secretName: alertmanager-tls
+        hosts:
           - alertmanager.${INTERNAL_DOMAIN}
 grafana:
   enabled: false
@@ -79,7 +80,8 @@ prometheus:
     hosts:
       - prometheus.${INTERNAL_DOMAIN}
     tls:
-      - hosts:
+      - secretName: prometheus-tls
+        hosts:
           - prometheus.${INTERNAL_DOMAIN}
   prometheusSpec:
     externalLabels:
