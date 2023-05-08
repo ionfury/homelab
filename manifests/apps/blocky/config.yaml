@@ -4,7 +4,9 @@ upstream:
     - 8.8.4.4
 customDNS:
   mapping:
+    rancher.tomnowak.work: ${RANCHER_IP_ADDRESS}
     tomnowak.work: ${INTERNAL_INGRESS_IP}
+
 prometheus:
   enable: true
   path: /metrics
