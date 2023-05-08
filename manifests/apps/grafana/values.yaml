@@ -1,7 +1,8 @@
 image:
   repository: docker.io/grafana/grafana
 replicas: 1
-deploymentStrategy: Recreate
+deploymentStrategy:
+  type: Recreate
 grafana.ini:
   analytics:
     check_for_updates: false
