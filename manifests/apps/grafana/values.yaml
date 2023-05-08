@@ -34,7 +34,8 @@ ingress:
   hosts:
     - grafana.${INTERNAL_DOMAIN}
   tls:
-    - hosts:
+    - secretName: grafana-tls
+      hosts:
         - grafana.${INTERNAL_DOMAIN}
 persistence:
   type: pvc
