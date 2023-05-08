@@ -1,0 +1,23 @@
+namePrefix: blocky-
+components:
+  - ../.templates/helm-release-app-template
+configurations:
+  - configuration.yaml
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+  - name: config
+    files:
+      - config.yml=config.yaml
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/values
+        value:
+          persistence:
+            config:
+              name: config

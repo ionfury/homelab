@@ -1,0 +1,10 @@
+upstream:
+  default:
+    - 8.8.8.8
+    - 8.8.4.4
+customDNS:
+  mapping:
+    - tomnowak.work: ${INTERNAL_INGRESS_IP}
+prometheus:
+  enable: true
+  path: /metrics

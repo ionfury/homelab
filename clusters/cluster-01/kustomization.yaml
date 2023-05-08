@@ -2,6 +2,7 @@ components:
   - ../../manifests/components/configurations/kustomization
 resources:
   - image-update-automation.yaml
+  - app-template-helm-repo.yaml
 
   - cert-manager
   - default
