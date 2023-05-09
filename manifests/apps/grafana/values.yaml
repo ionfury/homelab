@@ -42,6 +42,18 @@ ingress:
     - secretName: grafana-tls
       hosts:
         - grafana.${INTERNAL_DOMAIN}
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: default
+        orgId: 1
+        folder: ""
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
 persistence:
   type: pvc
   enabled: true
