@@ -18,6 +18,8 @@ grafana.ini:
     token_url: https://github.com/login/oauth/access_token
     api_url: https://api.github.com/user
     auto_assign_org_role: Admin
+envFromSecrets:
+  - name: grafana-github-client
 ingress:
   enabled: true
   pathType: Prefix
