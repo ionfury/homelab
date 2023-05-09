@@ -8,13 +8,3 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
-secretGenerator:
-  - name: grafana-admin-user
-    options:
-      disableNameSuffixHash: true
-      annotations:
-        secret-generator.v1.mittwald.de/type: basic-auth
-#patches:
-#  - target:
-#      kind: HelmRelease
-#    path: patch-secrets.yaml

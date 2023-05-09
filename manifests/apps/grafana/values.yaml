@@ -18,6 +18,11 @@ grafana.ini:
     token_url: https://github.com/login/oauth/access_token
     api_url: https://api.github.com/user
     auto_assign_org_role: Admin
+env:
+  GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
+  GF_EXPLORE_ENABLED: true
+  GF_FEATURE_TOGGLES_ENABLE: publicDashboards
+  GF_SERVER_ROOT_URL: https://grafana..${INTERNAL_DOMAIN}
 envFromSecrets:
   - name: grafana-github-client
 ingress:
