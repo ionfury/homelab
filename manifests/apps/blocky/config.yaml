@@ -5,7 +5,7 @@ upstream:
 customDNS:
   mapping:
     rancher.tomnowak.work: ${RANCHER_IP_ADDRESS}
-    harvester.tomnowak.work: ${HARVESTER_IP_ADDRESS}
+    harvester0.harvester.local/: ${HARVESTER_IP_ADDRESS}
     tomnowak.work: ${INTERNAL_INGRESS_IP}
 
 prometheus:
