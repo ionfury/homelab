@@ -55,7 +55,7 @@ datasources:
     datasources:
       - name: Prometheus
         type: prometheus
-        url: http://${CHART}-app-prometheus.${NAMESPACE}:9090/
+        url: http://kube-prometheus-stack-app-prometheus.${NAMESPACE}:9090/
         access: proxy
         isDefault: true
       - name: Loki
