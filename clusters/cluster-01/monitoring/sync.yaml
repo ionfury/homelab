@@ -87,21 +87,3 @@ spec:
     substitute:
       CHART: unpoller
       VERSION: 1.5.0
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
-kind: Kustomization
-metadata:
-  name: kubecost
-spec:
-  interval: 10m
-  path: ./manifests/apps/kubecost
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  postBuild:
-    substitute:
-      CHART: cost-analyzer
-      VERSION: 1.103.2
-      REPO: https://kubecost.github.io/cost-analyzer
