@@ -1,6 +1,8 @@
 namePrefix: unpoller-
 components:
   - ../.templates/helm-release-app-template
+resources:
+  - external-secret.yaml
 configMapGenerator:
   - name: values
     behavior: replace
