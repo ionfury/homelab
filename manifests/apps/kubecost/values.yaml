@@ -1,7 +1,7 @@
 global:
   prometheus:
     enabled: false
-    fqdn: http://kube-prometheus-stack-app-prometheus:9090/monitoring.svc
+    fqdn: http://kube-prometheus-stack-app-prometheus.monitoring.svc:9090
   grafana:
     enabled: false
     fqdn: http://grafana-app.monitoring.svc
