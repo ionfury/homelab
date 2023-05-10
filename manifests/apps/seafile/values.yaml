@@ -23,7 +23,7 @@ ingress:
       gethomepage.dev/description: "Testing"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "seafile.png"
-    hosts: seafile.${INTERNAL_DOMAIN}
+    host: seafile.${INTERNAL_DOMAIN}
     tls:
       host: seafile.${INTERNAL_DOMAIN}
       secretName: "seafile-tls"
