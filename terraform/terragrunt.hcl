@@ -54,6 +54,10 @@ terraform {
       source = "rancher/rancher2"
       version = "2.0.0"
     }
+    unifi = {
+      source = "paultyng/unifi"
+      version = "0.41.0"
+    }
   }
 }
 
@@ -78,6 +82,12 @@ provider "github" {
 provider "cloudflare" {
   email = "ionfury@gmail.com"
   api_key = "$${data.aws_ssm_parameter.cloudflare_api_key.value}"
+}
+provider "unifi" {
+  # use UNIFI_USERNAME env var
+  # use UNIFI_PASSWORD env var
+  api_url = "https://192.168.1.1"
+  allow_insecure = true
 }
 EOF
 }

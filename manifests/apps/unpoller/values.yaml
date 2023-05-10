@@ -1,0 +1,29 @@
+image:
+  repository: ghcr.io/unpoller/unpoller
+  tag: v2.7.13
+env:
+  TZ: America/New_York
+  UP_UNIFI_DEFAULT_URL: https://192.168.1.1:8443
+  UP_UNIFI_DEFAULT_VERIFY_SSL: false
+  UP_INFLUXDB_DISABLE: true
+envFrom:
+  - secretRef:
+      name: unpoller-unifi-secret
+service:
+  main:
+    ports:
+      http:
+        port: 9130
+serviceMonitor:
+  main:
+    enabled: true
+    endpoints:
+      - port: http
+        scheme: http
+        path: /metrics
+        interval: 2m # Unifi API only polls at 2m intervals
+        scrapeTimeout: 5s
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi

@@ -38,24 +38,6 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: pihole
-spec:
-  interval: 10m
-  path: ./manifests/apps/pihole
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  postBuild:
-    substitute:
-      CHART: pihole
-      VERSION: 2.14.0
-      REPO: https://mojo2600.github.io/pihole-kubernetes/
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
-kind: Kustomization
-metadata:
   name: external-dns
 spec:
   interval: 10m
@@ -86,4 +68,4 @@ spec:
   postBuild:
     substitute:
       CHART: blocky
-      VERSION: 1.3.2
+      VERSION: 1.5.0

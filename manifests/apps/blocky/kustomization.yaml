@@ -1,8 +1,6 @@
 namePrefix: blocky-
 components:
   - ../.templates/helm-release-app-template
-configurations:
-  - configuration.yaml
 configMapGenerator:
   - name: values
     behavior: replace
