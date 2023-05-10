@@ -1,6 +1,7 @@
 global:
   prometheus:
     enabled: false
+    fqdn: http://kube-prometheus-stack-app-prometheus:9090.monitoring.svc
 serviceMonitor:
   enabled: true
   networkCosts:
