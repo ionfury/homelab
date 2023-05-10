@@ -1,0 +1,46 @@
+global:
+  prometheus:
+    enabled: false
+serviceMonitor:
+  enabled: true
+  networkCosts:
+    enabled: false
+prometheusRule:
+  enabled: true
+grafana:
+  enabled: false
+nodeExporter:
+  enabled: false
+kube-state-metrics:
+  disabled: true
+alertmanager:
+  enabled: true
+  fqdn: http://kube-prometheus-stack-app-alertmanager.monitoring.svc
+kubecostMetrics:
+  exporter:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      networkCosts:
+        enabled: false
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: cloudflare
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Kubecost"
+    gethomepage.dev/description: "Kubecost helps you monitor and manage cost and capacity in Kubernetes environments."
+    gethomepage.dev/group: "Share"
+    gethomepage.dev/icon: "kubecost.png"
+    hosts:
+      - host: cost.tomnowak.work
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: kubecost-tls
+        hosts:
+          - cost.tomnowak.work
+persistentVolume:
+  storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
