@@ -1,0 +1,36 @@
+seafile:
+  image: docker.io/300481/seafile:8.0.5-20210627
+  pause: false
+  persistence:
+    size: 10Gi
+  environment:
+    - name: TIME_ZONE
+      value: "Etc/UTC"
+    - name: SEAFILE_ADMIN_EMAIL
+      value: "seafileadmin@example.com"
+    - name: SEAFILE_ADMIN_PASSWORD
+      value: "secretpassword"
+    - name: SEAFILE_SERVER_HOSTNAME
+      value: "seafile.${INTERNAL_DOMAIN}"
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: cloudflare
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Seafrile"
+      gethomepage.dev/description: "Testing"
+      gethomepage.dev/group: "Share"
+      gethomepage.dev/icon: "seafile.png"
+    hosts:
+      - host: "seafile.${INTERNAL_DOMAIN}"
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - "files.${INTERNAL_DOMAIN}"
+        secretName: "seafile-tls"
+memcached:
+  enabled: false
