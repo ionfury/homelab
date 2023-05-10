@@ -83,7 +83,37 @@ datasources:
         jsonData:
           implementation: prometheus
 dashboards:
-  default:
+  unifi:
+    unifi-dpi:
+      # https://grafana.com/grafana/dashboards/11310-unifi-poller-client-dpi-prometheus/?tab=revisions
+      gnetId: 11310
+      revision: 5
+      datasource: Prometheus
+    unifi-sites:
+      # https://grafana.com/grafana/dashboards/11311-unifi-poller-network-sites-prometheus/
+      gnetId: 11311
+      revision: 5
+      datasource: Prometheus
+    unifi-usw:
+      # https://grafana.com/grafana/dashboards/11312-unifi-poller-usw-insights-prometheus/
+      gnetId: 11312
+      revision: 9
+      datasource: Prometheus
+    unifi-usg:
+      # https://grafana.com/grafana/dashboards/11313-unifi-poller-usg-insights-prometheus/
+      gnetId: 11313
+      revision: 9
+      datasource: Prometheus
+    unifi-uap:
+      # https://grafana.com/grafana/dashboards/11314-unifi-poller-uap-insights-prometheus/
+      gnetId: 11314
+      revision: 10
+      datasource: Prometheus
+    unifi-client:
+      # https://grafana.com/grafana/dashboards/11315-unifi-poller-client-insights-prometheus/
+      gnetId: 11315
+      datasource: Prometheus
+  flux:
     flux-cluster:
       url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/monitoring-config/dashboards/cluster.json
       datasource: Prometheus
@@ -93,6 +123,7 @@ dashboards:
     flux-logs:
       url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/monitoring-config/dashboards/logs.json
       datasource: Prometheus
+  default:
     kubernetes-api-server:
       url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
       datasource: Prometheus
