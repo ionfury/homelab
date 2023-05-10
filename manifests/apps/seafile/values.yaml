@@ -33,6 +33,8 @@ mariadb:
     debug: true
   auth:
     rootPassword: generated-pw-needed-for-chart-upgrade
+    username: meme
+    password: nomeme
   primary:
     livenessProbe:
       enabled: false
