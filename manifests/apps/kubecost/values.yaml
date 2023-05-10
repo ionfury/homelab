@@ -4,7 +4,8 @@ global:
     fqdn: http://kube-prometheus-stack-app-prometheus.monitoring.svc:9090
   grafana:
     enabled: false
-    fqdn: http://grafana-app.monitoring.svc
+    domainName: http://grafana-app.monitoring.svc
+    proxy: false
 kubecostProductConfigs:
   grafanaURL: https://grafana.${INTERNAL_DOMAIN}
 grafana:
