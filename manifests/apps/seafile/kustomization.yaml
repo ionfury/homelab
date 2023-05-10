@@ -1,4 +1,4 @@
-namePrefix: secret-generators-
+namePrefix: seafile-
 components:
   - ../.templates/helm-release
 configMapGenerator:
