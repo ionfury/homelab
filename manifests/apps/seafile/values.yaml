@@ -29,16 +29,18 @@ memcached:
   enabled: false
 
 mariadb:
+  image:
+    debug: true
   auth:
     rootPassword: generated-pw-needed-for-chart-upgrade
   primary:
-    #extraVolumes:
-    #  - name: mnt-data-db
-    #    persistentVolumeClaim:
-    #      claimName: mnt-data-db
-    #extraVolumeMounts:
-    #  - mountPath: "/mnt/data/db"
-    #    name: mnt-data-db
+    extraVolumes:
+      - name: mnt-data-db
+        persistentVolumeClaim:
+          claimName: mnt-data-db
+    extraVolumeMounts:
+      - mountPath: "/mnt/data/db"
+        name: mnt-data-db
     livenessProbe:
       enabled: false
     readinessProbe:
