@@ -13,19 +13,17 @@ seafile:
     - name: SEAFILE_SERVER_HOSTNAME
       value: "seafile.${INTERNAL_DOMAIN}"
 ingress:
-  main:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: cloudflare
-      gethomepage.dev/enabled: "true"
-      gethomepage.dev/name: "Seafrile"
-      gethomepage.dev/description: "Testing"
-      gethomepage.dev/group: "Share"
-      gethomepage.dev/icon: "seafile.png"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: cloudflare
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Seafrile"
+    gethomepage.dev/description: "Testing"
+    gethomepage.dev/group: "Share"
+    gethomepage.dev/icon: "seafile.png"
+  host: seafile.${INTERNAL_DOMAIN}
+  tls:
     host: seafile.${INTERNAL_DOMAIN}
-    tls:
-      host: seafile.${INTERNAL_DOMAIN}
-      secretName: "seafile-tls"
+    secretName: "seafile-tls"
 memcached:
   enabled: false
