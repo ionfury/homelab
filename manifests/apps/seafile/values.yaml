@@ -23,14 +23,9 @@ ingress:
       gethomepage.dev/description: "Testing"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "seafile.png"
-    hosts:
-      - host: "seafile.${INTERNAL_DOMAIN}"
-        paths:
-          - path: /
-            pathType: Prefix
+    hosts: seafile.${INTERNAL_DOMAIN}
     tls:
-      - hosts:
-          - "files.${INTERNAL_DOMAIN}"
-        secretName: "seafile-tls"
+      host: seafile.${INTERNAL_DOMAIN}
+      secretName: "seafile-tls"
 memcached:
   enabled: false
