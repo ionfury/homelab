@@ -34,10 +34,7 @@ ingress:
     gethomepage.dev/group: "Share"
     gethomepage.dev/icon: "kubecost.png"
   hosts:
-    - host: cost.tomnowak.work
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
+    - cost.tomnowak.work
   tls:
     - secretName: kubecost-tls
       hosts:
