@@ -6,6 +6,8 @@ env:
   UP_UNIFI_DEFAULT_URL: https://192.168.1.1:443
   UP_UNIFI_DEFAULT_VERIFY_SSL: false
   UP_INFLUXDB_DISABLE: true
+  UP_UNIFI_DEFAULT_SAVE_DPI: true
+  UP_UNIFI_DEFAULT_SAVE_SITES: true
 envFrom:
   - secretRef:
       name: unpoller-unifi-secret
