@@ -52,3 +52,15 @@ ingress:
         - cost.tomnowak.work
 persistentVolume:
   storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+defaultModelPricing:
+  CPU: 1.259817
+  spotCPU: 0
+  RAM: 0.095321
+  spotRAM: 0
+  GPU: 0
+  spotGPU: 0
+  storage: 0.000433
+  zoneNetworkEgress: 0.00
+  regionNetworkEgress: 0.00
+  internetNetworkEgress: 0.00
+  enabled: true
