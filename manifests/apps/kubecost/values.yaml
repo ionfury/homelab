@@ -33,14 +33,14 @@ ingress:
     gethomepage.dev/description: "Kubecost helps you monitor and manage cost and capacity in Kubernetes environments."
     gethomepage.dev/group: "Share"
     gethomepage.dev/icon: "kubecost.png"
-    hosts:
-      - host: cost.tomnowak.work
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls:
-      - secretName: kubecost-tls
-        hosts:
-          - cost.tomnowak.work
+  hosts:
+    - host: cost.tomnowak.work
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: kubecost-tls
+      hosts:
+        - cost.tomnowak.work
 persistentVolume:
   storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
