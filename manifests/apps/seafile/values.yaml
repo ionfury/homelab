@@ -27,3 +27,19 @@ ingress:
     secretName: "seafile-tls"
 memcached:
   enabled: false
+
+mariadb:
+  auth:
+    rootPassword: generated-pw-needed-for-chart-upgrade
+  primary:
+    #extraVolumes:
+    #  - name: mnt-data-db
+    #    persistentVolumeClaim:
+    #      claimName: mnt-data-db
+    #extraVolumeMounts:
+    #  - mountPath: "/mnt/data/db"
+    #    name: mnt-data-db
+    livenessProbe:
+      enabled: false
+    readinessProbe:
+      enabled: false
