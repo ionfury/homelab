@@ -5,6 +5,8 @@ global:
   grafana:
     enabled: false
     fqdn: http://grafana-app.monitoring.svc
+kubecostProductConfigs:
+  grafanaURL: https://grafana.${INTERNAL_DOMAIN}
 grafana:
   sidecar:
     dashboards:
