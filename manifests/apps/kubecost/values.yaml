@@ -2,14 +2,21 @@ global:
   prometheus:
     enabled: false
     fqdn: http://kube-prometheus-stack-app-prometheus:9090.monitoring.svc
+  grafana:
+    enabled: false
+    fqdn: http://grafana-app.monitoring.svc
+grafana:
+  sidecar:
+    dashboards:
+      enabled: true
+    datasources:
+      enabled: false
 serviceMonitor:
   enabled: true
   networkCosts:
     enabled: false
 prometheusRule:
   enabled: true
-grafana:
-  enabled: false
 nodeExporter:
   enabled: false
 kube-state-metrics:
