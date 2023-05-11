@@ -4,10 +4,10 @@ image:
 extraArgs:
   - "--config.file=/config/snmp.yaml"
 extraConfigmapMounts:
-  - name: dell-idrac-snmp-exporter
+  - name: dell-idrac-snmp-exporter--config
     mountPath: /config/snmp.yaml
     subPath: snmp.yaml
-    configMap: dell-idrac-snmp-exporter
+    configMap: dell-idrac-snmp-exporter-config
     readOnly: true
     defaultMode: 420
 serviceMonitor:
