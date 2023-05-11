@@ -1,5 +1,0 @@
-resources:
-  - flux-system
-  - ../../manifests/resources/cloudflare-issuer
-  - ../../manifests/resources/rancher
-
