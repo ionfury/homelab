@@ -7,7 +7,16 @@ configMapGenerator:
     files:
       - values.yaml
   - name: config
-    options:
-      disableNameSuffixHash: true
     files:
       - snmp.yaml
+    options:
+      disableNameSuffixHash: true
+  - name: dell-idrac-dashboard
+    files:
+      - dell-idrac-dashboard.json=./dashboard.json
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+      labels:
+        grafana_dashboard: "true"
