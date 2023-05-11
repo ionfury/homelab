@@ -1,0 +1,13 @@
+namePrefix: dell-idrac-snmp-exporter-
+components:
+  - ../.templates/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+  - name: dell-idrac-snmp-exporter
+    options:
+      disableNameSuffixHash: true
+    files:
+      - snmp.yaml

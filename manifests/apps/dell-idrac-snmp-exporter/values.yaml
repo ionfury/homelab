@@ -1,0 +1,25 @@
+fullnameOverride: dell-idrac-snmp-exporter
+image:
+  repository: quay.io/prometheus/snmp-exporter
+extraArgs:
+  - "--config.file=/config/snmp.yaml"
+extraConfigmapMounts:
+  - name: dell-idrac-snmp-exporter
+    mountPath: /config/snmp.yaml
+    subPath: snmp.yaml
+    configMap: dell-idrac-snmp-exporter
+    readOnly: true
+    defaultMode: 420
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  params:
+    - name: harvester0
+      module:
+        - dell
+      target: ${IDRAC_ADDRESS}
+  path: /snmp
+  scrapeTimeout: 10s
+  relabelings:
+    - sourceLabels: [__param_target]
+      targetLabel: instance
