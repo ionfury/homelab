@@ -4,7 +4,7 @@ image:
 extraArgs:
   - "--config.file=/config/snmp.yaml"
 extraConfigmapMounts:
-  - name: dell-idrac-snmp-exporter--config
+  - name: dell-idrac-snmp-exporter-config
     mountPath: /config/snmp.yaml
     subPath: snmp.yaml
     configMap: dell-idrac-snmp-exporter-config

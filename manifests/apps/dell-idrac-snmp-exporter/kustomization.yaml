@@ -6,7 +6,7 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
-  - name: dell-idrac-snmp-exporter
+  - name: config
     options:
       disableNameSuffixHash: true
     files:
