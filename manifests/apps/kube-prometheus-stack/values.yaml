@@ -11,8 +11,6 @@ alertmanager:
       group_interval: 5m
       repeat_interval: 3h
       receiver: discord # Defined in secrets
-    receivers:
-      - name: "null"
   ingress:
     enabled: true
     pathType: Prefix
