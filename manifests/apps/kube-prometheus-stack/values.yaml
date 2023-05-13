@@ -14,10 +14,10 @@ alertmanager:
     receivers:
       - name: "null"
       - name: "discord"
-        slack_configs:
+        discord_configs:
           - channel: alerts
             username: Alertmanager
-            api_url_file: /etc/alertmanager/secrets/alertmanager-discord-webhook/discord
+            webhook_url: https://discord.com/api/webhooks/1106772724677873734/GH3CDHT9HqbIfMWiLDcWjGdKHhTBqujgx5qde_9HzRocpXwF_ep7ZnTYM-qcztUgwE95
   ingress:
     enabled: true
     pathType: Prefix
