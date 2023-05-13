@@ -129,13 +129,13 @@ spec:
     - name: test
       rules:
         - alert: Test1
-          expr: up{job="node"} == 0
+          expr: vector(1)
           labels:
             severity: critical
           annotations:
             summary: Instance is down
         - alert: InstanceDown
-          expr: up{job="node"} == 0
+          expr: vector(1)
           labels:
             severity: warning
           annotations:
