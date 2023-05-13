@@ -4,7 +4,7 @@ defaultRules:
 alertmanager:
   enabled: true
   secrets:
-    - kube-prometheus-stack-alertmanager-secrets
+    - alertmanager-discord-webhook
   config:
     route:
       group_by:
@@ -104,8 +104,10 @@ prometheus:
     externalLabels:
       prometheus_source: ${CLUSTER_NAME}
     retentionSize: 99GiB
+    ruleSelectorNilUsesHelmValues: false
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
     storageSpec:
       volumeClaimTemplate:
         spec:
