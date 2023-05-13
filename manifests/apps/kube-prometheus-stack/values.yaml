@@ -38,7 +38,7 @@ alertmanager:
         hosts:
           - alertmanager.${INTERNAL_DOMAIN}
   alertmanagerSpec:
-    replicas: 2
+    replicas: 1
 grafana:
   enabled: false
   forceDeployDashboards: true
@@ -103,7 +103,7 @@ prometheus:
         hosts:
           - prometheus.${INTERNAL_DOMAIN}
   prometheusSpec:
-    replicas: 2
+    replicas: 1
     externalLabels:
       prometheus_source: ${CLUSTER_NAME}
     retentionSize: 99GiB
