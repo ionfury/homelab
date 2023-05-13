@@ -1,6 +1,8 @@
 namePrefix: dell-idrac-snmp-exporter-
 components:
   - ../.templates/helm-release
+resources:
+  - prometheus-rule.yaml
 configMapGenerator:
   - name: values
     behavior: replace
