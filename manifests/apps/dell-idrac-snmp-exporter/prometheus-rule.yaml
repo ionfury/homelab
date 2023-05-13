@@ -126,17 +126,3 @@ spec:
           for: 1m
           labels:
             severity: critical
-    - name: test
-      rules:
-        - alert: Test1
-          expr: vector(1)
-          labels:
-            severity: critical
-          annotations:
-            summary: Instance is down
-        - alert: InstanceDown
-          expr: vector(1)
-          labels:
-            severity: warning
-          annotations:
-            summary: Instance is down
