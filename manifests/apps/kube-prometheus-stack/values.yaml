@@ -15,9 +15,7 @@ alertmanager:
       - name: "null"
       - name: "discord"
         discord_configs:
-          - channel: alerts
-            username: Alertmanager
-            webhook_url: https://discord.com/api/webhooks/1106772724677873734/GH3CDHT9HqbIfMWiLDcWjGdKHhTBqujgx5qde_9HzRocpXwF_ep7ZnTYM-qcztUgwE95
+          - webhook_url: https://discord.com/api/webhooks/1106772724677873734/GH3CDHT9HqbIfMWiLDcWjGdKHhTBqujgx5qde_9HzRocpXwF_ep7ZnTYM-qcztUgwE95
   ingress:
     enabled: true
     pathType: Prefix
