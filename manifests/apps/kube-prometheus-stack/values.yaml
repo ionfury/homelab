@@ -3,8 +3,6 @@ defaultRules:
   create: true
 alertmanager:
   enabled: true
-  secrets:
-    - alertmanager-discord-webhook
   config:
     route:
       group_by:
@@ -39,6 +37,8 @@ alertmanager:
           - alertmanager.${INTERNAL_DOMAIN}
   alertmanagerSpec:
     replicas: 1
+    secrets:
+      - alertmanager-discord-webhook
 grafana:
   enabled: false
   forceDeployDashboards: true
