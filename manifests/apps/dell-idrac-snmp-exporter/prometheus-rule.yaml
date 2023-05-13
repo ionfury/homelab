@@ -20,7 +20,7 @@ spec:
               systemStateBatteryStatusCombined == 4
             )
           for: 1m
-          label:
+          labels:
             severity: warning
         - alert: SystemBatteryStatusWarning
           annotations:
@@ -34,13 +34,14 @@ spec:
               systemStateBatteryStatusCombined == 6
             )
           for: 1m
-          label:
+          labels:
             severity: critical
     - name: dell-idrac-snmp-exporter.temperatureRules
       rules:
         - alert: SystemTemperatureStatusWarning
-          annotations: "{{ $labels.target }} reporting system temperature status warning code."
-          summary: Temperature status warning.
+          annotations:
+            description: "{{ $labels.target }} reporting system temperature status warning code."
+            summary: Temperature status warning.
           expr: |
             (
               systemStateBatteryStatusCombined == 1
@@ -50,11 +51,12 @@ spec:
               systemStateBatteryStatusCombined == 4
             )
           for: 1m
-          label:
+          labels:
             severity: warning
         - alert: SystemTemperatureStatusCritical
-          annotations: "{{ $labels.target }} reporting system temperature status critical code."
-          summary: Temperature status critical.
+          annotations:
+            description: "{{ $labels.target }} reporting system temperature status critical code."
+            summary: Temperature status critical.
           expr: |
             (
               systemStateBatteryStatusCombined == 5
@@ -62,13 +64,14 @@ spec:
               systemStateBatteryStatusCombined == 6
             )
           for: 1m
-          label:
+          labels:
             severity: critical
     - name: dell-idrac-snmp-exporter.powerSupplyRules
       rules:
         - alert: PowerSupplyStatusWarning
-          annotations: "{{ $labels.target }} Power Supply {{ $labels.powerSupplyIndex}} reporting warning code."
-          summary: Power Supply status warning.
+          annotations:
+            description: "{{ $labels.target }} Power Supply {{ $labels.powerSupplyIndex}} reporting warning code."
+            summary: Power Supply status warning.
           expr: |
             (
               powerSupplyStatus == 1
@@ -78,11 +81,12 @@ spec:
               powerSupplyStatus == 4
             )
           for: 1m
-          label:
+          labels:
             severity: warning
         - alert: PowerSupplyStatusCritical
-          annotations: "{{ $labels.target }} Power Supply {{ $labels.powerSupplyIndex}} reporting critical code."
-          summary: Power Supply status warning.
+          annotations:
+            description: "{{ $labels.target }} Power Supply {{ $labels.powerSupplyIndex}} reporting critical code."
+            summary: Power Supply status warning.
           expr: |
             (
               powerSupplyStatus == 5
@@ -90,13 +94,14 @@ spec:
               powerSupplyStatus == 6
             )
           for: 1m
-          label:
+          labels:
             severity: critical
     - name: dell-idrac-snmp-exporter.physicalDiskRules
       rules:
         - alert: PhysicalDiskStatusWarning
-          annotations: "{{ $labels.target }} {{ $labels.physicalDiskDisplayName }} is reporting warning code."
-          summary: Physical disk status warning.
+          annotations:
+            description: "{{ $labels.target }} {{ $labels.physicalDiskDisplayName }} is reporting warning code."
+            summary: Physical disk status warning.
           expr: |
             (
               physicalDiskComponentStatus == 1
@@ -106,11 +111,12 @@ spec:
               physicalDiskComponentStatus == 4
             ) * on(physicalDiskNumber) group_left(physicalDiskDisplayName) physicalDiskDisplayName
           for: 1m
-          label:
+          labels:
             severity: warning
         - alert: PhysicalDiskStatusCritical
-          annotations: "{{ $labels.target }} {{ $labels.physicalDiskDisplayName }} is reporting critical code."
-          summary: Physical disk status critical.
+          annotations:
+            description: "{{ $labels.target }} {{ $labels.physicalDiskDisplayName }} is reporting critical code."
+            summary: Physical disk status critical.
           expr: |
             (
               physicalDiskComponentStatus == 5
@@ -118,5 +124,5 @@ spec:
               physicalDiskComponentStatus == 6
             ) * on(physicalDiskNumber) group_left(physicalDiskDisplayName) physicalDiskDisplayName
           for: 1m
-          label:
+          labels:
             severity: critical
