@@ -84,6 +84,11 @@ datasources:
           implementation: prometheus
 dashboards:
   default:
+    nginx-ingress:
+      # https://grafana.com/grafana/dashboards/9614-nginx-ingress-controller/
+      gnetId: 9614
+      revision: 1
+      datasource: Prometheus
     unifi-dpi:
       # https://grafana.com/grafana/dashboards/11310-unifi-poller-client-dpi-prometheus/?tab=revisions
       gnetId: 11310
