@@ -3,6 +3,23 @@ defaultRules:
   create: true
 alertmanager:
   enabled: true
+  secrets:
+    - kube-prometheus-stack-alertmanager-secrets
+  config:
+    route:
+      group_by:
+        - alertname
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+      receiver: discord # Defined in secrets
+    receivers:
+      - name: "null"
+      - name: "discord"
+        slack_configs:
+          - channel: alerts
+            username: Grafana
+            api_url_file: /etc/alertmanager/secrets/alertmanager-secrets/discord
   ingress:
     enabled: true
     pathType: Prefix
