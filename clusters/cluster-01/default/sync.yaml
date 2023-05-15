@@ -17,24 +17,24 @@ spec:
       VERSION: 1.0.0
       REPO: https://jameswynn.github.io/helm-charts
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
-kind: Kustomization
-metadata:
-  name: seafile
-spec:
-  interval: 10m
-  path: ./manifests/apps/seafile
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  postBuild:
-    substitute:
-      CHART: seafile
-      VERSION: 0.5.2
-      REPO: https://300481.github.io/charts/
----
+#apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+#kind: Kustomization
+#metadata:
+#  name: seafile
+#spec:
+#  interval: 10m
+#  path: ./manifests/apps/seafile
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
+#    namespace: flux-system
+#  postBuild:
+#    substitute:
+#      CHART: seafile
+#      VERSION: 0.5.2
+#      REPO: https://300481.github.io/charts/
+#---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
