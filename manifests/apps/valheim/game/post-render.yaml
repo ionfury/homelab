@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: not-used
+spec:
+  postRenderers:
+    - kustomize:
+        patchesStrategicMerge:
+          - kind: Service
+            apiVersion: v1
+            metadata:
+              name: valheim
+              namespace: valheim
+              annotations:
+                cloudprovider.harvesterhci.io/ipam: dhcp

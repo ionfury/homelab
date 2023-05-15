@@ -1,0 +1,35 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: valheim
+spec:
+  interval: 10m
+  path: ./manifests/apps/valheim/game
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: valheim-k8s
+      VERSION: 1.2.0
+      REPO: https://addyvan.github.io/valheim-k8s/
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: valheim-exporter
+spec:
+  interval: 10m
+  path: ./manifests/apps/valheim/exporter
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: valheim-exporter
+      VERSION: 1.5.0

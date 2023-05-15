@@ -1,0 +1,19 @@
+namePrefix: valheim-
+components:
+  - ../../.templates/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+secretGenerator:
+  - name: secret-values
+    behavior: replace
+    options:
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: password
+patches:
+  - target:
+      kind: HelmRelease
+      name: app
+    path: post-render.yaml

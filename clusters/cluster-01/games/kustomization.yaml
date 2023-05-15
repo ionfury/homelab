@@ -1,0 +1,5 @@
+namespace: games
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - sync.yaml

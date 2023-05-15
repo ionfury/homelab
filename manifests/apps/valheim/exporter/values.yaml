@@ -1,0 +1,40 @@
+image:
+  repository: armsnyder/a2s-exporter
+  tag: v0.3.0
+env:
+  - name: A2S_EXPORTER_QUERY_ADDRESS
+    value: valheim.${NAMESPACE}.svc.cluster.local:2457
+  - name: A2S_EXPORTER_PORT
+    value: "8000"
+  - name: A2S_EXPORTER_PATH
+    value: /metrics
+  - name: A2S_EXPORTER_NAMESPACE
+    value: valheim
+ports:
+  http:
+    port: 8000
+probes:
+  liveness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        port: http
+        path: metrics
+  readiness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        port: http
+        path: metrics
+  startup:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        port: http
+        path: metrics
+serviceMonitor:
+  main:
+    enabled: true
