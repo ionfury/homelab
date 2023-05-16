@@ -10,9 +10,14 @@ env:
     value: /metrics
   - name: A2S_EXPORTER_NAMESPACE
     value: valheim
-ports:
-  http:
-    port: 8000
+service:
+  main:
+    ports:
+      http:
+        port: 8000
+serviceMonitor:
+  main:
+    enabled: true
 probes:
   liveness:
     enabled: true
@@ -35,6 +40,3 @@ probes:
       httpGet:
         port: http
         path: metrics
-serviceMonitor:
-  main:
-    enabled: true

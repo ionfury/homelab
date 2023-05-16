@@ -1,20 +1,60 @@
-worldName: plexheim
-serverName: valheim.tomnowak.work
+image:
+  repository: lloesche/valheim-server
+  tag: latest
+  pullPolicy: Always
+envFrom:
+  - secretRef:
+      name: valheim-envs
+service:
+  main:
+    type: LoadBalancer
+    externalTrafficPolicy: Cluster
+    annotations:
+      cloudprovider.harvesterhci.io/ipam: dhcp
+    ports:
+      http:
+        port: 80
+      steam1:
+        port: 2456
+        protocol: UDP
+      steam2:
+        port: 2457
+        protocol: UDP
+      steam3:
+        port: 2458
+        protocol: UDP
+      supervisor:
+        port: 9001
+        protocol: TCP
+ingress:
+  main:
+    enabled: true
+    hosts:
+      - host: "valheim.${INTERNAL_DOMAIN}"
+        paths:
+          - path: /
+    tls:
+      - hosts:
+          - "valheim.${INTERNAL_DOMAIN}"
+        secretName: valheim-tls
+persistence:
+  # Persist config
+  config:
+    enabled: true
+    mountPath: /config
+    retain: true
+    accessMode: ReadWriteOnce
+    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    size: 5Gi
+  # Persist World
+  data:
+    enabled: true
+    mountPath: /opt/valheim
+    retain: true
+    accessMode: ReadWriteOnce
+    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+    size: 20Gi
 resources:
   requests:
     memory: 8Gi
     cpu: 2000m
-networking:
-  serviceType: LoadBalancer
-storage:
-  kind: persistentVolumeClaim
-  pvc:
-    storageClassName: harvester-hdd
-    size: 20Gi
-extraEnvironmentVars:
-  BACKUPS_MAX_COUNT: 10
-serverStorage:
-  kind: persistentVolumeClaim
-  pvc:
-    storageClassName: harvester-hdd
-    size: 10Gi

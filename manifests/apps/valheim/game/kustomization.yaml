@@ -7,13 +7,22 @@ configMapGenerator:
     files:
       - values.yaml
 secretGenerator:
-  - name: secret-values
-    behavior: replace
+  - name: envs
+    behavior: create
     options:
+      disableNameSuffixHash: true
       annotations:
-        secret-generator.v1.mittwald.de/autogenerate: password
-patches:
-  - target:
-      kind: HelmRelease
-      name: app
-    path: post-render.yaml
+        secret-generator.v1.mittwald.de/autogenerate: SERVER_PASS,SUPERVISOR_HTTP_PASS
+    literals:
+      - SERVER_NAME=valheim.${INTERNAL_DOMAIN}
+      - WORLD_NAME=plexheim
+      - SERVER_PUBLIC=true
+      - BACKUPS_MAX_COUNT=10
+      - PUBLIC_TEST=false
+      - STATUS_HTTP=true
+      - RESTART_MSG="Server is restarting..."
+      - START_MSG="Server is up!"
+      - UPDATE_RESTART_MSG="Valeim is restarting to apply an update!"
+      - BACKUP_MSG="Valheim backup to file @BACKUP_FILE@ is starting"
+      - SUPERVISOR_HTTP=true
+      - TZ="America/New_York"
