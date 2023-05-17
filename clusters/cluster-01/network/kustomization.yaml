@@ -2,4 +2,5 @@ namespace: network
 components:
   - ../../../manifests/components/namespace
 resources:
-  - sync.yaml
+  - blocky.yaml
+  - ingress-nginx.yaml
