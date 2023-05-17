@@ -29,6 +29,9 @@ service:
 ingress:
   main:
     enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: cloudflare
     hosts:
       - host: "valheim.${INTERNAL_DOMAIN}"
         paths:
