@@ -13,7 +13,7 @@ spec:
     namespace: flux-system
   postBuild:
     substitute:
-      CHART: valheim-exporter
+      CHART: valheim
       VERSION: 1.5.0
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
