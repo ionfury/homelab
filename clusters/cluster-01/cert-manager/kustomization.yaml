@@ -2,5 +2,5 @@ namespace: cert-manager
 components:
   - ../../../manifests/components/namespace
 resources:
-  - sync.yaml
-
+  - cert-manager.yaml
+  - issuers.yaml

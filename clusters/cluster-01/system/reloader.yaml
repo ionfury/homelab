@@ -1,15 +1,17 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: not-used
+  name: reloader
 spec:
   interval: 10m
+  path: ./manifests/apps/reloader
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
   postBuild:
-    substituteFrom:
-      - kind: ConfigMap
-        name: cluster-vars
+    substitute:
+      CHART: reloader
+      VERSION: v1.0.24
+      REPO: https://stakater.github.io/stakater-charts

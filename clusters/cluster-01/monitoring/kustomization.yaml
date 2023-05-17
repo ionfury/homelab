@@ -2,5 +2,10 @@ namespace: monitoring
 components:
   - ../../../manifests/components/namespace
 resources:
-  - sync.yaml
-
+  - dell-idrac-snmp-exporter.yaml
+  - grafana.yaml
+  - kube-prometheus-stack.yaml
+  - kubecost.yaml
+  - loki.yaml
+  - promtail.yaml
+  - unpoller.yaml

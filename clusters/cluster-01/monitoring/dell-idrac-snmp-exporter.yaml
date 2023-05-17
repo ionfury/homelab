@@ -1,0 +1,17 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: dell-idrac-snmp-exporter
+spec:
+  interval: 10m
+  path: ./manifests/apps/dell-idrac-snmp-exporter
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substitute:
+      CHART: prometheus-snmp-exporter
+      VERSION: 1.4.0
+      REPO: https://prometheus-community.github.io/helm-charts

@@ -3,7 +3,6 @@ components:
 resources:
   - image-update-automation.yaml
   - app-template-helm-repo.yaml
-
   - cert-manager
   - default
   - flux-system

@@ -2,4 +2,5 @@ namespace: policy
 components:
   - ../../../manifests/components/namespace
 resources:
-  - sync.yaml
+  - kyverno.yaml
+  - kyverno-policies.yaml

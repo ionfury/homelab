@@ -2,4 +2,8 @@ namespace: system
 components:
   - ../../../manifests/components/namespace
 resources:
-  - sync.yaml
+  - external-secrets-stores.yaml
+  - external-secrets.yaml
+  - harvester-storage-classes.yaml
+  - reloader.yaml
+  - secret-generator.yaml

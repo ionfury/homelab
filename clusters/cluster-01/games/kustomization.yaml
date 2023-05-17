@@ -2,4 +2,5 @@ namespace: games
 components:
   - ../../../manifests/components/namespace
 resources:
-  - sync.yaml
+  - valheim.yaml
+  - valheim-exporter.yaml

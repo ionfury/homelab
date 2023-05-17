@@ -1,15 +1,16 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: not-used
+  name: valheim
 spec:
   interval: 10m
+  path: ./manifests/apps/valheim/game
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
   postBuild:
-    substituteFrom:
-      - kind: ConfigMap
-        name: cluster-vars
+    substitute:
+      CHART: valheim
+      VERSION: 1.5.0

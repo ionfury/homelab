@@ -1,5 +1,5 @@
 namespace: kube-system
 resources:
-  - sync.yaml
+  - descheduler.yaml
 components:
   - ../../../manifests/components/configurations/namespace
