@@ -1,6 +1,6 @@
 namePrefix: valheim-
 components:
-  - ../../.templates/helm-release
+  - ../../.templates/helm-release-app-template
 configMapGenerator:
   - name: values
     behavior: replace
