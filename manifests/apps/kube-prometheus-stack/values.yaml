@@ -87,6 +87,8 @@ prometheus:
       gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: prometheus.png
       gethomepage.dev/name: Prometheus
+      gethomepage.dev/widget.type: prometheus
+      gethomepage.dev/widget.url: prometheus.${INTERNAL_DOMAIN}
     hosts:
       - prometheus.${INTERNAL_DOMAIN}
     tls:
