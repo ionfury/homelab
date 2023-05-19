@@ -1,6 +1,5 @@
 adminUser:
-  create: true
-  username: admin
+  create: false
 ingress:
   enabled: true
   annotations:
