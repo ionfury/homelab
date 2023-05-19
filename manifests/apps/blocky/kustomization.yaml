@@ -14,8 +14,7 @@ patches:
       kind: HelmRelease
     patch: |
       - op: add
-        path: /spec/values
+        path: /spec/values/persistence
         value:
-          persistence:
-            config:
-              name: config
+          config:
+            name: config

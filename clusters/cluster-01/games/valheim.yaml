@@ -3,14 +3,9 @@ kind: Kustomization
 metadata:
   name: valheim
 spec:
-  interval: 10m
   path: ./manifests/apps/valheim/game
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
   postBuild:
     substitute:
-      CHART: valheim
-      VERSION: 1.5.0
+      REPOSITORY: lloesche/valheim-server
+      TAG: latest
+      TEMPLATE_VERSION: 1.5.0

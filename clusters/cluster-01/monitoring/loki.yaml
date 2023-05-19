@@ -3,13 +3,7 @@ kind: Kustomization
 metadata:
   name: loki
 spec:
-  interval: 10m
   path: ./manifests/apps/loki
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
   postBuild:
     substitute:
       CHART: loki

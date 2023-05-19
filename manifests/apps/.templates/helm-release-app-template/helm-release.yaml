@@ -19,12 +19,17 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: ${VERSION}
+      version: ${TEMPLATE_VERSION}
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
       interval: 10m
+  values:
+    image:
+      repository: ${REPOSITORY}
+      tag: ${TAG}
+      pullPolicy: ${PULL_POLICY:=IfNotPresent}
   valuesFrom:
     - kind: ConfigMap
       name: values

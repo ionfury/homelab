@@ -3,14 +3,9 @@ kind: Kustomization
 metadata:
   name: unpoller
 spec:
-  interval: 10m
   path: ./manifests/apps/unpoller
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
   postBuild:
     substitute:
-      CHART: unpoller
-      VERSION: 1.5.0
+      REPOSITORY: ghcr.io/unpoller/unpoller
+      TAG: v2.7.13
+      TEMPLATE_VERSION: 1.5.0

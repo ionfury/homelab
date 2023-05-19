@@ -1,6 +1,3 @@
-image:
-  repository: armsnyder/a2s-exporter
-  tag: v0.3.0
 env:
   - name: A2S_EXPORTER_QUERY_ADDRESS
     value: valheim.${NAMESPACE}.svc.cluster.local:2457

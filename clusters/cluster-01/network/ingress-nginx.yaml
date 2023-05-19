@@ -3,13 +3,7 @@ kind: Kustomization
 metadata:
   name: ingress-nginx
 spec:
-  interval: 10m
   path: ./manifests/apps/ingress-nginx
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
   postBuild:
     substitute:
       CHART: ingress-nginx

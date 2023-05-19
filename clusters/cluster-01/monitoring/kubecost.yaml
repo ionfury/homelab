@@ -3,13 +3,7 @@ kind: Kustomization
 metadata:
   name: kubecost
 spec:
-  interval: 10m
   path: ./manifests/apps/kubecost
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
   postBuild:
     substitute:
       CHART: cost-analyzer

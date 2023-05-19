@@ -3,13 +3,7 @@ kind: Kustomization
 metadata:
   name: kyverno-policies
 spec:
-  interval: 10m
   path: ./manifests/apps/kyverno-policies
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
   postBuild:
     substitute:
       CHART: kyverno-policies

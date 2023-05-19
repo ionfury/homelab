@@ -3,10 +3,4 @@ kind: Kustomization
 metadata:
   name: flux-monitoring
 spec:
-  interval: 10m
   path: ./manifests/apps/flux-monitoring
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
