@@ -7,6 +7,7 @@ customDNS:
     rancher.tomnowak.work: ${RANCHER_IP_ADDRESS}
     harvester0.harvester.local: ${HARVESTER_IP_ADDRESS}
     tomnowak.work: ${INTERNAL_INGRESS_IP}
+    unifi.local: 192.168.1.1
 
 prometheus:
   enable: true
