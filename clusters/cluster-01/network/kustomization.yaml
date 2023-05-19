@@ -4,5 +4,5 @@ components:
 resources:
   - blocky.yaml
   - ingress-nginx.yaml
-  - unifi-network.yaml
-  - unifi-protect.yaml
+  # - unifi-network.yaml
+  # - unifi-protect.yaml
