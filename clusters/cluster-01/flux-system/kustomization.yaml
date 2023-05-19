@@ -4,6 +4,7 @@ resources:
   - gotk-components.yaml
   - gotk-sync.yaml
   - flux-monitoring.yaml
+  - weave-gitops.yaml
 patches:
   - target:
       kind: GitRepository
