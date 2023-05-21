@@ -4,5 +4,24 @@ metadata:
   name: bjw-s
   namespace: flux-system
 spec:
-  interval: 12h
+  interval: 1h
   url: https://bjw-s.github.io/helm-charts
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: bjw-s-oci
+  namespace: flux-system
+spec:
+  interval: 1h
+  type: oci
+  url: oci://ghcr.io/bjw-s/helm
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: bjw-s-oci
+  namespace: flux-system
+spec:
+  interval: 4h
+  url: ghcr.io/bjw-s/helm
