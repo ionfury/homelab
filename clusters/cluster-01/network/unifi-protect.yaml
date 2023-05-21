@@ -30,10 +30,10 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: Network file management share.
+    gethomepage.dev/description: Unifi camera interface.
     gethomepage.dev/group: Network
     gethomepage.dev/icon: unifi-protect.png
-    gethomepage.dev/name: Filebrowser
+    gethomepage.dev/name: Unifi Protect
 spec:
   rules:
     - host: protect.${INTERNAL_DOMAIN}
