@@ -1,8 +1,10 @@
 expose:
   type: ingress
   tls:
-    enabled: false
-    certSource: none
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbour-tls
   ingress:
     hosts:
       core: core.harbor.${INTERNAL_DOMAIN}
