@@ -2,7 +2,7 @@ namePrefix: kube-prometheus-stack-
 components:
   - ../.templates/helm-release
 resources:
-  - alertmanager-webhook-secret
+  - alertmanager-webhook-secret.yaml
 configMapGenerator:
   - name: values
     behavior: replace
