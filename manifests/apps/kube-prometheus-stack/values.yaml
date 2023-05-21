@@ -10,9 +10,9 @@ alertmanager:
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 48h
-      receiver: discord # Defined in secrets
+      receiver: discord # Defined in secret alertmanager-webhook
       routes:
-        - reciever: heartbeat
+        - receiver: heartbeat # Defined in secret alertmanager-webhook
           match:
             alertname: Watchdog
           repeat_interval: 1m
