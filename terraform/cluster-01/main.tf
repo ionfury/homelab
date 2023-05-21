@@ -49,7 +49,8 @@ module "cluster_01" {
   worker_node_count = 2
 
   providers = {
-    rancher2 = rancher2
-    aws      = aws
+    rancher2       = rancher2
+    aws            = aws
+    healthchecksio = healthchecksio
   }
 }

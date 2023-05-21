@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
   - gotk-components.yaml
   - gotk-sync.yaml
+  - flux-monitoring.yaml
+  - weave-gitops.yaml
 patches:
   - target:
       kind: GitRepository
@@ -17,4 +19,4 @@ patches:
     patch: |
       - op: replace
         path: /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/valuesFrom/items/properties/targetPath/pattern
-        value: ^([a-zA-Z0-9_\-.\\\/]|\[[0-9]{1,5}\])+$
+        value: ^([a-zA-Z0-9_\-.\\\\\\\/]|\[[0-9]{1,5}\])+$

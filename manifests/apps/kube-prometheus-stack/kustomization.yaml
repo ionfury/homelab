@@ -2,7 +2,7 @@ namePrefix: kube-prometheus-stack-
 components:
   - ../.templates/helm-release
 resources:
-  - discord-webhook-secret.yaml
+  - alertmanager-webhook-secret
 configMapGenerator:
   - name: values
     behavior: replace
@@ -17,4 +17,4 @@ patches:
         path: /spec/valuesFrom/-
         value:
           kind: Secret
-          name: alertmanager-discord-webhook
+          name: alertmanager-webhook

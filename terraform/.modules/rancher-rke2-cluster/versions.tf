@@ -16,5 +16,9 @@ terraform {
       source  = "hashicorp/local"
       version = "2.4.0"
     }
+    healthchecksio = {
+      source = "kristofferahl/healthchecksio"
+      version = "1.10.1"
+    }
   }
 }
