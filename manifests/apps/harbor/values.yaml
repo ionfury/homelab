@@ -1,0 +1,50 @@
+expose:
+  type: ingress
+  tls:
+    enabled: false
+    certSource: none
+  ingress:
+    hosts:
+      core: core.harbor.${INTERNAL_DOMAIN}
+      notary: notary.harbor.${INTERNAL_DOMAIN}
+    annotations:
+      #nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: cloudflare
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    notary:
+      annotations:
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/name: "Notary"
+        gethomepage.dev/description: "..."
+        gethomepage.dev/group: "Share"
+        gethomepage.dev/icon: "notary.png"
+    harbor:
+      annotations:
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/name: "Harbor"
+        gethomepage.dev/description: "..."
+        gethomepage.dev/group: "Share"
+        gethomepage.dev/icon: "harbor.png"
+externalURL: https://core.harbor.${INTERNAL_DOMAIN}
+internalTLS:
+  enabled: false
+persistence:
+  persistentVolumeClaim:
+    registry:
+      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    jobservice:
+      jobLog:
+        storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    database:
+      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    redis:
+      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    trivy:
+      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+existingSecretAdminPassword: harbor-admin-password
+existingSEcretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

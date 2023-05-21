@@ -7,3 +7,4 @@ resources:
   - harvester-storage-classes.yaml
   - reloader.yaml
   - secret-generator.yaml
+  - harbor.yaml
