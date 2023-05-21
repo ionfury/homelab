@@ -45,6 +45,11 @@ config:
               href: https://dash.cloudflare.com/2bfc6ea2b4517ff4c47f2cfdc943db42/domains
               ping: https://www.cloudflare.com/
               description: TLD provider for tomnowak.work.
+        - AWS_Console:
+            - abbr: AWS
+              href: https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin
+              ping: https://console.aws.amazon.com
+              description: Cloud provider for secrets, backup, & misc.
     - Emergency:
         - Harvester0:
             - abbr: H0
