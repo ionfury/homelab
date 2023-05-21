@@ -9,6 +9,8 @@ cert-manager:
     certmanager.k8s.io/disable-validation: "true"
 installCRDs: true
 prometheus:
-  enabled: false
+  enabled: true
+  serviceMonitor:
+    enabled: true
 startupapicheck:
   enabled: false
