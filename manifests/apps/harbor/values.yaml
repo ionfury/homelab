@@ -50,3 +50,5 @@ metrics:
   enabled: true
   serviceMonitor:
     enabled: true
+notary:
+  secretName: harbour-tls
