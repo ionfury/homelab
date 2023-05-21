@@ -1,5 +1,5 @@
 apiVersion: monitoring.coreos.com/v1
-kind: PromehtuesRule
+kind: PrometheusRule
 metadata:
   name: rules
 spec:
