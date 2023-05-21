@@ -25,7 +25,7 @@ patches:
                 - target:
                     kind: Deployment
                     name: harbor-app-notary-server
-                  patch:
+                  patch: |
                     - op: replace
                       path: /spec/template/spec/containers/0/volumeMounts/2/mountPath
                       value: /etc/ssl/notary
