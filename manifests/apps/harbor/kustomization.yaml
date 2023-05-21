@@ -13,19 +13,3 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: HARBOR_ADMIN_PASSWORD
-patches:
-  - target:
-      kind: HelmRelease
-    patch: |
-      - op: add
-        path: /spec/postRenderers
-        value:
-          - kustomize:
-              patches:
-                - target:
-                    kind: Deployment
-                    name: harbor-app-notary-server
-                  patch: |
-                    - op: replace
-                      path: /spec/template/spec/containers/0/volumeMounts/2/mountPath
-                      value: /etc/ssl/notary
