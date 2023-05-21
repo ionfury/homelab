@@ -7,7 +7,7 @@ resource "healthchecksio_check" "cluster_heartbeat" {
   desc = "Alertmanager heartbeat from cluster: ${var.name}."
 
   timeout  = 120         # seconds
-  grace    = 60          # seconds
+  grace    = 300         # seconds
   schedule = "* * * * *" # every minute
 
   channels = [
