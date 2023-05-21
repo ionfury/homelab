@@ -10,7 +10,7 @@ cert-manager:
 installCRDs: true
 prometheus:
   enabled: true
-  serviceMonitor:
+  servicemonitor:
     enabled: true
 startupapicheck:
   enabled: false
