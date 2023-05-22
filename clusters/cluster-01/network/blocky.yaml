@@ -8,4 +8,3 @@ spec:
     substitute:
       REPOSITORY: ghcr.io/0xerr0r/blocky
       TAG: v0.21 # {"$imagepolicy": "network:blocky-automation:tag"}
-      TEMPLATE_VERSION: 1.5.0 # {"$imagepolicy": "flux-system:app-template-automation:tag"}
