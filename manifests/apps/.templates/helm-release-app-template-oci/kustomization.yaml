@@ -2,8 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 components:
   - ../../../components/configurations/helm-release
-  - ../../../components/configurations/image-repository.yaml
-  - ../../../components/configurations/image-policy.yaml
+  - ../../../components/configurations/image-repository
+  - ../../../components/configurations/image-policy
 configurations:
   - configuration.yaml
 resources:
