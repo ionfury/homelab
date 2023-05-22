@@ -2,6 +2,7 @@ namespace: system
 components:
   - ../../../manifests/components/namespace
 resources:
+  - automation.yaml
   - external-secrets-stores.yaml
   - external-secrets.yaml
   - harvester-storage-classes.yaml
