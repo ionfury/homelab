@@ -3,5 +3,5 @@ kind: ImageRepository
 metadata:
   name: image-automation
 spec:
-  image: ${IMAGE_REPOSITORY}
+  image: ${REPOSITORY}
   interval: 12h0m0s
