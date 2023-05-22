@@ -1,7 +1,3 @@
-image:
-  repository: lloesche/valheim-server
-  tag: latest
-  pullPolicy: Always
 envFrom:
   - secretRef:
       name: valheim-envs

@@ -27,7 +27,7 @@ spec:
       interval: 10m
   values:
     image:
-      repository: ${REPOSITORY}
+      repository: ${IMAGE_REPOSITORY}
       tag: ${TAG}
       pullPolicy: ${PULL_POLICY:=IfNotPresent}
   valuesFrom:
