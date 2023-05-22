@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/unpoller/unpoller
-      TAG: v2.7.13 # {"$imagepolicy": "network:unpoller-automation:tag"}
+      TAG: v2.7.13 # {"$imagepolicy": "monitoring:unpoller-automation:tag"}
