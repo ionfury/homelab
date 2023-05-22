@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/valheim/game
   postBuild:
     substitute:
-      REPOSITORY: lloesche/valheim-server
+      IMAGE_REPOSITORY: lloesche/valheim-server
       TAG: latest
       # TEMPLATE_VERSION: 1.5.0
