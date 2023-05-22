@@ -24,4 +24,4 @@ metadata:
   namespace: flux-system
 spec:
   interval: 4h
-  url: ghcr.io/bjw-s/helm
+  image: ghcr.io/bjw-s/helm/app-template
