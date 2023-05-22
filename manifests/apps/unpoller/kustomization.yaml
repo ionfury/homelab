@@ -1,6 +1,6 @@
 namePrefix: unpoller-
 components:
-  - ../.templates/helm-release-app-template
+  - ../.templates/helm-release-app-template-oci
 resources:
   - external-secret.yaml
 configMapGenerator:
