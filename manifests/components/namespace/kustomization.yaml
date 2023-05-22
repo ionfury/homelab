@@ -4,3 +4,4 @@ components:
   - ../configurations/namespace
 resources:
   - namespace.yaml
+  - automation.yaml

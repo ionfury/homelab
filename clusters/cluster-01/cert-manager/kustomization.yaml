@@ -2,6 +2,5 @@ namespace: cert-manager
 components:
   - ../../../manifests/components/namespace
 resources:
-  - automation.yaml
   - cert-manager.yaml
   - issuers.yaml

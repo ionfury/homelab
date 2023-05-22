@@ -2,7 +2,6 @@ namespace: network
 components:
   - ../../../manifests/components/namespace
 resources:
-  - automation.yaml
   - blocky.yaml
   - ingress-nginx.yaml
   - unifi-network.yaml
