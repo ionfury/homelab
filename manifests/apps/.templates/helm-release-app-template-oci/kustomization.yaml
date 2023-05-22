@@ -10,6 +10,7 @@ resources:
   - helm-release.yaml
   - image-policy.yaml
   - image-repository.yaml
+  - image-update-automation.yaml
 configMapGenerator:
   - name: values
     literals:
