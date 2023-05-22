@@ -19,7 +19,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 1.5.0
+      version: 1.5.0 # { "$imagepolicy": "flux-system:bjw-s-oci:tag" }
       sourceRef:
         kind: HelmRepository
         name: bjw-s-oci
