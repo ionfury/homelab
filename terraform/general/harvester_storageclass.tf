@@ -48,6 +48,58 @@ resource "harvester_storageclass" "longhorn-ssd" {
 
 
 
+resource "harvester_storageclass" "hdd_unreplicated_retain" {
+  name           = "hdd-unreplicated-retained"
+  reclaim_policy = "Retain"
+  parameters = {
+    "diskSelector"        = "hdd"
+    "migratable"          = "true"
+    "numberOfReplicas"    = "1"
+    "staleReplicaTimeout" = "30"
+  }
+  tags = {}
+}
+resource "harvester_storageclass" "hdd_weekly_retain" {
+  description    = "Single replica, backed up & snapshotted weekly."
+  name           = "hdd-weekly-retained"
+  reclaim_policy = "Retain"
+  parameters = {
+    "migratable"          = "true"
+    "numberOfReplicas"    = "1"
+    "staleReplicaTimeout" = "30"
+    "diskSelector"        = "hdd"
+    "recurringJobSelector" = jsonencode(
+      [
+        {
+          isGroup = true
+          name    = "weekly"
+        },
+      ]
+    )
+  }
+  tags = {}
+}
+resource "harvester_storageclass" "hdd_nightly_retain" {
+  description    = "Single replica, backed up & snapshotted nightly."
+  name           = "hdd-nightly-retained"
+  reclaim_policy = "Retain"
+  parameters = {
+    "migratable"          = "true"
+    "numberOfReplicas"    = "1"
+    "staleReplicaTimeout" = "30"
+    "diskSelector"        = "hdd"
+    "recurringJobSelector" = jsonencode(
+      [
+        {
+          isGroup = true
+          name    = "nightly"
+        },
+      ]
+    )
+  }
+  tags = {}
+}
+
 resource "harvester_storageclass" "hdd_unreplicated" {
   name = "hdd-unreplicated"
   parameters = {
@@ -96,6 +148,7 @@ resource "harvester_storageclass" "hdd_nightly" {
   }
   tags = {}
 }
+
 resource "harvester_storageclass" "ssd_unreplicated" {
   is_default = true
   name       = "ssd-unreplicated"
