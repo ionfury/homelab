@@ -2,9 +2,9 @@ resources:
   - harvester-hdd-nightly.yaml
   - harvester-hdd-weekly.yaml
   - harvester-hdd.yaml
-  - harvester-hdd-nightly-retain.yaml
-  - harvester-hdd-weekly-retain.yaml
-  - harvester-hdd-retain.yaml
+  - harvester-hdd-nightly-retained.yaml
+  - harvester-hdd-weekly-retained.yaml
+  - harvester-hdd-retained.yaml
   - harvester-ssd-nightly.yaml
   - harvester-ssd-weekly.yaml
   - harvester-ssd.yaml
