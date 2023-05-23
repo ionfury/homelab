@@ -74,11 +74,11 @@ configMaps:
     enabled: true
     data:
       PAPERLESS_DBHOST: paperless-postgres-helm-release-postgresql.paperless.svc.cluster.local
-      PAPERLESS_PORT: 8000
+      PAPERLESS_PORT: "8000"
       PAPERLESS_URL: https://paperless.${INTERNAL_DOMAIN}
       PAPERLESS_ALLOWED_HOSTS: "*"
       PAPERLESS_TIME_ZONE: America/Chicago
-      PAPERLESS_OCR_ROTATE_PAGES_THRESHOLD: 8
+      PAPERLESS_OCR_ROTATE_PAGES_THRESHOLD: "8"
 secrets:
   secret:
     enabled: true
