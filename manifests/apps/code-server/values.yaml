@@ -85,4 +85,4 @@ secrets:
       secret-generator.v1.mittwald.de/autogenerate: password
 envFrom:
   - secretRef:
-      name: code-server-secret
+      name: code-server-app-secret
