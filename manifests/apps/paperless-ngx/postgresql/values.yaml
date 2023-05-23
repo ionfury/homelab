@@ -1,0 +1,15 @@
+global:
+  storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+  postgresql:
+    auth:
+      username: admin
+      database: paperless
+      existingSecret: paperless-nginx-app-secret
+      secretKeys:
+        adminPasswordKey: PAPERLESS_DBPASS
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+  prometheusRule:
+    enabled: true

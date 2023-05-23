@@ -1,0 +1,11 @@
+global:
+  storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+  prometheusRule:
+    enabled: true
+auth:
+  existingSecret: paperless-nginx-app-secret
+  existingSecretPasswordKey: REDIS_PASSWORD

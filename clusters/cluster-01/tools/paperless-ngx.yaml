@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: paperless-ngx
+spec:
+  path: ./manifests/apps/paperless/app
+  postBuild:
+    substitute:
+      REPOSITORY: ghcr.io/paperless-ngx/paperless-ngx
+      TAG: 1.14.4 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}

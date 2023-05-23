@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: paperless-ngx-redis
+spec:
+  path: ./manifests/apps/paperless/redis
+  postBuild:
+    substitute:
+      CHART: redis
+      VERSION: 17.6.0
+      REPO: https://charts.bitnami.com/bitnami
