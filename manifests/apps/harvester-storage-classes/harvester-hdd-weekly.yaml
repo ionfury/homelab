@@ -4,7 +4,7 @@ kind: StorageClass
 metadata:
   name: harvester-hdd-weekly
 parameters:
-  hostStorageClass: hdd-weekly
+  hostStorageClass: hdd-weekly-retained
 provisioner: driver.harvesterhci.io
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
