@@ -7,6 +7,8 @@ global:
       existingSecret: paperless-ngx-app-secret
       secretKeys:
         adminPasswordKey: PAPERLESS_DBPASS
+        userPasswordKey: PAPERLESS_DBPASS
+        replicationPasswordKey: PAPERLESS_DBPASS
 metrics:
   enabled: true
   serviceMonitor:
