@@ -1,0 +1,5 @@
+namespace: tools
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - code-server.yaml

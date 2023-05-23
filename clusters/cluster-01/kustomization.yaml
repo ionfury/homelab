@@ -11,6 +11,7 @@ resources:
   - network
   - policy
   - system
+  - tools
 configMapGenerator:
   - name: cluster-vars
     namespace: flux-system

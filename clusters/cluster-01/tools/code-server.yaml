@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: code-server
+spec:
+  path: ./manifests/apps/code-server
+  postBuild:
+    substitute:
+      REPOSITORY: codercom/code-server # {"$imagepolicy": "code-server:code-server-automation:name"}
+      TAG: 4.11.0 # {"$imagepolicy": "code-server:code-server-automation:tag"}

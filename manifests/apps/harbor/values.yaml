@@ -45,7 +45,7 @@ persistence:
     trivy:
       storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
 existingSecretAdminPassword: harbor-admin-password
-existingSEcretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
 metrics:
   enabled: true
   serviceMonitor:
