@@ -89,6 +89,6 @@ secrets:
       PAPERLESS_REDIS: redis://:$${REDIS_PASSWORD}@paperless-redis-helm-release-master.paperless.svc.cluster.local:6379
 envFrom:
   - configMapRef:
-    name: paperless-ngx-app-config
+      name: paperless-ngx-app-config
   - secretRef:
-    name: paperless-nginx-app-secret
+      name: paperless-nginx-app-secret
