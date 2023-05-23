@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: paperless-ngx-redis
 spec:
-  path: ./manifests/apps/paperless/redis
+  path: ./manifests/apps/paperless-ngx/redis
   postBuild:
     substitute:
       CHART: redis
