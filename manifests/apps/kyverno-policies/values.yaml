@@ -1,4 +1,15 @@
 policyExclude:
+  disallow-privileged-containers:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Job
+            - DaemonSet
+            - Deployment
+          namespaces:
+            - kube-system
+            - cattle-systemm
   disallow-capabilities:
     any:
       - resources:
