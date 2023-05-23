@@ -91,4 +91,4 @@ envFrom:
   - configMapRef:
       name: paperless-ngx-app-config
   - secretRef:
-      name: paperless-nginx-app-secret
+      name: paperless-ngx-app-secret
