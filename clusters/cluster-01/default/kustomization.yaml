@@ -1,6 +1,6 @@
 namespace: default
 components:
-  - ../../../manifests/components/configurations/namespace
+  - ../../../manifests/components/namespace
 resources:
   - filebrowser.yaml
   - homepage.yaml
