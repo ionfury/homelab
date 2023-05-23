@@ -7,5 +7,5 @@ metrics:
   prometheusRule:
     enabled: true
 auth:
-  existingSecret: paperless-nginx-app-secret
+  existingSecret: paperless-ngx-app-secret
   existingSecretPasswordKey: REDIS_PASSWORD

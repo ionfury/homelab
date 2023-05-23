@@ -4,7 +4,7 @@ global:
     auth:
       username: admin
       database: paperless
-      existingSecret: paperless-nginx-app-secret
+      existingSecret: paperless-ngx-app-secret
       secretKeys:
         adminPasswordKey: PAPERLESS_DBPASS
 metrics:
