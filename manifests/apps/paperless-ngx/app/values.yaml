@@ -20,7 +20,7 @@ ingress:
       gethomepage.dev/widget.type: paperlessngx
       gethomepage.dev/widget.url: http://paperless-ngx-app.paperless.svc.cluster.local:8000
     hosts:
-      - host: paperless.${INTERNAL_DOMAIN
+      - host: paperless.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
