@@ -5,6 +5,19 @@ policyExclude:
           kinds:
             - Pod
             - Job
+            - Daemonset
+            - Deployment
+          namespaces:
+            - kube-system
+            - cattle-systemm
+  disallow-host-namespaces:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Job
+            - Daemonset
+            - Deployment
           namespaces:
             - kube-system
             - cattle-system
@@ -14,6 +27,8 @@ policyExclude:
           kinds:
             - Pod
             - Job
+            - Daemonset
+            - Deployment
           namespaces:
             - kube-system
             - cattle-system
