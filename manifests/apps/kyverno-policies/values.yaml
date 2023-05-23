@@ -5,7 +5,7 @@ policyExclude:
           kinds:
             - Pod
             - Job
-            - Daemonset
+            - DaemonSet
             - Deployment
           namespaces:
             - kube-system
@@ -16,7 +16,7 @@ policyExclude:
           kinds:
             - Pod
             - Job
-            - Daemonset
+            - DaemonSet
             - Deployment
           namespaces:
             - kube-system
@@ -27,7 +27,7 @@ policyExclude:
           kinds:
             - Pod
             - Job
-            - Daemonset
+            - DaemonSet
             - Deployment
           namespaces:
             - kube-system
