@@ -46,7 +46,7 @@ module "cluster_01" {
 
   worker_cpu        = 8
   worker_memory     = 32
-  worker_node_count = 2
+  worker_node_count = 3
 
   providers = {
     rancher2       = rancher2

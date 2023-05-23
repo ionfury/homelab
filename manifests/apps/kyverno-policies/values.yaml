@@ -1,0 +1,19 @@
+policyExclude:
+  disallow-capabilities:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Job
+          namespaces:
+            - kube-system
+            - cattle-system
+  disallow-host-path:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Job
+          namespaces:
+            - kube-system
+            - cattle-system
