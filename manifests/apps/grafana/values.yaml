@@ -10,7 +10,7 @@ grafana.ini:
   auth.anonymous:
     enabled: false
   server:
-    root_url: https://grafana.${INTERNAL_DOMAIN}
+    root_url: https://grafana.${INTERNAL_DOMAIN}/
   auth.github:
     enabled: true
     scopes: user:email,read:org

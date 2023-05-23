@@ -27,13 +27,13 @@ resources:
 rootDir:
   type: pvc
   pvc:
-    storageClassName: harvester-hdd
+    storageClassName: ${STORAGE_CLASS_SLOW_UNREPLICATED}
     accessModes:
       - ReadWriteOnce
     size: 5Gi
 dv:
   pvc:
-    storageClassName: harvester-hdd
+    storageClassName: ${STORAGE_CLASS_SLOW_UNREPLICATED}
     accessModes:
       - ReadWriteOnce
     size: 5Gi
