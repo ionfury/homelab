@@ -4,7 +4,7 @@ kind: StorageClass
 metadata:
   name: harvester-hdd
 parameters:
-  hostStorageClass: hdd-unreplicated-retained
+  hostStorageClass: hdd-unreplicated
 provisioner: driver.harvesterhci.io
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
