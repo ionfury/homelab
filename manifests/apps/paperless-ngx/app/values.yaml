@@ -73,7 +73,7 @@ configMaps:
   config:
     enabled: true
     data:
-      PAPERLESS_DBHOST: paperless-postgres-helm-release-postgresql.paperless.svc.cluster.local
+      PAPERLESS_DBHOST: paperless-ngx-app.${NAMESPACE}.svc.cluster.local
       PAPERLESS_PORT: "8000"
       PAPERLESS_URL: https://paperless.${INTERNAL_DOMAIN}
       PAPERLESS_ALLOWED_HOSTS: "*"
@@ -86,7 +86,7 @@ secrets:
       secret-generator.v1.mittwald.de/autogenerate: PAPERLESS_SECRET_KEY,PAPERLESS_DBPASS,PAPERLESS_ADMIN_PASSWORD,REDIS_PASSWORD
     stringData:
       PAPERLESS_ADMIN_USER: admin
-      PAPERLESS_REDIS: redis://:$${REDIS_PASSWORD}@paperless-redis-helm-release-master.paperless.svc.cluster.local:6379
+      PAPERLESS_REDIS: redis://:$${REDIS_PASSWORD}@paperless-ngx-redis-app-master.${NAMESPACE}.svc.cluster.local:6379
 envFrom:
   - configMapRef:
       name: paperless-ngx-app-config
