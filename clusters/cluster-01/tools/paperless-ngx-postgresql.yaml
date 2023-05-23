@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: paperless-ngx-postgresql
 spec:
-  path: ./manifests/apps/paperless-ngx/postgresq
+  path: ./manifests/apps/paperless-ngx/postgresql
   postBuild:
     substitute:
       CHART: postgresql
