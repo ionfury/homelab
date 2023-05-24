@@ -8,4 +8,4 @@ metrics:
     enabled: true
 auth:
   existingSecret: paperless-ngx-app-secret
-  existingSecretPasswordKey: REDIS_PASSWORD
+  existingSecretPasswordKey: ${REDIS_PASSWORD}

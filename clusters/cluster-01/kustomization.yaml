@@ -17,6 +17,12 @@ configMapGenerator:
     namespace: flux-system
     envs:
       - cluster-vars.env
+secretGenerator:
+  - name: cluster-secrets
+    namespace: flux-system
+    options:
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: REDIS_PASSWORD
 patches:
   - target:
       kind: Kustomization

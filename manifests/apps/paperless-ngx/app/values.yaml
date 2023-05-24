@@ -83,10 +83,10 @@ secrets:
   secret:
     enabled: true
     annotations:
-      secret-generator.v1.mittwald.de/autogenerate: PAPERLESS_SECRET_KEY,PAPERLESS_DBPASS,PAPERLESS_ADMIN_PASSWORD,REDIS_PASSWORD
+      secret-generator.v1.mittwald.de/autogenerate: PAPERLESS_SECRET_KEY,PAPERLESS_DBPASS,PAPERLESS_ADMIN_PASSWORD
     stringData:
       PAPERLESS_ADMIN_USER: admin
-      PAPERLESS_REDIS: redis://:$${REDIS_PASSWORD}@paperless-ngx-redis-app-master.${NAMESPACE}.svc.cluster.local:6379
+      PAPERLESS_REDIS: redis://:${REDIS_PASSWORD}@paperless-ngx-redis-app-master.${NAMESPACE}.svc.cluster.local:6379
 envFrom:
   - configMapRef:
       name: paperless-ngx-app-config
