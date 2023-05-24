@@ -1,27 +1,10 @@
 namePrefix: transmission-
 components:
   - ../../.templates/helm-release-app-template-oci
+resources:
+  - external-secrets.yaml
 configMapGenerator:
   - name: values
     behavior: replace
     files:
       - values.yaml
-secretGenerator:
-  - name: transmission-env
-    behavior: create
-    files:
-      - OPENVPN_PROVIDER=config/vpn-service-provider.encrypted
-      - OPENVPN_USERNAME=config/openvpn-user.encrypted
-      - OPENVPN_PASSWORD=config/openvpn-password.encrypted
-    envs:
-      - config/conf.env
-patches:
-  - target:
-      kind: HelmRelease
-    patch: |
-      - op: add
-        path: /spec/values
-        value:
-          envFrom:
-            - secretRef:
-                name: transmission-env

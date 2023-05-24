@@ -88,3 +88,27 @@ resources:
   requests:
     cpu: 100m
     memory: 400Mi
+configMaps:
+  config:
+    enabled: true
+    data:
+      LOCAL_NETWORK: 10.0.0.0/8
+      CREATE_TUN_DEVICE: "true"
+      LOG_TO_STDOUT: "true"
+      TRANSMISSION_WEB_UI: flood-for-transmission
+      TRANSMISSION_DOWNLOAD_QUEUE_SIZE: "4"
+      TRANSMISSION_RATIO_LIMIT: "2"
+      TRANSMISSION_RATIO_LIMIT_ENABLED: "true"
+      TRANSMISSION_SPEED_LIMIT_DOWN: "10000"
+      TRANSMISSION_SPEED_LIMIT_DOWN_ENABLED: "true"
+      TRANSMISSION_SPEED_LIMIT_UP: "1000"
+      TRANSMISSION_SPEED_LIMIT_UP_ENABLED: "true"
+      NORDVPN_COUNTRY: US
+      NORDVPN_CATEGORY: legacy_standard
+      NORDVPN_PROTOCOL: udp
+      WEBPROXY_ENABLED: "false"
+envFrom:
+  - configMapRef:
+      name: transmission-app-config
+  - secretRef:
+      name: transmission-app-vpn
