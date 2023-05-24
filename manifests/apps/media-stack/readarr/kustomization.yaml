@@ -1,0 +1,12 @@
+namePrefix: readarr-
+components:
+  - ../../.templates/helm-release-app-template-oci
+resources:
+  - image-automation.yaml
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+patches:
+  - path: image-automation.yaml

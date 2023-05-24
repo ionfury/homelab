@@ -1,0 +1,78 @@
+image:
+  repository: ghcr.io/onedr0p/radarr-nightly # {"$imagepolicy": "media:radarr-automation:name"}
+  tag: 4.5.1.7194 # {"$imagepolicy": "media:radarr-automation:tag"}
+#envFrom:
+#  - secretRef:
+#      name: *app
+service:
+  main:
+    ports:
+      http:
+        port: 7878
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Radarr is a movie collection manager for Usenet and BitTorrent users.
+      gethomepage.dev/group: Media
+      gethomepage.dev/icon: radarr.png
+      gethomepage.dev/name: Radarr
+      gethomepage.dev/widget.type: radarr
+      gethomepage.dev/widget.url: http://radarr.media.svc.cluster.local:7878
+    hosts:
+      - host: radarr.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - radarr.${INTERNAL_DOMAIN}
+        secretName: radarr-tls
+  api:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+    hosts:
+      - host: radarr.${INTERNAL_DOMAIN}
+        paths:
+          - path: /api
+            pathType: Prefix
+    tls:
+      - hosts:
+          - radarr.${INTERNAL_DOMAIN}
+        secretName: radarr-tls
+podSecurityContext:
+  runAsUser: 568
+  runAsGroup: 568
+  fsGroup: 568
+  fsGroupChangePolicy: OnRootMismatch
+persistence:
+  config:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+    size: 1Gi
+  media:
+    enabled: true
+    existingClaim: media
+    mountPath: /media
+podLabels:
+  required-volume: media
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: required-volume
+              operator: In
+              values:
+                - media
+        topologyKey: kubernetes.io/hostname
+resources:
+  requests:
+    cpu: 200m
+    memory: 500Mi

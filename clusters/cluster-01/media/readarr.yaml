@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: readarr
+spec:
+  path: ./manifests/apps/media-stack/readarr
+  postBuild:
+    substitute:
+      REPOSITORY: ghcr.io/onedr0p/readarr-nightly
+      TAG: 0.1.5.1709 # {"$imagepolicy": "media:readarr-automation:tag"}

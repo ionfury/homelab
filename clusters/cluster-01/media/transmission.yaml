@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: transmission
+spec:
+  path: ./manifests/apps/media-stack/transmission
+  postBuild:
+    substitute:
+      REPOSITORY: ghcr.io/onedr0p/transmission-nightly
+      TAG: 5.0.2 # {"$imagepolicy": "media:transmission-automation:tag"}

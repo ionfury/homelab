@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: prowlarr
+spec:
+  path: ./manifests/apps/media-stack/prowlarr
+  postBuild:
+    substitute:
+      REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly
+      TAG: 1.5.0.3292 # {"$imagepolicy": "media:prowlarr-automation:tag"}

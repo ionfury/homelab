@@ -1,0 +1,11 @@
+namespace: media
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - jellyfin.yaml
+  - lidarr.yaml
+  - prowlarr.yaml
+  - radarr.yaml
+  - readarr.yaml
+  - sonarr.yaml
+  - transmission.yaml
