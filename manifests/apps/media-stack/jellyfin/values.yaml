@@ -51,6 +51,7 @@ persistence:
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
     size: 100Gi
+    accessMode: ReadWriteOnce
 podLabels:
   required-volume: media
 affinity:
