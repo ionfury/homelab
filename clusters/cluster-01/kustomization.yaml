@@ -21,6 +21,7 @@ secretGenerator:
   - name: cluster-secrets
     namespace: flux-system
     options:
+      disableNameSuffixHash: true
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: REDIS_PASSWORD
 patches:
