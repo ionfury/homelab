@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/transmission
-      TAG: 4.0.2 # {"$imagepolicy": "media:transmission-automation:tag"}
+      TAG: 4.0.3 # {"$imagepolicy": "media:transmission-automation:tag"}
