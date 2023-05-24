@@ -1,8 +1,6 @@
 namePrefix: transmission-
 components:
   - ../../.templates/helm-release-app-template-oci
-resources:
-  - image-automation.yaml
 configMapGenerator:
   - name: values
     behavior: replace
