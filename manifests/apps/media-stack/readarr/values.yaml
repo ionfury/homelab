@@ -45,7 +45,7 @@ persistence:
     size: 1Gi
   media:
     enabled: true
-    existingClaim: media
+    existingClaim: jellyfin-app-media
     mountPath: /media
 podLabels:
   required-volume: media
