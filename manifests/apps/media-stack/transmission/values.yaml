@@ -1,6 +1,3 @@
-image:
-  repository: haugene/transmission-openvpn # {"$imagepolicy": "media:transmission-automation:name"}
-  tag: 5.0.2 # {"$imagepolicy": "media:transmission-automation:tag"}
 service:
   main:
     ports:
