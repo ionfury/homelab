@@ -14,4 +14,4 @@ spec:
       - kind: ConfigMap
         name: cluster-vars
       - kind: Secret
-        name: hack-paperless-ngx-redis-secrets
+        name: cluster-secrets
