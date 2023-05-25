@@ -20,3 +20,18 @@ patches:
       - op: replace
         path: /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/valuesFrom/items/properties/targetPath/pattern
         value: ^([a-zA-Z0-9_\-.\\\\\\\/]|\[[0-9]{1,5}\])+$
+  # REQUIRED: Enable Helm near OOM detection
+  # https://fluxcd.io/flux/cheatsheets/bootstrap/#enable-helm-near-oom-detection
+  - patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --feature-gates=OOMWatch=true
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --oom-watch-memory-threshold=95
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --oom-watch-interval=500ms
+    target:
+      kind: Deployment
+      name: helm-controller
