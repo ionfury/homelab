@@ -5,4 +5,4 @@ resources:
   - code-server.yaml
   - paperless-ngx-postgresql.yaml
   - paperless-ngx-redis.yaml
-  #- paperless-ngx.yaml
+  - paperless-ngx.yaml
