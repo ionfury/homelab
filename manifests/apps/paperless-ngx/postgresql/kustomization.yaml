@@ -6,8 +6,8 @@
 #    behavior: replace
 #    files:
 #      - values.yaml
-resources:
-  - postgresql-cluster.yaml
+#resources:
+# - postgresql-cluster.yaml
 secretGenerator:
   - name: postgres-secret
     options:
