@@ -12,8 +12,6 @@ spec:
   storage:
     size: 20Gi
     storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
-  superuserSecret:
-    name: postgres-secret
   postgresql:
     parameters:
       max_connections: "600"
