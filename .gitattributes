@@ -1,2 +1,4 @@
 *.yaml linguist-detectable=true
 *.yaml linguist-language=YAML
+*.tf linguist-detectable=true
+*.tf linguist-language=Terraform
