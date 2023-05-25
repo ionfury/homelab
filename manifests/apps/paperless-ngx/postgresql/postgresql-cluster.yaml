@@ -15,9 +15,6 @@ spec:
   bootstrap:
     initdb:
       database: paperless
-      owner: app
-      secret:
-        name: app-secret
   postgresql:
     parameters:
       max_connections: "600"
