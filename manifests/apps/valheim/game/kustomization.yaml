@@ -26,3 +26,13 @@ secretGenerator:
       - BACKUP_MSG="Valheim backup to file @BACKUP_FILE@ is starting"
       - SUPERVISOR_HTTP=true
       - TZ="America/New_York"
+patches:
+  - target:
+      kind: ImagePolicy
+      name: automation
+    patch: |
+      $patch: delete
+      apiVersion: image.toolkit.fluxcd.io/v1beta2
+      kind: ImagePolicy
+      metadata:
+        name: automation
