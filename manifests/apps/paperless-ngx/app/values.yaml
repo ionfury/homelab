@@ -73,7 +73,7 @@ configMaps:
   config:
     enabled: true
     data:
-      PAPERLESS_DBHOST: paperless-ngx-postgresql-app.${NAMESPACE}.svc.cluster.local
+      PAPERLESS_DBHOST: postgres-rw.${NAMESPACE}.svc.cluster.local
       PAPERLESS_PORT: "8000"
       PAPERLESS_URL: https://paperless.${INTERNAL_DOMAIN}
       PAPERLESS_ALLOWED_HOSTS: "*"
