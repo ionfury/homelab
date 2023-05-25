@@ -9,7 +9,7 @@
 resources:
   - postgresql-cluster.yaml
 secretGenerator:
-  - name: postgres-secret
+  - name: app-secret
     options:
       disableNameSuffixHash: true
       annotations:
