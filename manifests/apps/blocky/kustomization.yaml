@@ -12,6 +12,11 @@ configMapGenerator:
 patches:
   - path: image-automation.yaml
   - target:
+      kind: ImagePolicy
+    patch: |
+      - op: remove
+        path: /spec/policy/semver
+  - target:
       kind: HelmRelease
     patch: |
       - op: add
