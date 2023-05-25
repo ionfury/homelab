@@ -10,6 +10,7 @@ configMapGenerator:
     files:
       - config.yml=config.yaml
 patches:
+  - path: image-automation.yaml
   - target:
       kind: HelmRelease
     patch: |
