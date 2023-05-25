@@ -94,10 +94,10 @@ env:
   - name: PAPERLESS_DBUSER
     valueFrom:
       secretKeyRef:
-        name: app-secret
+        name: postgres-app
         key: username
   - name: PAPERLESS_DBPASS
     valueFrom:
       secretKeyRef:
-        name: app-secret
+        name: postgres-app
         key: password
