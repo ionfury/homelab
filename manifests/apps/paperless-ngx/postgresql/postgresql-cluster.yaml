@@ -12,6 +12,12 @@ spec:
   storage:
     size: 20Gi
     storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+  bootstrap:
+    initdb:
+      database: paperless
+      owner: app
+      secret:
+        name: app-secret
   postgresql:
     parameters:
       max_connections: "600"
