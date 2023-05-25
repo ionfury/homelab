@@ -1,0 +1,20 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+  annotations:
+    kyverno.io/ignore: "true"
+spec:
+  instances: 3
+  imageName: ${REPOSITORY}:${TAG}
+  inheritedMetadata:
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 20Gi
+    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+  superuserSecret:
+    name: postgres-secret
+  postgresql:
+    parameters:
+      max_connections: "600"
+      shared_buffers: 512MB

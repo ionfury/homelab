@@ -74,7 +74,6 @@ configMaps:
     enabled: true
     data:
       PAPERLESS_DBHOST: paperless-ngx-postgresql-app.${NAMESPACE}.svc.cluster.local
-      PAPERLESS_DBUSER: admin
       PAPERLESS_PORT: "8000"
       PAPERLESS_URL: https://paperless.${INTERNAL_DOMAIN}
       PAPERLESS_ALLOWED_HOSTS: "*"
@@ -85,11 +84,20 @@ secrets:
   secret:
     enabled: true
     annotations:
-      secret-generator.v1.mittwald.de/autogenerate: PAPERLESS_SECRET_KEY,PAPERLESS_DBPASS,PAPERLESS_ADMIN_PASSWORD
-    stringData:
-      PAPERLESS_ADMIN_USER: admin
+      secret-generator.v1.mittwald.de/autogenerate: PAPERLESS_SECRET_KEY,PAPERLESS_ADMIN_PASSWORD
 envFrom:
   - configMapRef:
       name: paperless-ngx-app-config
   - secretRef:
       name: paperless-ngx-app-secret
+env:
+  - name: PAPERLESS_DBUSER
+    valueFrom:
+      secretKeyRef:
+        name: postgres-secret
+        key: username
+  - name: PAPERLESS_DBPASS
+    valueFrom:
+      secretKeyRef:
+        name: postgres-secret
+        key: password

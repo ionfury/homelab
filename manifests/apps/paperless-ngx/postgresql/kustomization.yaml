@@ -1,8 +1,16 @@
-namePrefix: paperless-ngx-postgresql-
-components:
-  - ../../.templates/helm-release
-configMapGenerator:
-  - name: values
-    behavior: replace
-    files:
-      - values.yaml
+#namePrefix: paperless-ngx-postgresql-
+#components:
+#  - ../../.templates/helm-release
+#configMapGenerator:
+#  - name: values
+#    behavior: replace
+#    files:
+#      - values.yaml
+resources:
+  - postgresql-cluster.yaml
+secretGenerator:
+  - name: postgres-secret
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/type: basic-auth
