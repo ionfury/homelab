@@ -1,0 +1,4 @@
+crds:
+  create: true
+data:
+  INHERITED_ANNOTATIONS: kyverno.io/ignore
