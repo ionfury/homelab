@@ -79,7 +79,7 @@ configMaps:
       PAPERLESS_ALLOWED_HOSTS: "*"
       PAPERLESS_TIME_ZONE: America/Chicago
       PAPERLESS_OCR_ROTATE_PAGES_THRESHOLD: "8"
-      PAPERLESS_REDIS: redis://:${REDIS_PASSWORD}@paperless-ngx-redis-app-master.${NAMESPACE}.svc.cluster.local:6379
+      PAPERLESS_REDIS: redis://paperless-redis-app-master.${NAMESPACE}.svc.cluster.local:6379
 secrets:
   secret:
     enabled: true
@@ -94,10 +94,10 @@ env:
   - name: PAPERLESS_DBUSER
     valueFrom:
       secretKeyRef:
-        name: postgres-app
+        name: paperless-postgres-app
         key: username
   - name: PAPERLESS_DBPASS
     valueFrom:
       secretKeyRef:
-        name: postgres-app
+        name: paperless-postgres-app
         key: password
