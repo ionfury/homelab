@@ -3,8 +3,6 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - code-server.yaml
-  #- postgres.yaml
-  #- redis.yaml
-  #- paperless-ngx-postgresql.yaml
-  #- paperless-ngx-redis.yaml
+  - paperless-ngx-postgresql.yaml
+  - paperless-ngx-redis.yaml
   #- paperless-ngx.yaml
