@@ -5,8 +5,8 @@ resources:
   - media-stack-postgres.yaml
   - jellyfin.yaml
   - transmission.yaml
-  - lidarr.yaml
-  - prowlarr.yaml
-  - radarr.yaml
-  - readarr.yaml
-  - sonarr.yaml
+  #- lidarr.yaml
+  #- prowlarr.yaml
+  #- radarr.yaml
+  #- readarr.yaml
+  #- sonarr.yaml
