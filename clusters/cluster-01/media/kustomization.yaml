@@ -4,6 +4,7 @@ components:
 resources:
   - jellyfin.yaml
   - lidarr.yaml
+  - media-stack-postgres.yaml
   - prowlarr.yaml
   - radarr.yaml
   - readarr.yaml
