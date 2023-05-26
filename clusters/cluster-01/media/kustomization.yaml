@@ -2,11 +2,11 @@ namespace: media
 components:
   - ../../../manifests/components/namespace
 resources:
-  - jellyfin.yaml
-  - lidarr.yaml
   - media-stack-postgres.yaml
-  #- prowlarr.yaml
-  #- radarr.yaml
-  #- readarr.yaml
-  #- sonarr.yaml
+  - jellyfin.yaml
   - transmission.yaml
+  - lidarr.yaml
+  - prowlarr.yaml
+  - radarr.yaml
+  - readarr.yaml
+  - sonarr.yaml
