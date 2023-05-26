@@ -1,8 +1,7 @@
 apiVersion: databases.spotahome.com/v1
 kind: RedisFailover
 metadata:
-  name: sidecars
-  namespace: sc
+  name: ${NAME}-redis
 spec:
   auth:
     secretPath: redis-auth

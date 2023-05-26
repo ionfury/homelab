@@ -1,9 +1,0 @@
-resources:
-  - postgresql-cluster.yaml
-secretGenerator:
-  - name: app-secret
-    options:
-      disableNameSuffixHash: true
-      annotations:
-        secret-generator.v1.mittwald.de/type: basic-auth
-        secret-generator.v1.mittwald.de/basic-auth-username: app

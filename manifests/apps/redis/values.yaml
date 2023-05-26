@@ -1,0 +1,13 @@
+architecture: standalone
+auth:
+  enabled: false
+master:
+  persistence:
+    size: ${SIZE:=8Gi}
+    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+  prometheusRule:
+    enabled: true

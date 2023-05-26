@@ -1,7 +1,7 @@
 resources:
   - redis-cluster.yaml
 secretGenerator:
-  - name: redis-auth
+  - name: ${NAME}-redis-auth
     options:
       disableNameSuffixHash: true
       annotations:

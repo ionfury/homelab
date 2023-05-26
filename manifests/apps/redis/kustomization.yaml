@@ -1,4 +1,4 @@
-namePrefix: paperless-ngx-redis-
+namePrefix: ${NAME}-redis-
 components:
   - ../../.templates/helm-release
 configMapGenerator:

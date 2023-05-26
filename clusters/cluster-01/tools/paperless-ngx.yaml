@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: paperless-ngx
 spec:
-  path: ./manifests/apps/paperless-ngx/app
+  path: ./manifests/apps/paperless-ngx
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/paperless-ngx/paperless-ngx

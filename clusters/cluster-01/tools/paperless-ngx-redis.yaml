@@ -3,9 +3,10 @@ kind: Kustomization
 metadata:
   name: paperless-ngx-redis
 spec:
-  path: ./manifests/apps/paperless-ngx/redis
+  path: ./manifests/apps/redis
   postBuild:
     substitute:
       CHART: redis
       VERSION: 17.6.0
       REPO: https://charts.bitnami.com/bitnami
+      SIZE: 1Gi
