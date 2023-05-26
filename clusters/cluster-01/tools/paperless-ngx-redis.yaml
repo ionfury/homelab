@@ -6,7 +6,7 @@ spec:
   path: ./manifests/apps/redis
   postBuild:
     substitute:
-      NAME: Paperless
+      NAME: paperless
       CHART: redis
       VERSION: 17.6.0
       REPO: https://charts.bitnami.com/bitnami
