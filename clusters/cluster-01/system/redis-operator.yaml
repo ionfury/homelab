@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: redis-operator
+spec:
+  path: ./manifests/apps/redis-operator
+  postBuild:
+    substitute:
+      CHART: redis-operator
+      VERSION: 3.2.7
+      REPO: https://spotahome.github.io/redis-operator

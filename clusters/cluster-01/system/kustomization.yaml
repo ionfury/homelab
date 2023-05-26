@@ -7,5 +7,7 @@ resources:
   - external-secrets.yaml
   - harvester-storage-classes.yaml
   - reloader.yaml
+  - redis-operator.yaml
   - secret-generator.yaml
+  - replicator.yaml
   #- harbor.yaml
