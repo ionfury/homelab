@@ -1,0 +1,30 @@
+apiVersion: databases.spotahome.com/v1
+kind: RedisFailover
+metadata:
+  name: sidecars
+  namespace: sc
+spec:
+  auth:
+    secretPath: redis-auth
+  sentinel:
+    image: ${REPOSITORY}:${TAG}
+    imagePullPolicy: IfNotPresent
+    replicas: 3
+    exporter:
+      enabled: true
+  redis:
+    image: ${REPOSITORY}:${TAG}
+    imagePullPolicy: IfNotPresent
+    replicas: 3
+    exporter:
+      enabled: true
+    storage:
+      persistentVolumeClaim:
+        metadata:
+          name: ${STORAGE_CLASS_SLOW_REPLICATED}
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: ${SIZE:=1Gi}

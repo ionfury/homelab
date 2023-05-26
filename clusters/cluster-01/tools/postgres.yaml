@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: postgresql
+spec:
+  path: ./manifests/apps/cloudnative-pg-cluster
+  postBuild:
+    substitute:
+      DATABASE: paperless
+      REPOSITORY: ghcr.io/cloudnative-pg/postgresql
+      TAG: 15.3-4

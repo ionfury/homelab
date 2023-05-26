@@ -1,0 +1,8 @@
+resources:
+  - redis-cluster.yaml
+secretGenerator:
+  - name: redis-auth
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: password
