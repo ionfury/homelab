@@ -8,12 +8,12 @@ initContainers:
       INIT_POSTGRES_USER:
         valueFrom:
           secretKeyRef:
-            name: prowlarr-postgres
+            name: prowlarr-secret
             key: username
       INIT_POSTGRES_PASS:
         valueFrom:
           secretKeyRef:
-            name: prowlarr-postgres
+            name: prowlarr-secret
             key: password
       INIT_POSTGRES_SUPER_USER:
         valueFrom:
@@ -37,17 +37,17 @@ env:
   PROWLARR__POSTGRES_USER:
     valueFrom:
       secretKeyRef:
-        name: prowlarr-postgres
+        name: prowlarr-secret
         key: username
   PROWLARR__POSTGRES_PASSWORD:
     valueFrom:
       secretKeyRef:
-        name: prowlarr-postgres
+        name: prowlarr-secret
         key: password
   PROWLARR__API_KEY:
     valueFrom:
       secretKeyRef:
-        name: prowlarr-api
+        name: prowlarr-secret
         key: key
 service:
   main:

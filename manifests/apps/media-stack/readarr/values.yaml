@@ -8,12 +8,12 @@ initContainers:
       INIT_POSTGRES_USER:
         valueFrom:
           secretKeyRef:
-            name: readarr-postgres
+            name: readarr-secret
             key: username
       INIT_POSTGRES_PASS:
         valueFrom:
           secretKeyRef:
-            name: readarr-postgres
+            name: readarr-secret
             key: password
       INIT_POSTGRES_SUPER_USER:
         valueFrom:
@@ -37,17 +37,17 @@ env:
   READARR__POSTGRES_USER:
     valueFrom:
       secretKeyRef:
-        name: readarr-postgres
+        name: readarr-secret
         key: username
   READARR__POSTGRES_PASSWORD:
     valueFrom:
       secretKeyRef:
-        name: readarr-postgres
+        name: readarr-secret
         key: password
   READARR_API_KEY:
     valueFrom:
       secretKeyRef:
-        name: readarr-api
+        name: readarr-secret
         key: key
 service:
   main:

@@ -8,12 +8,12 @@ initContainers:
       INIT_POSTGRES_USER:
         valueFrom:
           secretKeyRef:
-            name: sonarr-postgres
+            name: sonarr-secret
             key: username
       INIT_POSTGRES_PASS:
         valueFrom:
           secretKeyRef:
-            name: sonarr-postgres
+            name: sonarr-secret
             key: password
       INIT_POSTGRES_SUPER_USER:
         valueFrom:
@@ -37,17 +37,17 @@ env:
   SONARR__POSTGRES_USER:
     valueFrom:
       secretKeyRef:
-        name: sonarr-postgres
+        name: sonarr-secret
         key: username
   SONARR__POSTGRES_PASSWORD:
     valueFrom:
       secretKeyRef:
-        name: sonarr-postgres
+        name: sonarr-secret
         key: password
   SONARR_API_KEY:
     valueFrom:
       secretKeyRef:
-        name: sonarr-api
+        name: sonarr-secret
         key: key
 service:
   main:

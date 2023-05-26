@@ -8,12 +8,12 @@ initContainers:
       INIT_POSTGRES_USER:
         valueFrom:
           secretKeyRef:
-            name: lidarr-postgres
+            name: lidarr-secret
             key: username
       INIT_POSTGRES_PASS:
         valueFrom:
           secretKeyRef:
-            name: lidarr-postgres
+            name: lidarr-secret
             key: password
       INIT_POSTGRES_SUPER_USER:
         valueFrom:
@@ -37,17 +37,17 @@ env:
   LIDARR__POSTGRES_USER:
     valueFrom:
       secretKeyRef:
-        name: lidarr-postgres
+        name: lidarr-secret
         key: username
   LIDARR__POSTGRES_PASSWORD:
     valueFrom:
       secretKeyRef:
-        name: lidarr-postgres
+        name: lidarr-secret
         key: password
   LIDARR_API_KEY:
     valueFrom:
       secretKeyRef:
-        name: lidarr-api
+        name: lidarr-secret
         key: key
 service:
   main:
