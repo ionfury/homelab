@@ -3,12 +3,6 @@ kind: Kustomization
 metadata:
   name: paperless-ngx-postgresql
 spec:
-  #path: ./manifests/apps/paperless-ngx/postgresql
-  #postBuild:
-  #  substitute:
-  #    CHART: postgresql
-  #    VERSION: 12.1.11
-  #    REPO: https://charts.bitnami.com/bitnami
   path: ./manifests/apps/paperless-ngx/postgresql
   postBuild:
     substitute:
