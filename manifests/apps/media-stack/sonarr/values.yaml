@@ -1,14 +1,59 @@
-image:
-  repository: ghcr.io/onedr0p/sonarr-develop # {"$imagepolicy": "media:sonarr-automation:name"}
-  tag: 4.0.0.471 # {"$imagepolicy": "media:sonarr-automation:tag"}
-#envFrom:
-#  - secretRef:
-#      name: *app
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "sonarr_main sonarr_log"
+      INIT_POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: sonarr-postgres
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: sonarr-postgres
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: password
+env:
+  TZ: America/New_York
+  SONARR__INSTANCE_NAME: Sonarr
+  SONARR__PORT: 80
+  SONARR__LOG_LEVEL: info
+  SONARR__POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+  SONARR__POSTGRES_PORT: 5432
+  SONARR__POSTGRES_MAIN_DB: sonarr_main
+  SONARR__POSTGRES_LOG_DB: sonarr_log
+  SONARR__POSTGRES_USER:
+    valueFrom:
+      secretKeyRef:
+        name: sonarr-postgres
+        key: username
+  SONARR__POSTGRES_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: sonarr-postgres
+        key: password
+  SONARR_API_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: sonarr-api
+        key: key
 service:
   main:
     ports:
       http:
-        port: 8989
+        port: 80
 ingress:
   main:
     enabled: true
@@ -51,11 +96,6 @@ podSecurityContext:
   fsGroup: 568
   fsGroupChangePolicy: OnRootMismatch
 persistence:
-  config:
-    enabled: true
-    retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
-    size: 1Gi
   media:
     enabled: true
     existingClaim: jellyfin-app-media
@@ -74,5 +114,5 @@ affinity:
         topologyKey: kubernetes.io/hostname
 resources:
   requests:
-    cpu: 200m
-    memory: 800Mi
+    cpu: 10m
+    memory: 250Mi

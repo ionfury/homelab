@@ -1,14 +1,59 @@
-image:
-  repository: ghcr.io/onedr0p/lidarr-nightly # {"$imagepolicy": "media:lidarr-automation:name"}
-  tag: 1.2.0.3115 # {"$imagepolicy": "media:lidarr-automation:tag"}
-#envFrom:
-#  - secretRef:
-#      name: *app
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "lidarr_main lidarr_log"
+      INIT_POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: lidarr-postgres
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: lidarr-postgres
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: password
+env:
+  TZ: America/New_York
+  LIDARR__INSTANCE_NAME: Lidarr
+  LIDARR__PORT: 80
+  LIDARR__LOG_LEVEL: info
+  LIDARR__POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+  LIDARR__POSTGRES_PORT: 5432
+  LIDARR__POSTGRES_MAIN_DB: lidarr_main
+  LIDARR__POSTGRES_LOG_DB: lidarr_log
+  LIDARR__POSTGRES_USER:
+    valueFrom:
+      secretKeyRef:
+        name: lidarr-postgres
+        key: username
+  LIDARR__POSTGRES_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: lidarr-postgres
+        key: password
+  LIDARR_API_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: lidarr-api
+        key: key
 service:
   main:
     ports:
       http:
-        port: 8686
+        port: 80
 ingress:
   main:
     enabled: true
@@ -21,7 +66,7 @@ ingress:
       gethomepage.dev/icon: lidarr.png
       gethomepage.dev/name: Lidarr
       gethomepage.dev/widget.type: lidarr
-      gethomepage.dev/widget.url: http://lidarr.media.svc.cluster.local:8686
+      gethomepage.dev/widget.url: http://lidarr.${NAMESPACE}.svc.cluster.local:80
     hosts:
       - host: lidarr.${INTERNAL_DOMAIN}
         paths:
@@ -52,11 +97,6 @@ podSecurityContext:
   fsGroup: 568
   fsGroupChangePolicy: OnRootMismatch
 persistence:
-  config:
-    enabled: true
-    retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
-    size: 1Gi
   media:
     enabled: true
     existingClaim: jellyfin-app-media
@@ -75,5 +115,5 @@ affinity:
         topologyKey: kubernetes.io/hostname
 resources:
   requests:
-    cpu: 200m
-    memory: 500Mi
+    cpu: 10m
+    memory: 250Mi

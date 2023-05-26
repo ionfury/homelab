@@ -3,10 +3,10 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - jellyfin.yaml
-  - lidarr.yaml
+  #- lidarr.yaml
   - media-stack-postgres.yaml
-  - prowlarr.yaml
-  - radarr.yaml
-  - readarr.yaml
-  - sonarr.yaml
+  #- prowlarr.yaml
+  #- radarr.yaml
+  #- readarr.yaml
+  #- sonarr.yaml
   - transmission.yaml

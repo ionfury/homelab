@@ -1,15 +1,59 @@
-values:
-image:
-  repository: ghcr.io/onedr0p/readarr-nightly # {"$imagepolicy": "media:readarr-automation:name"}
-  tag: 0.1.5.1709 # {"$imagepolicy": "media:readarr-automation:tag"}
-#envFrom:
-#  - secretRef:
-#      name: *app
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "readarr_main readarr_log"
+      INIT_POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: readarr-postgres
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: readarr-postgres
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: password
+env:
+  TZ: America/New_York
+  READARR__INSTANCE_NAME: Readarr
+  READARR__PORT: 80
+  READARR__LOG_LEVEL: info
+  READARR__POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+  READARR__POSTGRES_PORT: 5432
+  READARR__POSTGRES_MAIN_DB: readarr_main
+  READARR__POSTGRES_LOG_DB: readarr_log
+  READARR__POSTGRES_USER:
+    valueFrom:
+      secretKeyRef:
+        name: readarr-postgres
+        key: username
+  READARR__POSTGRES_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: readarr-postgres
+        key: password
+  READARR_API_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: readarr-api
+        key: key
 service:
   main:
     ports:
       http:
-        port: 8787
+        port: 80
 ingress:
   main:
     enabled: true
@@ -61,5 +105,5 @@ affinity:
         topologyKey: kubernetes.io/hostname
 resources:
   requests:
-    cpu: 200m
-    memory: 300Mi
+    cpu: 10m
+    memory: 250Mi

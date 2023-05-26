@@ -6,5 +6,16 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+secretGenerator:
+  - name: postgres
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/type: basic-auth
+  - name: api
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: key
 patches:
   - path: image-automation.yaml

@@ -1,14 +1,59 @@
-image:
-  repository: ghcr.io/onedr0p/radarr-nightly # {"$imagepolicy": "media:radarr-automation:name"}
-  tag: 4.5.1.7194 # {"$imagepolicy": "media:radarr-automation:tag"}
-#envFrom:
-#  - secretRef:
-#      name: *app
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "radarr_main radarr_log"
+      INIT_POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: radarr-postgres
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: radarr-postgres
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: media-stack-postgres-superuser
+            key: password
+env:
+  TZ: America/New_York
+  RADARR__INSTANCE_NAME: Radarr
+  RADARR__PORT: 80
+  RADARR__LOG_LEVEL: info
+  RADARR__POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+  RADARR__POSTGRES_PORT: 5432
+  RADARR__POSTGRES_MAIN_DB: radarr_main
+  RADARR__POSTGRES_LOG_DB: radarr_log
+  RADARR__POSTGRES_USER:
+    valueFrom:
+      secretKeyRef:
+        name: radarr-postgres
+        key: username
+  RADARR__POSTGRES_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: radarr-postgres
+        key: password
+  RADARR_API_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: radarr-api
+        key: key
 service:
   main:
     ports:
       http:
-        port: 7878
+        port: 80
 ingress:
   main:
     enabled: true
@@ -21,7 +66,7 @@ ingress:
       gethomepage.dev/icon: radarr.png
       gethomepage.dev/name: Radarr
       gethomepage.dev/widget.type: radarr
-      gethomepage.dev/widget.url: http://radarr.media.svc.cluster.local:7878
+      gethomepage.dev/widget.url: http://radarr.media.svc.cluster.local:80
     hosts:
       - host: radarr.${INTERNAL_DOMAIN}
         paths:
@@ -51,11 +96,6 @@ podSecurityContext:
   fsGroup: 568
   fsGroupChangePolicy: OnRootMismatch
 persistence:
-  config:
-    enabled: true
-    retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
-    size: 1Gi
   media:
     enabled: true
     existingClaim: jellyfin-app-media
@@ -74,5 +114,5 @@ affinity:
         topologyKey: kubernetes.io/hostname
 resources:
   requests:
-    cpu: 200m
-    memory: 500Mi
+    cpu: 10m
+    memory: 250Mi
