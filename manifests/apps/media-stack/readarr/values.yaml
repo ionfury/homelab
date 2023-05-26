@@ -3,7 +3,7 @@ initContainers:
     image: ghcr.io/onedr0p/postgres-init:14.8
     imagePullPolicy: IfNotPresent
     env:
-      INIT_POSTGRES_DBNAME: "readarr_main readarr_log"
+      INIT_POSTGRES_DBNAME: "readarr_main readarr_log readarr_cache"
       INIT_POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
       INIT_POSTGRES_USER:
         valueFrom:
@@ -34,6 +34,7 @@ env:
   READARR__POSTGRES_PORT: 5432
   READARR__POSTGRES_MAIN_DB: readarr_main
   READARR__POSTGRES_LOG_DB: readarr_log
+  READARR__POSTGRES_CACHE_DB: readarr_cache
   READARR__POSTGRES_USER:
     valueFrom:
       secretKeyRef:
