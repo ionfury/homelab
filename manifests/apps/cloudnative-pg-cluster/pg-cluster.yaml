@@ -1,7 +1,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: paperless-postgres
+  name: ${DATABASE}-postgres
   annotations:
     kyverno.io/ignore: "true"
 spec:
@@ -10,13 +10,13 @@ spec:
   inheritedMetadata:
   primaryUpdateStrategy: unsupervised
   storage:
-    size: 10Gi
+    size: ${SIZE:=10Gi}
     storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
   monitoring:
     enablePodMonitor: true
   bootstrap:
     initdb:
-      database: paperless
+      database: ${DATABASE}
   postgresql:
     parameters:
       max_connections: "600"

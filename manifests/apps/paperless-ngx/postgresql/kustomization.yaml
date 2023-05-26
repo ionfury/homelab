@@ -1,11 +1,3 @@
-#namePrefix: paperless-ngx-postgresql-
-#components:
-#  - ../../.templates/helm-release
-#configMapGenerator:
-#  - name: values
-#    behavior: replace
-#    files:
-#      - values.yaml
 resources:
   - postgresql-cluster.yaml
 secretGenerator:

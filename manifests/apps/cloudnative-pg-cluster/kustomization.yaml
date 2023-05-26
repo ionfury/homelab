@@ -1,0 +1,2 @@
+resources:
+  - pg-cluster.yaml

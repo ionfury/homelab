@@ -3,8 +3,9 @@ kind: Kustomization
 metadata:
   name: paperless-ngx-postgresql
 spec:
-  path: ./manifests/apps/paperless-ngx/postgresql
+  path: ./manifests/apps/cloudnative-pg-cluster
   postBuild:
     substitute:
+      DATABASE: paperless
       REPOSITORY: ghcr.io/cloudnative-pg/postgresql
-      TAG: 14.8-4
+      TAG: 15.3-4
