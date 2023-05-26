@@ -12,6 +12,8 @@ spec:
   storage:
     size: 20Gi
     storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+  monitoring:
+    enablePodMonitor: true
   bootstrap:
     initdb:
       database: paperless
