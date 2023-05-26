@@ -8,4 +8,5 @@ resources:
   - kubecost.yaml
   - loki.yaml
   - promtail.yaml
+  - redis-monitoring.yaml
   - unpoller.yaml
