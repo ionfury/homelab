@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: lidarr
 spec:
-  path: ./manifests/apps/media-stack/lidarr
+  path: ./manifests/apps/lidarr
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/lidarr-nightly

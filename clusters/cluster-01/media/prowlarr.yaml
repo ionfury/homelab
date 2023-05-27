@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: prowlarr
 spec:
-  path: ./manifests/apps/media-stack/prowlarr
+  path: ./manifests/apps/prowlarr
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly

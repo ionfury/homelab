@@ -1,6 +1,6 @@
 namePrefix: transmission-
 components:
-  - ../../.templates/helm-release-app-template-oci
+  - ../.templates/helm-release-app-template-oci
 resources:
   - external-secrets.yaml
 configMapGenerator:

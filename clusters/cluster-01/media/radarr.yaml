@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: radarr
 spec:
-  path: ./manifests/apps/media-stack/radarr
+  path: ./manifests/apps/radarr
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/radarr-nightly

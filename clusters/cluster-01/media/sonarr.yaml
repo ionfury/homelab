@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: sonarr
 spec:
-  path: ./manifests/apps/media-stack/sonarr
+  path: ./manifests/apps/sonarr
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/sonarr-develop

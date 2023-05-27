@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: jellyfin
 spec:
-  path: ./manifests/apps/media-stack/jellyfin
+  path: ./manifests/apps/jellyfin
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/jellyfin

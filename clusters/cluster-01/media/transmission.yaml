@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: transmission
 spec:
-  path: ./manifests/apps/media-stack/transmission
+  path: ./manifests/apps/transmission
   postBuild:
     substitute:
       REPOSITORY: haugene/transmission-openvpn

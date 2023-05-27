@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: readarr
 spec:
-  path: ./manifests/apps/media-stack/readarr
+  path: ./manifests/apps/readarr
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/readarr-nightly
