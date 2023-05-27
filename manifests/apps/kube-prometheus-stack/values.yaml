@@ -17,10 +17,10 @@ alertmanager:
             alertname: Watchdog
           repeat_interval: 1m
           group_interval: 1m
-  templateFiles: 
+  templateFiles:
     discord_template.tmpl: |-
       {{ define "our.discord.title" }}
-          {{ .Labels.alertname }}
+        {{ .GroupLabels.SortedPairs.Values | join " " }}
       {{ end }}
 
       {{ define "our.discord.message" }}
