@@ -84,6 +84,11 @@ datasources:
           implementation: prometheus
 dashboards:
   default:
+    node-exporter:
+      # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
+      gnetId: 1860
+      revision: 31
+      datasource: Prometheus
     nginx-ingress:
       # https://grafana.com/grafana/dashboards/9614-nginx-ingress-controller/
       gnetId: 9614
