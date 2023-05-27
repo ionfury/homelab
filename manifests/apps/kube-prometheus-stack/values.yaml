@@ -25,10 +25,15 @@ alertmanager:
 
       {{ define "our.discord.message" }}
           {{ range .Alerts.Firing }}
-            Alert: **{{ printf "%.150s" .Annotations.summary }}** ({{ .Labels.severity }})
-            Description: {{ printf "%.150s" .Annotations.description }}
-            Namespace: {{ .Labels.namespace }}
-            Service: {{ .Labels.service }}
+            - **Alert**: {{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})
+            - **Description**: {{ printf "%.150s" .Annotations.description }}
+            - **Runbook**: {{ printf "%.150s" .Annotations.runbook }}
+
+            - **Cluster**: {{ .Labels.prometheus_source }}
+            - **Namespace**: {{ .Labels.namespace }}
+            - **Service**: {{ .Labels.service }}
+
+            [Source]({{ .GeneratorURL  }})
           {{ end }}
       {{ end }}
   ingress:
