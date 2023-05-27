@@ -23,26 +23,28 @@ alertmanager:
         {{ .GroupLabels.SortedPairs.Values | join " " }}
       {{ end }}
 
-      {{ define "our.discord.message" }}
-        - **Alert**: {{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})
-        - **Description**: {{ printf "%.150s" .Annotations.description }}
-        - **Runbook**: {{ printf "%.150s" .Annotations.runbook }}
+      {{ define "our.discord.message.list" }}
+        {{ range . }}
+          - **Alert**: {{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})
+          - **Description**: {{ printf "%.150s" .Annotations.description }}
+          - **Runbook**: {{ printf "%.150s" .Annotations.runbook }}
 
-        - **Cluster**: {{ .Labels.prometheus_source }}
-        - **Namespace**: {{ .Labels.namespace }}
-        - **Service**: {{ .Labels.service }}
+          - **Cluster**: {{ .Labels.prometheus_source }}
+          - **Namespace**: {{ .Labels.namespace }}
+          - **Service**: {{ .Labels.service }}
 
-        [Source]({{ .GeneratorURL  }})
+          [Source]({{ .GeneratorURL  }})
+        {{ end }}
       {{ end }}
 
       {{ define "our.discord.alerts" }}
         {{ if gt (len .Alerts.Firing) 0 }}
           # Alerts Firing:
-          {{ template "our.discord.message" .Alerts.Firing }}
+          {{ template "our.discord.message.list" .Alerts.Firing }}
         {{ end }}
         {{ if gt (len .Alerts.Resolved) 0 }}
           # Alerts Resolved:
-          {{ template "our.discord.message" .Alerts.Resolved }}
+          {{ template "our.discord.message.list" .Alerts.Resolved }}
         {{ end }}
       {{ end}}
   ingress:
