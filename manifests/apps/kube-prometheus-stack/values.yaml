@@ -17,6 +17,20 @@ alertmanager:
             alertname: Watchdog
           repeat_interval: 1m
           group_interval: 1m
+  templateFiles: 
+    discord_template.tmpl: |-
+      {{ define "our.discord.title" }}
+          {{ .Labels.alertname }}
+      {{ end }}
+
+      {{ define "our.discord.message" }}
+          {{ range .Alerts.Firing }}
+            Alert: **{{ printf "%.150s" .Annotations.summary }}** ({{ .Labels.severity }})
+            Description: {{ printf "%.150s" .Annotations.description }}
+            Namespace: {{ .Labels.namespace }}
+            Service: {{ .Labels.service }}
+          {{ end }}
+      {{ end }}
   ingress:
     enabled: true
     pathType: Prefix
