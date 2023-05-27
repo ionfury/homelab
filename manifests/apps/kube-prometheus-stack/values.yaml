@@ -36,6 +36,17 @@ alertmanager:
             [Source]({{ .GeneratorURL  }})
           {{ end }}
       {{ end }}
+
+      {{ define "our.discord.alerts" }}
+        {{ if gt (len .Alerts.Firing) 0 }}
+          # Alerts Firing:
+          {{ template "our.discord.message" .Alerts.Firing }}
+        {{ end }}
+        {{ if gt (len .Alerts.Resolved) 0 }}
+          # Alerts Resolved:
+          {{ template "our.discord.message" .Alerts.Resolved }}
+        {{ end }}
+      {{ end}}
   ingress:
     enabled: true
     pathType: Prefix
