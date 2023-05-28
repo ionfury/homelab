@@ -45,7 +45,7 @@ spec:
     fsType: ext4
     volumeAttributes:
       hostStorageClass: hdd-unreplicated
-    volumeHandle: plexheim-copy
+    volumeHandle: plexheim-copy-test
   persistentVolumeReclaimPolicy: Delete
   storageClassName: harvester-hdd-retained
   volumeMode: Filesystem
