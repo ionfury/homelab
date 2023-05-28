@@ -1,0 +1,27 @@
+replicas: 3
+storage:
+  enabled: true
+  requests: 1Gi
+extraArgs:
+  - --dbfilename=dump.rdb
+  - --save_schedule=*:* # HH:MM glob format
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+serviceMonitor:
+  enabled: true
+prometheusRule:
+  enabled: true
+  spec:
+    - alert: DragonflyMissing
+      expr: absent(dragonfly_uptime_in_seconds) == 1
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: Dragonfly is missing
+        description: "Dragonfly is missing"

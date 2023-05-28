@@ -1,4 +1,4 @@
-namePrefix: descheduler-
+namePrefix: dragonflydb-
 components:
   - ../.templates/helm-release-oci
 configMapGenerator:

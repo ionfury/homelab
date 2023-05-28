@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+components:
+  - ../helm-release
+patches:
+  - target:
+      kind: HelmRepository
+    patch: |
+      - op: add
+        path: /spec/type
+        value: oci
+resources:
+  - image-policy.yaml
+  - image-repository.yaml

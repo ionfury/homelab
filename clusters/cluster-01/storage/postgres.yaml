@@ -1,0 +1,12 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: homelab-postgres
+spec:
+  path: ./manifests/apps/cloudnative-pg-cluster
+  postBuild:
+    substitute:
+      DATABASE: homelab
+      REPOSITORY: ghcr.io/cloudnative-pg/postgresql
+      TAG: 15.3-4
+      SIZE: 20Gi

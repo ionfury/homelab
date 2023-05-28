@@ -1,0 +1,6 @@
+namespace: system
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - dragonflydb.yaml
+  - postgres.yaml

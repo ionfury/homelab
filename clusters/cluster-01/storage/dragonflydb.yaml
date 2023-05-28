@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata: name:dragonflydb
+spec:
+  path: ./manifests/apps/dragonflydb
+  postBuild:
+    substitute:
+      CHART: dragonfly
+      VERSION: 1.2.1 # {"$imagepolicy": "storage:dragonflydb-automation:tag"}
+      REPO: oci://ghcr.io/dragonflydb/dragonfly/helm/dragonfly
