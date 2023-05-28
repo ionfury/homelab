@@ -41,10 +41,10 @@ persistence:
   config:
     enabled: true
     mountPath: /config
-    existingClaim: plexheim-plhexheim-server
+    existingClaim: plexheim-plhexheim-game
 
   # Persist World
   data:
     enabled: true
     mountPath: /opt/valheim
-    existingClaim: plexheim-plhexheim-game
+    existingClaim: plexheim-plhexheim-server
