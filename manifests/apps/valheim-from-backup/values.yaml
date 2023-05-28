@@ -29,22 +29,22 @@ ingress:
       kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: cloudflare
     hosts:
-      - host: "${NAME}-valheim.${INTERNAL_DOMAIN}"
+      - host: "plexheim.${INTERNAL_DOMAIN}"
         paths:
           - path: /
     tls:
       - hosts:
-          - "${NAME}-valheim.${INTERNAL_DOMAIN}"
-        secretName: valheim-tls
+          - "plexheim.${INTERNAL_DOMAIN}"
+        secretName: plexheim-tls
 persistence:
   # Persist config
   config:
     enabled: true
     mountPath: /config
-    existingClaim: plhexheim-server
+    existingClaim: plexheim-plhexheim-server
 
   # Persist World
   data:
     enabled: true
     mountPath: /opt/valheim
-    existingClaim: plhexheim-game
+    existingClaim: plexheim-plhexheim-game
