@@ -3,5 +3,5 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - plexheim.yaml
-  - valheim.yaml
+  #- valheim.yaml
   - valheim-exporter.yaml
