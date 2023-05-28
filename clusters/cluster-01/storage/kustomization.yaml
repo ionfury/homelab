@@ -1,4 +1,4 @@
-namespace: system
+namespace: storage
 components:
   - ../../../manifests/components/namespace
 resources:
