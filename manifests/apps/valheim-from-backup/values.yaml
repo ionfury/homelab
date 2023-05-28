@@ -1,6 +1,6 @@
 envFrom:
   - secretRef:
-      name: valheim-envs
+      name: plexheim-envs
 service:
   main:
     type: LoadBalancer
