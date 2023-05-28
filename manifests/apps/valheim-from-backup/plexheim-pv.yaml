@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plhexheim-server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  csi:
+    driver: driver.harvesterhci.io
+    fsType: ext4
+    volumeAttributes:
+      hostStorageClass: hdd-unreplicated
+    volumeHandle: plexheim-server-copy
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: harvester-hdd-retained
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plhexheim-server
+  namespace: games
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: harvester-hdd-retained
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+  volumeName: plhexheim-server
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plhexheim-game
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 20Gi
+  csi:
+    driver: driver.harvesterhci.io
+    fsType: ext4
+    volumeAttributes:
+      hostStorageClass: hdd-unreplicated
+    volumeHandle: plexheim-game-copy
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: harvester-hdd-retained
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plhexheim-game
+  namespace: games
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: harvester-hdd-retained
+  resources:
+    requests:
+      storage: 20Gi
+  volumeMode: Filesystem
+  volumeName: plhexheim-game

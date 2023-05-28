@@ -1,0 +1,50 @@
+envFrom:
+  - secretRef:
+      name: valheim-envs
+service:
+  main:
+    type: LoadBalancer
+    externalTrafficPolicy: Cluster
+    annotations:
+      cloudprovider.harvesterhci.io/ipam: dhcp
+    ports:
+      http:
+        port: 80
+      steam1:
+        port: 2456
+        protocol: UDP
+      steam2:
+        port: 2457
+        protocol: UDP
+      steam3:
+        port: 2458
+        protocol: UDP
+      supervisor:
+        port: 9001
+        protocol: TCP
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: cloudflare
+    hosts:
+      - host: "${NAME}-valheim.${INTERNAL_DOMAIN}"
+        paths:
+          - path: /
+    tls:
+      - hosts:
+          - "${NAME}-valheim.${INTERNAL_DOMAIN}"
+        secretName: valheim-tls
+persistence:
+  # Persist config
+  config:
+    enabled: true
+    mountPath: /config
+    existingClaim: plhexheim-server
+
+  # Persist World
+  data:
+    enabled: true
+    mountPath: /opt/valheim
+    existingClaim: plhexheim-game
