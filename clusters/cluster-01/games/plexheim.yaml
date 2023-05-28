@@ -1,7 +1,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: valheim
+  name: plexheim
 spec:
   path: ./manifests/apps/valheim-from-backup
   postBuild:
