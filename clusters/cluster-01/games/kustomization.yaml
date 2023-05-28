@@ -2,6 +2,6 @@ namespace: games
 components:
   - ../../../manifests/components/namespace
 resources:
-  - plexheim.yaml
+  # - plexheim.yaml
   - valheim.yaml
   - valheim-exporter.yaml
