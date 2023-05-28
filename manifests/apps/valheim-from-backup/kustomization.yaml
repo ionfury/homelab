@@ -1,6 +1,6 @@
 namePrefix: plexheim-
 components:
-  - ../../.templates/helm-release-app-template-oci
+  - ../.templates/helm-release-app-template-oci
 resources:
   - plexheim-pv.yaml
 configMapGenerator:
