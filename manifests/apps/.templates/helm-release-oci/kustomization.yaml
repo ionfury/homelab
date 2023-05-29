@@ -9,6 +9,9 @@ patches:
       - op: add
         path: /spec/type
         value: oci
+      - op: replace
+        path: /spec/url
+        value: oci://${REPO}
 resources:
   - image-policy.yaml
   - image-repository.yaml
