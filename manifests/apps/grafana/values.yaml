@@ -84,6 +84,16 @@ datasources:
           implementation: prometheus
 dashboards:
   default:
+    kube-state-metrics-v2:
+      # https://grafana.com/grafana/dashboards/13332-kube-state-metrics-v2/
+      gnetId: 13332
+      revision: 12
+      datasource: Prometheus
+    persistent-volumes:
+      # https://grafana.com/grafana/dashboards/13646-kubernetes-persistent-volumes/
+      gnetId: 13646
+      revision: 2
+      datasource: Prometheus
     node-exporter:
       # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
       gnetId: 1860
@@ -123,6 +133,9 @@ dashboards:
       # https://grafana.com/grafana/dashboards/11315-unifi-poller-client-insights-prometheus/
       gnetId: 11315
       datasource: Prometheus
+    cloudnative-pg:
+      url: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/7620d609373036cc342350726ab6b3f7a91fe040/docs/src/samples/monitoring/grafana-dashboard.json
+      datasource: Prometheus
     flux-cluster:
       url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/monitoring-config/dashboards/cluster.json
       datasource: Prometheus
@@ -131,7 +144,7 @@ dashboards:
       datasource: Prometheus
     flux-logs:
       url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/monitoring-config/dashboards/logs.json
-      datasource: Prometheus
+      datasource: Loki
     kubernetes-api-server:
       url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
       datasource: Prometheus
