@@ -5,6 +5,8 @@ secretGenerator:
     options:
       disableNameSuffixHash: true
       annotations:
-        secret-generator.v1.mittwald.de/type: basic-auth
+        secret-generator.v1.mittwald.de/autogenerate: password
         replicator.v1.mittwald.de/replication-allowed: "true"
         replicator.v1.mittwald.de/replication-allowed-namespaces: ".*"
+    literals:
+      - username=postgres
