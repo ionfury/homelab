@@ -1,2 +1,10 @@
 resources:
   - pg-cluster.yaml
+secretGenerator:
+  - name: postgres-superuser
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/type: basic-auth
+        replicator.v1.mittwald.de/replication-allowed: "true"
+        replicator.v1.mittwald.de/replication-allowed-namespaces: ".*"

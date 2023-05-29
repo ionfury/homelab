@@ -4,7 +4,7 @@ initContainers:
     imagePullPolicy: IfNotPresent
     env:
       INIT_POSTGRES_DBNAME: "sonarr_main sonarr_log"
-      INIT_POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
       INIT_POSTGRES_USER:
         valueFrom:
           secretKeyRef:
@@ -18,19 +18,19 @@ initContainers:
       INIT_POSTGRES_SUPER_USER:
         valueFrom:
           secretKeyRef:
-            name: media-stack-postgres-superuser
+            name: sonarr-postgres-superuser
             key: username
       INIT_POSTGRES_SUPER_PASS:
         valueFrom:
           secretKeyRef:
-            name: media-stack-postgres-superuser
+            name: sonarr-postgres-superuser
             key: password
 env:
   TZ: America/New_York
   SONARR__INSTANCE_NAME: Sonarr
   SONARR__PORT: 80
   SONARR__LOG_LEVEL: info
-  SONARR__POSTGRES_HOST: media-stack-postgres-rw.${NAMESPACE}.svc.cluster.local
+  SONARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
   SONARR__POSTGRES_PORT: 5432
   SONARR__POSTGRES_MAIN_DB: sonarr_main
   SONARR__POSTGRES_LOG_DB: sonarr_log

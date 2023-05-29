@@ -1,3 +1,54 @@
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "paperless"
+      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: paperless-ngx-secret
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: paperless-ngx-secret
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: paperless-ngx-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: paperless-ngx-postgres-superuser
+            key: password
+env:
+  - name: PAPERLESS_DBUSER
+    valueFrom:
+      secretKeyRef:
+        name: paperless-ngx-secret
+        key: username
+  - name: PAPERLESS_DBPASS
+    valueFrom:
+      secretKeyRef:
+        name: paperless-ngx-secret
+        key: password
+  - name: PAPERLESS_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: paperless-ngx-secret
+        key: key
+  - name: PAPERLESS_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: paperless-ngx-secret
+        key: admin-password
+envFrom:
+  - configMapRef:
+      name: paperless-ngx-app-config
 automountServiceToken: false
 service:
   main:
@@ -73,7 +124,7 @@ configMaps:
   config:
     enabled: true
     data:
-      PAPERLESS_DBHOST: paperless-postgres-rw.${NAMESPACE}.svc.cluster.local
+      PAPERLESS_DBHOST: ${CLUSTER_POSTGRES_HOST}
       PAPERLESS_PORT: "8000"
       PAPERLESS_URL: https://paperless.${INTERNAL_DOMAIN}
       PAPERLESS_ALLOWED_HOSTS: "*"
@@ -81,24 +132,3 @@ configMaps:
       PAPERLESS_OCR_ROTATE_PAGES_THRESHOLD: "8"
       PAPERLESS_REDIS: redis://paperless-redis-app-master.${NAMESPACE}.svc.cluster.local:6379
       PAPERLESS_ADMIN_USER: admin
-secrets:
-  secret:
-    enabled: true
-    annotations:
-      secret-generator.v1.mittwald.de/autogenerate: PAPERLESS_SECRET_KEY,PAPERLESS_ADMIN_PASSWORD
-envFrom:
-  - configMapRef:
-      name: paperless-ngx-app-config
-  - secretRef:
-      name: paperless-ngx-app-secret
-env:
-  - name: PAPERLESS_DBUSER
-    valueFrom:
-      secretKeyRef:
-        name: paperless-postgres-app
-        key: username
-  - name: PAPERLESS_DBPASS
-    valueFrom:
-      secretKeyRef:
-        name: paperless-postgres-app
-        key: password

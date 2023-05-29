@@ -1,22 +1,20 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: ${DATABASE}-postgres
+  name: postgres
   annotations:
     kyverno.io/ignore: "true"
 spec:
   instances: 3
   imageName: ${REPOSITORY}:${TAG}
-  inheritedMetadata:
   primaryUpdateStrategy: unsupervised
+  superuserSecret:
+    name: postgres-superuser
   storage:
     size: ${SIZE:=10Gi}
     storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
   monitoring:
     enablePodMonitor: true
-  bootstrap:
-    initdb:
-      database: ${DATABASE}
   postgresql:
     parameters:
       max_connections: "600"
