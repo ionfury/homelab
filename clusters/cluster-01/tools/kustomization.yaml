@@ -5,3 +5,4 @@ resources:
   - code-server.yaml
   - goldilocks.yaml
   - paperless-ngx.yaml
+  - vpa.yaml

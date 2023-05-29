@@ -1,0 +1,19 @@
+recommender:
+  enabled: true
+  image:
+    repository: registry.k8s.io/autoscaling/vpa-recommender
+    tag: 0.13.0
+  resources:
+    requests:
+      cpu: 10m
+      memory: 100M
+  extraArgs:
+    pod-recommendation-min-cpu-millicores: 15
+    pod-recommendation-min-memory-mb: 61
+    storage: prometheus
+    prometheus-address: |-
+      http://kube-prometheus-stack-app-prometheus.monitoring.svc.cluster.local:9090
+updater:
+  enabled: false
+admissionController:
+  enabled: false
