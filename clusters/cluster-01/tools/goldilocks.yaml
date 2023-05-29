@@ -1,9 +1,9 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: code-server
+  name: goldilocks
 spec:
-  path: ./manifests/apps/code-server
+  path: ./manifests/apps/goldilocks
   postBuild:
     substitute:
       CHART: goldilocks
