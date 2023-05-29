@@ -20,7 +20,8 @@ dashboard:
           - path: /
             type: Prefix
     tls:
-      - hosts:
+      - secretName: goldilocks-tls
+        hosts:
           - goldilocks.${INTERNAL_DOMAIN}
   resources:
     requests:
