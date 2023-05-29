@@ -16,4 +16,4 @@ secretGenerator:
     options:
       disableNameSuffixHash: true
       annotations:
-        replicator.v1.mittwald.de/replicate-from: storage/postgres-superuser
+        replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser
