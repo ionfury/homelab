@@ -10,4 +10,4 @@ spec:
       VERSION: 1.0.0
       REPO: https://jameswynn.github.io/helm-charts
       REPOSITORY: ghcr.io/benphelps/homepage
-      TAG: v0.6.17
+      TAG: v0.6.17 # {"$imagepolicy": "default:homepage-automationn:tag"}
