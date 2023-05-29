@@ -3,4 +3,5 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - code-server.yaml
+  - goldilocks.yaml
   - paperless-ngx.yaml

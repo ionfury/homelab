@@ -1,0 +1,24 @@
+controller:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 50Mi
+dashboard:
+  replicaCount: 1
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+    hosts:
+      - host: goldilocks.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            type: Prefix
+    tls:
+      - hosts:
+          - goldilocks.${INTERNAL_DOMAIN}
+  resources:
+    requests:
+      cpu: 25m
+      memory: 50Mi
