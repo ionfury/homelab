@@ -1,7 +1,7 @@
 resources:
   - pg-cluster.yaml
 secretGenerator:
-  - name: postgres-superuser
+  - name: generated-postgres-superuser
     options:
       disableNameSuffixHash: true
       annotations:

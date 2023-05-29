@@ -9,7 +9,7 @@ spec:
   imageName: ${REPOSITORY}:${TAG}
   primaryUpdateStrategy: unsupervised
   superuserSecret:
-    name: postgres-superuser
+    name: generated-postgres-superuser
   storage:
     size: ${SIZE:=10Gi}
     storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
