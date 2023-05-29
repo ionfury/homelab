@@ -1,6 +1,7 @@
 namePrefix: homepage-
 components:
   - ../.templates/helm-release
+  - ../.templates/image-automation
 configMapGenerator:
   - name: values
     behavior: replace

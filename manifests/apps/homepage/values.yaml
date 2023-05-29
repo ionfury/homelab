@@ -1,6 +1,6 @@
 image:
-  repository: ghcr.io/benphelps/homepage # {"$imagepolicy": "code-server:homepage-automation:name"}
-  tag: v0.6.17 # {"$imagepolicy": "homepage:homepage-automation:tag"}
+  repository: ${REPOSITORY}
+  tag: ${TAG}
 ingress:
   main:
     enabled: true
