@@ -1,6 +1,0 @@
-hostname: rancher.tomnowak.dev
-ingress:
-  tls:
-    source: secret
-  extraAnnotations:
-    cert-manager.io/cluster-issuer: "cloudflare"

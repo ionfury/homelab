@@ -1,6 +1,0 @@
-controller:
-  replicaCount: 2
-  strategy:
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1

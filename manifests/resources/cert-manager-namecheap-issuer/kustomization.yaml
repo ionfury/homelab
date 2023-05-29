@@ -1,4 +1,0 @@
-resources:
-  - cert-manager
-  - letsencrypt-namecheap-issuer
-  - namecheap-webhook

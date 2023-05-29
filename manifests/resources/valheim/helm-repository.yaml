@@ -1,7 +1,0 @@
-apiVersion: source.toolkit.fluxcd.io/v1beta1
-kind: HelmRepository
-metadata:
-  name: valheim
-spec:
-  interval: 10m
-  url: https://addyvan.github.io/valheim-k8s/

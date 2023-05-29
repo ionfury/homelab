@@ -1,8 +1,0 @@
-namespace: cert-manager
-
-components:
-  - ../../components/flux-sops-key
-  - ../../components/flux-ssh-key
-
-resources:
-  - cluster-issuer-sync.yaml
