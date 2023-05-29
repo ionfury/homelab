@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: valheim
 spec:
-  path: ./manifests/apps/valheim/game
+  path: ./manifests/apps/valheim
   postBuild:
     substitute:
       REPOSITORY: lloesche/valheim-server

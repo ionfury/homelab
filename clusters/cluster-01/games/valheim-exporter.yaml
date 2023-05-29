@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: valheim-exporter
 spec:
-  path: ./manifests/apps/valheim/exporter
+  path: ./manifests/apps/valheim-exporter
   postBuild:
     substitute:
       REPOSITORY: armsnyder/a2s-exporter
