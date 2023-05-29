@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: dragonfly
       VERSION: v1.3.0 # {"$imagepolicy": "storage:dragonflydb-automation:tag"}
-      REPO: oci://ghcr.io/dragonflydb/dragonfly/helm/dragonfly
+      REPO: ghcr.io/dragonflydb/dragonfly/helm/dragonfly
