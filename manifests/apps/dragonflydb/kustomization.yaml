@@ -1,8 +1,0 @@
-namePrefix: dragonflydb-
-components:
-  - ../.templates/helm-release-oci
-configMapGenerator:
-  - name: values
-    behavior: replace
-    files:
-      - values.yaml

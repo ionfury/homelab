@@ -1,0 +1,12 @@
+namespace: ${NAMESPACE}
+resources:
+  - https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/main/manifests/dragonfly-operator.yaml
+patches:
+  - target:
+      kind: Namespace
+    patch: |
+      $patch: delete
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: DOES NOT MATTER

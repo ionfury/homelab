@@ -3,6 +3,7 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - cloudnative-pg.yaml
+  - dragonfly-db-operator.yaml
   - external-secrets-stores.yaml
   - external-secrets.yaml
   - harvester-storage-classes.yaml

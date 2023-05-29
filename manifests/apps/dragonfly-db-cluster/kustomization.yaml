@@ -1,0 +1,2 @@
+resources:
+  - dragonfly-db-cluster.yaml

@@ -2,5 +2,5 @@ namespace: storage
 components:
   - ../../../manifests/components/namespace
 resources:
-  - dragonflydb.yaml
+  - dragonfly-db.yaml
   - postgres.yaml
