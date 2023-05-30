@@ -36,7 +36,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              port: 9000
+              port: 9001
     tls:
       - secretName: minio-tls
         hosts:
@@ -57,7 +57,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              port: 9001
+              port: 9000
     tls:
       - secretName: s3-tls
         hosts:
