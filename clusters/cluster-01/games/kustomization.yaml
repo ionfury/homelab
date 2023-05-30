@@ -4,5 +4,5 @@ components:
 resources:
   - plexheim.yaml
   #- valheim.yaml
-  - satisfactory.yaml
+  #- satisfactory.yaml
   - valheim-exporter.yaml

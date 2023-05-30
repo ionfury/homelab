@@ -47,7 +47,7 @@ persistence:
     retain: true
     accessMode: ReadWriteOnce
     storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
-    size: 5Gi
+    size: 10Gi
   # Persist World
   data:
     enabled: true
