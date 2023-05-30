@@ -1,0 +1,3 @@
+resources:
+  #- gotk-sync.yaml
+  - test-namespace.yaml
