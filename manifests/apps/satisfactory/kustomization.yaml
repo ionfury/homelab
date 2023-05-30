@@ -1,0 +1,8 @@
+namePrefix: satisfactory-
+components:
+  - ../.templates/helm-release-app-template-oci
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
