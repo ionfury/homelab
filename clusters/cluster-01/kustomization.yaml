@@ -1,6 +1,8 @@
 components:
   - ../../manifests/components/configurations/kustomization
 resources:
+  - test.yaml
+
   - app-template-helm-repo.yaml
   - cert-manager
   - default
