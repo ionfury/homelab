@@ -1,0 +1,14 @@
+namePrefix: minio-
+components:
+  - ../.templates/helm-release-app-template-oci
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+secretGenerator:
+  - name: secret
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: MINIO_ROOT_USER,MINIO_ROOT_PASSWORD

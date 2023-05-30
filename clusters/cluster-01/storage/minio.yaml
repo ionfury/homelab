@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: minio
+spec:
+  path: ./manifests/apps/minio
+  postBuild:
+    substitute:
+      REPOSITORY: quay.io/minio/minio
+      TAG: RELEASE.2023-05-27T05-56-19Z # {"$imagepolicy": "storage:minio-automation:tag"}
