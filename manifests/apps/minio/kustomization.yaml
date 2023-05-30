@@ -12,3 +12,20 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: MINIO_ROOT_USER,MINIO_ROOT_PASSWORD
+patches:
+  - target:
+      kind: ImageRepository
+    patch: |
+      $patch: delete
+      apiVersion: image.toolkit.fluxcd.io/v1beta1
+      kind: ImageRepository
+      metadata:
+        name: DOES NOT MATTER
+  - target:
+      kind: ImagePolicy
+    patch: |
+      $patch: delete
+      apiVersion: image.toolkit.fluxcd.io/v1beta1
+      kind: ImagePolicy
+      metadata:
+        name: DOES NOT MATTER
