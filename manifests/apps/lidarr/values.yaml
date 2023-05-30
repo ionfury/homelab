@@ -26,7 +26,7 @@ initContainers:
             name: lidarr-postgres-superuser
             key: password
 env:
-  TZ: America/New_York
+  TZ: ${TZ}
   LIDARR__INSTANCE_NAME: Lidarr
   LIDARR__PORT: 80
   LIDARR__LOG_LEVEL: info

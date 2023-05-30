@@ -25,7 +25,7 @@ secretGenerator:
       - UPDATE_RESTART_MSG="Valeim is restarting to apply an update!"
       - BACKUP_MSG="Valheim backup to file @BACKUP_FILE@ is starting"
       - SUPERVISOR_HTTP=true
-      - TZ="America/New_York"
+      - TZ=${TZ}
 patches:
   - target:
       kind: ImagePolicy

@@ -26,7 +26,7 @@ initContainers:
             name: readarr-postgres-superuser
             key: password
 env:
-  TZ: America/New_York
+  TZ: ${TZ}
   READARR__INSTANCE_NAME: Readarr
   READARR__PORT: 80
   READARR__LOG_LEVEL: info

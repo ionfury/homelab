@@ -26,7 +26,7 @@ initContainers:
             name: prowlarr-postgres-superuser
             key: password
 env:
-  TZ: America/New_York
+  TZ: ${TZ}
   PROWLARR__INSTANCE_NAME: Prowlarr
   PROWLARR__PORT: 80
   PROWLARR__LOG_LEVEL: info

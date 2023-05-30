@@ -1,5 +1,5 @@
 env:
-  TZ: America/New_York
+  TZ: ${TZ}
   UP_UNIFI_DEFAULT_URL: https://192.168.1.1:443
   UP_UNIFI_DEFAULT_VERIFY_SSL: false
   UP_INFLUXDB_DISABLE: true

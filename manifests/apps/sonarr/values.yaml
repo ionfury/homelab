@@ -26,7 +26,7 @@ initContainers:
             name: sonarr-postgres-superuser
             key: password
 env:
-  TZ: America/New_York
+  TZ: ${TZ}
   SONARR__INSTANCE_NAME: Sonarr
   SONARR__PORT: 80
   SONARR__LOG_LEVEL: info
