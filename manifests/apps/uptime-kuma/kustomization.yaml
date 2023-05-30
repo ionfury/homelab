@@ -1,6 +1,8 @@
 namePrefix: uptime-kuma-
 components:
   - ../.templates/helm-release-app-template-oci
+resources:
+  - prometheus-rules.yaml
 configMapGenerator:
   - name: values
     behavior: replace
