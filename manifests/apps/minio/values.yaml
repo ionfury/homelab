@@ -62,13 +62,13 @@ ingress:
       - secretName: s3-tls
         hosts:
           - s3.${INTERNAL_DOMAIN}
-podSecurityContext:
-  runAsUser: 568
-  runAsGroup: 568
-  fsGroup: 568
-  fsGroupChangePolicy: "OnRootMismatch"
-  supplementalGroups:
-    - 100
+#podSecurityContext:
+#  runAsUser: 568
+#  runAsGroup: 568
+#  fsGroup: 568
+#  fsGroupChangePolicy: "OnRootMismatch"
+#  supplementalGroups:
+#    - 100
 data:
   enabled: true
   retain: true
