@@ -9,6 +9,8 @@ spec:
   interval: 1m0s
   ref:
     branch: main
+  secretRef:
+    name: flux-system
   url: ssh://git@github.com/ionfury/homelab.git
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
