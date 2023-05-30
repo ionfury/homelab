@@ -1,0 +1,10 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dragonfly-db-metrics
+spec:
+  endpoints:
+    - interval: 30s
+      path: /metrics
+      port: redis
+      scrapeTimeout: 10s
