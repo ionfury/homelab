@@ -1,9 +1,9 @@
 commonLabels:
   app.kubernetes.io/name: dragonfly
-  app.kubernetes.io/instance: dragonfly-sample
-  app.kubernetes.io/part-of: dragonfly-operator
-  app.kubernetes.io/managed-by: kustomize
-  app.kubernetes.io/created-by: dragonfly-operator
+  #app.kubernetes.io/instance: dragonfly-sample
+  #app.kubernetes.io/part-of: dragonfly-operator
+  #app.kubernetes.io/managed-by: kustomize
+  #app.kubernetes.io/created-by: dragonfly-operator
 components:
   - ../../components/configurations/service-monitor
 resources:
