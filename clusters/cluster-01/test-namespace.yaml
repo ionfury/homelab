@@ -4,3 +4,5 @@ metadata:
   name: test
   labels:
     goldilocks.fairwinds.com/enabled: true
+  annotations:
+    test: test
