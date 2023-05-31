@@ -3,6 +3,7 @@ kind: Namespace
 metadata:
   name: test
   labels:
+    goldilocks.fairwinds.com/enabled: true
     test: test
   annotations:
     test: test
