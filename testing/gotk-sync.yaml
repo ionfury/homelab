@@ -1,4 +1,4 @@
-apiVersion: source.toolkit.fluxcd.io/v1
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
   name: default
@@ -9,7 +9,7 @@ spec:
     branch: main
   url: https://github.com/ionfury/homelab.git
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: test
