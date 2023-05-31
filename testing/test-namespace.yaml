@@ -3,6 +3,6 @@ kind: Namespace
 metadata:
   name: test
   labels:
-    test: asdf
+    test: test
   annotations:
-    test: asdf
+    test: test
