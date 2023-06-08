@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/radarr-nightly
-      TAG: 4.6.1.7452 # {"$imagepolicy": "media:radarr-automation:tag"}
+      TAG: 4.6.1.7453 # {"$imagepolicy": "media:radarr-automation:tag"}
