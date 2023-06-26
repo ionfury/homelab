@@ -9,8 +9,8 @@ locals {
   }
 }
 
-data "harvester_image" "ubuntu20" {
-  name      = "ubuntu20"
+data "harvester_image" "ubuntu2004" {
+  name      = "ubuntu2004"
   namespace = var.namespace
 }
 
@@ -67,7 +67,7 @@ resource "harvester_virtualmachine" "nodes" {
     bus        = "virtio"
     boot_order = 1
 
-    image       = data.harvester_image.ubuntu20.id
+    image       = data.harvester_image.ubuntu2004.id
     auto_delete = true
   }
 

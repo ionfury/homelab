@@ -1,8 +1,9 @@
-resource "harvester_clusternetwork" "rancher" {
-  name        = "rancher"
-  description = "Network for rancher management cluster."
+resource "harvester_clusternetwork" "harvester" {
+  name        = "harvester"
+  description = "Network for harvester management cluster."
 }
 
 resource "harvester_clusternetwork" "kubernetes" {
-  name = "kubernetes"
+  name        = "kubernetes"
+  description = "Network dedicated for kubernetes nodes."
 }

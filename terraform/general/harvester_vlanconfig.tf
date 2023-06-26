@@ -30,10 +30,10 @@ resource "harvester_vlanconfig" "harvester1-uplink" {
   }
 }
 
-resource "harvester_vlanconfig" "rancher" {
-  cluster_network_name = "rancher"
-  description          = "Dedicated network for rancher."
-  name                 = "rancher"
+resource "harvester_vlanconfig" "harvester" {
+  cluster_network_name = "harvester"
+  description          = "Dedicated network for harvester."
+  name                 = "harvester"
   tags                 = {}
 
   uplink {

@@ -4,7 +4,7 @@ terraform {
     bucket         = "homelab-terragrunt-remote-state"
     dynamodb_table = "terragrunt"
     encrypt        = true
-    key            = "./terraform.tfstate"
+    key            = "network/terraform.tfstate"
     profile        = "terragrunt"
     region         = "us-east-2"
   }

@@ -1,0 +1,32 @@
+scheme_version: 1
+server_url: https://harvester0.citadel.tomnowak.work
+token: # entered via config
+os:
+  ssh_authorized_keys:
+    - github:ionfury
+  hostname: harvester0
+  dns_nameservers:
+    - 192.168.1.1
+    - 8.8.8.8
+    - 1.1.1.1
+  ntp_servers:
+    - 0.suse.pool.ntp.org
+    - 1.suse.pool.ntp.org
+  password: $apr1$1flEoVOw$LzwkG6eBK.s2.dOLcMeim/
+  labels:
+    topology.kubernetes.io/zone: homelab0
+install:
+  mode: create
+  management_interface:
+    method: static
+    ip: 192.168.10.3
+    subnet_mask: 255.255.255.0
+    gateway: 192.168.10.1
+    interfaces:
+      - name: eno1
+    mtu: 1500
+    vlan_id: 10
+  poweroff: true
+  no_format: true
+  vip_mode: static
+  vip: 192.168.10.2
