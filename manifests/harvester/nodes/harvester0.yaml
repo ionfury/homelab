@@ -27,6 +27,6 @@ install:
     mtu: 1500
     vlan_id: 10
   poweroff: true
-  no_format: true
+  no_format: false
   vip_mode: static
   vip: 192.168.10.2
