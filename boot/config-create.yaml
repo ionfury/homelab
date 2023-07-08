@@ -1,0 +1,34 @@
+scheme_version: 1
+token: ###
+os:
+  ssh_authorized_keys:
+    - github:ionfury
+  hostname: harvester0
+  dns_nameservers:
+    - 192.168.1.1
+    - 8.8.8.8
+    - 1.1.1.1
+  ntp_servers:
+    - 0.suse.pool.ntp.org
+    - 1.suse.pool.ntp.org
+  password: $apr1$1flEoVOw$LzwkG6eBK.s2.dOLcMeim/
+  labels:
+    topology.kubernetes.io/zone: homelab0
+install:
+  mode: create
+  iso_url: https://releases.rancher.com/harvester/v1.1.2/harvester-v1.1.2-amd64.iso
+  poweroff: true
+  no_format: false
+  device: /dev/sdb
+  data_disk: /dev/sdb
+  management_interface:
+    bond_options:
+      miimon: "100"
+      node: active-backup
+    gateway: 192.168.10.1
+    interfaces:
+      - name: eno1
+    method: dhcp
+    mtu: 1500
+  vip_mode: static
+  vip: 192.168.10.2     
