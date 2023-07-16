@@ -91,7 +91,7 @@ Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/coll
 
 ## Bare Metal
 
-Currently running [Harvester v1.1.1](https://github.com/harvester/harvester/releases/tag/v1.1.1).
+Currently running [Harvester v1.1.2](https://github.com/harvester/harvester/releases/tag/v1.1.2).
 
 For provisioning a new harvester node, follow the installation instructions [here](https://docs.harvesterhci.io/v1.1/install/iso-install) via [USB](https://docs.harvesterhci.io/v1.1/install/usb-install).  The USB stick is sitting on top of the rack :). Retrieve the existing cluster token [like so](https://github.com/harvester/harvester/issues/2424).
 
