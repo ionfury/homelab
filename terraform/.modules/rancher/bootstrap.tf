@@ -1,33 +1,43 @@
-provider "rancher2" {
-  alias     = "bootstrap"
-  api_url   = "https://${var.rancher_domain_prefix}.${var.cloudflare_domain}"
-  bootstrap = true
+
+resource "random_password" "rancher_bootstrap_password" {
+  length  = 24
+  special = false
+}
+
+resource "helm_release" "rancher" {
+  depends_on = [helm_release.cert_manager]
+  name       = "rancher"
+  namespace  = "cattle-system"
+  chart      = "rancher"
+  version    = var.rancher_version
+  repository = "https://releases.rancher.com/server-charts/stable"
+
+  wait             = true
+  create_namespace = true
+  force_update     = true
+  replace          = true
+
+  set {
+    name  = "hostname"
+    value = join(".", [var.network_subdomain, var.network_tld])
+  }
+  set {
+    name  = "bootstrapPassword"
+    value = random_password.rancher_bootstrap_password.result
+  }
+  set {
+    name  = "ingress.tls.source"
+    value = "secret"
+  }
+  set {
+    name  = "ingress.extraAnnotations.cert-manager\\.io/cluster-issuer"
+    value = "cloudflare"
+  }
 }
 
 resource "rancher2_bootstrap" "admin" {
-  provider         = rancher2.bootstrap
+  depends_on       = [helm_release.rancher, kubectl_manifest.cloudflare_issuer]
   initial_password = random_password.rancher_bootstrap_password.result
   password         = random_password.rancher_bootstrap_password.result
   telemetry        = false
-  depends_on       = [helm_release.rancher]
-}
-
-resource "aws_ssm_parameter" "rancher_admin_url" {
-  name        = "rancher-admin-url"
-  description = "Rancher server url in my homelab."
-  type        = "String"
-  value       = rancher2_bootstrap.admin.url
-  tags = {
-    managed-by-terraform = "true"
-  }
-}
-
-resource "aws_ssm_parameter" "rancher_admin_token" {
-  name        = "rancher-admin-token"
-  description = "Rancher admin token in my homelab."
-  type        = "SecureString"
-  value       = rancher2_bootstrap.admin.token
-  tags = {
-    managed-by-terraform = "true"
-  }
 }

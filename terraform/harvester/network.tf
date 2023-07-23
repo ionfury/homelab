@@ -4,7 +4,7 @@ resource "harvester_clusternetwork" "this" {
 }
 
 resource "harvester_network" "this" {
-  cluster_network_name = harvester_clusternetwork.this.cluster_network_name
+  cluster_network_name = harvester_clusternetwork.this.name
   config = jsonencode(
     {
       bridge      = "${var.default_network_name}-br"
@@ -26,16 +26,23 @@ resource "harvester_network" "this" {
 }
 
 resource "harvester_vlanconfig" "this" {
-  cluster_network_name = harvester_clusternetwork.this.cluster_network_name
+  cluster_network_name = harvester_clusternetwork.this.name
   description          = "Default uplink for harvester network."
   name                 = var.default_network_name
   tags                 = {}
 
+  # If we add additional nodes we will need specific configs for nodes.
+  #  node_selector = {
+  #    "kubernetes.io/hostname" : "harvester0"
+  #  }
+
   uplink {
     bond_miimon = 0
-    mtu         = 0
+    mtu         = 1500
+    bond_mode   = "balance-tlb"
     nics = [
-      "eno2"
+      "eno2",
+      "eno3"
     ]
   }
 }

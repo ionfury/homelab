@@ -14,13 +14,3 @@ resource "harvester_ssh_key" "vm_ssh_key" {
 
   tags = var.tags
 }
-
-resource "aws_ssm_parameter" "vm_ssh_key" {
-  name        = "${var.name}-node-ssh-key"
-  description = "SSH key for accessing nodes belonging to ${var.name} RKE cluster."
-  type        = "SecureString"
-  value       = tls_private_key.vm_key.private_key_pem
-  tags = {
-    managed-by-terraform = "true"
-  }
-}

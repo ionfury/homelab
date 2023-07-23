@@ -15,6 +15,6 @@ variable "default_network_cidr" {
 }
 
 variable "harvester_node_count" {
-  type = number
+  type        = number
   description = "The number of harvester nodes configured in this cluster."
 }

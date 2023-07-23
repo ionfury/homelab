@@ -1,5 +1,7 @@
 resource "harvester_storageclass" "fast" {
   name = "fast"
+  # Bug in terraform provider, you might need to set this manually
+  is_default = true
   parameters = {
     "migratable"          = "true"
     "numberOfReplicas"    = min(var.harvester_node_count, 3)
@@ -21,7 +23,7 @@ resource "harvester_storageclass" "fast_backup" {
       [
         {
           isGroup = true
-          name    = "nightly"
+          name    = "weekly"
         },
       ]
     )
@@ -51,7 +53,7 @@ resource "harvester_storageclass" "slow_backup" {
       [
         {
           isGroup = true
-          name    = "nightly"
+          name    = "weekly"
         },
       ]
     )

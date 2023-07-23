@@ -9,28 +9,17 @@ locals {
   }
 }
 
-data "harvester_image" "ubuntu2004" {
-  name      = "ubuntu2004"
-  namespace = var.namespace
-}
-
 data "harvester_network" "harvester" {
   name      = var.harvester_network_name
   namespace = var.namespace
 }
 
-resource "harvester_storageclass" "vm_storage" {
-  name = var.storage_class_name
-  parameters = {
-    "migratable"          = "true"
-    "numberOfReplicas"    = "3"
-    "staleReplicaTimeout" = "30"
-    "diskSelector"        = "ssd"
-  }
-
-  tags = {
-    managed-by-terraform = true
-  }
+resource "harvester_image" "this" {
+  name         = "${var.name}-image"
+  display_name = "${var.name}-image"
+  namespace    = "default"
+  source_type  = "download"
+  url          = var.base_image
 }
 
 resource "harvester_virtualmachine" "nodes" {
@@ -63,11 +52,11 @@ resource "harvester_virtualmachine" "nodes" {
   disk {
     name       = "root"
     type       = "disk"
-    size       = "30Gi"
+    size       = var.node_disk
     bus        = "virtio"
     boot_order = 1
 
-    image       = data.harvester_image.ubuntu2004.id
+    image       = harvester_image.this.id
     auto_delete = true
   }
 

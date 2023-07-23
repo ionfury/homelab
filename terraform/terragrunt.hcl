@@ -3,12 +3,15 @@ terragrunt_version_constraint = ">= 0.47.0"
 
 locals {
   global_vars = read_terragrunt_config(find_in_parent_folders("global.hcl"))
+  network_vars = read_terragrunt_config(find_in_parent_folders("network.hcl"))
+  harvester_vars = read_terragrunt_config(find_in_parent_folders("harvester.hcl"))
 }
 
 inputs = merge(
-  local.global_vars.locals
+  local.global_vars.locals,
+  local.network_vars.locals,
+  local.harvester_vars.locals
 )
-
 
 remote_state {
   backend = "s3"
@@ -25,7 +28,7 @@ remote_state {
     profile = "terragrunt"
   }
 }
-
+/*
 generate "provider" {
   path = "provider.tf"
   if_exists = "overwrite"
@@ -117,3 +120,4 @@ provider "healthchecksio" {
 }
 EOF
 }
+*/

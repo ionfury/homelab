@@ -93,7 +93,7 @@ Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/coll
 
 Currently running [Harvester v1.1.2](https://github.com/harvester/harvester/releases/tag/v1.1.2).
 
-For provisioning a new harvester node, follow the installation instructions [here](https://docs.harvesterhci.io/v1.1/install/iso-install) via [USB](https://docs.harvesterhci.io/v1.1/install/usb-install).  The USB stick is sitting on top of the rack :). Retrieve the existing cluster token [like so](https://github.com/harvester/harvester/issues/2424).
+For provisioning a new harvester node, follow the installation instructions [here](https://docs.harvesterhci.io/v1.1/install/iso-install) via [USB](https://docs.harvesterhci.io/v1.1/install/usb-install).  The USB stick is sitting on top of the rack :).
 
 Once the node has joined the cluster, manually log in to the web UI and configure the [host storage disk tags](https://docs.harvesterhci.io/v1.1/host/#multi-disk-management) through the [management interface](https://rancher.tomnowak.work/) with `hdd` and `ssd` tags.  Unfortunately the [terraform provider](https://github.com/harvester/terraform-provider-harvester) does not have functionality to facilitate host management.
 
@@ -105,11 +105,10 @@ After the hosts are manually provisioned, [terraform](https://www.terraform.io/)
 
 The infrastructure consists roughly of three parts:
 
-- [General](./terraform/general/) configuration of harvester, such as storage and virtual networks.  This is currently a mess and needs to be decomposed.
+- [Network](./terraform/network/) configures my local unifi network infrastructure with a VNET and maps the ports allocated to current and future use for this homelab to be dedicated to those ports.
+- [Harvester](.terraform/harvester/) configuration of harvester, such as storage and virtual networks.  You must download the harvester kubeconfig from [this](https://192.168.10.2/dashboard/harvester/c/local/support) link to run this module.
 - [Rancher](./terraform/rancher-cluster/), which acts as the UI as the whole operation.  Currently provisioned manually as a single node due to harvester lacking [load balancing on vms](https://github.com/harvester/load-balancer-harvester/pull/13) or [built-in rancher integration](https://github.com/harvester/harvester/issues/2679).  Maybe in Harvester [`v1.2.0`](https://github.com/harvester/harvester/milestone/13).
-- [Downstream Clusters](./terraform/cluster-01), which finally run the useful stuff.  The [cluster module](./terraform/.modules/rancher-rke2-cluster/) provisions a cluster with [RKE2](https://docs.rke2.io/) through Rancher and bootstraps [flux](https://fluxcd.io/) onto the cluster, creating a deploy directory in [clusters/](./clusters/) which we can leverage to deploy workloads.
-
-> NOTE: You need to manually register the harvester cluster in rancher before creating downstream clusters. [link](https://docs.harvesterhci.io/v1.1/rancher/virtualization-management/)
+- [Downstream Clusters](./terraform/clusters), which finally run the useful stuff.  The [cluster module](./terraform/.modules/rancher-harvester-cluster) provisions a cluster with [RKE2](https://docs.rke2.io/) through Rancher and bootstraps [flux](https://fluxcd.io/) onto the cluster, creating a deploy directory in [clusters/](./clusters/) which we can leverage to deploy workloads.
 
 Simply run the following command to provision the infrastructure:
 

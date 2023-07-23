@@ -26,6 +26,12 @@ variable "node_memory" {
   default     = "8Gi"
 }
 
+variable "node_disk" {
+  description = "Disk space to allocate for each node."
+  type        = string
+  default     = "60Gi"
+}
+
 variable "harvester_ssh_key_name" {
   description = "Harvester SSH key to allow access to the node by name."
   type        = string
@@ -36,9 +42,14 @@ variable "harvester_network_name" {
   type        = string
 }
 
-variable "storage_class_name" {
-  description = "Name of the storage class to use for created VMs"
+variable "base_image" {
+  description = "Base image to use for nodes."
   type        = string
+  default     = "http://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img"
+}
+
+variable "kubernetes_version" {
+  type = string
 }
 
 variable "tags" {
