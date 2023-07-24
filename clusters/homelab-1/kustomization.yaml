@@ -1,2 +1,7 @@
 resources:
   - flux-system
+configMapGenerator:
+  - name: cluster-vars
+    namespace: flux-system
+    envs:
+      - cluster-vars.env
