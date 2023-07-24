@@ -2,9 +2,9 @@ allowVolumeExpansion: true
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: harvester-hdd-nightly-retained
+  name: fast
 parameters:
-  hostStorageClass: hdd-nightly-retained
+  hostStorageClass: fast
 provisioner: driver.harvesterhci.io
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
