@@ -1,0 +1,12 @@
+namespace: monitoring
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - dell-idrac-snmp-exporter.yaml
+  - grafana.yaml
+  - kube-prometheus-stack.yaml
+  - loki.yaml
+  - promtail.yaml
+  - redis-monitoring.yaml
+  - unpoller.yaml
+  - uptime-kuma.yaml

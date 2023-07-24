@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: filebrowser
+spec:
+  path: ./manifests/apps/filebrowser
+  postBuild:
+    substitute:
+      CHART: filebrowser
+      VERSION: 1.0.0
+      REPO: https://utkuozdemir.org/helm-charts

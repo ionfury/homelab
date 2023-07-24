@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: blocky
+spec:
+  path: ./manifests/apps/blocky
+  postBuild:
+    substitute:
+      REPOSITORY: ghcr.io/0xerr0r/blocky
+      TAG: v0.21 # {"$imagepolicy": "network:blocky-automation:tag"}

@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: uptime-kuma
+spec:
+  path: ./manifests/apps/uptime-kuma
+  postBuild:
+    substitute:
+      REPOSITORY: louislam/uptime-kuma
+      TAG: 1.21.3 # {"$imagepolicy": "monitoring:uptime-kuma-automation:tag"}

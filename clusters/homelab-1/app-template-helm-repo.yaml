@@ -1,0 +1,39 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: bjw-s
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://bjw-s.github.io/helm-charts
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: bjw-s-oci
+  namespace: flux-system
+spec:
+  interval: 1h
+  type: oci
+  url: oci://ghcr.io/bjw-s/helm
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: bjw-s-oci
+  namespace: flux-system
+spec:
+  interval: 4h
+  image: ghcr.io/bjw-s/helm/app-template
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: bjw-s-oci
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: bjw-s-oci
+  policy:
+    semver:
+      range: ">= 1.0.0 < 2.0.0"

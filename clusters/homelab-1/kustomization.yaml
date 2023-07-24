@@ -2,7 +2,19 @@ components:
   - ../../manifests/components/configurations/kustomization
   - ../../manifests/components/kustomization-cluster-vars
 resources:
+  - app-template-helm-repo.yaml
+  - cert-manager
+  - default
   - flux-system
+  #- games
+  - kube-system
+  #- media
+  - monitoring
+  - network
+  #- policy
+  - storage
+  - system
+  - tools
 configMapGenerator:
   - name: cluster-vars
     namespace: flux-system

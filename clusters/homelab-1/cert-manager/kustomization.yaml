@@ -1,0 +1,6 @@
+namespace: cert-manager
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - cert-manager.yaml
+  - issuers.yaml
