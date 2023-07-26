@@ -1,12 +1,12 @@
 installCRDs: true
 serviceMonitor:
-  enabled: true
+  enabled: false
   interval: 1m
 webhook:
   serviceMonitor:
-    enabled: true
+    enabled: false
     interval: 1m
 certController:
   serviceMonitor:
-    enabled: true
+    enabled: false
     interval: 1m
