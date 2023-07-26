@@ -1,3 +1,12 @@
+loki:
+  structuredConfig:
+    auth_enabled: false
+    server:
+      log_level: info
+      http_listen_port: 3100
+      grpc_listen_port: 9095
+    memberlist:
+      join_members: ["loki-memberlist"]
 global:
   dnsService: coredns
   dnsNamespace: kube-system
