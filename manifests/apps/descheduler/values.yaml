@@ -8,6 +8,60 @@ leaderElection:
   resourceLock: "leases"
   resourceName: "descheduler"
   resourceNamescape: "kube-system"
+deschedulerPolicy:
+  strategies:
+    RemovePodsHavingTooManyRestarts:
+      enabled: true
+      params:
+        podsHavingTooManyRestarts:
+          podRestartThreshold: 5
+          includingInitContainers: true
+    RemovePodsViolatingTopologySpreadConstraint:
+      enabled: true
+      params:
+        includeSoftConstraints: true
+    PodLifeTime:
+      enabled: true
+      params:
+        podLifeTime:
+          states:
+            - Pending
+            - PodInitializing
+            - ContainerCreating
+          maxPodLifeTimeSeconds: 3600
+    RemoveFailedPods:
+      enabled: true
+      params:
+        failedPods:
+          reasons:
+            - NodeShutdown
+            - ImagePullBackOff
+            - CreateContainerConfigError
+          includingInitContainers: true
+          excludeOwnerKinds:
+            - Job
+          minPodLifetimeSeconds: 3600
+    RemoveDuplicates:
+      enabled: true
+    RemovePodsViolatingNodeTaints:
+      enabled: true
+    RemovePodsViolatingNodeAffinity:
+      enabled: true
+      params:
+        nodeAffinityType:
+          - requiredDuringSchedulingIgnoredDuringExecution
+    RemovePodsViolatingInterPodAntiAffinity:
+      enabled: true
+    LowNodeUtilization:
+      enabled: true
+      params:
+        nodeResourceUtilizationThresholds:
+          thresholds:
+            cpu: 35
+            memory: 35
+          targetThresholds:
+            cpu: 40
+            memory: 40
 service:
   enabled: true
 serviceMonitor:
