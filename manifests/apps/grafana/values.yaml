@@ -40,13 +40,14 @@ grafana.ini:
     enabled: false
   server:
     root_url: https://grafana.${INTERNAL_DOMAIN}
+  auto_assign_org_role: Admin
   auth.github:
     enabled: true
     scopes: user:email,read:org
     auth_url: https://github.com/login/oauth/authorize
     token_url: https://github.com/login/oauth/access_token
     api_url: https://api.github.com/user
-    auto_assign_org_role: Admin
+    auto_login: true
 env:
   GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
   GF_EXPLORE_ENABLED: true
