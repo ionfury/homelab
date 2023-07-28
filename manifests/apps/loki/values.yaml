@@ -37,6 +37,11 @@ loki:
           s3: null
           insecure: true
           s3forcepathstyle: true
+          # from secret
+          # bucketnames:
+          # endpoint:
+          # access_key_id:
+          # secret_access_key:
       ring:
         kvstore:
           store: memberlist
@@ -120,7 +125,7 @@ backend:
   extraVolumes:
     - name: rules
       configMap:
-        name: loki-alerting-rules
+        name: alerting-rules
     - name: scratch
       emptyDir: {}
 monitoring:
@@ -128,14 +133,14 @@ monitoring:
     annotations:
       grafana_folder: Loki
   serviceMonitor:
-    enabled: false
+    enabled: true
     metricsInstance:
-      enabled: false
+      enabled: true
   selfMonitoring:
     enabled: false
     grafanaAgent:
       installOperator: false
   lokiCanary:
-    enabled: false
+    enabled: true
 test:
   enabled: false

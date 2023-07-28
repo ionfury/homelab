@@ -1,12 +1,56 @@
 namePrefix: loki-
 components:
   - ../.templates/helm-release
+resources:
+  - external-secret.yaml
 configMapGenerator:
   - name: values
     behavior: replace
     files:
       - values.yaml
+  - name: minio-secret
+    behavior: create
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        replicator.v1.mittwald.de/replicate-from: storage/minio-secret
+  - name: alerting-rules
+    options:
+      disableNameSuffixHash: true
+    files:
+      - alerting-rules.yaml=./rules/alerting-rules.yaml
 patches:
   - target:
       kind: HelmRelease
     path: patch-helm-release.yaml
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: loki.structuredConfig.common.storage.s3.bucketnames
+          kind: Secret
+          name: s3-bucket
+          valuesKey: BUCKET_NAME
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: loki.structuredConfig.common.storage.s3.endpoint
+          kind: Secret
+          name: s3-bucket
+          valuesKey: BUCKET_HOST
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: loki.structuredConfig.common.storage.s3.access_key_id
+          kind: Secret
+          name: s3-bucket
+          valuesKey: BUCKET_ACCESS_KEY_ID
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: loki.structuredConfig.common.storage.s3.secret_access_key
+          kind: Secret
+          name: s3-bucket
+          valuesKey: BUCKET_SECRET_ACCESS_KEY
