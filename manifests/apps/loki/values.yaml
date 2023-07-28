@@ -125,7 +125,7 @@ backend:
   extraVolumes:
     - name: rules
       configMap:
-        name: alerting-rules
+        name: loki-alerting-rules
     - name: scratch
       emptyDir: {}
 monitoring:
