@@ -109,7 +109,7 @@ datasources:
         isDefault: true
       - name: Loki
         type: loki
-        url: http://loki-gateway.${NAMESPACE}:3100/
+        url: http://loki-gateway.${NAMESPACE}
         access: proxy
         jsonData:
           maxLines: 250
