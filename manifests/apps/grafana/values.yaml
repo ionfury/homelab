@@ -5,6 +5,7 @@ extraInitContainers:
     env:
       INIT_POSTGRES_DBNAME: grafana
       INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+    envValueFrom:
       INIT_POSTGRES_USER:
         valueFrom:
           secretKeyRef:
