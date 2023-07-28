@@ -1,6 +1,33 @@
+extraInitContainers:
+  - name: 01-init-db
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    envFrom:
+      INIT_POSTGRES_DBNAME: grafana
+      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: grafana-postgres
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: grafana-postgres
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: grafana-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: grafana-postgres-superuser
+            key: password
 image:
   repository: docker.io/grafana/grafana
-replicas: 1
+replicas: 2
 deploymentStrategy:
   type: Recreate
 grafana.ini:
@@ -23,6 +50,20 @@ env:
   GF_EXPLORE_ENABLED: true
   GF_FEATURE_TOGGLES_ENABLE: publicDashboards
   GF_SERVER_ROOT_URL: https://grafana.${INTERNAL_DOMAIN}
+  GF_DATABASE_NAME: grafana
+  GF_DATABASE_HOST: ${CLUSTER_POSTGRES_HOST}:5432
+  GF_DATABASE_SSL_MODE: disable
+  GF_DATABASE_TYPE: postgres
+  GF_DATABSE_USER:
+    valueFrom:
+      secretKeyRef:
+        name: grafana-postgres
+        key: username
+  GF_DATABASE_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: grafana-postgres
+        key: password
 envFromSecrets:
   - name: grafana-github-client
 ingress:
@@ -55,12 +96,7 @@ dashboardProviders:
         options:
           path: /var/lib/grafana/dashboards/default
 persistence:
-  type: pvc
-  enabled: true
-  storageClassName: ${STORAGE_CLASS_SLOW_UNREPLICATED:=default}
-  accessModes:
-    - ReadWriteOnce
-  size: 10Gi
+  enabled: false
 datasources:
   datasource.yaml:
     apiVersion: 1

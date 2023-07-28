@@ -8,3 +8,14 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+secretGenerator:
+  - name: postgres
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: username,password,key
+  - name: postgres-superuser
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser
