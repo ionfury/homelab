@@ -13,14 +13,14 @@ ingress:
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "homepage.png"
     hosts:
-      - host: homepage.tomnowak.work
+      - host: homepage.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: ImplementationSpecific
     tls:
       - secretName: homepage-tls
         hosts:
-          - homepage.tomnowak.work
+          - homepage.${INTERNAL_DOMAIN}
 serviceAccount:
   create: true
   name: homepage

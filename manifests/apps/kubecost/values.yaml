@@ -43,11 +43,11 @@ ingress:
     gethomepage.dev/group: "Share"
     gethomepage.dev/icon: "kubecost.png"
   hosts:
-    - cost.tomnowak.work
+    - cost.${INTERNAL_DOMAIN}
   tls:
     - secretName: kubecost-tls
       hosts:
-        - cost.tomnowak.work
+        - cost.${INTERNAL_DOMAIN}
 persistentVolume:
   storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
 kubecostProductConfigs:

@@ -11,14 +11,14 @@ ingress:
     gethomepage.dev/icon: filebrowser.png
     gethomepage.dev/name: Filebrowser
   hosts:
-    - host: filebrowser.tomnowak.work
+    - host: filebrowser.${INTERNAL_DOMAIN}
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
     - secretName: filebrowser-tls
       hosts:
-        - filebrowser.tomnowak.work
+        - filebrowser.${INTERNAL_DOMAIN}
 resources:
   requests:
     cpu: 100m
