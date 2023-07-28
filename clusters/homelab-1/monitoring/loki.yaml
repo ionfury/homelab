@@ -7,5 +7,5 @@ spec:
   postBuild:
     substitute:
       CHART: loki
-      VERSION: 4.4.2
+      VERSION: 5.9.2
       REPO: https://grafana.github.io/helm-charts
