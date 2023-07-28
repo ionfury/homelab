@@ -3,25 +3,26 @@ extraInitContainers:
     image: ghcr.io/onedr0p/postgres-init:14.8
     imagePullPolicy: IfNotPresent
     env:
-      INIT_POSTGRES_DBNAME: grafana
-      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-    envValueFrom:
-      INIT_POSTGRES_USER:
+      - name: INIT_POSTGRES_DBNAME
+        value: grafana
+      - name: INIT_POSTGRES_HOST
+        value: ${CLUSTER_POSTGRES_HOST}
+      - name: INIT_POSTGRES_USER
         valueFrom:
           secretKeyRef:
             name: grafana-postgres
             key: username
-      INIT_POSTGRES_PASS:
+      - name: INIT_POSTGRES_PASS
         valueFrom:
           secretKeyRef:
             name: grafana-postgres
             key: password
-      INIT_POSTGRES_SUPER_USER:
+      - name: INIT_POSTGRES_SUPER_USER
         valueFrom:
           secretKeyRef:
             name: grafana-postgres-superuser
             key: username
-      INIT_POSTGRES_SUPER_PASS:
+      - name: INIT_POSTGRES_SUPER_PASS
         valueFrom:
           secretKeyRef:
             name: grafana-postgres-superuser
@@ -55,6 +56,7 @@ env:
   GF_DATABASE_HOST: ${CLUSTER_POSTGRES_HOST}:5432
   GF_DATABASE_SSL_MODE: disable
   GF_DATABASE_TYPE: postgres
+envValueFrom:
   GF_DATABSE_USER:
     valueFrom:
       secretKeyRef:
