@@ -1,5 +1,5 @@
 config:
   clients:
-    - url: http://loki-gateway.${NAMESPACE}.svc.cluster.local:3100/loki/api/v1/push
+    - url: http://loki-gateway.${NAMESPACE}.svc.cluster.local/loki/api/v1/push
 serviceMonitor:
   enabled: true
