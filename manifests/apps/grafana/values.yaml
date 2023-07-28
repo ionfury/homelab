@@ -58,15 +58,13 @@ env:
   GF_DATABASE_TYPE: postgres
 envValueFrom:
   GF_DATABSE_USER:
-    valueFrom:
-      secretKeyRef:
-        name: grafana-postgres
-        key: username
+    secretKeyRef:
+      name: grafana-postgres
+      key: username
   GF_DATABASE_PASSWORD:
-    valueFrom:
-      secretKeyRef:
-        name: grafana-postgres
-        key: password
+    secretKeyRef:
+      name: grafana-postgres
+      key: password
 envFromSecrets:
   - name: grafana-github-client
 ingress:
