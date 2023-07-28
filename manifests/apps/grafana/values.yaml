@@ -57,7 +57,7 @@ env:
   GF_DATABASE_SSL_MODE: disable
   GF_DATABASE_TYPE: postgres
 envValueFrom:
-  GF_DATABSE_USER:
+  GF_DATABASE_USER:
     secretKeyRef:
       name: grafana-postgres
       key: username
