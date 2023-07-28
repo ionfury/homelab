@@ -40,7 +40,8 @@ grafana.ini:
     enabled: false
   server:
     root_url: https://grafana.${INTERNAL_DOMAIN}
-  auto_assign_org_role: Admin
+  users:
+    auto_assign_org_role: Admin
   auth.github:
     enabled: true
     scopes: user:email,read:org
