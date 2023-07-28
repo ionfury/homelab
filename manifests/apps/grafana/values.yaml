@@ -2,7 +2,7 @@ extraInitContainers:
   - name: 01-init-db
     image: ghcr.io/onedr0p/postgres-init:14.8
     imagePullPolicy: IfNotPresent
-    envFrom:
+    env:
       INIT_POSTGRES_DBNAME: grafana
       INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
       INIT_POSTGRES_USER:
