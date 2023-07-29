@@ -48,3 +48,8 @@ variable "healthchecksio_api_key_store" {
 variable "external_secrets_access_key_name" {
   type = string
 }
+
+variable "harvester_kubeconfig_path" {
+  type = string
+}
+

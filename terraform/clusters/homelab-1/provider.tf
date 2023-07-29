@@ -20,7 +20,7 @@ provider "aws" {
 }
 
 provider "harvester" {
-  kubeconfig = "~/.kube/harvester"
+  kubeconfig = var.harvester_kubeconfig_path
 }
 
 provider "rancher2" {

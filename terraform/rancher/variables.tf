@@ -82,3 +82,7 @@ variable "cert_manager_version" {
 variable "harvester_cluster_name" {
   type = string
 }
+
+variable "harvester_kubeconfig_path" {
+  type = string
+}

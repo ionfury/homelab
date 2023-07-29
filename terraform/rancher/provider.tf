@@ -16,7 +16,7 @@ provider "aws" {
 }
 
 provider "harvester" {
-  kubeconfig = "~/.kube/harvester"
+  kubeconfig = var.harvester_kubeconfig_path
 }
 
 provider "rke" {
@@ -59,7 +59,7 @@ provider "kubectl" {
 
 provider "kubectl" {
   alias       = "harvester"
-  config_path = "~/.kube/harvester"
+  config_path = var.harvester_kubeconfig_path
 }
 
 provider "github" {
