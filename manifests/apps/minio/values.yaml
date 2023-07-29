@@ -62,13 +62,14 @@ ingress:
       - secretName: s3-tls
         hosts:
           - s3.${INTERNAL_DOMAIN}
-data:
-  enabled: true
-  retain: true
-  storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
-  size: 100Gi
-  accessMode: ReadWriteOnce
-  mountPath: /data
+persistence:
+  data:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    size: 100Gi
+    accessMode: ReadWriteOnce
+    mountPath: /data
 resources:
   requests:
     memory: 100Mi
