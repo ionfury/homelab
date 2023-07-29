@@ -83,11 +83,6 @@ podSecurityContext:
   fsGroup: 568
   fsGroupChangePolicy: OnRootMismatch
 persistence:
-  config:
-    enabled: true
-    retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
-    size: 1Gi
   media:
     enabled: true
     existingClaim: jellyfin-app-media

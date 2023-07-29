@@ -27,13 +27,13 @@ resources:
 rootDir:
   type: pvc
   pvc:
-    storageClassName: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClassName: ${STORAGE_CLASS_SLOW}
     accessModes:
       - ReadWriteOnce
     size: 5Gi
 dv:
   pvc:
-    storageClassName: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClassName: ${STORAGE_CLASS_SLOW}
     accessModes:
       - ReadWriteOnce
     size: 5Gi

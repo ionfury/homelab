@@ -4,7 +4,7 @@ auth:
 master:
   persistence:
     size: ${SIZE:=8Gi}
-    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
 metrics:
   enabled: true
   serviceMonitor:

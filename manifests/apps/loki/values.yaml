@@ -105,7 +105,7 @@ gateway:
 read:
   replicas: 2
   persistence:
-    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW}
   extraVolumeMounts:
     - name: rules
       mountPath: /rules
@@ -115,11 +115,11 @@ read:
 write:
   replicas: 2
   persistence:
-    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW}
 backend:
   replicas: 2
   persistence:
-    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW}
   extraVolumeMounts:
     - name: rules
       mountPath: /rules/fake

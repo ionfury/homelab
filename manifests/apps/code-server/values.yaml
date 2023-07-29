@@ -48,14 +48,14 @@ persistence:
   data:
     enabled: true
     retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW}
     size: 10Gi
     accessMode: ReadWriteOnce
     mountPath: /home/coder
   bin:
     enabled: true
     retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW}
     size: 1Gi
     accessMode: ReadWriteOnce
     mountPath: /usr/local/bin

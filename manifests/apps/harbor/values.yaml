@@ -34,16 +34,16 @@ internalTLS:
 persistence:
   persistentVolumeClaim:
     registry:
-      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+      storageClass: ${STORAGE_CLASS_SLOW}
     jobservice:
       jobLog:
-        storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+        storageClass: ${STORAGE_CLASS_SLOW}
     database:
-      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+      storageClass: ${STORAGE_CLASS_SLOW}
     redis:
-      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+      storageClass: ${STORAGE_CLASS_SLOW}
     trivy:
-      storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+      storageClass: ${STORAGE_CLASS_SLOW}
 existingSecretAdminPassword: harbor-admin-password
 existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
 metrics:

@@ -20,7 +20,7 @@ spec:
     storage:
       persistentVolumeClaim:
         metadata:
-          name: ${STORAGE_CLASS_SLOW_REPLICATED}
+          name: ${STORAGE_CLASS_SLOW_BACKUP}
         spec:
           accessModes:
             - ReadWriteOnce

@@ -41,7 +41,7 @@ persistence:
   config:
     enabled: true
     retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 1Gi
   transcode:
     enabled: true
@@ -49,7 +49,7 @@ persistence:
   media:
     enabled: true
     retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW}
     size: 100Gi
     accessMode: ReadWriteOnce
 podLabels:

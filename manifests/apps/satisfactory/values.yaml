@@ -46,7 +46,7 @@ persistence:
     mountPath: /config
     retain: true
     accessMode: ReadWriteOnce
-    storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW}
     size: 10Gi
   # Persist World
   data:
@@ -54,5 +54,5 @@ persistence:
     mountPath: /config/gamefiles
     retain: true
     accessMode: ReadWriteOnce
-    storageClass: ${STORAGE_CLASS_SLOW_REPLICATED}
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 50Gi

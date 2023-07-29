@@ -49,7 +49,7 @@ ingress:
       hosts:
         - cost.${INTERNAL_DOMAIN}
 persistentVolume:
-  storageClass: ${STORAGE_CLASS_SLOW_UNREPLICATED}
+  storageClass: ${STORAGE_CLASS_SLOW}
 kubecostProductConfigs:
   grafanaURL: https://grafana.${INTERNAL_DOMAIN}
   customPricesEnabled: true
