@@ -59,3 +59,41 @@ resource "harvester_storageclass" "slow_backup" {
     )
   }
 }
+
+resource "kubectl_manifest" "daily_longhorn_snapshot" {
+  yaml_body = <<YAML
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: weekly-snapshot
+  namespace: longhorn-system
+spec:
+  concurrency: 1
+  cron: 0 0 * * 0
+  groups:
+  - weekly
+  labels: {}
+  name: weekly-snapshot
+  retain: 3
+  task: snapshot
+YAML
+}
+
+resource "kubectl_manifest" "weekly_longhorn_backup" {
+  yaml_body = <<YAML
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: weekly-backup
+  namespace: longhorn-system
+spec:
+  concurrency: 1
+  cron: 0 0 * * 0
+  groups:
+  - weekly
+  labels: {}
+  name: weekly-backup
+  retain: 3
+  task: backup
+YAML
+}

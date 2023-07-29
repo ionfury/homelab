@@ -8,5 +8,9 @@ terraform {
       source  = "hashicorp/aws"
       version = ">=4.62.0"
     }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = "1.14.0"
+    }
   }
 }
