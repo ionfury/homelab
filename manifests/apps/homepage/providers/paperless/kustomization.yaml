@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: config.settings.providers.paperlessngx.password
+          kind: Secret
+          name: homepage-paperless-provider
+          valuesKey: admin-password
+secretGenerator:
+  - name: paperless-provider
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        replicator.v1.mittwald.de/replicate-from: tools/paperless-ngx-secret

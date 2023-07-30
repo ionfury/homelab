@@ -33,6 +33,11 @@ config:
   settings:
     color: stone
     theme: dark
+    providers:
+      paperlessngx:
+        url: http://paperless-ngx-app.tools.svc.cluster.local:8000
+        username: admin
+        # password: from paperless-provider.yaml
   bookmarks:
     - Cloud:
         - Github:
