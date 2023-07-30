@@ -19,3 +19,14 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: ingress.annotations.gethomepage\.dev/widget\.password
+          kind: Secret
+          name: grafana-app
+          valuesKey: admin-password

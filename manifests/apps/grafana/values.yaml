@@ -80,6 +80,10 @@ ingress:
     gethomepage.dev/group: Monitoring
     gethomepage.dev/icon: grafana.png
     gethomepage.dev/name: Grafana
+    gethomepage.dev/widget.type: grafana
+    gethomepage.dev/widget.url: grafana-app.${NAMESPACE}.svc.cluster.local
+    gethomepage.dev/widget.username: admin
+    # gethomepage.dev/widget.password: patched in helm release
   hosts:
     - grafana.${INTERNAL_DOMAIN}
   tls:
