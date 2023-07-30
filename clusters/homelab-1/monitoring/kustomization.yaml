@@ -9,4 +9,4 @@ resources:
   - promtail.yaml
   - redis-monitoring.yaml
   - unpoller.yaml
-  #- uptime-kuma.yaml
+  - uptime-kuma.yaml
