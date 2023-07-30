@@ -1,8 +1,0 @@
-namespace: network
-components:
-  - ../../../manifests/components/namespace
-resources:
-  - blocky.yaml
-  - ingress-nginx.yaml
-  - unifi-network.yaml
-  - unifi-protect.yaml
