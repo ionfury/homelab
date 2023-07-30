@@ -124,7 +124,7 @@ prometheus:
       gethomepage.dev/icon: prometheus.png
       gethomepage.dev/name: Prometheus
       gethomepage.dev/widget.type: prometheus
-      gethomepage.dev/widget.url: prometheus.${INTERNAL_DOMAIN}
+      gethomepage.dev/widget.url: http://kube-prometheus-stack-app-prometheus.${NAMESPACE}.svc.cluster.local:9090
     hosts:
       - prometheus.${INTERNAL_DOMAIN}
     tls:
