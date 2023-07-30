@@ -81,7 +81,9 @@ ingress:
       gethomepage.dev/icon: paperless-ng.png
       gethomepage.dev/name: Paperless
       gethomepage.dev/widget.type: paperlessngx
-      gethomepage.dev/widget.provider: paperlessngx
+      gethomepage.dev/widget.url: http://paperless-ngx-app.${NAMESPACE}.svc.cluster.local:8000
+      gethomepage.dev/widget.username: admin
+      #gethomepage.dev/widget.password: patched in helm release
     hosts:
       - host: paperless.${INTERNAL_DOMAIN}
         paths:
