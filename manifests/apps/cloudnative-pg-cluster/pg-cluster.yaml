@@ -26,4 +26,8 @@ spec:
       endpointURL: ${CLUSTER_MINIO_HOST}:9000
       s3Credentials:
         accessKeyId:
-          name: k8s-minio-bucket
+          name: s3-bucket
+          key: BUCKET_ACCESS_KEY_ID
+        secretAccessKey:
+          name: s3-bucket
+          key: BUCKET_SECRET_ACCESS_KEY
