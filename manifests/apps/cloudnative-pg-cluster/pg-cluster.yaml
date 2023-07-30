@@ -19,3 +19,11 @@ spec:
     parameters:
       max_connections: "600"
       shared_buffers: 512MB
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore:
+      destinationPath: s3//postgres-backup/
+      endpointURL: ${CLUSTER_MINIO_HOST}:9000
+      s3Credentials:
+        accessKeyId:
+          name: k8s-minio-bucket

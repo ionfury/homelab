@@ -1,5 +1,7 @@
 resources:
   - pg-cluster.yaml
+  - external-secret.yaml
+  - scheduled-backup.yaml
 secretGenerator:
   - name: generated-postgres-superuser
     options:
