@@ -34,8 +34,6 @@ metadata:
     gethomepage.dev/group: Network
     gethomepage.dev/icon: unifi-controller.png
     gethomepage.dev/name: Unifi Controller
-    gethomepage.dev/widget.type: "unifi"
-    gethomepage.dev/widget.url: "network.${INTERNAL_DOMAIN}"
 spec:
   rules:
     - host: network.${INTERNAL_DOMAIN}
