@@ -15,7 +15,7 @@ ingress:
       gethomepage.dev/icon: transmission.png
       gethomepage.dev/name: Transmission
       gethomepage.dev/widget.type: transmission
-      gethomepage.dev/widget.url: http://transmission.media.svc.cluster.local:9091
+      gethomepage.dev/widget.url: http://transmission-app.${NAMESPACE}.svc.cluster.local:9091
     hosts:
       - host: transmission.${INTERNAL_DOMAIN}
         paths:
