@@ -44,7 +44,7 @@ env:
       secretKeyRef:
         name: sonarr-secret
         key: password
-  SONARR_API_KEY:
+  SONARR__API_KEY:
     valueFrom:
       secretKeyRef:
         name: sonarr-secret

@@ -44,7 +44,7 @@ env:
       secretKeyRef:
         name: lidarr-secret
         key: password
-  LIDARR_API_KEY:
+  LIDARR__API_KEY:
     valueFrom:
       secretKeyRef:
         name: lidarr-secret

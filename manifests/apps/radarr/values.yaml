@@ -44,7 +44,7 @@ env:
       secretKeyRef:
         name: radarr-secret
         key: password
-  RADARR_API_KEY:
+  RADARR__API_KEY:
     valueFrom:
       secretKeyRef:
         name: radarr-secret

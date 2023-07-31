@@ -45,7 +45,7 @@ env:
       secretKeyRef:
         name: readarr-secret
         key: password
-  READARR_API_KEY:
+  READARR__API_KEY:
     valueFrom:
       secretKeyRef:
         name: readarr-secret
