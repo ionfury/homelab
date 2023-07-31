@@ -19,3 +19,13 @@ secretGenerator:
         replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser
 patches:
   - path: image-automation.yaml
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: ingress.main.annotations.gethomepage\.dev/widget\.key
+          kind: Secret
+          name: radarr-secret
+          valuesKey: key

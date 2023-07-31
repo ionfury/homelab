@@ -66,7 +66,7 @@ ingress:
       gethomepage.dev/icon: lidarr.png
       gethomepage.dev/name: Lidarr
       gethomepage.dev/widget.type: lidarr
-      gethomepage.dev/widget.url: http://lidarr.${NAMESPACE}.svc.cluster.local:80
+      gethomepage.dev/widget.url: http://lidarr-app.${NAMESPACE}.svc.cluster.local:80
     hosts:
       - host: lidarr.${INTERNAL_DOMAIN}
         paths:

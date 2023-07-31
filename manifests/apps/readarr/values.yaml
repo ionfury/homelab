@@ -67,7 +67,7 @@ ingress:
       gethomepage.dev/icon: readarr.png
       gethomepage.dev/name: readarr
       gethomepage.dev/widget.type: readarr
-      gethomepage.dev/widget.url: http://readarr.media.svc.cluster.local:80
+      gethomepage.dev/widget.url: http://readarr-app.${NAMESPACE}.svc.cluster.local:80
     hosts:
       - host: readarr.${INTERNAL_DOMAIN}
         paths:
