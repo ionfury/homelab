@@ -76,21 +76,21 @@ ingress:
       - hosts:
           - lidarr.${INTERNAL_DOMAIN}
         secretName: lidarr-tls
-  api:
-    enabled: true
-    nameSuffix: api
-    annotations:
-      kubernetes.io/ingress.class: "nginx"
-      cert-manager.io/cluster-issuer: "cloudflare"
-    hosts:
-      - host: lidarr.${INTERNAL_DOMAIN}
-        paths:
-          - path: /api
-            pathType: Prefix
-    tls:
-      - hosts:
-          - lidarr.${INTERNAL_DOMAIN}
-        secretName: lidarr-tls
+#  api:
+#    enabled: true
+#    nameSuffix: api
+#    annotations:
+#      kubernetes.io/ingress.class: "nginx"
+#      cert-manager.io/cluster-issuer: "cloudflare"
+#    hosts:
+#      - host: lidarr.${INTERNAL_DOMAIN}
+#        paths:
+#          - path: /api
+#            pathType: Prefix
+#    tls:
+#      - hosts:
+#          - lidarr.${INTERNAL_DOMAIN}
+#        secretName: lidarr-tls
 podSecurityContext:
   runAsUser: 568
   runAsGroup: 568
