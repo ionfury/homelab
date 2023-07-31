@@ -10,4 +10,3 @@ vars:
 includes:
   terragrunt: .taskfiles/terragrunt-tasks.yaml
   flux: .taskfiles/flux-tasks.yaml
-  harvester: .taskfiles/harvester-tasks.yaml
