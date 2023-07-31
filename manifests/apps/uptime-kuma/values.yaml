@@ -27,6 +27,7 @@ ingress:
       gethomepage.dev/name: Uptime Kuma
       gethomepage.dev/widget.type: uptimekuma
       gethomepage.dev/widget.url: http://uptime-kuma-app.${NAMESPACE}.svc.cluster.local:3001
+      gethomepage.dev/widget.slug: homepage
     hosts:
       - host: uptime-kuma.${INTERNAL_DOMAIN}
         paths:
