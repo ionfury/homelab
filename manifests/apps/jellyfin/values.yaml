@@ -1,6 +1,3 @@
-image:
-  repository: ghcr.io/onedr0p/jellyfin # {"$imagepolicy": "media:jellyfin-automation:name"}
-  tag: 10.8.10 # {"$imagepolicy": "media:jellyfin-automation:tag"}
 service:
   main:
     ports:
