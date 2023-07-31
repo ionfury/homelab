@@ -87,6 +87,13 @@ persistence:
     enabled: true
     existingClaim: jellyfin-app-media
     mountPath: /media
+  config:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_SLOW_BKACUP}
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    mountPath: /config
 podLabels:
   required-volume: media
 affinity:
