@@ -1,12 +1,29 @@
 upstream:
   default:
-    - 192.168.1.1
+    - 9.9.9.9
     - 8.8.8.8
-    - 8.8.4.4
+    - 1.1.1.1
+conditional:
+  fallbackUpstream: true
+  mapping:
+    .: 192.168.1.1
 customDNS:
   mapping:
     rancher.tomnowak.work: ${RANCHER_IP_ADDRESS}
     tomnowak.work: ${INTERNAL_INGRESS_IP}
+blocking:
+  blockType: nxDomain
+  processingConcurrency: 10
+  blackLists:
+    # https://github.com/hagezi/dns-blocklists
+    light: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/light.txt
+    medium: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/multi.txt
+    pro: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
+    agressive: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.plus.txt
+    ultimate: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/ultimate.txt
+  clientGroupsBlock:
+    default:
+      - light
 
 prometheus:
   enable: true
