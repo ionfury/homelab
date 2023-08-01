@@ -16,11 +16,11 @@ blocking:
   processingConcurrency: 10
   blackLists:
     # https://github.com/hagezi/dns-blocklists
-    light: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/light.txt
-    medium: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/multi.txt
-    pro: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
-    agressive: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.plus.txt
-    ultimate: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/ultimate.txt
+    - light: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/light.txt
+    - medium: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/multi.txt
+    - pro: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
+    - agressive: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.plus.txt
+    - ultimate: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/ultimate.txt
   clientGroupsBlock:
     default:
       - light
