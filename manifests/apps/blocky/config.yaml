@@ -11,21 +11,24 @@ customDNS:
   mapping:
     rancher.tomnowak.work: ${RANCHER_IP_ADDRESS}
     tomnowak.work: ${INTERNAL_INGRESS_IP}
+redis:
+  address: ${CLUSTER_REDIS_HOST}
+  required: false
 blocking:
   blockType: nxDomain
   processingConcurrency: 10
   blackLists:
     # https://github.com/hagezi/dns-blocklists
-    light: 
+    light:
       - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/light.txt
-   # medium: 
-   #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/multi.txt
-   # pro: 
-   #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
-   # agressive: 
-   #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.plus.txt
-   # ultimate: 
-   #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/ultimate.txt
+    # medium:
+    #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/multi.txt
+    # pro:
+    #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
+    # agressive:
+    #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.plus.txt
+    # ultimate:
+    #   - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/ultimate.txt
   clientGroupsBlock:
     default:
       - light
