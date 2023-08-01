@@ -29,7 +29,12 @@ blocking:
   clientGroupsBlock:
     default:
       - light
-
+ports:
+  dns: 53
+  http: 4000
+log:
+  level: info
+  format: json
 prometheus:
   enable: true
   path: /metrics
