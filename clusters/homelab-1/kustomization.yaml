@@ -8,7 +8,7 @@ resources:
   - flux-system
   #- games
   - kube-system
-  - media
+  #- media
   - monitoring
   - network
   #- policy
