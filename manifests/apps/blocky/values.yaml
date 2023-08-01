@@ -18,7 +18,7 @@ service:
 serviceMonitor:
   metrics:
     enabled: true
-    serviceName: blocky-metrics
+    serviceName: blocky-app-metrics
     endpoints:
       - port: metrics
         interval: 30s
