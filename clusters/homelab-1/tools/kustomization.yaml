@@ -3,6 +3,7 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - code-server.yaml
+  - gha-runners.yaml
   - goldilocks.yaml
   - paperless-ngx.yaml
   - vpa.yaml

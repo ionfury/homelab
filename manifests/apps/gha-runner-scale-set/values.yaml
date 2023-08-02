@@ -1,0 +1,12 @@
+runnerScaleSetName: gha-runner-set-homelab
+githubConfigUrl: https://github.com/ionfury/homelab
+minRunners: 1
+maxRunners: 5
+containerMode:
+  type: dind
+template:
+  spec:
+    containers:
+      - name: runner
+        image: ghcr.io/onedr0p/github-actions-runner
+        tag: ${TAG}
