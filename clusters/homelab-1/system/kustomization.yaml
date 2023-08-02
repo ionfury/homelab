@@ -6,6 +6,7 @@ resources:
   - dragonfly-db-operator.yaml
   - external-secrets-stores.yaml
   - external-secrets.yaml
+  - gha-runner-scale-set-controller.yaml
   - harvester-storage-classes.yaml
   - reloader.yaml
   - secret-generator.yaml

@@ -1,0 +1,8 @@
+namePrefix: gha-runner-scale-set-controller-
+components:
+  - ../.templates/helm-release-oci
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
