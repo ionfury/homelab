@@ -219,7 +219,7 @@
           "refId": "A"
         }
       ],
-      "title": "Uptime",
+      "title": "Clients",
       "type": "stat"
     },
     {
@@ -1459,7 +1459,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Dragonfly Dashboard",
+  "title": "Dragonfly",
   "uid": "aef8be11-bd2a-43a5-925a-a288cf42c184",
   "version": 5,
   "weekStart": ""
