@@ -10,3 +10,10 @@ patches:
       kind: Namespace
       metadata:
         name: DOES NOT MATTER
+configMapGenerator:
+  - name: dragonfly-dashboard
+    options:
+      labels:
+        grafana_dashboard: "true"
+    files:
+      - dashboard.yaml
