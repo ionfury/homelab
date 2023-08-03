@@ -9,6 +9,12 @@ configMapGenerator:
   - name: config
     files:
       - config.yml=config.yaml
+  - name: dashboard
+    options:
+      labels:
+        grafana_dashboard: "true"
+    files:
+      - dashboard.yaml
 patches:
   - path: image-automation.yaml
   - target:

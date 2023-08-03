@@ -24,7 +24,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "gnetId": 13768,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
+  "id": 923,
   "links": [
     {
       "icon": "external link",
@@ -1957,8 +1958,8 @@
     ]
   },
   "timezone": "",
-  "title": "blocky",
-  "uid": "JvOqE4gRk",
+  "title": "blocky-test",
+  "uid": "JvOqE4gRkk",
   "version": 1,
   "weekStart": ""
 }

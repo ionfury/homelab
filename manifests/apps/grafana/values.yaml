@@ -127,11 +127,6 @@ datasources:
           implementation: prometheus
 dashboards:
   default:
-    blocky:
-      # https://grafana.com/grafana/dashboards/13768-blocky/
-      gnetId: 13768
-      revision: 3
-      datasource: Prometheus
     kube-state-metrics-v2:
       # https://grafana.com/grafana/dashboards/13332-kube-state-metrics-v2/
       gnetId: 13332
