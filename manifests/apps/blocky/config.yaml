@@ -13,7 +13,7 @@ customDNS:
     tomnowak.work: ${INTERNAL_INGRESS_IP}
 redis:
   address: ${CLUSTER_REDIS_HOST}
-  required: false
+  required: true
 blocking:
   blockType: nxDomain
   processingConcurrency: 10
