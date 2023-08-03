@@ -12,7 +12,7 @@ customDNS:
     rancher.tomnowak.work: ${RANCHER_IP_ADDRESS}
     tomnowak.work: ${INTERNAL_INGRESS_IP}
 redis:
-  address: ${CLUSTER_REDIS_HOST}
+  address: ${CLUSTER_REDIS_HOST}:6379
   required: true
 blocking:
   blockType: nxDomain
