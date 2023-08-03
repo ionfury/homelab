@@ -127,6 +127,11 @@ datasources:
           implementation: prometheus
 dashboards:
   default:
+    loki-kubernetes-logs:
+      # https://grafana.com/grafana/dashboards/15141-kubernetes-service-logs/
+      gnetId: 15141
+      revision: 1
+      datasource: Loki
     kube-state-metrics-v2:
       # https://grafana.com/grafana/dashboards/13332-kube-state-metrics-v2/
       gnetId: 13332
