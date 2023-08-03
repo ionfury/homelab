@@ -215,6 +215,8 @@ sidecar:
   dashboards:
     enabled: true
     searchNamespace: ALL
+    label: grafana_dashboard
+    labelValue: "true"
   datasources:
     enabled: true
     searchNamespace: ALL
