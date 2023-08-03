@@ -133,8 +133,8 @@ backend:
       emptyDir: {}
 monitoring:
   dashboards:
-    annotations:
-      grafana_folder: Loki
+    labels:
+      grafana_dashboard: "true"
   serviceMonitor:
     enabled: true
     metricsInstance:
