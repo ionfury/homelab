@@ -16,4 +16,4 @@ configMapGenerator:
       labels:
         grafana_dashboard: "true"
     files:
-      - dashboard.yaml
+      - dashboard.json
