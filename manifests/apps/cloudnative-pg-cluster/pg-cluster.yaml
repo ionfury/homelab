@@ -31,3 +31,5 @@ spec:
         secretAccessKey:
           name: s3-bucket
           key: BUCKET_SECRET_ACCESS_KEY
+      wal:
+        compression: gzip
