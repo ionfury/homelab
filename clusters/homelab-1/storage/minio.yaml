@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: quay.io/minio/minio
-      TAG: RELEASE.2022-07-17T15-43-14Z # {"$imagepolicy": "storage:minio-automation:tag"}
+      TAG: RELEASE.2022-07-17T15-43-14Z
