@@ -42,6 +42,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageUpdateAutomation
 metadata:
   name: bjw-s-automation
+  namespace: flux-system
 spec:
   interval: 24h0m0s
   sourceRef:
