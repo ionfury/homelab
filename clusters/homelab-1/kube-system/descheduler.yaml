@@ -9,4 +9,4 @@ spec:
     substitute:
       CHART: descheduler
       VERSION: 0.27.1
-      REPO: https://kubernetes-sigs.github.io/descheduler
+      REPOSITORY: https://kubernetes-sigs.github.io/descheduler

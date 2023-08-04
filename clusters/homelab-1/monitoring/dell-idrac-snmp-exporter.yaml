@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: prometheus-snmp-exporter
       VERSION: 1.4.0
-      REPO: https://prometheus-community.github.io/helm-charts
+      REPOSITORY: https://prometheus-community.github.io/helm-charts

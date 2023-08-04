@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: loki
       VERSION: 5.9.2
-      REPO: https://grafana.github.io/helm-charts
+      REPOSITORY: https://grafana.github.io/helm-charts

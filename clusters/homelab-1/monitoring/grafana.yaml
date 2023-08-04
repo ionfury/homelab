@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: grafana
       VERSION: 6.56.5
-      REPO: https://grafana.github.io/helm-charts
+      REPOSITORY: https://grafana.github.io/helm-charts

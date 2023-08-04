@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: ingress-nginx
       VERSION: 4.4.2
-      REPO: https://kubernetes.github.io/ingress-nginx
+      REPOSITORY: https://kubernetes.github.io/ingress-nginx

@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: promtail
       VERSION: 6.11.9
-      REPO: https://grafana.github.io/helm-charts
+      REPOSITORY: https://grafana.github.io/helm-charts

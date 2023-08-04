@@ -13,7 +13,7 @@ patches:
         value: oci
       - op: replace
         path: /spec/url
-        value: oci://${REPO}
+        value: oci://${REPOSITORY}
 resources:
   - image-policy.yaml
   - image-repository.yaml

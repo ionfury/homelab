@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: filebrowser
       VERSION: 1.0.0
-      REPO: https://utkuozdemir.org/helm-charts
+      REPOSITORY: https://utkuozdemir.org/helm-charts

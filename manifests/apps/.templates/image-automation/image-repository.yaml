@@ -1,7 +1,7 @@
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageRepository
 metadata:
-  name: automation
+  name: image-automation
 spec:
-  image: ${REPOSITORY}
+  image: ${IMAGE_REPOSITORY}
   interval: 12h0m0s

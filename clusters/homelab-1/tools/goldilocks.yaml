@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: goldilocks
       VERSION: 6.6.0
-      REPO: https://charts.fairwinds.com/stable
+      REPOSITORY: https://charts.fairwinds.com/stable

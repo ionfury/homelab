@@ -8,4 +8,4 @@ template:
   spec:
     containers:
       - name: runner
-        image: ghcr.io/onedr0p/github-actions-runner:${TAG}
+        image: ${IMAGE_REPOSITORY}:${TAG}

@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: kubernetes-replicator
       VERSION: 2.8.0
-      REPO: https://helm.mittwald.de
+      REPOSITORY: https://helm.mittwald.de

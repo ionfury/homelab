@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: kyverno-policies
       VERSION: 2.5.5
-      REPO: https://kyverno.github.io/kyverno/
+      REPOSITORY: https://kyverno.github.io/kyverno/

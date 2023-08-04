@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: vpa
       VERSION: 1.6.1
-      REPO: https://charts.fairwinds.com/stable
+      REPOSITORY: https://charts.fairwinds.com/stable

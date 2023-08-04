@@ -4,4 +4,4 @@ metadata:
   name: app
 spec:
   interval: 10m
-  url: ${REPO}
+  url: ${REPOSITORY}

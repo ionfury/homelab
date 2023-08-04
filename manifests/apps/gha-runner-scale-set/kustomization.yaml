@@ -1,6 +1,7 @@
 namePrefix: gha-runner-scale-set-
 components:
   - ../.templates/helm-release-oci
+  - ../.templates/image-automation
 resources:
   - external-secret.yaml
 configMapGenerator:

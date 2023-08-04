@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: cloudnative-pg
       VERSION: 0.18.0
-      REPO: https://cloudnative-pg.github.io/charts
+      REPOSITORY: https://cloudnative-pg.github.io/charts
