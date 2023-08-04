@@ -7,5 +7,6 @@ spec:
   postBuild:
     substitute:
       CHART: kube-prometheus-stack
+      # Don't automate this just yet... {"$imagepolicy": "monitoring:kube-prometheus-stack-automation:tag"}
       VERSION: 45.27.2
-      REPOSITORY: https://prometheus-community.github.io/helm-charts
+      REPOSITORY: ghcr.io/prometheus-community/charts

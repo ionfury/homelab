@@ -1,6 +1,6 @@
 namePrefix: kube-prometheus-stack-
 components:
-  - ../.templates/helm-release
+  - ../.templates/helm-release-oci
 resources:
   - alertmanager-webhook-secret.yaml
 configMapGenerator:
