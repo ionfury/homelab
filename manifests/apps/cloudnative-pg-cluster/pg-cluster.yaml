@@ -12,7 +12,7 @@ spec:
     name: generated-postgres-superuser
   storage:
     size: ${SIZE:=10Gi}
-    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    storageClass: ${STORAGE_CLASS_SLOW}
   monitoring:
     enablePodMonitor: true
   postgresql:
