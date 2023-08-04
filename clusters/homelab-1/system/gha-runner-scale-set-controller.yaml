@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/gha-runner-scale-set-controller
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/actions/actions-runner-controller-charts
       CHART: gha-runner-scale-set-controller
       VERSION: 0.4.0 # {"$imagepolicy": "system:gha-runner-scale-set-controller-automation:tag"}
+      REPOSITORY: ghcr.io/actions/actions-runner-controller-charts

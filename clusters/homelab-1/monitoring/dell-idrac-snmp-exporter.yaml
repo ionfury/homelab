@@ -7,5 +7,5 @@ spec:
   postBuild:
     substitute:
       CHART: prometheus-snmp-exporter
-      VERSION: 1.4.0
-      REPOSITORY: https://prometheus-community.github.io/helm-charts
+      VERSION: 1.4.0 # {"$imagepolicy": "monitoring:dell-idrac-snmp-exporter-automation:tag"}
+      REPOSITORY: ghcr.io/prometheus-community/charts/kube-prometheus-stack
