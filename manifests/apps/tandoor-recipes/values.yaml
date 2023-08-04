@@ -1,0 +1,108 @@
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "tandoor-recipes"
+      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: tandoor-recipes-secret
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: tandoor-recipes-secret
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: tandoor-recipes-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: tandoor-recipes-postgres-superuser
+            key: password
+env:
+  TIMEZONE: ${TZ}
+  DB_ENGINE: django.db.backends.postgresql
+  POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: tandoor-recipes
+  POSTGRES_USER:
+    valueFrom:
+      secretKeyRef:
+        name: tandoor-recipes-secret
+        key: username
+  POSTGRES_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: tandoor-recipes-secret
+        key: password
+  SECRET_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: tandoor-recipes-secret
+        key: key
+  # Serve mediafiles directly using gunicorn. Basically everyone recommends not doing this. Please use any of the examples
+  # provided that include an additional nxginx container to handle media file serving.
+  # If you know what you are doing turn this back on (1) to serve media files using djangos serve() method.
+  # when unset: 1 (true) - this is temporary until an appropriate amount of time has passed for everyone to migrate
+  #GUNICORN_MEDIA: 1
+  ENABLE_SIGNUP: 1
+  ENABLE_METRICS: 1
+  ENABLE_PDF_EXPORT: 1
+  S3_ACCESS_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: tandoor-recipes-s3-bucket
+        key: S3_ACCESS_KEY
+  S3_SECRET_ACCESS_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: tandoor-recipes-s3-bucket
+        key: S3_SECRET_ACCESS_KEY
+  S3_BUCKET_NAME:
+    valueFrom:
+      secretKeyRef:
+        name: tandoor-recipes-s3-bucket
+        key: S3_BUCKET_NAME
+  S3_QUERYSTRING_AUTH: 1 # default true, set to 0 to serve media from a public bucket without signed urls
+  S3_QUERYSTRING_EXPIRE: 3600 # number of seconds querystring are valid for
+  S3_ENDPOINT_URL: http://${CLUSTER_MINIO_HOST}:9000
+  S3_CUSTOM_DOMAIN: ${CLUSTER_MINIO_HOST}
+service:
+  main:
+    ports:
+      http:
+        port: 8080
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: The recipe manager that allows you to manage your ever growing collection of digital recipes.
+      gethomepage.dev/group: Media
+      gethomepage.dev/icon: tandoor.png
+      gethomepage.dev/name: Tandoor Recipes
+    hosts:
+      - host: recipes.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - recipes.${INTERNAL_DOMAIN}
+        secretName: recipes-tls
+persistence:
+  static:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    mountPath: /opt/recipes/staticfiles

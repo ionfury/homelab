@@ -1,0 +1,62 @@
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "mealie"
+      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: mealie-backend-secret
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: mealie-backend-secret
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: mealie-backend-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: mealie-backend-postgres-superuser
+            key: password
+image:
+  repository: docker.io/hkotel/mealie
+  tag: ${BACKEND_TAG}
+env:
+  DEFAULT_EMAIL:
+  BASE_URL:
+  TZ: ${TZ}
+  DB_ENGINE: postgres
+  POSTGRES_USER:
+    valueFrom:
+      secretKeyRef:
+        name: mealie-backend-secret
+        key: username
+  POSTGRES_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: mealie-backend-secret
+        key: password
+  POSTGRES_SERVER: ${CLUSTER_POSTGRES_HOST}
+  POSTGRES_PORT: 5432
+  POSTGRES_DB: "mealie"
+service:
+  main:
+    ports:
+      http:
+        port: 3000
+persistence:
+  config:
+    enabled: true
+    retain: true
+    mountPath: /app/data/
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    accessMode: ReadWriteOnce

@@ -1,0 +1,4 @@
+namePrefix: mealie-
+resources:
+  - frontend
+  - backend
