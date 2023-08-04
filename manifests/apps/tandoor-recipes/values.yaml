@@ -58,17 +58,17 @@ env:
     valueFrom:
       secretKeyRef:
         name: tandoor-recipes-s3-bucket
-        key: S3_ACCESS_KEY
+        key: BUCKET_ACCESS_KEY_ID
   S3_SECRET_ACCESS_KEY:
     valueFrom:
       secretKeyRef:
         name: tandoor-recipes-s3-bucket
-        key: S3_SECRET_ACCESS_KEY
+        key: BUCKET_SECRET_ACCESS_KEY
   S3_BUCKET_NAME:
     valueFrom:
       secretKeyRef:
         name: tandoor-recipes-s3-bucket
-        key: S3_BUCKET_NAME
+        key: BUCKET_NAME
   S3_QUERYSTRING_AUTH: 1 # default true, set to 0 to serve media from a public bucket without signed urls
   S3_QUERYSTRING_EXPIRE: 3600 # number of seconds querystring are valid for
   S3_ENDPOINT_URL: http://${CLUSTER_MINIO_HOST}:9000
