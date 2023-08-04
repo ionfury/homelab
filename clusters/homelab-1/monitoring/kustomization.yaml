@@ -7,6 +7,5 @@ resources:
   - kube-prometheus-stack.yaml
   - loki.yaml
   - promtail.yaml
-  - redis-monitoring.yaml
   - unpoller.yaml
   - uptime-kuma.yaml
