@@ -8,4 +8,4 @@ spec:
     substitute:
       CHART: prometheus-snmp-exporter
       VERSION: 1.4.0 # {"$imagepolicy": "monitoring:dell-idrac-snmp-exporter-automation:tag"}
-      REPOSITORY: ghcr.io/prometheus-community/charts/kube-prometheus-stack
+      REPOSITORY: ghcr.io/prometheus-community/charts
