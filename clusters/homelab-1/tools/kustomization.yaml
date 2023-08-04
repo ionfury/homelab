@@ -6,4 +6,5 @@ resources:
   - gha-runners.yaml
   - goldilocks.yaml
   - paperless-ngx.yaml
+  - tandoor-recipes.yaml
   - vpa.yaml
