@@ -72,7 +72,7 @@ env:
   S3_QUERYSTRING_AUTH: 1 # default true, set to 0 to serve media from a public bucket without signed urls
   S3_QUERYSTRING_EXPIRE: 3600 # number of seconds querystring are valid for
   S3_ENDPOINT_URL: http://${CLUSTER_MINIO_HOST}:9000
-  S3_CUSTOM_DOMAIN: minio.${INTERNAL_DOMAIN}
+  S3_CUSTOM_DOMAIN: s3.${INTERNAL_DOMAIN}
 service:
   main:
     ports:
