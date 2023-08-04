@@ -37,3 +37,23 @@ spec:
   policy:
     semver:
       range: ">= 1.0.0 < 2.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: bjw-s-automation
+spec:
+  interval: 24h0m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  git:
+    commit:
+      author:
+        email: fluxcdbot@users.${INTERNAL_DOMAIN}
+        name: fluxcdbot
+      messageTemplate: "{{range .Updated.Images}}{{println .}}{{end}}"
+  update:
+    path: ./manifests/apps/.templates
+    strategy: Setters
