@@ -1,5 +1,5 @@
 image:
-  repository: ${REPOSITORY}
+  repository: ${IMAGE_REPOSITORY}
   tag: ${TAG}
 ingress:
   main:

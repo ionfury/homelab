@@ -2,7 +2,6 @@ namePrefix: homepage-
 components:
   - ../.templates/helm-release
   - ../.templates/image-automation
-  - providers/paperless
 configMapGenerator:
   - name: values
     behavior: replace
