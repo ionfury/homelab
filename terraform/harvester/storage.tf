@@ -65,15 +65,15 @@ resource "kubectl_manifest" "daily_longhorn_snapshot" {
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
-  name: weekly-snapshot
+  name: daily-snapshot
   namespace: longhorn-system
 spec:
-  concurrency: 1
-  cron: 0 0 * * 0
+  concurrency: 3
+  cron: 0 0 * * *
   groups:
   - weekly
   labels: {}
-  name: weekly-snapshot
+  name: daily-snapshot
   retain: 3
   task: snapshot
 YAML
