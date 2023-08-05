@@ -53,15 +53,11 @@ config:
     - Emergency:
         - Harvester0:
             - abbr: H0
-              href: https://harvester0.harvester.local/
-              description: Break glass in case of fire.
-        - Harvester1:
-            - abbr: H1
-              href: https://harvester1.harvester.local/
+              href: https://${HARVESTER_IP_ADDRESS}/
               description: Break glass in case of fire.
         - Longhorn:
             - abbr: LH
-              href: https://harvester0.harvester.local/k8s/clusters/local/api/v1/namespaces/longhorn-system/services/http:longhorn-frontend:80/proxy/#/dashboard
+              href: https://${HARVESTER_IP_ADDRESS}/k8s/clusters/local/api/v1/namespaces/longhorn-system/services/http:longhorn-frontend:80/proxy/#/dashboard
               description: Break glass in case of fire.
   services:
     - Network:
@@ -81,7 +77,7 @@ config:
           cpu: true
           memory: true
           showLabel: true
-          label: cluster-01
+          label: ${CLUSTER_NAME}
         nodes:
           show: false
     - search:
