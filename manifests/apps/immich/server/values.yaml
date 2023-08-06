@@ -30,7 +30,7 @@ controller:
   strategy: RollingUpdate
   annotations:
     configmap.reloader.stakater.com/reload: immich-config
-args: [start-server.sh"]
+args: ["start-server.sh"]
 envFrom:
   - configMapRef:
       name: immich-config
