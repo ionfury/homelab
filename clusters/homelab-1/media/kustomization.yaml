@@ -9,4 +9,4 @@ resources:
   # - radarr.yaml
   # - readarr.yaml
   # - sonarr.yaml
-  - immich
+  - immich.yaml
