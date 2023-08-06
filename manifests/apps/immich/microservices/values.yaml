@@ -34,7 +34,7 @@ service:
 persistence:
   upload:
     enabled: true
-    existingClaim: immich-upload
+    existingClaim: immich-server-app-upload
     mountPath: /usr/src/app/upload
 affinity:
   podAffinity:
