@@ -15,8 +15,8 @@ configMapGenerator:
       - DB_PORT=5432
       #- DB_USERNAME
       #- DB_PASSWORD
-      #- DB_JWT_SECRET
-      #- DB_TYPESENSE_API_KEY
+      #- JWT_SECRET
+      #- TYPESENSE_API_KEY
       - DISABLE_REVERSE_GEOCODING=true
       - ENABEL_MAPBOX=false
       - LOG_LEVEL=log

@@ -45,12 +45,12 @@ env:
       secretKeyRef:
         name: immich-secret
         key: password
-  DB_JWT_SECRET:
+  JWT_SECRET:
     valueFrom:
       secretKeyRef:
         name: immich-secret
         key: jwt
-  DB_TYPESENSE_API_KEY:
+  TYPESENSE_API_KEY:
     valueFrom:
       secretKeyRef:
         name: immich-secret
