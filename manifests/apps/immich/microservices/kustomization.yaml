@@ -15,7 +15,7 @@ patches:
         value: ${MICROSERVICES_IMAGE_REPOSITORY}
       - op: replace
         path: /spec/values/image/tag
-        value: ${MICROSERVICES_MAGE_TAG}
+        value: ${MICROSERVICES_IMAGE_TAG}
   - target:
       kind: ImageRepository
     patch: |
