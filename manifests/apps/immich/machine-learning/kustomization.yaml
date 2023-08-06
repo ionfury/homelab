@@ -15,7 +15,7 @@ patches:
         value: ${MACHINE_LEARNING_IMAGE_REPOSITORY}
       - op: replace
         path: /spec/values/image/tag
-        value: ${MACHINE_LEARNING_MAGE_TAG}
+        value: ${MACHINE_LEARNING_IMAGE_TAG}
   - target:
       kind: ImageRepository
     patch: |
