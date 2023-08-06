@@ -1,6 +1,5 @@
 namePrefix: immich-
 resources:
-  - pvc.yaml
   - machine-learning
   - microservices
   - server
