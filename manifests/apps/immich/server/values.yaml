@@ -50,7 +50,7 @@ env:
       secretKeyRef:
         name: immich-secret
         key: jwt
-  DB_TYPSENSE_API_KEY:
+  DB_TYPESENSE_API_KEY:
     valueFrom:
       secretKeyRef:
         name: immich-secret
