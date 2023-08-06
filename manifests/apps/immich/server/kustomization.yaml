@@ -15,7 +15,7 @@ patches:
         value: ${SERVER_IMAGE_REPOSITORY}
       - op: replace
         path: /spec/values/image/tag
-        value: ${SERVER_MAGE_TAG}
+        value: ${SERVER_IMAGE_TAG}
   - target:
       kind: ImageRepository
     patch: |
