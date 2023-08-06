@@ -1,0 +1,81 @@
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "immich"
+      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: immich-secret
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: immich-secret
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: immich-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: immich-postgres-superuser
+            key: password
+controller:
+  replicas: 2
+  strategy: RollingUpdate
+  annotations:
+    configmap.reloader.stakater.com/reload: immich-config
+args: [start-server.sh"]
+envFrom:
+  - configMapRef:
+      name: immich-config
+env:
+  DB_USERNAME:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: username
+  DB_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: password
+  DB_JWT_SECRET:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: jwt
+  DB_TYPSENSE_API_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: key
+service:
+  main:
+    ports:
+      http:
+        port: 3001
+persistence:
+  upload:
+    enabled: true
+    existingClaim: immich-upload
+    mountPath: /usr/src/app/upload
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: required-volume
+              operator: In
+              values:
+                - upload
+        topologyKey: kubernetes.io/hostname
+resources:
+  requests:
+    cpu: 100m
+    memory: 250Mi

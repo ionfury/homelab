@@ -1,0 +1,52 @@
+controller:
+  replicas: 2
+  strategy: RollingUpdate
+  annotations:
+    configmap.reloader.stakater.com/reload: immich-config
+args: ["start-microservices.sh"]
+envFrom:
+  - configMapRef:
+      name: immich-configconfig
+env:
+  DB_USERNAME:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: username
+  DB_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: password
+  DB_JWT_SECRET:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: jwt
+  DB_TYPSENSE_API_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: immich-secret
+        key: key
+service:
+  main:
+    enabled: false
+persistence:
+  upload:
+    enabled: true
+    existingClaim: immich-upload
+    mountPath: /usr/src/app/upload
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: required-volume
+              operator: In
+              values:
+                - upload
+        topologyKey: kubernetes.io/hostname
+resources:
+  requests:
+    cpu: 100m
+    memory: 250Mi

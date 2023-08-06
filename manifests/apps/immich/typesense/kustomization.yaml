@@ -1,0 +1,24 @@
+namePrefix: typesense-
+components:
+  - ../../.templates/helm-release-app-template-oci
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: replace
+        path: /spec/values/image/repository
+        value: ${TYPESENSE_IMAGE_REPOSITORY}
+      - op: replace
+        path: /spec/values/image/tag
+        value: ${TYPESENSE_IMAGE_TAG}
+  - target:
+      kind: ImageRepository
+    patch: |
+      - op: replace
+        path: /spec/image
+        value: ${TYPESENSE_IMAGE_REPOSITORY}
