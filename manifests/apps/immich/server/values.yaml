@@ -63,8 +63,10 @@ service:
 persistence:
   upload:
     enabled: true
-    existingClaim: immich-upload
-    mountPath: /usr/src/app/upload
+    retain: true
+    storageClass: ${STORAGE_CLASS_SLOW}
+    size: 1Gi
+    accessMode: ReadWriteOnce
 affinity:
   podAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
