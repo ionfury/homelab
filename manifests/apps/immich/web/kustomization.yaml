@@ -15,7 +15,7 @@ patches:
         value: ${WEB_IMAGE_REPOSITORY}
       - op: replace
         path: /spec/values/image/tag
-        value: ${WEB_MAGE_TAG}
+        value: ${WEB_IMAGE_TAG}
   - target:
       kind: ImageRepository
     patch: |
