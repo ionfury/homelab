@@ -1,6 +1,4 @@
 namePrefix: immich-
-components:
-  - ../.templates/image-automation
 resources:
   - pvc.yaml
   - machine-learning
