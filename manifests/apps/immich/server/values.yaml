@@ -26,7 +26,7 @@ initContainers:
             name: immich-postgres-superuser
             key: password
 controller:
-  replicas: 2
+  replicas: 1
   strategy: RollingUpdate
   annotations:
     configmap.reloader.stakater.com/reload: immich-config
@@ -60,6 +60,8 @@ service:
     ports:
       http:
         port: 3001
+podLabels:
+  required-volume: media
 persistence:
   upload:
     enabled: true
@@ -67,16 +69,6 @@ persistence:
     storageClass: ${STORAGE_CLASS_SLOW}
     size: 1Gi
     accessMode: ReadWriteOnce
-affinity:
-  podAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: required-volume
-              operator: In
-              values:
-                - upload
-        topologyKey: kubernetes.io/hostname
 resources:
   requests:
     cpu: 100m

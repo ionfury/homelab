@@ -40,8 +40,6 @@ persistence:
   cache:
     enabled: true
     type: emptyDir
-podLabels:
-  required-volume: media
 affinity:
   podAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
