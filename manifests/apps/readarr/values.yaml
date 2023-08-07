@@ -90,7 +90,7 @@ persistence:
   config:
     enabled: true
     retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_BKACUP}
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 10Gi
     accessMode: ReadWriteOnce
     mountPath: /config
