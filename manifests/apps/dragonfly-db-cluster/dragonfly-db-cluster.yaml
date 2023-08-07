@@ -9,6 +9,8 @@ metadata:
     app.kubernetes.io/created-by: dragonfly-operator
   name: dragonfly
 spec:
+  args:
+    - --default_lua_flags=allow-undeclared-keys
   replicas: 3
   resources:
     requests:
