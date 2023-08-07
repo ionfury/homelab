@@ -23,7 +23,8 @@ configMapGenerator:
       - NODE_ENV=production
       - REDIS_HOSTNAME=${CLUSTER_REDIS_HOST}
       - REDIS_PORT=6379
-      - TYPESENSE_HOST= immich-typesense-app.${NAMESPACE}.svc.cluster.local
+      - TYPESENSE_HOST=immich-typesense-app.${NAMESPACE}.svc.cluster.local
+      - TYPESENSE_PORT=8108
       - TYPESENSE_PROTOCOL=http
       - TYPESENSE_DATA_DIR=/config
       - IMMICH_WEB_URL=http://immich-web-app.${NAMESPACE}.svc.cluster.local:3000
