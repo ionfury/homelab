@@ -8,5 +8,5 @@ resources:
   #  - prowlarr.yaml
   #  - radarr.yaml
   #  - readarr.yaml
-  - sonarr.yaml
+  #  - sonarr.yaml
   - immich.yaml
