@@ -86,3 +86,23 @@ variable "harvester_cluster_name" {
 variable "harvester_kubeconfig_path" {
   type = string
 }
+
+variable "healthchecksio_api_key_store" {
+  type = string
+}
+
+variable "github_ssh_addr" {
+  type = string
+}
+
+variable "github_ssh_key_store" {
+  type = string
+}
+
+variable "github_ssh_pub" {
+  type = string
+}
+
+variable "github_ssh_known_hosts" {
+  type = string
+}

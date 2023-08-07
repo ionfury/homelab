@@ -54,3 +54,25 @@ resource "aws_ssm_parameter" "vm_ssh_key" {
     managed-by-terraform = "true"
   }
 }
+
+data "aws_ssm_parameter" "github_ssh_key" {
+  name = var.github_ssh_key_store
+}
+
+module "bootstrap" {
+  source = "../.modules/bootstrap-cluster"
+
+  cluster_name = var.rancher_cluster_name
+
+  github_ssh_pub = var.github_ssh_pub
+  github_ssh_key = data.aws_ssm_parameter.github_ssh_key.value
+  known_hosts    = var.github_ssh_known_hosts
+
+  external_secrets_access_key_id     = "not-used"
+  external_secrets_access_key_secret = "not-used"
+
+  providers = {
+    flux           = flux
+    healthchecksio = healthchecksio
+  }
+}

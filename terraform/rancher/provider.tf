@@ -78,3 +78,34 @@ provider "random" {
   # Configuration options
 }
 
+provider "kubernetes" {
+  config_path = local_file.kubeconfig.filename
+}
+
+provider "flux" {
+  kubernetes = {
+    config_path = local_file.kubeconfig.filename
+  }
+  git = {
+    url          = "${var.github_ssh_addr}"
+    author_email = "flux@${var.default_network_tld}"
+    author_name  = "flux"
+    branch       = "main"
+    ssh = {
+      username    = "git"
+      private_key = "${data.aws_ssm_parameter.flux_ssh_key.value}"
+    }
+  }
+}
+
+data "aws_ssm_parameter" "flux_ssh_key" {
+  name = var.github_ssh_key_store
+}
+
+data "aws_ssm_parameter" "healthchecksio_api_key" {
+  name = var.healthchecksio_api_key_store
+}
+
+provider "healthchecksio" {
+  api_key = data.aws_ssm_parameter.healthchecksio_api_key.value
+}

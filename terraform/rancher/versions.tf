@@ -40,5 +40,13 @@ terraform {
       source  = "hashicorp/random"
       version = "3.5.1"
     }
+    healthchecksio = {
+      source  = "kristofferahl/healthchecksio"
+      version = ">= 1.10.0"
+    }
+    flux = {
+      source  = "fluxcd/flux"
+      version = "1.0.1"
+    }
   }
 }
