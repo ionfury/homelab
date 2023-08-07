@@ -129,7 +129,8 @@ resource "rancher2_cluster_v2" "cluster" {
       worker_role                    = false
       quantity                       = var.control_plane_node_count
       node_startup_timeout_seconds   = 1200
-      unhealthy_node_timeout_seconds = 180
+      unhealthy_node_timeout_seconds = 120
+      max_unhealthy                  = "1"
       machine_config {
         kind = rancher2_machine_config_v2.control_plane.kind
         name = rancher2_machine_config_v2.control_plane.name
@@ -143,7 +144,8 @@ resource "rancher2_cluster_v2" "cluster" {
       worker_role                    = true
       quantity                       = var.worker_node_count
       node_startup_timeout_seconds   = 1200
-      unhealthy_node_timeout_seconds = 180
+      unhealthy_node_timeout_seconds = 120
+      max_unhealthy                  = "1"
       machine_config {
         kind = rancher2_machine_config_v2.worker.kind
         name = rancher2_machine_config_v2.worker.name
