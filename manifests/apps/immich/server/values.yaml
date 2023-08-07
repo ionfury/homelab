@@ -26,7 +26,7 @@ initContainers:
             name: immich-postgres-superuser
             key: password
 controller:
-  replicas: 1
+  replicas: 2
   strategy: RollingUpdate
   annotations:
     configmap.reloader.stakater.com/reload: immich-config
