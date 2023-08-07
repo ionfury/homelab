@@ -122,24 +122,28 @@ resource "rancher2_cluster_v2" "cluster" {
   kubernetes_version = var.kubernetes_version
   rke_config {
     machine_pools {
-      name                         = "control-plane"
-      cloud_credential_secret_name = rancher2_cloud_credential.harvester.id
-      control_plane_role           = true
-      etcd_role                    = true
-      worker_role                  = false
-      quantity                     = var.control_plane_node_count
+      name                           = "control-plane"
+      cloud_credential_secret_name   = rancher2_cloud_credential.harvester.id
+      control_plane_role             = true
+      etcd_role                      = true
+      worker_role                    = false
+      quantity                       = var.control_plane_node_count
+      node_startup_timeout_seconds   = 1200
+      unhealthy_node_timeout_seconds = 180
       machine_config {
         kind = rancher2_machine_config_v2.control_plane.kind
         name = rancher2_machine_config_v2.control_plane.name
       }
     }
     machine_pools {
-      name                         = "worker"
-      cloud_credential_secret_name = rancher2_cloud_credential.harvester.id
-      control_plane_role           = false
-      etcd_role                    = false
-      worker_role                  = true
-      quantity                     = var.worker_node_count
+      name                           = "worker"
+      cloud_credential_secret_name   = rancher2_cloud_credential.harvester.id
+      control_plane_role             = false
+      etcd_role                      = false
+      worker_role                    = true
+      quantity                       = var.worker_node_count
+      node_startup_timeout_seconds   = 1200
+      unhealthy_node_timeout_seconds = 180
       machine_config {
         kind = rancher2_machine_config_v2.worker.kind
         name = rancher2_machine_config_v2.worker.name

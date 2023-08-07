@@ -13,7 +13,7 @@ module "this" {
   worker_cpu        = 8
   worker_memory     = 64
   worker_disk       = 100
-  worker_node_count = 2
+  worker_node_count = 3
 
   rancher_admin_token = data.aws_ssm_parameter.rancher_admin_token.value
   rancher_admin_url   = data.aws_ssm_parameter.rancher_admin_url.value
