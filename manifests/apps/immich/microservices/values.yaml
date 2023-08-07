@@ -6,7 +6,7 @@ controller:
 args: ["start-microservices.sh"]
 envFrom:
   - configMapRef:
-      name: immich-configconfig
+      name: immich-config
 env:
   DB_USERNAME:
     valueFrom:
