@@ -17,3 +17,5 @@ updater:
   enabled: false
 admissionController:
   enabled: false
+metrics-server:
+  enabled: true
