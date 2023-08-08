@@ -85,7 +85,15 @@ The homelab is designed to emulate the principal of [Hyperconverged Infrastructu
 
 ## Networking
 
-Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro) and is currently configured manually.  Watch this space as I try and bring it [under management of terraform](https://registry.terraform.io/providers/paultyng/unifi/latest) in the future.
+Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro) and is via [terraform](./terraform/network/).  The `citadel` vlan on `192.168.10.*` is dedicated to kubernetes nodes.
+
+`192.168.10.2` is reserved as a gateway IP for the harvester cluster.  All other IPs are assigned via DHCP.  Initial local dns to access rancher is configured via terraform to make `rancher.tomnowak.work` available.
+
+Downstream kubernetes clusteres can create services of type `Loadbalancer` via the harvester cloud provider, and are assigned an IP address in the same `citadel` vlan.  Internal cluster ingress is handled by a single ip requested by the internal [`nginx-ingress`](./clusters/homelab-1/network/ingress-nginx.yaml) controller.
+
+Once an ip has been assigned, the [`cluster-vars.env`](./clusters/homelab-1/cluster-vars.env) is updated to reflect that ip, and [`blocky`](./clusters/homelab-1/network/blocky.yaml) consumes that to provide dns for the cluster to other networks.
+
+Finally, the default vlan network is updated to provide the `blocky` loadbalancer ip for dns to all clients on the network, providing access to internal services and ad blocking.
 
 ---
 
