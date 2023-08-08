@@ -4,5 +4,5 @@ metadata:
   name: s3-recurring-backup
 spec:
   resourceSetName: rancher-resource-set
-  schedule: "@every 1d"
+  schedule: "@midnight"
   retentionCount: 10
