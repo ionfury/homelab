@@ -1,0 +1,61 @@
+controller:
+  replicas: 3
+  strategy: RollingUpdate
+env:
+  LIBREDDIT_DEFAULT_SHOW_NSFW: true
+  LIBREDDIT_DEFAULT_WIDE: true
+service:
+  main:
+    ports:
+      http:
+        port: 8080
+ingress:
+  main:
+    enabled: true
+    ingressClassName: "external-nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: ibreddit is a portmanteau of "libre" (meaning freedom) and "Reddit". It is a private front-end like Invidious but for Reddit.
+      gethomepage.dev/group: Share
+      gethomepage.dev/icon: libreddit.png
+      gethomepage.dev/name: Libreddit
+    hosts:
+      - host: libreddit.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - libreddit.${INTERNAL_DOMAIN}
+        secretName: libreddit-tls
+probes:
+  liveness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        path: /settings
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 10
+      timeoutSeconds: 1
+      failureThreshold: 3
+  readiness:
+    enabled: true
+    custom: true
+    spec:
+      httpGet:
+        path: /settings
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 10
+      timeoutSeconds: 1
+      failureThreshold: 3
+  startup:
+    enabled: false
+resources:
+  requests:
+    cpu: 5m
+    memory: 50Mi
