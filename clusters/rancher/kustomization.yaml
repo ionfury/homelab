@@ -1,2 +1,18 @@
+components:
+  - ../../manifests/components/configurations/kustomization
 resources:
   - flux-system
+  - cattle-resources-system
+patches:
+  - target:
+      kind: Kustomization
+    patch: |
+      - op: replace
+        path: /metadata/namespace
+        value: flux-system
+  - target:
+      kind: GitRepository
+    patch: |
+      - op: replace
+        path: /spec/secretRef/name
+        value: flux-ssh-key

@@ -1,0 +1,6 @@
+namespace: system
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - external-secrets-stores.yaml
+  - external-secrets.yaml

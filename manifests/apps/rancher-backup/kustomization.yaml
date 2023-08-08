@@ -1,0 +1,11 @@
+namePrefix: rancher-backup-
+components:
+  - ../.templates/helm-release
+resources:
+  - backup.yaml
+  - external-secret.yaml
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

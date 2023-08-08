@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rancher-backup-crd
+spec:
+  path: ./manifests/apps/rancher-backup-crd
+  postBuild:
+    substitute:
+      CHART: rancher-backup-crd
+      VERSION: v3.1.1
+      REPOSITORY: https://charts.rancher.io

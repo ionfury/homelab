@@ -55,6 +55,10 @@ resource "aws_ssm_parameter" "vm_ssh_key" {
   }
 }
 
+resource "aws_iam_access_key" "external_secrets_access_key" {
+  user = var.external_secrets_access_key_name
+}
+
 data "aws_ssm_parameter" "github_ssh_key" {
   name = var.github_ssh_key_store
 }
@@ -68,8 +72,8 @@ module "bootstrap" {
   github_ssh_key = data.aws_ssm_parameter.github_ssh_key.value
   known_hosts    = var.github_ssh_known_hosts
 
-  external_secrets_access_key_id     = "not-used"
-  external_secrets_access_key_secret = "not-used"
+  external_secrets_access_key_id     = aws_iam_access_key.external_secrets_access_key.id
+  external_secrets_access_key_secret = aws_iam_access_key.external_secrets_access_key.secret
 
   providers = {
     flux           = flux

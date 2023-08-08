@@ -1,0 +1,6 @@
+namespace: cattle-resources-system
+components:
+  - ../../../manifests/components/namespace
+resources:
+  - rancher-backup-crd.yaml
+  - rancher-backup.yaml

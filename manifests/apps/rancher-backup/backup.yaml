@@ -1,0 +1,8 @@
+apiVersion: resources.cattle.io/v1
+kind: Backup
+metadata:
+  name: s3-recurring-backup
+spec:
+  resourceSetName: rancher-resource-set
+  schedule: "@every 1d"
+  retentionCount: 10
