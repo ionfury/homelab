@@ -1,6 +1,10 @@
 image:
   repository: ${IMAGE_REPOSITORY}
   tag: ${TAG}
+resources:
+  requests:
+    cpu: 15m
+    memory: 411M
 ingress:
   main:
     enabled: true

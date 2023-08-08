@@ -14,3 +14,17 @@ prometheus:
     enabled: true
 startupapicheck:
   enabled: false
+resources:
+  requests:
+    cpu: 15m
+    memory: 64M
+webhook:
+  resources:
+    requests:
+      cpu: 15m
+      memory: 145M
+cainjector:
+  resources:
+    requests:
+      cpu: 15m
+      memory: 64M
