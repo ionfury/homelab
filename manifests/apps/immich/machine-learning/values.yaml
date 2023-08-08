@@ -50,7 +50,7 @@ affinity:
               values:
                 - upload
         topologyKey: kubernetes.io/hostname
-resources:resources:
+resources:
   requests:
     cpu: 15m
     memory: 2408M
