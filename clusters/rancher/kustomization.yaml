@@ -2,8 +2,9 @@ components:
   - ../../manifests/components/configurations/kustomization
   - ../../manifests/components/kustomization-cluster-vars
 resources:
-  - flux-system
   - cattle-resources-system
+  - flux-system
+  - system
 configMapGenerator:
   - name: cluster-vars
     namespace: flux-system
