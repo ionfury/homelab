@@ -71,5 +71,5 @@ persistence:
     accessMode: ReadWriteOnce
 resources:
   requests:
-    cpu: 100m
-    memory: 250Mi
+    cpu: 350m
+    memory: 184M

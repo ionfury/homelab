@@ -81,10 +81,6 @@ affinity:
               values:
                 - media
         topologyKey: kubernetes.io/hostname
-resources:
-  requests:
-    cpu: 100m
-    memory: 400Mi
 configMaps:
   config:
     enabled: true
@@ -109,3 +105,7 @@ envFrom:
       name: transmission-app-config
   - secretRef:
       name: transmission-app-vpn
+resources:
+  requests:
+    cpu: 35m
+    memory: 64M
