@@ -1,8 +1,15 @@
 components:
   - ../../manifests/components/configurations/kustomization
+  - ../../manifests/components/kustomization-cluster-vars
 resources:
   - flux-system
   - cattle-resources-system
+configMapGenerator:
+  - name: cluster-vars
+    namespace: flux-system
+    behavior: replace
+    envs:
+      - cluster-vars.env
 patches:
   - target:
       kind: Kustomization
