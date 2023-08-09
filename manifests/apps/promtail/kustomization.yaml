@@ -1,4 +1,4 @@
-namePrefix: reloader-
+namePrefix: promtail-
 components:
   - ../.templates/helm-release
 configMapGenerator:
