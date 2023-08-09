@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly
-      TAG: 1.8.2.3844 # {"$imagepolicy": "media:prowlarr-automation:tag"}
+      TAG: 1.8.2.3851 # {"$imagepolicy": "media:prowlarr-automation:tag"}
