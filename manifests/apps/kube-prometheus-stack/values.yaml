@@ -100,8 +100,7 @@ kubeProxy:
 
 kubeStateMetrics:
   enabled: true
-# Copiued from here: https://grafana.com/grafana/dashboards/14588-vpa-recommendations/
-kube-state-metrics:
+  # Copiued from here: https://grafana.com/grafana/dashboards/14588-vpa-recommendations/
   namespaceOverride: ${NAMESPACE}
   rbac:
     extraRules:
