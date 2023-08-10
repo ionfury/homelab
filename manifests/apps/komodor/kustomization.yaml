@@ -1,0 +1,10 @@
+namePrefix: komodor-
+components:
+  - ../.templates/helm-release
+resources:
+  - external-secrets.yaml
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

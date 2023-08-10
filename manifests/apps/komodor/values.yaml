@@ -1,0 +1,6 @@
+createNamespace: false
+
+existingSecret: komodor-secret
+
+watcher:
+  clusterName: ${CLUSTER_NAME}

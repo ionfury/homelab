@@ -4,6 +4,7 @@ components:
 resources:
   - dell-idrac-snmp-exporter.yaml
   - grafana.yaml
+  - komodor.yaml
   - kube-prometheus-stack.yaml
   - loki.yaml
   - promtail.yaml
