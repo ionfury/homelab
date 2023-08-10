@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: komodor
+spec:
+  path: ./manifests/apps/komodor
+  postBuild:
+    substitute:
+      CHART: k8s-watcher
+      VERSION: 1.15.8
+      REPOSITORY: https://helm-charts.komodor.io
