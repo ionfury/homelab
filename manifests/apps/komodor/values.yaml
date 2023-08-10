@@ -1,4 +1,5 @@
 createNamespace: false
+namespace: ${NAMESPACE}
 
 existingSecret: komodor-api
 
