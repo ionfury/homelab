@@ -8,6 +8,6 @@ spec:
     substitute:
       REPOSITORY: ghcr.io/actions/actions-runner-controller-charts
       CHART: gha-runner-scale-set
-      VERSION: 0.4.0 # {"$imagepolicy": "tools:gha-runner-scale-set-automation:tag"}
+      VERSION: 0.5.0 # {"$imagepolicy": "tools:gha-runner-scale-set-automation:tag"}
       IMAGE_REPOSITORY: ghcr.io/onedr0p/github-actions-runner
       TAG: 2.308.0 # {"$imagepolicy": "tools:gha-runner-scale-set-image-automation:tag"}
