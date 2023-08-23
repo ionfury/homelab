@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/readarr-nightly
-      TAG: 0.3.4.2178 # {"$imagepolicy": "media:readarr-automation:tag"}
+      TAG: 0.3.4.2180 # {"$imagepolicy": "media:readarr-automation:tag"}
