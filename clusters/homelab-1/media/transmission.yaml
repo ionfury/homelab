@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: haugene/transmission-openvpn
-      TAG: 5.1.1 # {"$imagepolicy": "media:transmission-automation:tag"}
+      TAG: 5.2.0 # {"$imagepolicy": "media:transmission-automation:tag"}
