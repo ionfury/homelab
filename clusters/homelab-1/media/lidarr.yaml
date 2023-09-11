@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/onedr0p/lidarr-nightly
-      TAG: 1.4.3.3581 # {"$imagepolicy": "media:lidarr-automation:tag"}
+      TAG: 1.4.3.3583 # {"$imagepolicy": "media:lidarr-automation:tag"}
