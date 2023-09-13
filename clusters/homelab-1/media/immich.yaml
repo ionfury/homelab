@@ -7,12 +7,12 @@ spec:
   postBuild:
     substitute:
       MACHINE_LEARNING_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-machine-learning
-      MACHINE_LEARNING_IMAGE_TAG: v1.77.0 # {"$imagepolicy": "media:immich-machine-learning-automation:tag"}
+      MACHINE_LEARNING_IMAGE_TAG: v1.78.0 # {"$imagepolicy": "media:immich-machine-learning-automation:tag"}
       MICROSERVICES_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-server
       MICROSERVICES_IMAGE_TAG: v1.77.0 # {"$imagepolicy": "media:immich-microservices-automation:tag"}
       SERVER_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-server
-      SERVER_IMAGE_TAG: v1.77.0 # {"$imagepolicy": "media:immich-server-automation:tag"}
+      SERVER_IMAGE_TAG: v1.78.0 # {"$imagepolicy": "media:immich-server-automation:tag"}
       WEB_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-web
-      WEB_IMAGE_TAG: v1.77.0 # {"$imagepolicy": "media:immich-web-automation:tag"}
+      WEB_IMAGE_TAG: v1.78.0 # {"$imagepolicy": "media:immich-web-automation:tag"}
       TYPESENSE_IMAGE_REPOSITORY: docker.io/typesense/typesense
       TYPESENSE_IMAGE_TAG: 0.25.1 # {"$imagepolicy": "media:immich-typesense-automation:tag"}
