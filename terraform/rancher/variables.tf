@@ -106,3 +106,7 @@ variable "github_ssh_pub" {
 variable "github_ssh_known_hosts" {
   type = string
 }
+
+variable "external_secrets_access_key_name" {
+  type = string
+}
