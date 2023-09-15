@@ -4,7 +4,6 @@ components:
 resources:
   - app-template-helm-repo.yaml
   - cert-manager
-  - default
   - flux-system
   #- games
   - kube-system
