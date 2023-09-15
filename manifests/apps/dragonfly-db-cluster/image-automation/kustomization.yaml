@@ -1,0 +1,3 @@
+namePrefix: dragonfly-db-
+components:
+  - ../../.templates/image-automation

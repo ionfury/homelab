@@ -9,3 +9,4 @@ components:
 resources:
   - dragonfly-db-cluster.yaml
   - service-monitor.yaml
+  - image-automation

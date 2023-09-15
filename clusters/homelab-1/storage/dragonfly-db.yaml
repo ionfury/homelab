@@ -4,3 +4,7 @@ metadata:
   name: dragonflydb
 spec:
   path: ./manifests/apps/dragonfly-db-cluster
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: docker.dragonflydb.io/dragonflydb/dragonfly
+      TAG: v1.6.2 # {"$imagepolicy": "network:dragonfly-db-automation:tag"}
