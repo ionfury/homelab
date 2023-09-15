@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: ghcr.io/auricom/libreddit
-      TAG: 0.30.0 # {"$imagepolicy": "tools:libreddit-automation:tag"}
+      TAG: 0.30.1 # {"$imagepolicy": "tools:libreddit-automation:tag"}
