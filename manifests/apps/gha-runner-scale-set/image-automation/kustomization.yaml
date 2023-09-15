@@ -1,0 +1,3 @@
+nameSuffix: -image
+components:
+  - ../../.templates/image-automation

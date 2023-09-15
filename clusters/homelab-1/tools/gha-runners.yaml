@@ -10,4 +10,4 @@ spec:
       CHART: gha-runner-scale-set
       VERSION: 0.6.0 # {"$imagepolicy": "tools:gha-runner-scale-set-automation:tag"}
       IMAGE_REPOSITORY: ghcr.io/onedr0p/github-actions-runner
-      TAG: 2.309.0 # {"$imagepolicy": "tools:gha-runner-scale-set-image-automation:tag"}
+      TAG: 2.309.0 # {"$imagepolicy": "tools:gha-runner-scale-set-automation-image:tag"}
