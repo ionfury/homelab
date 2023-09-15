@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: kube-state-metrics
 spec:
-  path: ./manifests/apps/kube-kube-state-metrics
+  path: ./manifests/apps/kube-state-metrics
   postBuild:
     substitute:
       CHART: kube-state-metrics
