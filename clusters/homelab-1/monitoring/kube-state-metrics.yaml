@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kube-state-metrics
+spec:
+  path: ./manifests/apps/kube-kube-state-metrics
+  postBuild:
+    substitute:
+      CHART: kube-state-metrics
+      VERSION: 5.13.0 # {"$imagepolicy": "monitoring:kube-state-metrics-automation:tag"}
+      REPOSITORY: ghcr.io/prometheus-community/charts

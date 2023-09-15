@@ -6,6 +6,7 @@ resources:
   - grafana.yaml
   - komodor.yaml
   - kube-prometheus-stack.yaml
+  - kube-state-metrics.yaml
   - loki.yaml
   - promtail.yaml
   - unpoller.yaml

@@ -99,23 +99,7 @@ kubeProxy:
   enabled: false
 
 kubeStateMetrics:
-  enabled: true
-# Copiued from here: https://grafana.com/grafana/dashboards/14588-vpa-recommendations/
-kube-state-metrics:
-  namespaceOverride: ${NAMESPACE}
-  rbac:
-    extraRules:
-      - apiGroups: ["autoscaling.k8s.io"]
-        resources: ["verticalpodautoscalers"]
-        verbs: ["list", "watch"]
-  prometheus:
-    monitor:
-      enabled: true
-  verticalPodAutoscaler:
-    enabled: true
-    controlledValues: RequestsAndLimits
-  selfMonitor:
-    enabled: true
+  enabled: false
 
 nodeExporter:
   enabled: true
