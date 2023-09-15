@@ -29,10 +29,6 @@ serviceAccount:
   create: true
   name: homepage
 enableRbac: true
-resources:
-  requests:
-    memory: 10Mi
-    cpu: 10m
 config:
   settings:
     color: stone
