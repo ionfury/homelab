@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/created-by: dragonfly-operator
   name: dragonfly
 spec:
-  image: ${TAG}
+  image: ${IMAGE_REPOSITORY}:${TAG}
   args:
     - --default_lua_flags=allow-undeclared-keys
   replicas: 3
