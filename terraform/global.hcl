@@ -15,5 +15,4 @@ locals {
   cloudflare_api_key_store = "cloudflare-api-key"
   healthchecksio_api_key_store = "healthchecksio-api-key"
   external_secrets_access_key_name = "k8s-external-secrets"
-
 }
