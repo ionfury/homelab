@@ -7,6 +7,7 @@ resources:
   - gha-runners.yaml
   - goldilocks.yaml
   - homepage.yaml
+  - firefly-iii.yaml
   - libreddit.yaml
   - paperless-ngx.yaml
   - tandoor-recipes.yaml
