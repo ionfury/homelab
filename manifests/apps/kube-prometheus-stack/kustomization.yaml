@@ -8,6 +8,15 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+  - name: grafana-dashboards
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+      labels:
+        grafana_dashboard: "true"
+    files:
+      - dashboards/resource-utilization.json
 patches:
   - target:
       kind: HelmRelease
