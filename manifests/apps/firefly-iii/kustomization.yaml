@@ -23,3 +23,5 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser
+patches:
+  - path: image-policy.yaml

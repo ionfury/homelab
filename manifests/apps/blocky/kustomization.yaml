@@ -19,7 +19,7 @@ configMapGenerator:
     files:
       - dashboard.json
 patches:
-  - path: image-automation.yaml
+  - path: image-policy.yaml
   - target:
       kind: ImagePolicy
     patch: |
