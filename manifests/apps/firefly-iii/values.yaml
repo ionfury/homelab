@@ -54,7 +54,7 @@ env:
   APP_KEY:
     valueFrom:
       secretKeyRef:
-        name: firefly-iii-secret
+        name: firefly-iii-encryption-secret
         key: key
 service:
   main:
