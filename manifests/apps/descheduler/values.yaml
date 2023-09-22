@@ -29,13 +29,13 @@ deschedulerPolicy:
               cpu: 20
               memory: 10
               pods: 20
-        - name: PodLifetime
-          args:
-            maxPodLifeTimeSeconds: 3600
-            states:
-              - Pending
-              - PodInitializing
-              - ContainerCreating
+        #- name: PodLifetime
+        #  args:
+        #    maxPodLifeTimeSeconds: 3600
+        #    states:
+        #      - Pending
+        #      - PodInitializing
+        #      - ContainerCreating
         - name: RemoveFailedPods
           args:
             excludeOwnerKinds:
@@ -67,7 +67,7 @@ deschedulerPolicy:
             - RemovePodsViolatingNodeAffinity
             - RemovePodsViolatingNodeTaints
             - RemovePodsHavingTooManyRestarts
-            - PodLifeTime
+            #- PodLifeTime
             - RemoveFailedPods
 service:
   enabled: true
