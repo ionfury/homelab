@@ -8,22 +8,22 @@ initContainers:
       INIT_POSTGRES_USER:
         valueFrom:
           secretKeyRef:
-            name: firefly_iii-secret
+            name: firefly-iii-secret
             key: username
       INIT_POSTGRES_PASS:
         valueFrom:
           secretKeyRef:
-            name: firefly_iii-secret
+            name: firefly-iii-secret
             key: password
       INIT_POSTGRES_SUPER_USER:
         valueFrom:
           secretKeyRef:
-            name: firefly_iii-postgres-superuser
+            name: firefly-iii-postgres-superuser
             key: username
       INIT_POSTGRES_SUPER_PASS:
         valueFrom:
           secretKeyRef:
-            name: firefly_iii-postgres-superuser
+            name: firefly-iii-postgres-superuser
             key: password
 env:
   TZ: ${TZ}
