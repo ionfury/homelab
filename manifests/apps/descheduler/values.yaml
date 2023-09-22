@@ -8,61 +8,67 @@ leaderElection:
   resourceLock: "leases"
   resourceName: "descheduler"
   resourceNamescape: "kube-system"
+deschedulerPolicyAPIVersion: "descheduler/v1alpha2"
 deschedulerPolicy:
-  strategies:
-    RemovePodsHavingTooManyRestarts:
-      enabled: true
-      params:
-        podsHavingTooManyRestarts:
-          podRestartThreshold: 5
-          includingInitContainers: true
-    RemovePodsViolatingTopologySpreadConstraint:
-      enabled: true
-      params:
-        includeSoftConstraints: true
-    PodLifeTime:
-      enabled: true
-      params:
-        podLifeTime:
-          states:
-            - Pending
-            - PodInitializing
-            - ContainerCreating
-          maxPodLifeTimeSeconds: 3600
-    RemoveFailedPods:
-      enabled: true
-      params:
-        failedPods:
-          reasons:
-            - NodeShutdown
-            - ImagePullBackOff
-            - CreateContainerConfigError
-          includingInitContainers: true
-          excludeOwnerKinds:
-            - Job
-          minPodLifetimeSeconds: 3600
-    RemoveDuplicates:
-      enabled: true
-    RemovePodsViolatingNodeTaints:
-      enabled: true
-    RemovePodsViolatingNodeAffinity:
-      enabled: true
-      params:
-        nodeAffinityType:
-          - requiredDuringSchedulingIgnoredDuringExecution
-    RemovePodsViolatingInterPodAntiAffinity:
-      enabled: true
-    LowNodeUtilization:
-      enabled: true
-      params:
-        nodeResourceUtilizationThresholds:
-          thresholds:
-            cpu: 20
-            memory: 10
-          targetThresholds:
-            cpu: 50
-            memory: 50
-            pods: 50
+  profiles:
+    - name: Default
+      pluginConfig:
+        - name: "DefaultEvictor"
+          args:
+            evictSystemCriticalPods: true
+            evictFailedBarePods: true
+            evictLocalStoragePods: true
+            nodeFit: true
+        - name: LowNodeUtilization
+          args:
+            targetThresholds:
+              cpu: 50
+              memory: 50
+              pods: 50
+            thresholds:
+              cpu: 20
+              memory: 10
+              pods: 20
+        - name: PodLifetime
+          args:
+            maxPodLifeTimeSeconds: 3600
+            states:
+              - Pending
+              - PodInitializing
+              - ContainerCreating
+        - name: RemoveFailedPods
+          args:
+            excludeOwnerKinds:
+              - Job
+            includingInitContainers: true
+            minPodLifetimeSeconds: 3600
+            reasons:
+              - NodeShutdown
+              - ImagePullBackOff
+              - CreateContainerConfigError
+        - name: RemovePodsHavingTooManyRestarts
+          args:
+            includingInitContainers: true
+            podRestartThreshold: 10
+        - name: RemovePodsViolatingNodeAffinity
+          args:
+            nodeAffinityType:
+              - requiredDuringSchedulingIgnoredDuringExecution
+      plugins:
+        balance:
+          enabled:
+            - RemoveDuplicates
+            - LowNodeUtilization
+            - HighNodeUtilization
+            - RemovePodsViolatingTopologySpreadConstraint
+        deschedule:
+          enabled:
+            - RemovePodsViolatingInterPodAntiAffinity
+            - RemovePodsViolatingNodeAffinity
+            - RemovePodsViolatingNodeTaints
+            - RemovePodsHavingTooManyRestarts
+            - PodLifeTime
+            - RemoveFailedPods
 service:
   enabled: true
 serviceMonitor:
