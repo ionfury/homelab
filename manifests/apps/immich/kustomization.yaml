@@ -29,7 +29,7 @@ configMapGenerator:
       - TYPESENSE_DATA_DIR=/config
       - IMMICH_WEB_URL=http://immich-web-app.${NAMESPACE}.svc.cluster.local:3000
       - IMMICH_SERVER_URL=http://immich-server-app.${NAMESPACE}.svc.cluster.local:3001
-      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning.${NAMESPACE}.svc.cluster.local:3003
+      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning-app.${NAMESPACE}.svc.cluster.local:3003
 secretGenerator:
   - name: secret
     options:
