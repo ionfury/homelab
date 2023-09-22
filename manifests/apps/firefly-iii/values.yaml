@@ -51,6 +51,11 @@ env:
       secretKeyRef:
         name: firefly-iii-secret
         key: password
+  APP_KEY:
+    valueFrom:
+      secretKeyRef:
+        name: firefly-iii-secret
+        key: key
 service:
   main:
     ports:
