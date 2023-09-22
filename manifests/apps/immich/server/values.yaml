@@ -69,6 +69,7 @@ persistence:
     storageClass: ${STORAGE_CLASS_SLOW}
     size: 1Gi
     accessMode: ReadWriteOnce
+    mountPath: /usr/src/app/upload
 resources:
   requests:
     cpu: 350m
