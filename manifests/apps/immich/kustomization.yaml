@@ -19,7 +19,7 @@ configMapGenerator:
       #- TYPESENSE_API_KEY
       - DISABLE_REVERSE_GEOCODING=true
       - ENABEL_MAPBOX=false
-      - LOG_LEVEL=verbose
+      - LOG_LEVEL=log
       - NODE_ENV=production
       - REDIS_HOSTNAME=${CLUSTER_REDIS_HOST}
       - REDIS_PORT=6379
