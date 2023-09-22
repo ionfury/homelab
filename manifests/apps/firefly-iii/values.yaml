@@ -1,0 +1,90 @@
+initContainers:
+  01-init-db:
+    image: ghcr.io/onedr0p/postgres-init:14.8
+    imagePullPolicy: IfNotPresent
+    env:
+      INIT_POSTGRES_DBNAME: "firefly_iii_main"
+      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+      INIT_POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: firefly_iii-secret
+            key: username
+      INIT_POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: firefly_iii-secret
+            key: password
+      INIT_POSTGRES_SUPER_USER:
+        valueFrom:
+          secretKeyRef:
+            name: firefly_iii-postgres-superuser
+            key: username
+      INIT_POSTGRES_SUPER_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: firefly_iii-postgres-superuser
+            key: password
+env:
+  TZ: ${TZ}
+  APP_URL: "https://cash.${INTERNAL_DOMAIN}"
+  APP_ENV: "production"
+  DB_CONNECTION: "pgsql"
+  DB_HOST: ${CLUSTER_POSTGRES_HOST}
+  DB_PORT: 5432
+  MAIL_MAILER: log
+  TRUSTED_PROXIES: "**"
+  #SEND_REGISTRATION_MAIL: false
+  #SEND_ERROR_MESSAGE: false
+  #SEND_LOGIN_NEW_IP_WARNING: false
+  #COOKIE_DOMAIN: "cash.${INTERNAL_DOMAIN}"
+  #COOKIE_SECURE: "true"
+  #COOKIE_SAMESITE: "lax"
+  DB_DATABASE: firefly_iii_main
+  DB_USERNAME:
+    valueFrom:
+      secretKeyRef:
+        name: firefly-iii-secret
+        key: username
+  DB_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: firefly-iii-secret
+        key: password
+service:
+  main:
+    ports:
+      http:
+        port: 8080
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "cloudflare"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Firefly III is a (self-hosted) manager for your personal finances.
+      gethomepage.dev/group: Share
+      gethomepage.dev/icon: firefly-iii.png
+      gethomepage.dev/name: Firefly III
+    hosts:
+      - host: cash.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - cash.${INTERNAL_DOMAIN}
+        secretName: firefly-iii-tls
+persistence:
+  data:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    mountPath: /var/www/html/firefly-iii/storage/upload
+resources:
+  requests:
+    cpu: 100m
+    memory: 100M
