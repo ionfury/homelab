@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       REPOSITORY: fireflyiii/core
-      TAG: version-6.0.24 # {"$imagepolicy": "tools:firefly-iii-automation:tag"}
+      TAG: version-6.0.25 # {"$imagepolicy": "tools:firefly-iii-automation:tag"}
