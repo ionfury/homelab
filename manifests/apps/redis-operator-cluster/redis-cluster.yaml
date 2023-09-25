@@ -24,6 +24,3 @@ spec:
         spec:
           accessModes:
             - ReadWriteOnce
-          resources:
-            requests:
-              storage: ${SIZE:=1Gi}

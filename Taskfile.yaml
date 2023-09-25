@@ -5,8 +5,10 @@ vars:
     sh: "git rev-parse --show-toplevel"
   CLUSTERS_DIR: "{{.PROJECT_DIR}}/clusters"
   MANIFESTS_DIR: "{{.PROJECT_DIR}}/manifests"
+  APPS_DIR: "{{.MANIFESTS_DIR}}/apps"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/terraform"
 
 includes:
-  terragrunt: .taskfiles/terragrunt-tasks.yaml
   flux: .taskfiles/flux-tasks.yaml
+  terragrunt: .taskfiles/terragrunt-tasks.yaml
+  kubeconform: .taskfiles/kubeconform-tasks.yaml

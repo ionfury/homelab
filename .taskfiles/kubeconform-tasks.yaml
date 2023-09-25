@@ -1,0 +1,31 @@
+version: "3"
+
+tasks:
+  clusters:
+    vars:
+      CLUSTERS:
+        sh: ls {{.CLUSTERS_DIR}}
+    desc: Renders kustomization for all clusters.
+    cmds:
+      - for: { var: CLUSTERS }
+        task: kubeconform
+        vars:
+          KUSTOMIZATION: "{{.ITEM}}"
+          PATH: "{{.CLUSTERS_DIR}}"
+  apps:
+    vars:
+      APPS:
+        sh: ls {{.APPS_DIR}}
+    desc: Renders kustomization for all apps.
+    cmds:
+      - for: { var: APPS }
+        task: kubeconform
+        vars:
+          KUSTOMIZATION: "{{.ITEM}}"
+          PATH: "{{.APPS_DIR}}"
+  kubeconform:
+    requires:
+      vars: [KUSTOMIZATION, PATH]
+    desc: Renders kustomization for a specific kustomization.
+    cmds:
+      - kustomize build {{.PATH}}/{{.KUSTOMIZATION}} | kubeconform -ignore-missing-schemas -schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}`}}/{{`{{.ResourceKind}}`}}_{{`{{.ResourceAPIVersion}}`}}.json' -summary -output json
