@@ -56,5 +56,5 @@ spec:
         name: fluxcdbot
       messageTemplate: "{{range .Updated.Images}}{{println .}}{{end}}"
   update:
-    path: ./manifests/apps/.templates
+    path: ./manifests/components
     strategy: Setters

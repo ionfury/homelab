@@ -37,22 +37,22 @@ tasks:
     vars:
       PATH:
         sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.path'
-      CHART:
-        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.CHART'
-      CHART_REPOSITORY:
-        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.REPOSITORY'
-      CHART_VERSION:
-        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.VERSION'
+      HELM_CHART:
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.HELM_CHART'
+      HELM_CHART_REPOSITORY:
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.HELM_REPOSITORY'
+      HELM_CHART_VERSION:
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.HELM_CHART_VERSION'
     cmds:
       - cmd: |
-          {{if contains "https" .CHART_REPOSITORY}}
-            helm repo add {{.CHART}} {{.CHART_REPOSITORY}} >/dev/null 2>&1
+          {{if contains "https" .HELM_CHART_REPOSITORY}}
+            helm repo add {{.HELM_CHART}} {{.HELM_CHART_REPOSITORY}} >/dev/null 2>&1
           {{end}}
         #  {{else}}
-        #    HELM_EXPERIMENTAL_OCI=1 helm pull oci://{{.CHART_REPOSITORY}}/{{.CHART}} --version {{.CHART_VERSION}}
+        #    HELM_EXPERIMENTAL_OCI=1 helm pull oci://{{.HELM_CHART_REPOSITORY}}/{{.CHART}} --version {{.CHART_VERSION}}
       - cmd: |
-          {{if contains "https" .CHART_REPOSITORY}}
-            helm template {{.CHART}} {{.CHART}}/{{.CHART}} --kube-version {{.KUBE_VERSION}} --version {{.CHART_VERSION}} --values {{.PROJECT_DIR}}/{{.PATH}}/values.yaml
+          {{if contains "https" .HELM_CHART_REPOSITORY}}
+            helm template {{.HELM_CHART}} {{.HELM_CHART}}/{{.HELM_CHART}} --kube-version {{.KUBE_VERSION}} --version {{.HELM_CHART_VERSION}} --values {{.PROJECT_DIR}}/{{.PATH}}/values.yaml
           {{else}}
-            HELM_EXPERIMENTAL_OCI=1 helm template oci://{{.CHART_REPOSITORY}}/{{.CHART}} --version {{.CHART_VERSION}} --values {{.PROJECT_DIR}}/{{.PATH}}/values.yaml
+            HELM_EXPERIMENTAL_OCI=1 helm template oci://{{.HELM_CHART_REPOSITORY}}/{{.HELM_CHART}} --version {{.HELM_CHART_VERSION}} --values {{.PROJECT_DIR}}/{{.PATH}}/values.yaml
           {{end}}

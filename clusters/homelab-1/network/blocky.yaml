@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/blocky
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/0xerr0r/blocky
-      TAG: v0.22 # {"$imagepolicy": "network:blocky-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/0xerr0r/blocky
+      IMAGE_TAG: v0.22 # {"$imagepolicy": "network:blocky-automation:tag"}
