@@ -7,8 +7,14 @@ vars:
   MANIFESTS_DIR: "{{.PROJECT_DIR}}/manifests"
   APPS_DIR: "{{.MANIFESTS_DIR}}/apps"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/terraform"
+  KUBE_VERSION: "1.24.3"
 
 includes:
   flux: .taskfiles/flux-tasks.yaml
   terragrunt: .taskfiles/terragrunt-tasks.yaml
   kubeconform: .taskfiles/kubeconform-tasks.yaml
+  helm: .taskfiles/helm-tasks.yaml
+tasks:
+  default:
+    silent: true
+    cmds: ["task -l"]

@@ -15,3 +15,5 @@ terraform.*
 tfplan
 .DS_Store
 **/rke_debug.log
+
+out.yaml

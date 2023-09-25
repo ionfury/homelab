@@ -1,0 +1,58 @@
+version: "3"
+
+env:
+  CLUSTER: '{{.CLUSTER | default "homelab-1"}}'
+  NAMESPACE: '{{.NAMESPACE | default "default"}}'
+  APP: '{{.APP | default "default.yaml"}}'
+tasks:
+  template-cluster:
+    interactive: true
+    desc: Templates out all apps for a cluster.
+    requires:
+      vars: [CLUSTERS_DIR, APPS_DIR, KUBE_VERSION]
+    cmds:
+      - task: template-cluster-namespace-app
+        vars:
+          PROJECT_DIR: "{{.PROJECT_DIR}}"
+          CLUSTERS_DIR: "{{.CLUSTERS_DIR}}"
+          APPS_DIR: "{{.APPS_DIR}}"
+          KUBE_VERSION: "{{.KUBE_VERSION}}"
+          CLUSTER: "{{.CLUSTER}}"
+          NAMESPACE: "{{.NAMESPACE}}"
+          APP: "{{.APP}}"
+
+  template-cluster-namespace-app:
+    desc: Templates an app as deployed to a cluster.
+    requires:
+      vars:
+        [
+          PROJECT_DIR,
+          CLUSTERS_DIR,
+          APPS_DIR,
+          KUBE_VERSION,
+          CLUSTER,
+          NAMESPACE,
+          APP,
+        ]
+    vars:
+      PATH:
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.path'
+      CHART:
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.CHART'
+      CHART_REPOSITORY:
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.REPOSITORY'
+      CHART_VERSION:
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.VERSION'
+    cmds:
+      - cmd: |
+          {{if contains "https" .CHART_REPOSITORY}}
+            helm repo add {{.CHART}} {{.CHART_REPOSITORY}} >/dev/null 2>&1
+          {{end}}
+        #  {{else}}
+        #    HELM_EXPERIMENTAL_OCI=1 helm pull oci://{{.CHART_REPOSITORY}}/{{.CHART}} --version {{.CHART_VERSION}}
+      - cmd: |
+          {{if contains "https" .CHART_REPOSITORY}}
+            helm template {{.CHART}} {{.CHART}}/{{.CHART}} --kube-version {{.KUBE_VERSION}} --version {{.CHART_VERSION}} --values {{.PROJECT_DIR}}/{{.PATH}}/values.yaml
+          {{else}}
+            HELM_EXPERIMENTAL_OCI=1 helm template oci://{{.CHART_REPOSITORY}}/{{.CHART}} --version {{.CHART_VERSION}} --values {{.PROJECT_DIR}}/{{.PATH}}/values.yaml
+          {{end}}
