@@ -22,4 +22,4 @@ persistentVolumeClaim:
   enabled: true
   storageClassName: harvester-ssd
 admin:
-  existingSecret: ${CHART}-app-password
+  existingSecret: ${HELM_CHART}-app-password

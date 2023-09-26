@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/promtail
   postBuild:
     substitute:
-      CHART: promtail
-      VERSION: 6.11.9
-      REPOSITORY: https://grafana.github.io/helm-charts
+      HELM_CHART: promtail
+      HELM_CHART_VERSION: 6.11.9
+      HELM_CHART_REPOSITORY: https://grafana.github.io/helm-charts

@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/libreddit
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/auricom/libreddit
-      TAG: 0.30.1 # {"$imagepolicy": "tools:libreddit-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/auricom/libreddit
+      IMAGE_TAG: 0.30.1 # {"$imagepolicy": "tools:libreddit-automation:tag"}

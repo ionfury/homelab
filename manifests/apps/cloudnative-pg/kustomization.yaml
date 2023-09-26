@@ -1,6 +1,6 @@
 namePrefix: cloudnative-pg-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 resources:
   - prometheus-rule.yaml
 configMapGenerator:

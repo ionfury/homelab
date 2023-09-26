@@ -8,4 +8,4 @@ template:
   spec:
     containers:
       - name: runner
-        image: ${IMAGE_REPOSITORY}:${TAG}
+        image: ${IMAGE_REPOSITORY}:${IMAGE_TAG}

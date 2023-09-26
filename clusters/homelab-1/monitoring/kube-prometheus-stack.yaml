@@ -6,7 +6,7 @@ spec:
   path: ./manifests/apps/kube-prometheus-stack
   postBuild:
     substitute:
-      CHART: kube-prometheus-stack
+      HELM_CHART: kube-prometheus-stack
       # Don't automate this just yet... {"$imagepolicy": "monitoring:kube-prometheus-stack-automation:tag"}
-      VERSION: 48.1.2
-      REPOSITORY: ghcr.io/prometheus-community/charts
+      HELM_CHART_VERSION: 48.1.2
+      HELM_CHART_REPOSITORY: ghcr.io/prometheus-community/charts

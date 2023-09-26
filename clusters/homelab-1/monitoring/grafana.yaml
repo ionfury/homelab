@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/grafana
   postBuild:
     substitute:
-      CHART: grafana
-      VERSION: 6.56.5
-      REPOSITORY: https://grafana.github.io/helm-charts
+      HELM_CHART: grafana
+      HELM_CHART_VERSION: 6.56.5
+      HELM_CHART_REPOSITORY: https://grafana.github.io/helm-charts

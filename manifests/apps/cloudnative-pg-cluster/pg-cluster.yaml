@@ -6,7 +6,7 @@ metadata:
     kyverno.io/ignore: "true"
 spec:
   instances: 3
-  imageName: ${REPOSITORY}:${TAG}
+  imageName: ${IMAGE_REPOSITORY}:${IMAGE_TAG}
   primaryUpdateStrategy: unsupervised
   superuserSecret:
     name: generated-postgres-superuser

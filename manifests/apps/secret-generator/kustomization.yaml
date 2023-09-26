@@ -1,6 +1,6 @@
 namePrefix: secret-generators-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 configMapGenerator:
   - name: values
     behavior: replace

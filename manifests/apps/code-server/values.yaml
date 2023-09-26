@@ -1,6 +1,6 @@
 initContainers:
   install-addons:
-    image: ${REPOSITORY}:${TAG}
+    image: ${IMAGE_REPOSITORY}:${IMAGE_TAG}
     imagePullPolicy: IfNotPresent
     env:
       - name: SERVICE_URL

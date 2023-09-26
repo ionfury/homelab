@@ -1,6 +1,6 @@
 namePrefix: kyverno-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 configMapGenerator:
   - name: values
     behavior: replace

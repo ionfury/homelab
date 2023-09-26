@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/loki
   postBuild:
     substitute:
-      CHART: loki
-      VERSION: 5.9.2
-      REPOSITORY: https://grafana.github.io/helm-charts
+      HELM_CHART: loki
+      HELM_CHART_VERSION: 5.9.2
+      HELM_CHART_REPOSITORY: https://grafana.github.io/helm-charts

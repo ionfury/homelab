@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/paperless-ngx
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/paperless-ngx/paperless-ngx
-      TAG: 1.17.4 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/paperless-ngx/paperless-ngx
+      IMAGE_TAG: 1.17.4 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}

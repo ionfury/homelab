@@ -1,6 +1,6 @@
 namePrefix: cloudflare-dyndns-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 resources:
   - external-secret.yaml
 configMapGenerator:

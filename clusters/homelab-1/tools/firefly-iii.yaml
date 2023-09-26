@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/firefly-iii
   postBuild:
     substitute:
-      REPOSITORY: fireflyiii/core
-      TAG: version-6.0.26 # {"$imagepolicy": "tools:firefly-iii-automation:tag"}
+      IMAGE_REPOSITORY: fireflyiii/core
+      IMAGE_TAG: version-6.0.26 # {"$imagepolicy": "tools:firefly-iii-automation:tag"}

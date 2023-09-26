@@ -6,13 +6,13 @@ spec:
   auth:
     secretPath: redis-auth
   sentinel:
-    image: ${REPOSITORY}:${TAG}
+    image: ${IMAGE_REPOSITORY}:${IMAGE_TAG}
     imagePullPolicy: IfNotPresent
     replicas: 3
     exporter:
       enabled: true
   redis:
-    image: ${REPOSITORY}:${TAG}
+    image: ${IMAGE_REPOSITORY}:${IMAGE_TAG}
     imagePullPolicy: IfNotPresent
     replicas: 3
     exporter:

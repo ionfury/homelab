@@ -1,6 +1,6 @@
 namePrefix: grafana-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 resources:
   - external-secret.yaml
 configMapGenerator:

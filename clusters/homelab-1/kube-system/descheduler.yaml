@@ -7,6 +7,6 @@ spec:
   path: ./manifests/apps/descheduler
   postBuild:
     substitute:
-      CHART: descheduler
-      VERSION: 0.27.1
-      REPOSITORY: https://kubernetes-sigs.github.io/descheduler
+      HELM_CHART: descheduler
+      HELM_CHART_VERSION: 0.27.1
+      HELM_CHART_REPOSITORY: https://kubernetes-sigs.github.io/descheduler

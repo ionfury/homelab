@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/valheim
   postBuild:
     substitute:
-      REPOSITORY: lloesche/valheim-server
-      TAG: latest
+      IMAGE_REPOSITORY: lloesche/valheim-server
+      IMAGE_TAG: latest

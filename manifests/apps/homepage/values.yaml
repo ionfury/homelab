@@ -1,6 +1,6 @@
 image:
   repository: ${IMAGE_REPOSITORY}
-  tag: ${TAG}
+  tag: ${IMAGE_TAG}
 resources:
   requests:
     cpu: 15m

@@ -9,7 +9,7 @@ spec:
           - kind: Deployment
             apiVersion: apps/v1
             metadata:
-              name: ${CHART}-app
+              name: ${HELM_CHART}-app
             spec:
               template:
                 spec:

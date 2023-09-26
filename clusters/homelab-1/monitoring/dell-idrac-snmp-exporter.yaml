@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/dell-idrac-snmp-exporter
   postBuild:
     substitute:
-      CHART: prometheus-snmp-exporter
-      VERSION: 1.8.0 # {"$imagepolicy": "monitoring:dell-idrac-snmp-exporter-automation:tag"}
-      REPOSITORY: ghcr.io/prometheus-community/charts
+      HELM_CHART: prometheus-snmp-exporter
+      HELM_CHART_VERSION: 1.8.0 # {"$imagepolicy": "monitoring:dell-idrac-snmp-exporter-automation:tag"}
+      HELM_CHART_REPOSITORY: ghcr.io/prometheus-community/charts

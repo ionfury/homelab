@@ -1,6 +1,6 @@
 namePrefix: komodor-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 resources:
   - external-secrets.yaml
 configMapGenerator:

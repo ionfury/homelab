@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/tandoor-recipes
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/tandoorrecipes/recipes
-      TAG: 1.5.6 # {"$imagepolicy": "tools:tandoor-recipes-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/tandoorrecipes/recipes
+      IMAGE_TAG: 1.5.6 # {"$imagepolicy": "tools:tandoor-recipes-automation:tag"}

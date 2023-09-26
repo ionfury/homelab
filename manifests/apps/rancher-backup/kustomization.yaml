@@ -1,6 +1,6 @@
 namePrefix: rancher-backup-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 resources:
   - backup.yaml
   - external-secret.yaml

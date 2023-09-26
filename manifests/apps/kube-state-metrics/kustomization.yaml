@@ -1,6 +1,6 @@
 namePrefix: kube-state-metrics
 components:
-  - ../.templates/helm-release-oci
+  - ../../components/helm-release-oci
 configMapGenerator:
   - name: values
     behavior: replace

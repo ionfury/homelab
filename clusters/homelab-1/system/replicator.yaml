@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/replicator
   postBuild:
     substitute:
-      CHART: kubernetes-replicator
-      VERSION: 2.8.0
-      REPOSITORY: https://helm.mittwald.de
+      HELM_CHART: kubernetes-replicator
+      HELM_CHART_VERSION: 2.8.0
+      HELM_CHART_REPOSITORY: https://helm.mittwald.de

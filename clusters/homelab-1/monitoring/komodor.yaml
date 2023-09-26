@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/komodor
   postBuild:
     substitute:
-      CHART: k8s-watcher
-      VERSION: 1.15.8
-      REPOSITORY: https://helm-charts.komodor.io
+      HELM_CHART: k8s-watcher
+      HELM_CHART_VERSION: 1.15.8
+      HELM_CHART_REPOSITORY: https://helm-charts.komodor.io

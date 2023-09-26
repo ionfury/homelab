@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/radarr
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/onedr0p/radarr-nightly
-      TAG: 4.7.5.7821 # {"$imagepolicy": "media:radarr-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/radarr-nightly
+      IMAGE_TAG: 4.7.5.7821 # {"$imagepolicy": "media:radarr-automation:tag"}

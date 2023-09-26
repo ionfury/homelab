@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/cloudnative-pg
   postBuild:
     substitute:
-      CHART: cloudnative-pg
-      VERSION: 0.18.0
-      REPOSITORY: https://cloudnative-pg.github.io/charts
+      HELM_CHART: cloudnative-pg
+      HELM_CHART_VERSION: 0.18.0
+      HELM_CHART_REPOSITORY: https://cloudnative-pg.github.io/charts

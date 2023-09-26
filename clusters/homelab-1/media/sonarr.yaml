@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/sonarr
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/onedr0p/sonarr-develop
-      TAG: 3.0.9.1555 # {"$imagepolicy": "media:sonarr-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/sonarr-develop
+      IMAGE_TAG: 3.0.9.1555 # {"$imagepolicy": "media:sonarr-automation:tag"}

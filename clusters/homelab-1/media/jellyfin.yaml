@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/jellyfin
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/onedr0p/jellyfin
-      TAG: 10.8.11 # {"$imagepolicy": "media:jellyfin-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/jellyfin
+      IMAGE_TAG: 10.8.11 # {"$imagepolicy": "media:jellyfin-automation:tag"}

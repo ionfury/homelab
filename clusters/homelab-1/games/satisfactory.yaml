@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/satisfactory
   postBuild:
     substitute:
-      REPOSITORY: wolveix/satisfactory-server
-      TAG: v1.4.8 # {"$imagepolicy": "games:satisfactory-automation:tag"}
+      IMAGE_REPOSITORY: wolveix/satisfactory-server
+      IMAGE_TAG: v1.4.8 # {"$imagepolicy": "games:satisfactory-automation:tag"}

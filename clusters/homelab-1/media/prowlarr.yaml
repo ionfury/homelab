@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/prowlarr
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly
-      TAG: 1.9.2.3982 # {"$imagepolicy": "media:prowlarr-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly
+      IMAGE_TAG: 1.9.2.3982 # {"$imagepolicy": "media:prowlarr-automation:tag"}

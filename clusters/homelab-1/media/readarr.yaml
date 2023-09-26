@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/readarr
   postBuild:
     substitute:
-      REPOSITORY: ghcr.io/onedr0p/readarr-nightly
-      TAG: 0.3.6.2232 # {"$imagepolicy": "media:readarr-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/readarr-nightly
+      IMAGE_TAG: 0.3.6.2232 # {"$imagepolicy": "media:readarr-automation:tag"}

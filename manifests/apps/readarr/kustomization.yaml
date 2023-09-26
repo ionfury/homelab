@@ -1,6 +1,6 @@
 namePrefix: readarr-
 components:
-  - ../.templates/helm-release-app-template-oci
+  - ../../components/helm-release-app-template-oci
 configMapGenerator:
   - name: values
     behavior: replace

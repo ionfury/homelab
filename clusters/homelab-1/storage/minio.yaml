@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/minio
   postBuild:
     substitute:
-      REPOSITORY: quay.io/minio/minio
-      TAG: RELEASE.2022-07-17T15-43-14Z
+      IMAGE_REPOSITORY: quay.io/minio/minio
+      IMAGE_TAG: RELEASE.2022-07-17T15-43-14Z
