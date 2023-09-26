@@ -4,4 +4,4 @@ metadata:
   name: app
 spec:
   interval: 10m
-  url: ${HELM_REPOSITORY}
+  url: ${HELM_CHART_REPOSITORY}

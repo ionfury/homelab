@@ -40,7 +40,7 @@ tasks:
       HELM_CHART:
         sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.HELM_CHART'
       HELM_CHART_REPOSITORY:
-        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.HELM_REPOSITORY'
+        sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.HELM_CHART_REPOSITORY'
       HELM_CHART_VERSION:
         sh: cat {{.CLUSTERS_DIR}}/{{.CLUSTER}}/{{.NAMESPACE}}/{{.APP}}.yaml | yq -r '.spec.postBuild.substitute.HELM_CHART_VERSION'
     cmds:

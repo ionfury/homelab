@@ -13,7 +13,7 @@ patches:
         value: oci
       - op: replace
         path: /spec/url
-        value: oci://${HELM_REPOSITORY}
+        value: oci://${HELM_CHART_REPOSITORY}
 resources:
   - image-policy.yaml
   - image-repository.yaml
