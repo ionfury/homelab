@@ -10,3 +10,4 @@ resources:
   - readarr.yaml
   - sonarr.yaml
   - immich.yaml
+  - zipline.yaml
