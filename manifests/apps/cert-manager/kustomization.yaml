@@ -1,6 +1,6 @@
 namePrefix: cert-manager-
 components:
-  - ../.templates/helm-release
+  - ../../components/helm-release
 resources:
   - prometheus-rules.yaml
 configMapGenerator:

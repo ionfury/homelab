@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/cert-manager
   postBuild:
     substitute:
-      CHART: cert-manager
-      VERSION: 1.11.0
-      REPOSITORY: https://charts.jetstack.io
+      HELM_CHART: cert-manager
+      HELM_CHART_VERSION: 1.11.0
+      HELM_CHART_REPOSITORY: https://charts.jetstack.io
