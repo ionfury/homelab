@@ -79,7 +79,7 @@ The homelab is designed to emulate the principal of [Hyperconverged Infrastructu
 |<img src="https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/f8baa56a7a29dec4603fa37651459234b2c693c9/assets/cloudflare.svg" width="24"> [cloudflare](https://www.cloudflare.com/)|DNS & Proxy management.| ~$10/yr |
 |<img src="https://pbs.twimg.com/profile_images/1055543716201615365/geMDWaHV_400x400.jpg" width="24"> [healthchecks.io](https://healthchecks.io/) | Cluster heartbeats. | free |
 |<img src="https://github.com/loganmarchione/homelab-svg-assets/raw/main/assets/amazonwebservices.svg" width="24"> [amazon](https://s3.console.aws.amazon.com/) | Backups, terraform state, and pilot light secrets. | ~$1/mo |
-|||Total: ~$10/yr|
+|||Total: ~$20/yr|
 
 ---
 
