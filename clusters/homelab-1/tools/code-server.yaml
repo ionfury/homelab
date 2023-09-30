@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: codercom/code-server
-      IMAGE_TAG: 4.17.0 # {"$imagepolicy": "tools:code-server-automation:tag"}
+      IMAGE_TAG: 4.17.1 # {"$imagepolicy": "tools:code-server-automation:tag"}
