@@ -3,6 +3,6 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - blocky.yaml
-  - ingress-nginx.yaml
+  - ingress-nginx-internal.yaml
   - unifi-network.yaml
   - unifi-protect.yaml

@@ -1,4 +1,4 @@
-namePrefix: ingress-nginx-
+namePrefix: ingress-nginx-${INGRESS_CLASS:=internal}-
 components:
   - ../../components/helm-release
 configMapGenerator:
