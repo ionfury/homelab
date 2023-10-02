@@ -8,4 +8,4 @@ spec:
     substitute:
       HELM_CHART: ingress-nginx
       HELM_CHART_VERSION: 4.4.2 # {"$imagepolicy": "network:ingress-nginx-automation:tag"}
-      HELM_CHART_REPOSITORY: ghcr.io/nginxinc/charts/nginx-ingress
+      HELM_CHART_REPOSITORY: ghcr.io/nginxinc/charts
