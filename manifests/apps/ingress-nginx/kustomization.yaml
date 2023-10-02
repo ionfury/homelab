@@ -1,6 +1,6 @@
 namePrefix: ingress-nginx-
 components:
-  - ../../components/helm-release-oci
+  - ../../components/helm-release
 configMapGenerator:
   - name: values
     behavior: replace
