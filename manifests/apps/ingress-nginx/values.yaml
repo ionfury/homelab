@@ -39,8 +39,8 @@ controller:
     ssl-protocols: TLSv1.3 TLSv1.2
   resources:
     requests:
-      cpu: 200m
-      memory: 200Mi
+      cpu: 300m
+      memory: 20Mi
   autoscaling:
     enabled: true
     minReplicas: 2
