@@ -15,21 +15,21 @@ controller:
     enabled: true
     minReplicas: 2
     maxReplicas: 5
-    targetCPUUtilizationPercentage: 50
-    targetMemoryUtilizationPercentage: 50
+    targetCPUUtilizationPercentage: 100
+    targetMemoryUtilizationPercentage: 100
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 180
         policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 180
+          - type: Pods
+            value: 1
+            periodSeconds: 180
       scaleUp:
         stabilizationWindowSeconds: 180
         policies:
-        - type: Pods
-          value: 2
-          periodSeconds: 60
+          - type: Pods
+            value: 2
+            periodSeconds: 60
   service:
     enable: true
     appProtocol: false
