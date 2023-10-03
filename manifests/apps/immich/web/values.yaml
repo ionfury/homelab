@@ -36,7 +36,6 @@ ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       nginx.ingress.kubernetes.io/configuration-snippet: |
         rewrite /api/(.*) /$1 break;
@@ -49,6 +48,7 @@ ingress:
       gethomepage.dev/name: Immich
       #gethomepage.dev/widget.type: immich
       #gethomepage.dev/widget.url:
+    ingressClassName: internal
     hosts:
       - host: photos.${INTERNAL_DOMAIN}
         paths:

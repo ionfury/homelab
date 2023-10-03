@@ -65,13 +65,13 @@ ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Firefly III is a (self-hosted) manager for your personal finances.
       gethomepage.dev/group: Share
       gethomepage.dev/icon: firefly.png
       gethomepage.dev/name: Firefly III
+    ingressClassName: internal
     hosts:
       - host: cash.${INTERNAL_DOMAIN}
         paths:

@@ -58,7 +58,6 @@ ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them.
@@ -67,6 +66,7 @@ ingress:
       gethomepage.dev/name: sonarr
       gethomepage.dev/widget.type: sonarr
       gethomepage.dev/widget.url: http://sonarr-app.${NAMESPACE}.svc.cluster.local:80
+    ingressClassName: internal
     hosts:
       - host: sonarr.${INTERNAL_DOMAIN}
         paths:
@@ -79,8 +79,8 @@ ingress:
   api:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
+    ingressClassName: internal
     hosts:
       - host: sonarr.${INTERNAL_DOMAIN}
         paths:

@@ -59,7 +59,6 @@ ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Readarr is a ebook collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new books from your favorite authors and will interface with clients and indexers to grab, sort, and rename them.
@@ -68,6 +67,7 @@ ingress:
       gethomepage.dev/name: readarr
       gethomepage.dev/widget.type: readarr
       gethomepage.dev/widget.url: http://readarr-app.${NAMESPACE}.svc.cluster.local:80
+    ingressClassName: internal
     hosts:
       - host: readarr.${INTERNAL_DOMAIN}
         paths:

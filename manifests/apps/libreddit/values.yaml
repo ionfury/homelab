@@ -13,13 +13,13 @@ ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: ibreddit is a portmanteau of "libre" (meaning freedom) and "Reddit". It is a private front-end like Invidious but for Reddit.
       gethomepage.dev/group: Share
       gethomepage.dev/icon: libreddit.png
       gethomepage.dev/name: Libreddit
+    ingressClassName: internal
     hosts:
       - host: libreddit.${INTERNAL_DOMAIN}
         paths:

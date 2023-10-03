@@ -33,18 +33,17 @@ persistence:
     accessMode: ReadWriteOnce
     size: 10Gi
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
-    accessMode: ReadWriteOnce
 ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: A self-hosted recipe manager and meal planner with a RestAPI backend and a reactive frontend application built in Vue for a pleasant user experience for the whole family.
       gethomepage.dev/group: Food
       gethomepage.dev/icon: mealie.png
       gethomepage.dev/name: Mealie
+    ingressClassName: internal
     hosts:
       - host: recipes.${INTERNAL_DOMAIN}
         paths:

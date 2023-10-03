@@ -58,7 +58,6 @@ ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Radarr is a movie collection manager for Usenet and BitTorrent users.
@@ -67,6 +66,7 @@ ingress:
       gethomepage.dev/name: Radarr
       gethomepage.dev/widget.type: radarr
       gethomepage.dev/widget.url: http://radarr-app.${NAMESPACE}.svc.cluster.local:80
+    ingressClassName: internal
     hosts:
       - host: radarr.${INTERNAL_DOMAIN}
         paths:
@@ -79,8 +79,8 @@ ingress:
   api:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
+    ingressClassName: internal
     hosts:
       - host: radarr.${INTERNAL_DOMAIN}
         paths:

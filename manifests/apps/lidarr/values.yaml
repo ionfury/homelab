@@ -58,7 +58,6 @@ ingress:
   main:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Lidarr is a music collection manager for Usenet and BitTorrent users.
@@ -67,6 +66,7 @@ ingress:
       gethomepage.dev/name: Lidarr
       gethomepage.dev/widget.type: lidarr
       gethomepage.dev/widget.url: http://lidarr-app.${NAMESPACE}.svc.cluster.local:80
+    ingressClassName: internal
     hosts:
       - host: lidarr.${INTERNAL_DOMAIN}
         paths:
@@ -76,21 +76,6 @@ ingress:
       - hosts:
           - lidarr.${INTERNAL_DOMAIN}
         secretName: lidarr-tls
-#  api:
-#    enabled: true
-#    nameSuffix: api
-#    annotations:
-#      kubernetes.io/ingress.class: "nginx"
-#      cert-manager.io/cluster-issuer: "cloudflare"
-#    hosts:
-#      - host: lidarr.${INTERNAL_DOMAIN}
-#        paths:
-#          - path: /api
-#            pathType: Prefix
-#    tls:
-#      - hosts:
-#          - lidarr.${INTERNAL_DOMAIN}
-#        secretName: lidarr-tls
 podSecurityContext:
   runAsUser: 568
   runAsGroup: 568
