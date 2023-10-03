@@ -6,6 +6,18 @@ controller:
     rollingUpdate:
       maxUnavailable: 1
     type: RollingUpdate
+  ingressClassResource:
+    name: ${INGRESS_CLASS:=internal}
+    default: true
+    controllerValue: k8s.io/${INGRESS_CLASS:=internal}
+  admissionWebhooks:
+    enabled: true
+    objectSelector:
+      matchExpressions:
+        - key: ingress-class
+          operator: In
+          values: ["${INGRESS_CLASS:=internal}"]
+  allowSnippetAnnotations: true
   config:
     client-body-buffer-size: 100M
     client-body-timeout: 120
@@ -54,9 +66,7 @@ controller:
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
     enableHttp: false
-    enablHttps: true
-  admissionWebhooks:
-    enabled: true
+    enableHttps: true
   metrics:
     enabled: true
     serviceMonitor:
