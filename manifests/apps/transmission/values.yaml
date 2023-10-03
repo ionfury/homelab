@@ -98,6 +98,7 @@ configMaps:
       TRANSMISSION_SPEED_LIMIT_UP_ENABLED: "true"
       TRANSMISSION_DOWNLOAD_DIR: "/media/download/complete"
       TRANSMISSION_INCOMPLETE_DIR: "/media/download/incomplete"
+      TRANSMISSION_DOWNLOAD_QUEUE_SIZE: "10"
       NORDVPN_COUNTRY: US
       NORDVPN_CATEGORY: legacy_standard
       NORDVPN_PROTOCOL: udp
