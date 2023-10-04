@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics
+  labels:
+    type: metrics
+spec:
+  ports:
+    - name: metrics
+      port: 6378
+      protocol: TCP
+      targetPort: 6378
+  type: ClusterIP
