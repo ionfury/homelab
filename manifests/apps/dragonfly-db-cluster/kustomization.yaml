@@ -8,5 +8,6 @@ components:
   - ../../components/configurations/service-monitor
 resources:
   - dragonfly-db-cluster.yaml
+  - metrics-service.yaml
   - service-monitor.yaml
   - image-automation
