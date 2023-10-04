@@ -110,5 +110,5 @@ envFrom:
       name: transmission-app-vpn
 resources:
   requests:
-    cpu: 35m
-    memory: 64M
+    cpu: 400m
+    memory: 1500Mi
