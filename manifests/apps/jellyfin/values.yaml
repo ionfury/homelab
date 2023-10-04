@@ -65,6 +65,6 @@ affinity:
 #  intel.feature.node.kubernetes.io/gpu: "true"
 resources:
   requests:
-    cpu: 100m
-    memory: 1000Mi
+    cpu: 1
+    memory: 1500Mi
     #gpu.intel.com/i915: 1
