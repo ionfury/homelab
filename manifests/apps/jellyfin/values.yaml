@@ -1,3 +1,9 @@
+env:
+  TZ: ${TZ}
+  DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
+  JELLYFIN_FFmpeg__probesize: 50000000
+  JELLYFIN_FFmpeg__analyzeduration: 500000000
+  JELLYFIN_PublishedServerUrl: jellyfin.${INTERNAL_DOMAIN}
 service:
   main:
     ports:
@@ -65,6 +71,9 @@ affinity:
 #  intel.feature.node.kubernetes.io/gpu: "true"
 resources:
   requests:
-    cpu: 1
-    memory: 1500Mi
+    cpu: 500m
+    memory: 2Gi
+  limits:
+    cpu: 6000m
+    memory: 16Gi
     #gpu.intel.com/i915: 1
