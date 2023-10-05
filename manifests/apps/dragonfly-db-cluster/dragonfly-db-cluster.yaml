@@ -12,9 +12,6 @@ spec:
   image: ${IMAGE_REPOSITORY}:${IMAGE_TAG}
   args:
     - --default_lua_flags=allow-undeclared-keys
-    - --admin_nopass=true
-    - --admin_port=6378
-    - --primary_port_http_enabled=false
   replicas: 3
   resources:
     requests:
