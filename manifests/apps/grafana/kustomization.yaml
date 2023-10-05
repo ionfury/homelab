@@ -19,6 +19,15 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser
+  - name: home-dashboard
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+      labels:
+        grafana_dashboard: "true"
+    files:
+      - home-dashboard.json
 patches:
   - target:
       kind: HelmRelease
