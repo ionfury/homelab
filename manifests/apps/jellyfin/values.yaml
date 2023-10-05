@@ -1,8 +1,8 @@
 env:
   TZ: ${TZ}
   DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
-  JELLYFIN_FFmpeg__probesize: 50000000
-  JELLYFIN_FFmpeg__analyzeduration: 500000000
+  JELLYFIN_FFmpeg__probesize: 5000000000
+  JELLYFIN_FFmpeg__analyzeduration: 50000000000
   JELLYFIN_PublishedServerUrl: jellyfin.${INTERNAL_DOMAIN}
 service:
   main:
