@@ -9,5 +9,5 @@ spec:
   endpoints:
     - interval: 30s
       path: /metrics
-      port: redis
+      port: metrics
       scrapeTimeout: 10s
