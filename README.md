@@ -95,6 +95,11 @@ Once an ip has been assigned, the [`cluster-vars.env`](./clusters/homelab-1/clus
 
 Finally, the default vlan network is updated to provide the `blocky` loadbalancer ip for dns to all clients on the network, providing access to internal services and ad blocking.
 
+<details>
+  <summary>Click to see network security diagram</summary>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/home-network-firewall.png" align="center" alt="firewall"/>
+</details>
+
 ---
 
 ## Bare Metal
