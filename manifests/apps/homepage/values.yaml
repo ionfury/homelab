@@ -50,15 +50,20 @@ config:
               href: https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin
               ping: https://console.aws.amazon.com
               description: Cloud provider for secrets, backup, & misc.
-    - Emergency:
-        - Harvester0:
-            - abbr: H0
+    - Harvester:
+        - HarvesterVIP:
+            - abbr: HVIP
               href: https://${HARVESTER_IP_ADDRESS}/
               description: Break glass in case of fire.
         - Longhorn:
             - abbr: LH
               href: https://${HARVESTER_IP_ADDRESS}/k8s/clusters/local/api/v1/namespaces/longhorn-system/services/http:longhorn-frontend:80/proxy/#/dashboard
               description: Break glass in case of fire.
+    - Management:
+        - Harvester0:
+            - abbr: N0
+              href: https://${IDRAC_ADDRESS}/
+              description: IDRAC management interface.
   services:
     - Network:
         - Rancher:
