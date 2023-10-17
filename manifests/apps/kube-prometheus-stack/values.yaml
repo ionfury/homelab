@@ -19,7 +19,7 @@ alertmanager:
           group_interval: 1m
         - receiver: 'null'
           match:
-            - alertname: InfoInhibitor
+            alertname: InfoInhibitor
   templateFiles:
     discord_template.tmpl: |-
       {{ define "our.discord.title" }}
