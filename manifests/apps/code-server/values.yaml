@@ -9,12 +9,12 @@ initContainers:
         value: https://open-vsx.org/vscode/item
     command: ["/bin/sh", "-c"]
     args:
-      - chown -R 1000:1000 /home/coder; code-server --install-extension ms-kubernetes-tools; code-server --install-extension redhat.vscode-yaml; \
-        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash /dev/stdin 5.0.1 /usr/local/bin; \
-        curl -s https://fluxcd.io/install.sh | bash /dev/stdin /usr/local/bin; \
-        curl -L https://github.com/mozilla/sops/releases/download/v3.7.3/sops-v3.7.3.linux.amd64 -o sops && chmod +x sops && mv sops /usr/local/bin; \
-        curl -L https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz -o helm && tar -zxvf helm && chmod +x linux-amd64/helm && mv linux-amd64/helm /usr/local/bin/helm && rm -R linux-amd64; \
-        curl -L https://taskfile.dev/install.sh
+      - chown -R 1000:1000 /home/coder; code-server --install-extension ms-kubernetes-tools; code-server --install-extension redhat.vscode-yaml; 
+      - curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash /dev/stdin 5.0.1 /usr/local/bin; \
+      - curl -s https://fluxcd.io/install.sh | bash /dev/stdin /usr/local/bin; \
+      - curl -L https://github.com/mozilla/sops/releases/download/v3.7.3/sops-v3.7.3.linux.amd64 -o sops && chmod +x sops && mv sops /usr/local/bin; \
+      - curl -L https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz -o helm && tar -zxvf helm && chmod +x linux-amd64/helm && mv linux-amd64/helm /usr/local/bin/helm && rm -R linux-amd64; \
+      - curl -L https://taskfile.dev/install.sh
     volumeMounts:
       - name: data
         mountPath: /home/coder
