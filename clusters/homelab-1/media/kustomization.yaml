@@ -3,7 +3,7 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - jellyfin.yaml
-  - transmission.yaml
+  #- transmission.yaml
   - lidarr.yaml
   - prowlarr.yaml
   - radarr.yaml
