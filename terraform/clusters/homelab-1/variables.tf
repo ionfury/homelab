@@ -3,6 +3,10 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "kubernetes_version" {
+  type = string
+}
+
 variable "harvester_cluster_name" {
   type = string
 }
@@ -52,4 +56,3 @@ variable "external_secrets_access_key_name" {
 variable "harvester_kubeconfig_path" {
   type = string
 }
-

@@ -4,6 +4,7 @@ module "this" {
   name                   = var.cluster_name
   harvester_cluster_name = var.harvester_cluster_name
   network_name           = var.default_network_name
+  kubernetes_version     = var.kubernetes_version
 
   control_plane_cpu        = 2
   control_plane_memory     = 8
@@ -62,5 +63,3 @@ module "bootstrap" {
     healthchecksio = healthchecksio
   }
 }
-
-
