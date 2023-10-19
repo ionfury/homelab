@@ -2,8 +2,8 @@ namespace: tools
 components:
   - ../../../manifests/components/namespace
 resources:
-  - code-server.yaml
-  #-  filebrowser.yaml
+  #- code-server.yaml
+  #- filebrowser.yaml
   - gha-runners.yaml
   - goldilocks.yaml
   - homepage.yaml
