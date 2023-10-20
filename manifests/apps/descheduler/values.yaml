@@ -29,7 +29,7 @@ deschedulerPolicy:
               cpu: 20
               memory: 10
               pods: 20
-        - name: PodLifetime
+        - name: PodLifetTime
           args:
             maxPodLifeTimeSeconds: 3600
             labelSelector:
