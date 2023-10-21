@@ -17,7 +17,12 @@ deschedulerPolicy:
           args:
             excludeOwnerKinds:
               - "ReplicaSet"
+        - name: "RemovePodsViolatingTopologySpreadConstraint"
+          args:
+            constraints:
+              - DoNotSchedule
         - name: "RemovePodsViolatingInterPodAntiAffinity"
+        - name: "RemovePodsViolatingNodeTaints"
         - name: "DefaultEvictor"
           args:
             evictSystemCriticalPods: true
