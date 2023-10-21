@@ -13,6 +13,10 @@ deschedulerPolicy:
   profiles:
     - name: Default
       pluginConfig:
+        - name: "RemoveDuplicates"
+          args:
+            excludeOwnerKinds:
+              - "ReplicaSet"
         - name: "DefaultEvictor"
           args:
             evictSystemCriticalPods: true
@@ -58,7 +62,7 @@ deschedulerPolicy:
           enabled:
             - RemoveDuplicates
             - LowNodeUtilization
-            - HighNodeUtilization
+            #- HighNodeUtilization
             - RemovePodsViolatingTopologySpreadConstraint
         deschedule:
           enabled:
