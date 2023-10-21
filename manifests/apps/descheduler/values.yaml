@@ -25,7 +25,7 @@ deschedulerPolicy:
         - name: "RemovePodsViolatingNodeTaints"
         - name: "DefaultEvictor"
           args:
-            evictSystemCriticalPods: true
+            evictSystemCriticalPods: false
             evictFailedBarePods: true
             evictLocalStoragePods: true
             nodeFit: true
