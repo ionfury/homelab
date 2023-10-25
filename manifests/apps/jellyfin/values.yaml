@@ -80,3 +80,4 @@ resources:
   limits:
     cpu: 6000m
     memory: 16Gi
+    nvidia.com/gpu: 1
