@@ -2,6 +2,9 @@ nfd:
   enabled: true
 driver:
   enabled: true
+dcgmOperator:
+  serviceMonitor:
+    enabled: true
 toolkit:
   enabled: true
   env:
