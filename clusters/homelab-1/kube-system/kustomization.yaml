@@ -1,5 +1,6 @@
 namespace: kube-system
 resources:
   - descheduler.yaml
+  - nvidia-gpu-operator.yaml
 components:
   - ../../../manifests/components/configurations/namespace

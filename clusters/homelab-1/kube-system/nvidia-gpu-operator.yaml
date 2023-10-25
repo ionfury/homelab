@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: nvidia-gpu-operator
+spec:
+  path: ./manifests/apps/nvidia-gpu-operator
+  postBuild:
+    substitute:
+      HELM_CHART: gpu-operator
+      HELM_CHART_VERSION: v23.9.0
+      HELM_CHART_REPOSITORY: https://helm.ngc.nvidia.com/nvidia
