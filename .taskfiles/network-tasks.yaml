@@ -1,0 +1,71 @@
+version: "3"
+
+#output: prefixed
+
+tasks:
+  test:
+    desc: Tests network access to various services in the network.
+    vars:
+      GATEWAY_PING_TARGETS: 192.168.1.0 192.168.1.1 192.168.2.1 192.168.3.1 192.168.4.1 192.168.5.1 192.168.10.1
+      DEFAULT_PING_TARGETS: 192.168.1.251
+      GUEST_PING_TARGETS: 192.168.2.114
+      IOT_PING_TARGETS: 192.168.3.90
+      CAMERA_PING_TARGETS:
+      CLIENT_PING_TARGETS:
+      CITADEL_PING_TARGETS: 192.168.10.2 192.168.10.140 192.168.10.203
+      DNS_SERVERS: 192.168.1.1 192.168.10.181
+    silent: true
+    cmds:
+      - for: { var: GATEWAY_PING_TARGETS }
+        task: ping
+        vars:
+          TARGET: "{{.ITEM}}"
+      - for: { var: CITADEL_PING_TARGETS }
+        task: ping
+        vars:
+          TARGET: "{{.ITEM}}"
+      - for: { var: DEFAULT_PING_TARGETS }
+        task: ping
+        vars:
+          TARGET: "{{.ITEM}}"
+      - for: { var: GUEST_PING_TARGETS }
+        task: ping
+        vars:
+          TARGET: "{{.ITEM}}"
+      - for: { var: IOT_PING_TARGETS }
+        task: ping
+        vars:
+          TARGET: "{{.ITEM}}"
+      - for: { var: CAMERA_PING_TARGETS }
+        task: ping
+        vars:
+          TARGET: "{{.ITEM}}"
+      - for: { var: CLIENT_PING_TARGETS }
+        task: ping
+        vars:
+          TARGET: "{{.ITEM}}"
+      - for: { var: DNS_SERVERS }
+        task: dig
+        vars:
+          TARGET: "{{.ITEM}}"
+  ping:
+    desc: Pings a target
+    requires:
+      vars: [TARGET]
+    prefix: "{{.TASK}} {{.TARGET}}"
+    ignore_error: true
+    cmd: ping -c 1 {{.TARGET}} > /dev/null 2>&1  ; echo ACCEPT
+  nc:
+    desc: Runs NC on a target
+    requires:
+      vars: [TARGET]
+    prefix: "{{.TASK}} {{.TARGET}}"
+    ignore_error: true
+    cmd: nc -z -n -v -w 2 -G 2 {{.TARGET}} > /dev/null 2>&1  ; echo ACCEPT
+  dig:
+    desc: Runs dig for a target
+    requires:
+      vars: [TARGET]
+    prefix: "{{.TASK}} {{.TARGET}}"
+    ignore_error: true
+    cmd: dig +time=5 +tries=1 @{{.TARGET}} google.com > /dev/null 2>&1  ; echo ACCEPT

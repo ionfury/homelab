@@ -11,3 +11,11 @@ tasks:
     cmds:
       - kubectl get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -L 1 bash -c 'flux suspend hr $0 -n $1'
       - kubectl get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -L 1 bash -c 'flux resume hr $0 -n $1'
+  suspend-kustomization:
+    desc: Suspend every kustomization in the cluster.
+    cmds:
+      - kubectl get kustomization -A | awk '{print $2, $1}' | xargs -L 1 bash -c 'flux suspend kustomization $0 -n $1'
+  resume-kustomization:
+    desc: Resume every kustomization in the cluster.
+    cmds:
+      - kubectl get kustomization -A | awk '{print $2, $1}' | xargs -L 1 bash -c 'flux resume kustomization $0 -n $1'
