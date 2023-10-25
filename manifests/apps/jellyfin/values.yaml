@@ -50,7 +50,7 @@ persistence:
     enabled: true
     retain: false
     storageClass: ${STORAGE_CLASS_FAST}
-    size: 50Gi
+    size: 200Gi
     accessMode: ReadWriteOnce
   media:
     enabled: true
