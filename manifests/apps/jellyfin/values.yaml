@@ -70,13 +70,13 @@ affinity:
               values:
                 - media
         topologyKey: kubernetes.io/hostname
-#nodeSelector:
-#  intel.feature.node.kubernetes.io/gpu: "true"
+nodeSelector:
+  nvidia.com/gpu.product: Quadro-P2000
 resources:
   requests:
     cpu: 500m
     memory: 2Gi
+    nvidia.com/gpu: 1
   limits:
     cpu: 6000m
     memory: 16Gi
-    #gpu.intel.com/i915: 1
