@@ -127,6 +127,11 @@ datasources:
           implementation: prometheus
 dashboards:
   default:
+    nvidia-dcgm-exporter:
+      # https://grafana.com/grafana/dashboards/15117-nvidia-dcgm-exporter/
+      gnetId: 15117
+      revision: 2
+      datasource: Prometheus
     vpa-reccomendations:
       # https://grafana.com/grafana/dashboards/14588-vpa-recommendations/
       gnetId: 14588
