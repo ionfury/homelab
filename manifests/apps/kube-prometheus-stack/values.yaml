@@ -30,22 +30,20 @@ alertmanager:
 
       {{ define "our.discord.message.list" }}
         {{ range . }}
-          ## [{{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})]({{ .GeneratorURL  }})
-          - **Description**: {{ printf "%.150s" .Annotations.description }}
-          - **Runbook**: {{ printf "%.150s" .Annotations.runbook }}
-          - **Service**: {{ .Labels.service }}
-          - **Namespace**: {{ .Labels.namespace }}
-          - **Cluster**: {{ .Labels.prometheus_source }}
+          - {{ .Labels.service }}.{{ .Labels.namespace }}.{{ .Labels.prometheus_source }}
         {{ end }}
       {{ end }}
 
       {{ define "our.discord.alerts" }}
+        - **Summary**: [{{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})]({{ .GeneratorURL  }})
+        - **Description**: {{ printf "%.150s" .Annotations.description }}
+        - **Runbook**: {{ printf "%.150s" .Annotations.runbook }}
         {{ if gt (len .Alerts.Firing) 0 }}
-          # Alerts Firing:
+          ### Firing:
           {{ template "our.discord.message.list" .Alerts.Firing }}
         {{ end }}
         {{ if gt (len .Alerts.Resolved) 0 }}
-          # Alerts Resolved:
+          ### Resolved:
           {{ template "our.discord.message.list" .Alerts.Resolved }}
         {{ end }}
       {{ end}}
