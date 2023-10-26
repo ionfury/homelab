@@ -28,7 +28,7 @@ initContainers:
 env:
   TZ: ${TZ}
   SONARR__INSTANCE_NAME: Sonarr
-  SONARR__PORT: 80
+  SONARR__PORT: 8989
   SONARR__LOG_LEVEL: info
   SONARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
   SONARR__POSTGRES_PORT: 5432
@@ -53,7 +53,7 @@ service:
   main:
     ports:
       http:
-        port: 80
+        port: 8989
 ingress:
   main:
     enabled: true
@@ -65,7 +65,7 @@ ingress:
       gethomepage.dev/icon: sonarr.png
       gethomepage.dev/name: sonarr
       gethomepage.dev/widget.type: sonarr
-      gethomepage.dev/widget.url: http://sonarr-app.${NAMESPACE}.svc.cluster.local:80
+      gethomepage.dev/widget.url: http://sonarr-app.${NAMESPACE}.svc.cluster.local:8989
     ingressClassName: internal
     hosts:
       - host: sonarr.${INTERNAL_DOMAIN}
