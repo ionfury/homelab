@@ -60,16 +60,6 @@ persistence:
     accessMode: ReadWriteOnce
 podLabels:
   required-volume: media
-affinity:
-  podAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: required-volume
-              operator: In
-              values:
-                - media
-        topologyKey: kubernetes.io/hostname
 nodeSelector:
   nvidia.com/gpu.product: Quadro-P2000
 resources:

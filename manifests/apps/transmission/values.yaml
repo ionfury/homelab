@@ -69,8 +69,6 @@ persistence:
     enabled: true
     existingClaim: jellyfin-app-media
     mountPath: /media
-podLabels:
-  required-volume: media
 affinity:
   podAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:

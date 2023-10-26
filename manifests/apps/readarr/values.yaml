@@ -94,8 +94,6 @@ persistence:
     size: 10Gi
     accessMode: ReadWriteOnce
     mountPath: /config
-podLabels:
-  required-volume: media
 affinity:
   podAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
