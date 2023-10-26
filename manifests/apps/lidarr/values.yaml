@@ -28,7 +28,7 @@ initContainers:
 env:
   TZ: ${TZ}
   LIDARR__INSTANCE_NAME: Lidarr
-  LIDARR__PORT: 80
+  LIDARR__PORT: 8686
   LIDARR__LOG_LEVEL: info
   LIDARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
   LIDARR__POSTGRES_PORT: 5432
@@ -53,7 +53,7 @@ service:
   main:
     ports:
       http:
-        port: 80
+        port: 8686
 ingress:
   main:
     enabled: true
@@ -65,7 +65,7 @@ ingress:
       gethomepage.dev/icon: lidarr.png
       gethomepage.dev/name: Lidarr
       gethomepage.dev/widget.type: lidarr
-      gethomepage.dev/widget.url: http://lidarr-app.${NAMESPACE}.svc.cluster.local:80
+      gethomepage.dev/widget.url: http://lidarr-app.${NAMESPACE}.svc.cluster.local:8686
     ingressClassName: internal
     hosts:
       - host: lidarr.${INTERNAL_DOMAIN}
