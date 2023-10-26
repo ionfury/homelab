@@ -6,7 +6,7 @@ spec:
   groups:
     - name: jellyfin
       rules:
-        - alert: MissingQuadroP2000Node
+        - alert: JellyfinMissingQuadroP2000Node
           annotations:
             summary: Missing any nodes mounting a Quadro-P2000 GPU.
             description: Jellyfin requires a node mounting a Quadro-P2000.  No node carries a label of 'nvidia.com/gpu.product=Quadro-P2000'
