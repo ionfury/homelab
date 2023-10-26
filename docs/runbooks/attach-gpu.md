@@ -13,4 +13,4 @@ A firing alert `MissingQuadroP2000Node`.
 ## Remediation
 
 1. Log in through the harvester VIP as `admin`. [Related Issue](https://github.com/harvester/harvester/issues/4650).
-1. Follow the instructions [here](https://docs.harvesterhci.io/v1.2/advanced/addons/pcidevices#attaching-pci-devices-to-a-vm).  Filter on `NVIDIA` and attach all found devices to a worker node.
+1. Follow the instructions [here](https://docs.harvesterhci.io/v1.2/advanced/addons/pcidevices#attaching-pci-devices-to-a-vm).  Mount _only_ the `harvester0-000004000` device.
