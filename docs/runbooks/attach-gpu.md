@@ -4,7 +4,11 @@
 
 > TODO: Rancher Terraform provider lacks support for managing [PCI Devices](https://github.com/rancher/terraform-provider-rancher2/issues/1030) via machine templates in cloud providers.  When/if the above issue is completed, implement a machine gpu template.
 
-Because I'm using machine templates to maintain cluster nodes indirectly, if those machines are re-created the GPU needs to be manually mounted back into them.  This is indicated by a firing alert `MissingQuadroP2000Node`.
+Because I'm using machine templates to maintain cluster nodes indirectly, if those machines are re-created the GPU needs to be manually mounted back into them.
+
+## Indication
+
+A firing alert `MissingQuadroP2000Node`.
 
 ## Remediation
 

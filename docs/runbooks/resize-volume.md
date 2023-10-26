@@ -1,6 +1,10 @@
 # Resizing Volumes
 
-Longhorn [supports volume expansion](https://longhorn.io/docs/archives/1.2.4/volumes-and-nodes/expansion/#expand-a-longhorn-volume), but something doesn't work quite right with the harvester integration.  The volume is resized from the kubernetes perspective and will show the correct size:
+Longhorn [supports volume expansion](https://longhorn.io/docs/archives/1.2.4/volumes-and-nodes/expansion/#expand-a-longhorn-volume), but something doesn't work quite right with the harvester integration. `resize2fs` needs to be run from the k8s node on the filesystem.
+
+## Indication
+
+The volume is resized from the kubernetes perspective and will show the correct size:
 
 ```sh
 ❯ kubectl get pvc -n media jellyfin-app-media
@@ -18,9 +22,7 @@ Filesystem     Type     Size  Used Avail Use% Mounted on
 ...
 ```
 
-`resize2fs` needs to be run from the k8s node on the filesystem.
-
-## Manual Process
+## Remediation
 
 1. Identify the name of the PVC with the issue (in this case `pvc-8fae9d64-e44f-4822-a0fd-efbd584bc1b0`)
 
