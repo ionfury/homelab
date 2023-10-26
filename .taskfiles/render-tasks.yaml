@@ -5,9 +5,18 @@ env:
   NAMESPACE: '{{.NAMESPACE | default "default"}}'
   APP: '{{.APP | default "default.yaml"}}'
 tasks:
-  template-cluster:
+  alertmanager-discord-webhook:
+    desc: Renders the discord message template.
+    vars:
+      APP: kube-prometheus-stack
+      VALUES: values.yaml
+      DATASOURCE: template-datasources/alert.yaml
+      TEMPLATE_PATH: .alertmanager.templateFiles."discord_template.tmpl"
+    cmds:
+      - cat {{.APPS_DIR}}/{{.APP}}/{{.VALUES}} | yq '{{.TEMPLATE_PATH}}' | gomplate -d test=file://{{.APPS_DIR}}/{{.APP}}/{{.DATASOURCE}}
+  cluster:
     interactive: true
-    desc: Templates out all apps for a cluster.
+    desc: Renders out all apps for a cluster.
     requires:
       vars: [CLUSTERS_DIR, APPS_DIR, KUBE_VERSION]
     cmds:
@@ -21,8 +30,8 @@ tasks:
           NAMESPACE: "{{.NAMESPACE}}"
           APP: "{{.APP}}"
 
-  template-cluster-namespace-app:
-    desc: Templates an app as deployed to a cluster.
+  cluster-namespace-app:
+    desc: Renders an app as deployed to a cluster.
     requires:
       vars:
         [

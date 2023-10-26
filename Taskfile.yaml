@@ -13,7 +13,7 @@ includes:
   flux: .taskfiles/flux-tasks.yaml
   terragrunt: .taskfiles/terragrunt-tasks.yaml
   kubeconform: .taskfiles/kubeconform-tasks.yaml
-  helm: .taskfiles/helm-tasks.yaml
+  render: .taskfiles/render-tasks.yaml
   runbook: .taskfiles/runbook-tasks.yaml
   #network: .taskfiles/network-tasks.yaml
 tasks:

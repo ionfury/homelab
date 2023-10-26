@@ -30,15 +30,12 @@ alertmanager:
 
       {{ define "our.discord.message.list" }}
         {{ range . }}
-          - **Alert**: {{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})
+          ## [{{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})]({{ .GeneratorURL  }})
           - **Description**: {{ printf "%.150s" .Annotations.description }}
           - **Runbook**: {{ printf "%.150s" .Annotations.runbook }}
-
-          - **Cluster**: {{ .Labels.prometheus_source }}
-          - **Namespace**: {{ .Labels.namespace }}
           - **Service**: {{ .Labels.service }}
-
-          [Source]({{ .GeneratorURL  }})
+          - **Namespace**: {{ .Labels.namespace }}
+          - **Cluster**: {{ .Labels.prometheus_source }}
         {{ end }}
       {{ end }}
 
