@@ -28,7 +28,7 @@ initContainers:
 env:
   TZ: ${TZ}
   RADARR__INSTANCE_NAME: Radarr
-  RADARR__PORT: 80
+  RADARR__PORT: 7878
   RADARR__LOG_LEVEL: info
   RADARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
   RADARR__POSTGRES_PORT: 5432
@@ -53,7 +53,7 @@ service:
   main:
     ports:
       http:
-        port: 80
+        port: 7878
 ingress:
   main:
     enabled: true
@@ -65,7 +65,7 @@ ingress:
       gethomepage.dev/icon: radarr.png
       gethomepage.dev/name: Radarr
       gethomepage.dev/widget.type: radarr
-      gethomepage.dev/widget.url: http://radarr-app.${NAMESPACE}.svc.cluster.local:80
+      gethomepage.dev/widget.url: http://radarr-app.${NAMESPACE}.svc.cluster.local:7878
     ingressClassName: internal
     hosts:
       - host: radarr.${INTERNAL_DOMAIN}
