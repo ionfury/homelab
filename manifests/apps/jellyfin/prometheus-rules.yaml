@@ -11,7 +11,7 @@ spec:
             summary: Missing any nodes mounting a Quadro-P2000 GPU.
             description: Jellyfin requires a node mounting a Quadro-P2000.  No node carries a label of 'nvidia.com/gpu.product=Quadro-P2000'
             runbook: https://github.com/ionfury/homelab/blob/main/docs/runbooks/attach-gpu.md
-          expr: count(kube_node_labels{label_nvidia_com_gpu_product="Quadro-P2000"}) < 1
+          expr: absent(count(kube_node_labels{label_nvidia_com_gpu_product="Quadro-P2000"}))
           for: 5m
           labels:
             severity: critical
