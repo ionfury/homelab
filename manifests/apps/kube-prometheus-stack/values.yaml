@@ -35,9 +35,9 @@ alertmanager:
       {{ end }}
 
       {{ define "our.discord.alerts" }}
-        - **Summary**: [{{ printf "%.150s" .Annotations.summary }} ({{ .Labels.severity }})]({{ .GeneratorURL  }})
-        - **Description**: {{ printf "%.150s" .Annotations.description }}
-        - **Runbook**: {{ printf "%.150s" .Annotations.runbook }}
+        - **Summary**: [{{ printf "%.150s" .Alerts.Firing.Annotations.summary }} ({{ .Alerts.Firing.Labels.severity }})]({{ .Alerts.Firing.GeneratorURL  }})
+        - **Description**: {{ printf "%.150s" .Alerts.Firing.Annotations.description }}
+        - **Runbook**: {{ printf "%.150s" .Alerts.Firing.Annotations.runbook }}
         {{ if gt (len .Alerts.Firing) 0 }}
           ### Firing:
           {{ template "our.discord.message.list" .Alerts.Firing }}
