@@ -1,4 +1,6 @@
 namespaceOverride: ${NAMESPACE}
+extraArgs:
+  - --metric-labels-allowlist=pods=[*],nodes=[*]
 rbac:
   extraRules:
     - apiGroups: ["autoscaling.k8s.io"]
