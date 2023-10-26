@@ -4,4 +4,4 @@ tasks:
   finalize-pending-volume-attachments:
     desc: Remove the finalizers on VolumeAttachments pending deletion to remediate docs/runbooks/unstick-volume-attachments.md.
     cmds:
-      - echo "Script this next time it happens lol"
+      - kubectl get volumeattachment -o json | jq -r '.items[] | select(.status.detachError != null)'.metadata.name | xargs -L 1 bash -c 'kubectl patch volumeattachment $0 -p '"'"'{"metadata":{"finalizers":null}}'"'"' --type=merge'
