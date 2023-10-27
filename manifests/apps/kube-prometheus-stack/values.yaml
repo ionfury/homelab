@@ -220,6 +220,7 @@ prometheus:
     externalLabels:
       prometheus_source: ${CLUSTER_NAME}
     retentionSize: 99GiB
+    retention: 90d
     ruleSelectorNilUsesHelmValues: false
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
