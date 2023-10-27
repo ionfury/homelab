@@ -1,8 +1,6 @@
 namespaceOverride: ${NAMESPACE}
 defaultRules:
   create: true
-  disabled:
-    KubeletTooManyPods: true # expr is using on pod,namespace instead of exported_pod,exported_namespace
 alertmanager:
   enabled: true
   config:
