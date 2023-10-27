@@ -26,13 +26,13 @@ alertmanager:
     slack_template.tmpl: |-
       {{/* Alertmanager Silence link */}}
       {{ define "__alert_silence_link" -}}
-          https://alertmanager.${INTERNAL_DOMAIN}/#/silences/new?filter=%7B
-          {{- range .Labels.SortedPairs -}}
+          {{ .ExternalURL }}/#/silences/new?filter=%7B
+          {{- range .CommonLabels.SortedPairs -}}
               {{- if ne .Name "alertname" -}}
                   {{- .Name }}%3D"{{- .Value -}}"%2C%20
               {{- end -}}
           {{- end -}}
-          alertname%3D"{{- .Labels.alertname -}}"%7D
+          alertname%3D"{{- .CommonLabels.alertname -}}"%7D
       {{- end }}
 
       {{/* Severity of the alert */}}
@@ -100,9 +100,9 @@ alertmanager:
               {{- "\n" -}}
               :chart_with_upwards_trend: [Dashboard]({{ .Annotations.dashboard_url }})
               {{- end }}
-              {{- "\n" -}}
-              :no_bell: [Silence]({{ template "__alert_silence_link" . }})
           {{- end }}
+          {{- "\n" -}}
+          :no_bell: [Silence]({{ template "__alert_silence_link" . }})
       {{- end }}
 
     discord_template.tmpl: |-
