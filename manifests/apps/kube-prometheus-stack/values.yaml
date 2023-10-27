@@ -38,13 +38,13 @@ alertmanager:
       {{/* Severity of the alert */}}
       {{ define "__alert_severity" -}}
           {{- if eq .CommonLabels.severity "critical" -}}
-          *Severity:* `Critical`
+          **Severity:** `Critical`
           {{- else if eq .CommonLabels.severity "warning" -}}
-          *Severity:* `Warning`
+          **Severity:** `Warning`
           {{- else if eq .CommonLabels.severity "info" -}}
-          *Severity:* `Info`
+          **Severity:** `Info`
           {{- else -}}
-          *Severity:* :question: {{ .CommonLabels.severity }}
+          **Severity:** :question: {{ .CommonLabels.severity }}
           {{- end }}
       {{- end }}
 
@@ -77,24 +77,32 @@ alertmanager:
           {{ template "__alert_severity" . }}
           {{- if (index .Alerts 0).Annotations.summary }}
           {{- "\n" -}}
-          *Summary:* {{ (index .Alerts 0).Annotations.summary }}
+          **Summary:** {{ (index .Alerts 0).Annotations.summary }}
           {{- end }}
-
           {{ range .Alerts }}
-
               {{- if .Annotations.description }}
               {{- "\n" -}}
               {{ .Annotations.description }}
-              {{- "\n" -}}
               {{- end }}
               {{- if .Annotations.message }}
               {{- "\n" -}}
               {{ .Annotations.message }}
-              {{- "\n" -}}
               {{- end }}
-
+              {{- if .GeneratorURL }}
+              {{- "\n" -}}
+              :mag: [Query]({{ .GeneratorURL }})
+              {{- end }}
+              {{- if .Annotations.runbook_url }}
+              {{- "\n" -}}
+              :green_book: [Runbook]({{ .Annotations.runbook_url }})
+              {{- end }}
+              {{- if .Annotations.runbook_url }}
+              {{- "\n" -}}
+              :chart_with_upwards_trend: [Dashboard]({{ .Annotations.dashboard_url }})
+              {{- end }}
+              {{- "\n" -}}
+              :no_bell: [Silence]({{ template "__alert_silence_link" . }})
           {{- end }}
-
       {{- end }}
 
     discord_template.tmpl: |-
