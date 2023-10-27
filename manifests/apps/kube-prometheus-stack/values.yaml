@@ -27,12 +27,12 @@ alertmanager:
       {{/* Alertmanager Silence link */}}
       {{ define "__alert_silence_link" -}}
           https://alertmanager.${INTERNAL_DOMAIN}/#/silences/new?filter=%7B
-          {{- range .CommonLabels.SortedPairs -}}
+          {{- range .Labels.SortedPairs -}}
               {{- if ne .Name "alertname" -}}
                   {{- .Name }}%3D"{{- .Value -}}"%2C%20
               {{- end -}}
           {{- end -}}
-          alertname%3D"{{- .CommonLabels.alertname -}}"%7D
+          alertname%3D"{{- .Labels.alertname -}}"%7D
       {{- end }}
 
       {{/* Severity of the alert */}}
