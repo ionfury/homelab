@@ -8,6 +8,7 @@ rbac:
       verbs: ["list", "watch"]
 prometheus:
   monitor:
+    honorLabels: true
     enabled: true
 # https://github.com/kubernetes/kube-state-metrics/blob/main/docs/customresourcestate-metrics.md#verticalpodautoscaler
 # https://github.com/kubernetes/kube-state-metrics/issues/2041#issuecomment-1614327806
@@ -81,4 +82,4 @@ customResourceState:
                 resource: "cpu"
                 unit: "core"
 selfMonitor:
-  enabled: false
+  enabled: true
