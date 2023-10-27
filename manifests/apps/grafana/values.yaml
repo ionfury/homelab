@@ -127,6 +127,11 @@ datasources:
           implementation: prometheus
 dashboards:
   default:
+    alertmanager:
+      # https://grafana.com/grafana/dashboards/9578-alertmanager/
+      gnetId: 9578
+      revision: 4
+      datasource: Prometheus
     nvidia-dcgm-exporter:
       # https://grafana.com/grafana/dashboards/15117-nvidia-dcgm-exporter/
       gnetId: 15117
