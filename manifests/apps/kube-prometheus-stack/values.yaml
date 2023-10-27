@@ -96,7 +96,7 @@ alertmanager:
               {{- "\n" -}}
               :green_book: [Runbook]({{ .Annotations.runbook_url }})
               {{- end }}
-              {{- if .Annotations.runbook_url }}
+              {{- if .Annotations.dashboard_url }}
               {{- "\n" -}}
               :chart_with_upwards_trend: [Dashboard]({{ .Annotations.dashboard_url }})
               {{- end }}
