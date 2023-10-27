@@ -1,0 +1,13 @@
+version: "3"
+
+tasks:
+  reccomender:
+    desc: Runs Kubernetes Resource Reccomender (KRR) and outputs to console.
+    cmd: krr simple
+  reccomender-file:
+    vars:
+      FILE: krr.yaml
+    desc: Runs Kubernetes Resource Reccomender (KRR) and outputs to console.
+    cmds:
+      - krr simple --logtostderr -f yaml > {{ .FILE }}
+      - sed -i.bak '1d' {{ .FILE }} && rm {{ .FILE }}.bak

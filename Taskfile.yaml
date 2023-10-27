@@ -15,6 +15,7 @@ includes:
   kubeconform: .taskfiles/kubeconform-tasks.yaml
   render: .taskfiles/render-tasks.yaml
   runbook: .taskfiles/runbook-tasks.yaml
+  optimization: .taskfiles/optimization-tasks.yaml
   #network: .taskfiles/network-tasks.yaml
 tasks:
   default:

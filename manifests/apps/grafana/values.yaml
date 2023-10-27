@@ -132,11 +132,6 @@ dashboards:
       gnetId: 15117
       revision: 2
       datasource: Prometheus
-    vpa-reccomendations:
-      # https://grafana.com/grafana/dashboards/14588-vpa-recommendations/
-      gnetId: 14588
-      revision: 5
-      datasource: Prometheus
     loki-kubernetes-logs:
       # https://grafana.com/grafana/dashboards/15141-kubernetes-service-logs/
       gnetId: 15141
