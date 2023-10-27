@@ -688,14 +688,15 @@
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "mode": "gradient",
-                  "type": "gauge"
+                  "mode": "lcd",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
                 }
               },
               {
                 "id": "thresholds",
                 "value": {
-                  "mode": "absolute",
+                  "mode": "percentage",
                   "steps": [
                     {
                       "color": "dark-green",
@@ -715,6 +716,14 @@
               {
                 "id": "decimals",
                 "value": 1
+              },
+              {
+                "id": "max",
+                "value": 100
+              },
+              {
+                "id": "min",
+                "value": 0
               }
             ]
           },
@@ -903,7 +912,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": " sum by (persistentvolumeclaim,namespace,storageclass,volumename) (kube_persistentvolumeclaim_info{namespace=~\"monitoring\"})",
+          "expr": " sum by (persistentvolumeclaim,namespace,storageclass,volumename) (kube_persistentvolumeclaim_info{})",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -916,7 +925,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{namespace=~\"monitoring\"}/1024/1024/1024)",
+          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{}/1024/1024/1024)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -929,7 +938,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{namespace=~\"monitoring\"}/1024/1024/1024)",
+          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{}/1024/1024/1024)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -942,7 +951,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_available_bytes{namespace=~\"monitoring\"}/1024/1024/1024)",
+          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_available_bytes{}/1024/1024/1024)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -955,7 +964,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(kube_persistentvolumeclaim_status_phase{namespace=~\"monitoring\", phase=~\"(Pending|Lost)\"}) by (persistentvolumeclaim) + sum(kube_persistentvolumeclaim_status_phase{namespace=~\"monitoring\", phase=~\"(Lost)\"}) by (persistentvolumeclaim)",
+          "expr": "sum(kube_persistentvolumeclaim_status_phase{phase=~\"(Pending|Lost)\"}) by (persistentvolumeclaim) + sum(kube_persistentvolumeclaim_status_phase{phase=~\"(Lost)\"}) by (persistentvolumeclaim)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -968,7 +977,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{namespace=~\"monitoring\"}/kubelet_volume_stats_capacity_bytes{namespace=~\"monitoring\"} * 100)",
+          "expr": "sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{}/kubelet_volume_stats_capacity_bytes{} * 100)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -995,7 +1004,8 @@
               "Time 4": true,
               "Time 5": true,
               "Time 6": true,
-              "Value #A": true
+              "Value #A": true,
+              "Value #F": false
             },
             "indexByName": {},
             "renameByName": {
@@ -1111,13 +1121,13 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Home",
   "uid": "c5f44de6-fd51-4bc6-b926-8c6a044c9346",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
