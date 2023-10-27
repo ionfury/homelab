@@ -12,7 +12,7 @@ alertmanager:
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 48h
-      receiver: discord # Defined in secret alertmanager-webhook
+      receiver: discord-slack # Defined in secret alertmanager-webhook
       routes:
         - receiver: heartbeat # Defined in secret alertmanager-webhook
           match:
