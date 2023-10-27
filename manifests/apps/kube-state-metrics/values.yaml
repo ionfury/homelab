@@ -81,4 +81,4 @@ customResourceState:
                 resource: "cpu"
                 unit: "core"
 selfMonitor:
-  enabled: true
+  enabled: false
