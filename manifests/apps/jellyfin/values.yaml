@@ -67,3 +67,5 @@ resources:
     cpu: 563m
     memory: 2833Mi
     nvidia.com/gpu: 1
+  limits:
+    nvidia.com/gpu: 1
