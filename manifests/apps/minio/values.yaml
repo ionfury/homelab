@@ -75,5 +75,5 @@ persistence:
     mountPath: /data
 resources:
   requests:
-    memory: 100Mi
-    cpu: 100m
+    cpu: 130m
+    memory: 1297Mi

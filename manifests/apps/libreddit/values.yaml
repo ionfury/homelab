@@ -56,5 +56,5 @@ probes:
     enabled: false
 resources:
   requests:
-    cpu: 15m
-    memory: 64M
+    cpu: 10m
+    memory: 100Mi

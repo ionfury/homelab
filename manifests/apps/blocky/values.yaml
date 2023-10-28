@@ -44,6 +44,10 @@ persistence:
     name: blocky-config
     mountPath: /app/config.yml
     subPath: config.yml
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
 affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:

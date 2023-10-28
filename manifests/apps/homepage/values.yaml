@@ -3,8 +3,8 @@ image:
   tag: ${IMAGE_TAG}
 resources:
   requests:
-    cpu: 15m
-    memory: 411M
+    cpu: 10m
+    memory: 106Mi
 ingress:
   main:
     enabled: true

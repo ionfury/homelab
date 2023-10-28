@@ -16,15 +16,15 @@ startupapicheck:
   enabled: false
 resources:
   requests:
-    cpu: 15m
-    memory: 64M
+    cpu: 10m
+    memory: 100Mi
 webhook:
   resources:
     requests:
-      cpu: 15m
-      memory: 145M
+      cpu: 10m
+      memory: 100Mi
 cainjector:
   resources:
     requests:
-      cpu: 15m
-      memory: 64M
+      cpu: 10m
+      memory: 149Mi

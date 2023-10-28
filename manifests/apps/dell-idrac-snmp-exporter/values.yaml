@@ -23,3 +23,7 @@ serviceMonitor:
   relabelings:
     - sourceLabels: [__param_target]
       targetLabel: instance
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi

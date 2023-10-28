@@ -67,3 +67,7 @@ probes:
       httpGet:
         path: /
         port: http
+resources:
+  requests:
+    cpu: 54m
+    memory: 325Mi

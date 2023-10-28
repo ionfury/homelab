@@ -83,6 +83,10 @@ gateway:
   replicas: 2
   image:
     registry: ghcr.io
+  resources:
+    requests:
+      cpu: 10m
+      memory: 100Mi
   ingress:
     enabled: true
     annotations:
@@ -106,6 +110,10 @@ read:
   replicas: 2
   persistence:
     storageClass: ${STORAGE_CLASS_SLOW}
+  resources:
+    requests:
+      cpu: 253m
+      memory: 638Mi
   extraVolumeMounts:
     - name: rules
       mountPath: /rules
@@ -116,10 +124,18 @@ write:
   replicas: 2
   persistence:
     storageClass: ${STORAGE_CLASS_SLOW}
+  resources:
+    requests:
+      cpu: 111m
+      memory: 567Mi
 backend:
   replicas: 2
   persistence:
     storageClass: ${STORAGE_CLASS_SLOW}
+  resources:
+    requests:
+      cpu: 119m
+      memory: 148Mi
   extraVolumeMounts:
     - name: rules
       mountPath: /rules/fake

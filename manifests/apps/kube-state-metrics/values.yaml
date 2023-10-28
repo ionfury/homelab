@@ -14,3 +14,7 @@ prometheus:
 # https://github.com/kubernetes/kube-state-metrics/issues/2041#issuecomment-1614327806
 selfMonitor:
   enabled: true
+resources:
+  requests:
+    cpu: 28m
+    memory: 104Mi

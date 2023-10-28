@@ -112,6 +112,10 @@ probes:
     spec:
       httpGet:
         port: http
+resources:
+  requests:
+    cpu: 29m
+    memory: 860Mi
 persistence:
   data:
     enabled: true

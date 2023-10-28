@@ -91,5 +91,5 @@ persistence:
     mountPath: /var/www/html/firefly-iii/storage/upload
 resources:
   requests:
-    cpu: 100m
-    memory: 100M
+    cpu: 10m
+    memory: 100Mi

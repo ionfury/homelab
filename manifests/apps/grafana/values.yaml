@@ -248,3 +248,12 @@ topologySpreadConstraints:
     labelSelector:
       matchLabels:
         app.kubernetes.io/name: grafana
+downloadDashboards:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 104Mi
+resources:
+  requests:
+    cpu: 82m
+    memory: 128M191Mi

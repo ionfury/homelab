@@ -13,3 +13,7 @@ tolerations:
   - key: node-role.kubernetes.io/etcd
     operator: Exists
     effect: NoExecute
+resources:
+  requests:
+    cpu: 95m
+    memory: 106Mi

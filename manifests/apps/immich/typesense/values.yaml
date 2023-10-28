@@ -66,5 +66,5 @@ persistence:
     mountPath: /config
 resources:
   requests:
-    cpu: 15m
-    memory: 79M
+    cpu: 10m
+    memory: 157Mi

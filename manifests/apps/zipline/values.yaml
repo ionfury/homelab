@@ -68,5 +68,5 @@ ingress:
         secretName: zipline-tls
 resources:
   requests:
-    cpu: 15m
-    memory: 411M
+    cpu: 31m
+    memory: 245Mi

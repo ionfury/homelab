@@ -6,7 +6,19 @@ webhook:
   serviceMonitor:
     enabled: true
     interval: 1m
+  resources:
+    requests:
+      cpu: 10m
+      memory: 100Mi
 certController:
   serviceMonitor:
     enabled: true
     interval: 1m
+  resources:
+    requests:
+      cpu: 10m
+      memory: 100Mi
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi

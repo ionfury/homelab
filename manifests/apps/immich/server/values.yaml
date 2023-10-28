@@ -72,5 +72,5 @@ persistence:
     mountPath: /usr/src/app/upload
 resources:
   requests:
-    cpu: 350m
-    memory: 184M
+    cpu: 10m
+    memory: 162Mi

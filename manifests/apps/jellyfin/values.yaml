@@ -64,10 +64,6 @@ nodeSelector:
   nvidia.com/gpu.product: Quadro-P2000
 resources:
   requests:
-    cpu: 500m
-    memory: 2Gi
-    nvidia.com/gpu: 1
-  limits:
-    cpu: 6000m
-    memory: 16Gi
+    cpu: 563m
+    memory: 2833Mi
     nvidia.com/gpu: 1

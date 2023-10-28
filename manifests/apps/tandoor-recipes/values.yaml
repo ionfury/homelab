@@ -98,6 +98,10 @@ ingress:
       - hosts:
           - recipes.${INTERNAL_DOMAIN}
         secretName: recipes-tls
+resources:
+  requests:
+    cpu: 10m
+    memory: 380Mi
 persistence:
   static:
     enabled: true
