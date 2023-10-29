@@ -37,10 +37,6 @@ controllers:
                 key: password
     containers:
       main:
-        image:
-          repository: a
-          tag: b
-          pullPolicy: IfNotPresent
         resources:
           requests:
             cpu: 940m
