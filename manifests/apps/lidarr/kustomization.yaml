@@ -1,6 +1,6 @@
 namePrefix: lidarr-
 components:
-  - ../../components/helm-release-app-template-oci
+  - ../../components/helm-release-app-template-oci-v2
 configMapGenerator:
   - name: values
     behavior: replace

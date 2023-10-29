@@ -1,54 +1,85 @@
-initContainers:
-  01-init-db:
-    image: ghcr.io/onedr0p/postgres-init:14.8
-    imagePullPolicy: IfNotPresent
-    env:
-      INIT_POSTGRES_DBNAME: "lidarr_main lidarr_log"
-      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-      INIT_POSTGRES_USER:
-        valueFrom:
-          secretKeyRef:
-            name: lidarr-secret
-            key: username
-      INIT_POSTGRES_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: lidarr-secret
-            key: password
-      INIT_POSTGRES_SUPER_USER:
-        valueFrom:
-          secretKeyRef:
-            name: lidarr-postgres-superuser
-            key: username
-      INIT_POSTGRES_SUPER_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: lidarr-postgres-superuser
-            key: password
-env:
-  TZ: ${TZ}
-  LIDARR__INSTANCE_NAME: Lidarr
-  LIDARR__PORT: 8686
-  LIDARR__LOG_LEVEL: info
-  LIDARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-  LIDARR__POSTGRES_PORT: 5432
-  LIDARR__POSTGRES_MAIN_DB: lidarr_main
-  LIDARR__POSTGRES_LOG_DB: lidarr_log
-  LIDARR__POSTGRES_USER:
-    valueFrom:
-      secretKeyRef:
-        name: lidarr-secret
-        key: username
-  LIDARR__POSTGRES_PASSWORD:
-    valueFrom:
-      secretKeyRef:
-        name: lidarr-secret
-        key: password
-  LIDARR__API_KEY:
-    valueFrom:
-      secretKeyRef:
-        name: lidarr-secret
-        key: key
+controllers:
+  main:
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      01-init-db:
+        image:
+          repository: ghcr.io/onedr0p/postgres-init
+          tag: "14.8"
+        imagePullPolicy: IfNotPresent
+        env:
+          INIT_POSTGRES_DBNAME: "lidarr_main lidarr_log"
+          INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          INIT_POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: lidarr-secret
+                key: username
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: lidarr-secret
+                key: password
+          INIT_POSTGRES_SUPER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: lidarr-postgres-superuser
+                key: username
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: lidarr-postgres-superuser
+                key: password
+    containers:
+      main:
+        image:
+          repository: a
+          tag: b
+          pullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 940m
+            memory: 1014Mi
+        env:
+          TZ: ${TZ}
+          LIDARR__INSTANCE_NAME: Lidarr
+          LIDARR__PORT: 8686
+          LIDARR__LOG_LEVEL: info
+          LIDARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          LIDARR__POSTGRES_PORT: 5432
+          LIDARR__POSTGRES_MAIN_DB: lidarr_main
+          LIDARR__POSTGRES_LOG_DB: lidarr_log
+          LIDARR__POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: lidarr-secret
+                key: username
+          LIDARR__POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: lidarr-secret
+                key: password
+          LIDARR__API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: lidarr-secret
+                key: key
+defaultPodOptions:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
 service:
   main:
     ports:
@@ -66,44 +97,35 @@ ingress:
       gethomepage.dev/name: Lidarr
       gethomepage.dev/widget.type: lidarr
       gethomepage.dev/widget.url: http://lidarr-app.${NAMESPACE}.svc.cluster.local:8686
-    ingressClassName: internal
+    className: internal
     hosts:
       - host: lidarr.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - lidarr.${INTERNAL_DOMAIN}
         secretName: lidarr-tls
-podSecurityContext:
-  runAsUser: 568
-  runAsGroup: 568
-  fsGroup: 568
-  fsGroupChangePolicy: OnRootMismatch
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
     mountPath: /media
+    advancedMounts:
+      main:
+        main:
+          - path: /media
   config:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 10Gi
     accessMode: ReadWriteOnce
-    mountPath: /config
-affinity:
-  podAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: required-volume
-              operator: In
-              values:
-                - media
-        topologyKey: kubernetes.io/hostname
-resources:
-  requests:
-    cpu: 940m
-    memory: 1014Mi
+    advancedMounts:
+      main:
+        main:
+          - path: /config
