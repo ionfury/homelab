@@ -14,9 +14,9 @@
 
 ![cluster](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=cluster&query=%24.status&url=https%3A%2F%2Fhealthchecks.io%2Fbadge%2Fb4308338-139b-4907-bee3-37c2da%2FiS3vfgkr-2.json&style=for-the-badge&logo=kubernetes&logoColor=white)
 [![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label=discord&logo=discord&logoColor=white&color=blue)](https://discord.gg/k8s-at-home)
-[![harvester](https://img.shields.io/badge/harvester-v1.1.2-brightgreen?style=for-the-badge&logo=openSUSE&logoColor=white&color=blue)](https://https://harvesterhci.io/)
+[![harvester](https://img.shields.io/badge/harvester-v1.2.1-brightgreen?style=for-the-badge&logo=openSUSE&logoColor=white&color=blue)](https://https://harvesterhci.io/)
 [![rancher](https://img.shields.io/badge/rancher-v2.7.6-brightgreen?style=for-the-badge&logo=rancher&logoColor=white&color=blue)](https://www.rancher.com)
-[![kubernetes](https://img.shields.io/badge/kubernetes-v1.24.3-brightgreen?style=for-the-badge&logo=kubernetes&logoColor=white&color=blue)](https://kubernetes.io/)
+[![kubernetes](https://img.shields.io/badge/kubernetes-v1.24.14-brightgreen?style=for-the-badge&logo=kubernetes&logoColor=white&color=blue)](https://kubernetes.io/)
 
 </div>
 
