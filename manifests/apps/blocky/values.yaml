@@ -25,6 +25,8 @@ serviceMonitor:
         scrapeTimeout: 10s
         path: /metrics
 controller:
+  annotations:
+    reloader.stakater.com/auto: "true"
   replicas: 3
   strategy: RollingUpdate
   rollingUpdate:
