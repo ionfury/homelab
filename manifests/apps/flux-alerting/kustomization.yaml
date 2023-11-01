@@ -1,0 +1,3 @@
+resources:
+  - alert-manager.yaml
+  - github.yaml

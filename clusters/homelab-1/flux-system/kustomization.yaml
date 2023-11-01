@@ -1,9 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - flux-alerting.yaml
+  - flux-monitoring.yaml
   - gotk-components.yaml
   - gotk-sync.yaml
-  - flux-monitoring.yaml
 patches:
   - target:
       kind: GitRepository

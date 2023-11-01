@@ -1,0 +1,3 @@
+resources:
+  - alert.yaml
+  - provider.yaml
