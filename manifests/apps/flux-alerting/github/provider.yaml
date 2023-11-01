@@ -8,4 +8,4 @@ spec:
   address: https://github.com/ionfury/homelab
   interval: 10m
   secretRef:
-    name: github-token
+    name: github-alert-token

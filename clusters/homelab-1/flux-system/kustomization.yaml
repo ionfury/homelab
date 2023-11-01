@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - flux-alerting.yaml
   - flux-monitoring.yaml
+  - flux-receivers.yaml
   - gotk-components.yaml
   - gotk-sync.yaml
 patches:

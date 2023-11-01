@@ -1,0 +1,4 @@
+resources:
+  - external-secret.yaml
+  - ingress.yaml
+  - receiver.yaml

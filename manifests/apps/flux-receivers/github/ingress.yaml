@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: github-webhook-receiver
+  namespace: flux-system
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare
+spec:
+  ingressClassName: external
+  rules:
+    - host: github-webhook-receiver.${EXTERNAL_DOMAIN}
+      http:
+        paths:
+          - path: /hook/
+            pathType: Prefix
+            backend:
+              service:
+                name: webhook-receiver
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - github-webhook-receiver.${EXTERNAL_DOMAIN}
+      secretName: homepage-tls

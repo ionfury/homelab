@@ -27,7 +27,6 @@ metadata:
   namespace: network
   annotations:
     cert-manager.io/cluster-issuer: cloudflare
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: Unifi network controller.
@@ -35,6 +34,7 @@ metadata:
     gethomepage.dev/icon: unifi-controller.png
     gethomepage.dev/name: Unifi Controller
 spec:
+  ingressClassName: internal
   rules:
     - host: network.${INTERNAL_DOMAIN}
       http:

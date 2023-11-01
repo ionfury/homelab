@@ -33,6 +33,7 @@ ingress:
       gethomepage.dev/description: "Minio Console"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "minio.png"
+    ingressClassName: internal
     hosts:
       - host: minio.${INTERNAL_DOMAIN}
         paths:
@@ -54,6 +55,7 @@ ingress:
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       nginx.ingress.kubernetes.io/configuration-snippet: |
         chunked_transfer_encoding off;
+    ingressClassName: internal
     hosts:
       - host: s3.${INTERNAL_DOMAIN}
         paths:
