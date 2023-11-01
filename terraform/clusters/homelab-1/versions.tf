@@ -2,11 +2,11 @@ terraform {
   required_providers {
     harvester = {
       source  = "harvester/harvester"
-      version = ">=0.6.2"
+      version = ">=0.6.3"
     }
     rancher2 = {
       source  = "rancher/rancher2"
-      version = ">=2.0.0"
+      version = "3.1.0"
     }
     healthchecksio = {
       source  = "kristofferahl/healthchecksio"

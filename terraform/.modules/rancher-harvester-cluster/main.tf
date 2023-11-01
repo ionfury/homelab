@@ -59,7 +59,7 @@ resource "rancher2_machine_config_v2" "control_plane" {
     network_info = <<EOF
     {
       "interfaces": [{
-        "networkname": "default/${var.network_name}"
+        "networkName": "default/${var.network_name}"
       }]
     }
     EOF
@@ -96,7 +96,7 @@ resource "rancher2_machine_config_v2" "worker" {
     network_info = <<EOF
     {
       "interfaces": [{
-        "networkname": "default/${var.network_name}"
+        "networkName": "default/${var.network_name}"
       }]
     }
     EOF
@@ -120,6 +120,11 @@ resource "rancher2_cluster_v2" "cluster" {
 
   name               = var.name
   kubernetes_version = var.kubernetes_version
+
+  cloud_credential_secret_name = rancher2_cloud_credential.harvester.id
+
+  default_pod_security_admission_configuration_template_name = "warn-rancher-restricted"
+
   rke_config {
     machine_pools {
       name                           = "control-plane"
@@ -157,27 +162,25 @@ resource "rancher2_cluster_v2" "cluster" {
         cloud-provider-name   = "harvester"
       }
     }
+    registries {
+    }
     machine_global_config = <<EOF
 cni: canal
 disable:
   - rke2-ingress-nginx
 disable-kube-proxy: false
 etcd-expose-metrics: true
+kube-apiserver-arg:
+- admission-control-config-file=/etc/rancher/rke2/config/rancher-psact.yaml
 EOF
     upgrade_strategy {
       control_plane_concurrency = "10%"
       worker_concurrency        = "10%"
     }
     chart_values = <<EOF
-harvester-csi-provider:
-  image:
-    harvester:
-      csiDriver:
-        tag: v0.1.4
-        # Required for specifying storageclass defined in the host cluster https://github.com/harvester/harvester-csi-driver/releases/tag/v0.1.4
 harvester-cloud-provider:
-  clusterName: ${var.name}
   cloudConfigPath: /var/lib/rancher/rke2/etc/config-files/cloud-provider-config
+rke2-canal: {}
 EOF
   }
 }
