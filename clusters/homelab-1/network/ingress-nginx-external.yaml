@@ -1,12 +1,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: ingress-nginx-internal
+  name: ingress-nginx-external
 spec:
   path: ./manifests/apps/ingress-nginx
   postBuild:
     substitute:
-      INGRESS_CLASS: internal
+      INGRESS_CLASS: external
       HELM_CHART: ingress-nginx
       HELM_CHART_VERSION: 4.8.3
       HELM_CHART_REPOSITORY: https://kubernetes.github.io/ingress-nginx
