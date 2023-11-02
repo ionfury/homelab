@@ -346,10 +346,11 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "continuous-RdYlGr"
           },
           "mappings": [
             {
@@ -380,7 +381,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -393,7 +395,7 @@
       "id": 14,
       "options": {
         "colorMode": "background_solid",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
@@ -417,7 +419,7 @@
           "displayType": "Regular",
           "displayValueWithAlias": "Never",
           "editorMode": "code",
-          "expr": "sum(monitor_status) by (monitor_name)",
+          "expr": "avg_over_time(\n  (\n    sum by (monitor_name) (sum without() (monitor_status{}))\n      or\n    sum(0 * sum_over_time(monitor_status{}[30d])) by (monitor_name)\n  )[30d:30m]\n) ",
           "legendFormat": "{{monitor_name}}",
           "range": true,
           "refId": "A",
@@ -425,7 +427,7 @@
           "valueHandler": "Number Threshold"
         }
       ],
-      "title": "Monitors",
+      "title": "30d Availability",
       "type": "stat"
     },
     {
@@ -1128,6 +1130,6 @@
   "timezone": "",
   "title": "Home",
   "uid": "c5f44de6-fd51-4bc6-b926-8c6a044c9346",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
