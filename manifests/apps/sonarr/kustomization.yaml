@@ -12,6 +12,8 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: username,password,key
+        replicator.v1.mittwald.de/replication-allowed: "true"
+        replicator.v1.mittwald.de/replication-allowed-namespaces: ".*"
   - name: postgres-superuser
     options:
       disableNameSuffixHash: true
