@@ -1,6 +1,9 @@
 namePrefix: external-dns-
 components:
   - ../../components/helm-release
+resources:
+  - external-secret.yaml
+  - dns_endpoint-crd.yaml
 configMapGenerator:
   - name: values
     behavior: replace

@@ -1,12 +1,35 @@
-interval: 1m
-serviceMonitor:
-  enabled: true
-provider: pihole
+fullnameOverride: external-dns-external
+domainFilters:
+  - ${EXTERNAL_DOMAIN}
 env:
-  - name: EXTERNAL_DNS_PIHOLE_SERVER
-    value: ${PIHOLE_SVC:=http://pihole-app-web.network.svc.cluster.local}
-  - name: EXTERNAL_DNS_PIHOLE_PASSWORD
+  - name: CF_API_EMAIL
     valueFrom:
       secretKeyRef:
-        name: ${PIHOLE_SECRET:=pihole-app-password}
-        key: ${PIHOLE_SECRET_KEY:=password}
+        name: external-dns-cloudflare-api-key
+        key: email
+  - name: CF_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: external-dns-cloudflare-api-key
+        key: key
+extraArgs:
+  - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+  - --crd-source-kind=DNSEndpoint
+  - --cloudflare-proxied
+  - --ingress-class=external
+podAnnotations:
+  reloader.stakater.com/auto: "true"
+policy: sync
+provider: cloudflare
+resources:
+  requests:
+    cpu: 13m
+    memory: 42M
+  limits:
+    memory: 42M
+serviceMonitor:
+  enabled: true
+sources:
+  - ingress
+  - crd
+txtPrefix: "k8s."

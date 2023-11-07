@@ -5,7 +5,7 @@ resource "kubectl_manifest" "rancher_harvester_provisioning" {
 apiVersion: provisioning.cattle.io/v1
 kind: Cluster
 metadata:
-  name: ${var.harvester_cluster_name}
+  name: ${var.harvester.cluster_name}
   labels:
     provider.cattle.io: harvester
   namespace: fleet-default
@@ -17,7 +17,7 @@ YAML
 
 data "rancher2_cluster_v2" "homelab" {
   depends_on = [kubectl_manifest.rancher_harvester_provisioning]
-  name       = var.harvester_cluster_name
+  name       = var.harvester.cluster_name
 }
 
 resource "kubectl_manifest" "rancher_harvester_binding" {

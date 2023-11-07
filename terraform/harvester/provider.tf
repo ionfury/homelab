@@ -1,12 +1,12 @@
 provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
+  region  = var.aws.region
+  profile = var.aws.profile
 }
 
 provider "harvester" {
-  kubeconfig = var.harvester_kubeconfig_path
+  kubeconfig = var.harvester.kubeconfig_path
 }
 
 provider "kubectl" {
-  config_path = var.harvester_kubeconfig_path
+  config_path = var.harvester.kubeconfig_path
 }

@@ -1,5 +1,5 @@
 data "aws_ssm_parameter" "unifi_password" {
-  name = var.unifi_management_password_store
+  name = var.unifi.password_store
 }
 
 data "aws_ssm_parameter" "cloudflare_api_key" {
@@ -11,12 +11,12 @@ data "aws_ssm_parameter" "github_token" {
 }
 
 provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
+  region  = var.aws.region
+  profile = var.aws.profile
 }
 
 provider "harvester" {
-  kubeconfig = var.harvester_kubeconfig_path
+  kubeconfig = var.harvester.kubeconfig_path
 }
 
 provider "rke" {
@@ -25,7 +25,7 @@ provider "rke" {
 
 provider "rancher2" {
   alias     = "bootstrap"
-  api_url   = "https://${var.rancher_cluster_name}.${var.default_network_tld}"
+  api_url   = "https://${var.rancher.cluster_name}.${var.tld}"
   bootstrap = true
 }
 
@@ -59,18 +59,18 @@ provider "kubectl" {
 
 provider "kubectl" {
   alias       = "harvester"
-  config_path = var.harvester_kubeconfig_path
+  config_path = var.harvester.kubeconfig_path
 }
 
 provider "github" {
-  owner = var.github_user
+  owner = var.github.user
   token = data.aws_ssm_parameter.github_token.value
 }
 
 provider "unifi" {
-  api_url        = var.unifi_management_address
+  api_url        = var.unifi.address
   password       = data.aws_ssm_parameter.unifi_password.value
-  username       = var.unifi_management_username
+  username       = var.unifi.username
   allow_insecure = true
 }
 
@@ -87,8 +87,8 @@ provider "flux" {
     config_path = local_file.kubeconfig.filename
   }
   git = {
-    url          = "${var.github_ssh_addr}"
-    author_email = "flux@${var.default_network_tld}"
+    url          = "${var.github.ssh_addr}"
+    author_email = "flux@${var.tld}"
     author_name  = "flux"
     branch       = "main"
     ssh = {

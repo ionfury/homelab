@@ -1,6 +1,6 @@
 provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
+  region  = var.aws.region
+  profile = var.aws.profile
 }
 
 data "aws_ssm_parameter" "cloudflare_api_key" {

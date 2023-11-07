@@ -7,23 +7,23 @@ data "aws_ssm_parameter" "github_oauth_clientid" {
 }
 
 data "github_user" "this" {
-  username = var.github_user
+  username = var.github.user
 }
 
 module "rancher" {
   source     = "../.modules/rancher"
   depends_on = [module.cluster, unifi_user.this]
 
-  cert_manager_version = var.cert_manager_version
-  rancher_version      = var.rancher_version
-  network_subdomain    = var.rancher_cluster_name
-  network_tld          = var.default_network_tld
+  cert_manager_version = var.rancher.cert_manager_version
+  rancher_version      = var.rancher.rancher_version
+  network_subdomain    = var.rancher.cluster_name
+  network_tld          = var.tld
   letsencrypt_issuer   = var.master_email
 
   github_oauth_client_id     = data.aws_ssm_parameter.github_oauth_clientid.value
   github_oauth_client_secret = data.aws_ssm_parameter.github_oauth_secret.value
   github_user_id             = data.github_user.this.id
-  github_user                = "Tom"
+  github_user                = var.github.name
 
   providers = {
     cloudflare = cloudflare
@@ -35,7 +35,7 @@ module "rancher" {
 
 data "rancher2_user" "owner" {
   depends_on  = [module.rancher]
-  name        = "Tom"
+  name        = var.github.name
   is_external = true
 }
 

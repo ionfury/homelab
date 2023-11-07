@@ -7,20 +7,20 @@ data "aws_ssm_parameter" "rancher_admin_token" {
 }
 
 data "aws_ssm_parameter" "flux_ssh_key" {
-  name = var.github_ssh_key_store
+  name = var.github.ssh_key_store
 }
 
 data "aws_ssm_parameter" "healthchecksio_api_key" {
-  name = var.healthchecksio_api_key_store
+  name = var.healthchecksio.api_key_store
 }
 
 provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
+  region  = var.aws.region
+  profile = var.aws.profile
 }
 
 provider "harvester" {
-  kubeconfig = var.harvester_kubeconfig_path
+  kubeconfig = var.harvester.kubeconfig_path
 }
 
 provider "rancher2" {
@@ -38,8 +38,8 @@ provider "flux" {
     config_path = local_file.kubeconfig.filename
   }
   git = {
-    url          = "${var.github_ssh_addr}"
-    author_email = "flux@${var.default_network_tld}"
+    url          = "${var.github.ssh_addr}"
+    author_email = "flux@${var.default.network_tld}"
     author_name  = "flux"
     branch       = "main"
     ssh = {
@@ -51,4 +51,13 @@ provider "flux" {
 
 provider "healthchecksio" {
   api_key = data.aws_ssm_parameter.healthchecksio_api_key.value
+}
+
+data "aws_ssm_parameter" "cloudflare_api_key" {
+  name = var.cloudflare.api_key_store
+}
+
+provider "cloudflare" {
+  email   = var.cloudflare.email
+  api_key = data.aws_ssm_parameter.cloudflare_api_key.value
 }

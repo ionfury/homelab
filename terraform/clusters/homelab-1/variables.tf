@@ -4,55 +4,94 @@ variable "cluster_name" {
 }
 
 variable "kubernetes_version" {
-  type = string
-}
-
-variable "harvester_cluster_name" {
-  type = string
-}
-
-variable "default_network_name" {
-  type = string
-}
-
-variable "aws_region" {
+  description = "Kubernetes version for the cluster."
   type        = string
-  description = "AWS Region to use."
 }
 
-variable "aws_profile" {
+variable "tld" {
+  description = "Top Level Domain name."
   type        = string
-  description = "AWS profile to use vis `~/.aws`."
 }
 
-variable "default_network_tld" {
-  type = string
+variable "control_plane" {
+  type = object({
+    nodes  = number
+    cpu    = number
+    memory = number
+    disk   = number
+  })
 }
 
-variable "github_ssh_addr" {
-  type = string
+variable "worker" {
+  type = object({
+    nodes  = number
+    cpu    = number
+    memory = number
+    disk   = number
+  })
 }
 
-variable "github_ssh_key_store" {
-  type = string
+variable "aws" {
+  type = object({
+    region  = string
+    profile = string
+  })
 }
 
-variable "github_ssh_pub" {
-  type = string
+variable "harvester" {
+  type = object({
+    cluster_name       = string
+    kubeconfig_path    = string
+    management_address = string
+    network_name       = string
+    node_count         = number
+
+    storage = map(object({
+      name       = string
+      selector   = string
+      is_default = bool
+    }))
+  })
 }
 
-variable "github_ssh_known_hosts" {
-  type = string
+variable "networks" {
+  type = map(object({
+    name = string
+    vlan = number
+    cidr = string
+  }))
 }
 
-variable "healthchecksio_api_key_store" {
-  type = string
+variable "github" {
+  type = object({
+    email                = string
+    user                 = string
+    name                 = string
+    ssh_addr             = string
+    ssh_pub              = string
+    ssh_known_hosts      = string
+    token_store          = string
+    oauth_secret_store   = string
+    oauth_clientid_store = string
+    ssh_key_store        = string
+  })
 }
 
-variable "external_secrets_access_key_name" {
-  type = string
+variable "cloudflare" {
+  type = object({
+    account_name  = string
+    email         = string
+    api_key_store = string
+  })
 }
 
-variable "harvester_kubeconfig_path" {
+variable "healthchecksio" {
+  type = object({
+    api_key_store = string
+  })
+}
+
+
+variable "external_secrets_access_key_store" {
   type = string
 }

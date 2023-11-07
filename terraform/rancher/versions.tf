@@ -2,27 +2,27 @@ terraform {
   required_providers {
     harvester = {
       source  = "harvester/harvester"
-      version = ">=0.6.3"
+      version = "0.6.3"
     }
     rke = {
       source  = "rancher/rke"
-      version = ">=1.4.1"
+      version = "1.4.2"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = ">=3.4.0"
+      version = "4.0.4"
     }
     aws = {
       source  = "hashicorp/aws"
-      version = ">=4.62.0"
+      version = "5.9.0"
     }
     github = {
       source  = "integrations/github"
-      version = ">=5.23.0"
+      version = "5.31.0"
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = ">=4.4.0"
+      version = "4.10.0"
     }
     rancher2 = {
       source  = "rancher/rancher2"
@@ -42,7 +42,7 @@ terraform {
     }
     healthchecksio = {
       source  = "kristofferahl/healthchecksio"
-      version = ">= 1.10.0"
+      version = "1.10.1"
     }
     flux = {
       source  = "fluxcd/flux"

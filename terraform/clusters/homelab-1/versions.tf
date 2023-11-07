@@ -16,5 +16,9 @@ terraform {
       source  = "fluxcd/flux"
       version = "1.0.1"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "4.18.0"
+    }
   }
 }

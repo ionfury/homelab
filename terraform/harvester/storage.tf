@@ -1,54 +1,30 @@
-resource "harvester_storageclass" "fast" {
-  name = "fast"
-  # Bug in terraform provider, you might need to set this manually
-  is_default = true
+resource "harvester_storageclass" "storage" {
+  for_each = var.harvester.storage
+
+  name       = each.value.name
+  is_default = each.value.is_default
+
   parameters = {
     "migratable"          = "true"
-    "numberOfReplicas"    = min(var.harvester_node_count, 3)
+    "numberOfReplicas"    = min(var.harvester.node_count, 3)
     "staleReplicaTimeout" = "30"
     "dataLocality"        = "best-effort"
-    "diskSelector"        = "ssd"
+    "diskSelector"        = each.value.selector
   }
 }
 
-resource "harvester_storageclass" "fast_backup" {
-  name = "fast-backup"
-  parameters = {
-    "migratable"          = "true"
-    "numberOfReplicas"    = min(var.harvester_node_count, 3)
-    "staleReplicaTimeout" = "30"
-    "dataLocality"        = "best-effort"
-    "diskSelector"        = "ssd"
-    "recurringJobSelector" = jsonencode(
-      [
-        {
-          isGroup = true
-          name    = "weekly"
-        },
-      ]
-    )
-  }
-}
+resource "harvester_storageclass" "storage_backup" {
+  for_each = var.harvester.storage
 
-resource "harvester_storageclass" "slow" {
-  name = "slow"
-  parameters = {
-    "migratable"          = "true"
-    "numberOfReplicas"    = 1
-    "staleReplicaTimeout" = "30"
-    "dataLocality"        = "best-effort"
-    "diskSelector"        = "hdd"
-  }
-}
+  name       = each.value.name
+  is_default = false
 
-resource "harvester_storageclass" "slow_backup" {
-  name = "slow-backup"
   parameters = {
     "migratable"          = "true"
-    "numberOfReplicas"    = 1
+    "numberOfReplicas"    = min(var.harvester.node_count, 3)
     "staleReplicaTimeout" = "30"
     "dataLocality"        = "best-effort"
-    "diskSelector"        = "hdd"
+    "diskSelector"        = each.value.selector
     "recurringJobSelector" = jsonencode(
       [
         {

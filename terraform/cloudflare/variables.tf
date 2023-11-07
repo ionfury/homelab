@@ -1,15 +1,13 @@
-variable "aws_region" {
-  type        = string
-  description = "AWS Region to use."
-}
-
-variable "aws_profile" {
-  type        = string
-  description = "AWS profile to use vis `~/.aws`."
+variable "aws" {
+  type = object({
+    region  = string
+    profile = string
+  })
 }
 
 variable "master_email" {
-  type = string
+  description = "Master email used for everything."
+  type        = string
 }
 
 variable "cloudflare_api_key_store" {
@@ -17,5 +15,6 @@ variable "cloudflare_api_key_store" {
 }
 
 variable "tld" {
-  type = string
+  description = "Top Level Domain name."
+  type        = string
 }

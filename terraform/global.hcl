@@ -1,18 +1,121 @@
 locals {
-  aws_region = "us-east-2"
-  aws_profile = "terragrunt"
+  tld = "tomnowak.work"
 
-  master_email = "ionfury@gmail.com"
-  github_user = "ionfury"
-  github_ssh_addr = "ssh://git@github.com/ionfury/homelab.git"
-  github_ssh_key_store = "terraform-flux-key"
-  github_ssh_pub = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDAWC1V3EXflFNRrdYCBeS+8v5wSNdGSj62HMdELk70cuCPOURYenvW8lFPJU+gzLeYvXyONbw7yzi66Or/aryzKsF6Nh+m49RHo9tSLH14x23dkH3JzhUMHhUZVTiD+yQS1NQeCB3cgysE0WQbpgeKLfKhDQUFdx+3o6uhJviufrK6IeheVQg16l00d8Ttn6faTUWfWwbUlDhD5NutMApcyJg78xgwFPKy6/1z2Y8zJyBpME7e8D3AOnq3UE1eGQHUlSMjeEMwJk04D9nF8teIgzk806ZKfWx9670bFD6Dcq/EeUUBRugS9t/q82A0Kme/GxZGRkGYIrpXo2wK2EPgttru0URFPahi31OPuv+DTf/RgnfA8eo91ERycDUTEWe833GD7L99lQdJjPsQ0gaEXRLXG8v/z5NJ4aOj121aK8IyoNR7Vtq4MnstsehXYbjHYl17SQCmORqgSFVTlgTobUo3jPfOvY3PN8ew5/rxfpBsh9cYtFahb3fhsEu6lLluFGX8TuZFvj2lM535oEbbDDDXoKqpW5hJfjZE/l5H+0x11w8kVLbQe+NQkrOpME9gnOqi7JSnqzdWdnn0NP6wq1cG5iWCFr+iQ+m9UwF0stSer/u4qvkEDNvcSN/s47Xit/5pFisBPNYpTz4jOj9eg/pqGxBPFFW8k44mdy/yCQ== flux@tomnowak.work"
-  github_ssh_known_hosts = "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg= github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
-  github_token_store = "github-token"
-  github_oauth_secret_store = "github-oauth-rancher-tomnowak-work-secret"
-  github_oauth_clientid_store = "github-oauth-rancher-tomnowak-work-clientid"
+  external_secrets_access_key_store = "k8s-external-secrets"
 
-  cloudflare_api_key_store = "cloudflare-api-key"
-  healthchecksio_api_key_store = "healthchecksio-api-key"
-  external_secrets_access_key_name = "k8s-external-secrets"
+  healthchecksio = {
+    api_key_store = "healthchecksio-api-key"
+  }
+
+  aws = {
+    region = "us-east-2"
+    profile = "terragrunt"
+  }
+
+  github = {
+    email = "ionfury@gmail.com"
+    user = "ionfury"
+    name = "Tom"
+
+    ssh_addr = "ssh://git@github.com/ionfury/homelab.git"
+    ssh_pub = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDAWC1V3EXflFNRrdYCBeS+8v5wSNdGSj62HMdELk70cuCPOURYenvW8lFPJU+gzLeYvXyONbw7yzi66Or/aryzKsF6Nh+m49RHo9tSLH14x23dkH3JzhUMHhUZVTiD+yQS1NQeCB3cgysE0WQbpgeKLfKhDQUFdx+3o6uhJviufrK6IeheVQg16l00d8Ttn6faTUWfWwbUlDhD5NutMApcyJg78xgwFPKy6/1z2Y8zJyBpME7e8D3AOnq3UE1eGQHUlSMjeEMwJk04D9nF8teIgzk806ZKfWx9670bFD6Dcq/EeUUBRugS9t/q82A0Kme/GxZGRkGYIrpXo2wK2EPgttru0URFPahi31OPuv+DTf/RgnfA8eo91ERycDUTEWe833GD7L99lQdJjPsQ0gaEXRLXG8v/z5NJ4aOj121aK8IyoNR7Vtq4MnstsehXYbjHYl17SQCmORqgSFVTlgTobUo3jPfOvY3PN8ew5/rxfpBsh9cYtFahb3fhsEu6lLluFGX8TuZFvj2lM535oEbbDDDXoKqpW5hJfjZE/l5H+0x11w8kVLbQe+NQkrOpME9gnOqi7JSnqzdWdnn0NP6wq1cG5iWCFr+iQ+m9UwF0stSer/u4qvkEDNvcSN/s47Xit/5pFisBPNYpTz4jOj9eg/pqGxBPFFW8k44mdy/yCQ== flux@tomnowak.work"
+    ssh_known_hosts = "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg= github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
+
+    token_store = "github-token"
+    oauth_secret_store = "github-oauth-rancher-tomnowak-work-secret"
+    oauth_clientid_store = "github-oauth-rancher-tomnowak-work-clientid"
+    ssh_key_store = "terraform-flux-key"
+  }
+
+  harvester = {
+    cluster_name = "homelab"
+    kubeconfig_path = "~/.kube/harvester"
+    management_address = "https://192.168.10.2"
+    network_name = "citadel"
+
+    storage = {
+      fast = {
+        name = "fast"
+        selector = "ssd"
+        is_default = true
+      },
+     slow = {
+        name = "slow"
+        selector = "hdd"
+        is_default = false
+      }
+    }
+
+    uplink = [
+      "eno2",
+      "eno3"
+    ]
+
+    node_count = 1
+  }
+
+  rancher = {
+    cluster_name = "rancher"
+    ssh_key_name = "id-rsa-homelab-ssh-mac"
+    rancher_version = "2.7.6"
+    kubernetes_version = "v1.26.4-rancher2-1"
+    cert_manager_version = "1.12.0"
+
+    node_memory = "16Gi"
+    node_cpu = 2
+    node_count = 1
+  }
+
+  cloudflare = {
+    account_name = "homelab"
+    email = "ionfury@gmail.com"
+    api_key_store = "cloudflare-api-key"
+  }
+
+  unifi = {
+    address = "https://192.168.1.1"
+    username = "terraform"
+    password_store = "unifi-password"
+  }
+
+  networks = {
+    citadel = {
+      name = "citadel"
+      vlan = 10
+      cidr = "192.168.10.0/24"
+    },
+    default = {
+      name = "default"
+      vlan = 1
+      cidr = "192.168.1.0/24"
+    },
+    guest = {
+      name = "guest"
+      vlan = 2
+      cidr = "192.168.2.0/24"
+    },
+    iot = {
+      name = "iot"
+      vlan = 3
+      cidr = "192.168.3.0/24"
+    },
+    camera = {
+      name = "camera"
+      vlan = 4
+      cidr = "192.168.4.0/24"
+    },
+    trusted = {
+      name = "trusted"
+      vlan = 5
+      cidr = "192.168.5.0/24"
+    }
+  }
+
+  public_ssh_keys = [
+    {
+      description = "SSH key from mac laptop"
+      name = "id-rsa-homelab-ssh-mac"
+      public_key =  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCjzNYlwnjIcr4I8cbQWW5ZZAvPhMklmdAD2sL9Wm5WyAkJ9ui86uZ4KpVG7ymr9/eHkR6VrBuBbAIhKpbnRerhQkbmWuXRj3O6aExFMwZXMi1p+TMtQ/RvO0BqV3EVzFUlE/Ry45oML45gC/E7rvUgbQg5skXzbQYh/TVjIlcPWmLunVgC5+5fO7ByhKrfiqPnEZ4iG1Pnt0BuPIJeEJhbVqmEzikbTtQ5ZhBPAk37s+aHxYg7okOhxW0709ninICHlYc+FicV9sd6jfqaBa31ydolkSpsy8KV8+n1KEkntQD+pFRdjk7Rroab2zDyKhuqO1l/k7BEPzKvuIMIoU07vZ5EKZHIC7Rp/kArOIZ1gmO/nRQvA5R34ovOqJeGR7DFa++PzucuW3Y83hHjg4E82tTtqSgcyjlX9EGjYs0dxQoX5l43IcTxFp0QGS6g7qG8u/PKV/uqS2cEbMCS9YBupvu83H2WBsWL5XEk2iC/q93WZXa2/QGdLwZMv1r6q58= tnowak@TWML-TNOWAK"
+    }
+  ]
 }

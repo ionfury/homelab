@@ -1,35 +1,66 @@
-
-
-variable "default_network_tld" {
-  type = string
-}
-
-variable "default_network_name" {
-  type = string
+variable "tld" {
+  description = "Top Level Domain name."
+  type        = string
 }
 
 variable "master_email" {
-  type = string
+  description = "Master email used for everything."
+  type        = string
 }
 
-variable "rancher_cluster_name" {
-  type = string
+variable "aws" {
+  type = object({
+    region  = string
+    profile = string
+  })
 }
 
-variable "rancher_ssh_key_name" {
-  type = string
+variable "rancher" {
+  type = object({
+    cluster_name         = string
+    ssh_key_name         = string
+    rancher_version      = string
+    kubernetes_version   = string
+    cert_manager_version = string
+
+    node_memory = string
+    node_cpu    = number
+    node_count  = number
+  })
 }
 
-variable "rancher_node_count" {
-  type = number
+variable "github" {
+  type = object({
+    user            = string
+    name            = string
+    ssh_addr        = string
+    ssh_pub         = string
+    ssh_known_hosts = string
+  })
 }
 
-variable "rancher_version" {
-  type = string
+variable "unifi" {
+  type = object({
+    address        = string
+    username       = string
+    password_store = string
+  })
 }
 
-variable "github_user" {
-  type = string
+variable "harvester" {
+  type = object({
+    cluster_name       = string
+    kubeconfig_path    = string
+    management_address = string
+    network_name       = string
+    node_count         = number
+
+    storage = map(object({
+      name       = string
+      selector   = string
+      is_default = bool
+    }))
+  })
 }
 
 variable "cloudflare_api_key_store" {
@@ -37,6 +68,10 @@ variable "cloudflare_api_key_store" {
 }
 
 variable "github_token_store" {
+  type = string
+}
+
+variable "github_ssh_key_store" {
   type = string
 }
 
@@ -48,65 +83,10 @@ variable "github_oauth_clientid_store" {
   type = string
 }
 
-variable "aws_region" {
-  type = string
-}
-
-variable "aws_profile" {
-  type = string
-}
-
-variable "unifi_management_address" {
-  type        = string
-  description = "Unifi management address controlling the local network."
-}
-
-variable "unifi_management_username" {
-  type        = string
-  description = "Unifi management address login username."
-}
-
-variable "unifi_management_password_store" {
-  type        = string
-  description = "Name of AWS parameter store containing the unifi management password."
-}
-
-variable "kubernetes_version" {
-  type = string
-}
-
-variable "cert_manager_version" {
-  type = string
-}
-
-variable "harvester_cluster_name" {
-  type = string
-}
-
-variable "harvester_kubeconfig_path" {
-  type = string
-}
-
 variable "healthchecksio_api_key_store" {
   type = string
 }
 
-variable "github_ssh_addr" {
-  type = string
-}
-
-variable "github_ssh_key_store" {
-  type = string
-}
-
-variable "github_ssh_pub" {
-  type = string
-}
-
-variable "github_ssh_known_hosts" {
-  type = string
-}
-
-variable "external_secrets_access_key_name" {
+variable "external_secrets_access_key_store" {
   type = string
 }
