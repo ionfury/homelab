@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: docker.dragonflydb.io/dragonflydb/dragonfly
-      IMAGE_TAG: v1.12.0 # {"$imagepolicy": "storage:dragonfly-db-automation:tag"}
+      IMAGE_TAG: v1.12.1 # {"$imagepolicy": "storage:dragonfly-db-automation:tag"}
