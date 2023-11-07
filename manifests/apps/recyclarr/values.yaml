@@ -1,0 +1,48 @@
+controllers:
+  main:
+    type: statefulset
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        env:
+          TZ: ${TZ}
+          RADARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: recyclarr-radarr-secret
+                key: key
+          SONARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: recyclarr-sonarr-secret
+                key: key
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64M
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    statefulset:
+      volumeClaimTemplates:
+        - name: config
+          accessMode: ReadWriteOnce
+          size: 1Gi
+          storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+          globalMounts:
+            - path: /config
+service:
+  main:
+    enabled: false
+persistence:
+  config-file:
+    type: configMap
+    name: recyclarr-config
+    globalMounts:
+      - path: /config/recyclarr.yml
+        subPath: recyclarr.yml
+        readOnly: true
