@@ -8,6 +8,7 @@ resources:
   - prowlarr.yaml
   - radarr.yaml
   - readarr.yaml
+  - recyclarr.yaml
   - sonarr.yaml
   - immich.yaml
   - zipline.yaml
