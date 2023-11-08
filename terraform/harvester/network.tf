@@ -40,6 +40,6 @@ resource "harvester_vlanconfig" "this" {
     bond_miimon = 0
     mtu         = 1500
     bond_mode   = "balance-tlb"
-    nics = var.harvester.uplink
+    nics        = var.harvester.uplink
   }
 }

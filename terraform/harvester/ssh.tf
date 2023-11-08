@@ -1,3 +1,8 @@
+moved {
+  from = harvester_ssh_key.homelab_mac
+  to   = harvester_ssh_key.keys["id-rsa-homelab-ssh-mac"]
+}
+
 resource "harvester_ssh_key" "keys" {
   for_each = {
     for index, key in var.public_ssh_keys : key.name => key

@@ -1,3 +1,23 @@
+moved {
+  from = harvester_storageclass.fast
+  to   = harvester_storageclass.storage["fast"]
+}
+
+moved {
+  from = harvester_storageclass.fast_backup
+  to   = harvester_storageclass.storage_backup["fast"]
+}
+
+moved {
+  from = harvester_storageclass.slow
+  to   = harvester_storageclass.storage["slow"]
+}
+
+moved {
+  from = harvester_storageclass.slow_backup
+  to   = harvester_storageclass.storage_backup["slow"]
+}
+
 resource "harvester_storageclass" "storage" {
   for_each = var.harvester.storage
 
@@ -16,7 +36,7 @@ resource "harvester_storageclass" "storage" {
 resource "harvester_storageclass" "storage_backup" {
   for_each = var.harvester.storage
 
-  name       = each.value.name
+  name       = "${each.value.name}-backup"
   is_default = false
 
   parameters = {
