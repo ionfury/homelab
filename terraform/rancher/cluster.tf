@@ -56,12 +56,29 @@ resource "aws_ssm_parameter" "vm_ssh_key" {
   }
 }
 
+resource "aws_iam_user" "external_secrets_user" {
+  name = "k8s-external-secrets-${var.rancher.cluster_name}"
+
+  tags = {
+    assignable-by-terragrunt = "true"
+  }
+}
+
+data "aws_iam_policy" "external_secrets_policy" {
+  name = "ssm-k8s-reader"
+}
+
+resource "aws_iam_user_policy_attachment" "external_secrets_policy_attachment" {
+  user       = aws_iam_user.external_secrets_user.name
+  policy_arn = data.aws_iam_policy.external_secrets_policy.arn
+}
+
 resource "aws_iam_access_key" "external_secrets_access_key" {
-  user = var.external_secrets_access_key_store
+  user = aws_iam_user.external_secrets_user.name
 }
 
 data "aws_ssm_parameter" "github_ssh_key" {
-  name = var.github_ssh_key_store
+  name = var.github.ssh_key_store
 }
 
 module "bootstrap" {

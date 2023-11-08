@@ -10,11 +10,7 @@ terraform {
     }
     rancher2 = {
       source  = "rancher/rancher2"
-      version = "3.1.0"
-    }
-    github = {
-      source  = "integrations/github"
-      version = ">=5.23.0"
+      version = "3.2.0"
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"

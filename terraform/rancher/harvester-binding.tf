@@ -16,6 +16,7 @@ YAML
 }
 
 data "rancher2_cluster_v2" "homelab" {
+  provider   = rancher2.admin
   depends_on = [kubectl_manifest.rancher_harvester_provisioning]
   name       = var.harvester.cluster_name
 }

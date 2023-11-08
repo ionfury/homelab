@@ -3,12 +3,8 @@ variable "tld" {
   type        = string
 }
 
-variable "master_email" {
-  description = "Master email used for everything."
-  type        = string
-}
-
 variable "aws" {
+  description = "AWS account information."
   type = object({
     region  = string
     profile = string
@@ -16,6 +12,7 @@ variable "aws" {
 }
 
 variable "rancher" {
+  description = "Rancher cluster definition."
   type = object({
     cluster_name         = string
     ssh_key_name         = string
@@ -30,16 +27,23 @@ variable "rancher" {
 }
 
 variable "github" {
+  description = "Github account information."
   type = object({
-    user            = string
-    name            = string
-    ssh_addr        = string
-    ssh_pub         = string
-    ssh_known_hosts = string
+    email                = string
+    user                 = string
+    name                 = string
+    ssh_addr             = string
+    ssh_pub              = string
+    ssh_known_hosts      = string
+    token_store          = string
+    oauth_secret_store   = string
+    oauth_clientid_store = string
+    ssh_key_store        = string
   })
 }
 
 variable "unifi" {
+  description = "Unifi account information."
   type = object({
     address        = string
     username       = string
@@ -48,6 +52,7 @@ variable "unifi" {
 }
 
 variable "harvester" {
+  description = "Harvester cluster definition."
   type = object({
     cluster_name       = string
     kubeconfig_path    = string
@@ -63,28 +68,20 @@ variable "harvester" {
   })
 }
 
-variable "cloudflare_api_key_store" {
-  type = string
+variable "cloudflare" {
+  description = "Cloudflare account information"
+  type = object({
+    account_name  = string
+    email         = string
+    api_key_store = string
+  })
 }
 
-variable "github_token_store" {
-  type = string
-}
-
-variable "github_ssh_key_store" {
-  type = string
-}
-
-variable "github_oauth_secret_store" {
-  type = string
-}
-
-variable "github_oauth_clientid_store" {
-  type = string
-}
-
-variable "healthchecksio_api_key_store" {
-  type = string
+variable "healthchecksio" {
+  description = "Healthchecksio account information."
+  type = object({
+    api_key_store = string
+  })
 }
 
 variable "external_secrets_access_key_store" {

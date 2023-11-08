@@ -3,11 +3,11 @@ data "aws_ssm_parameter" "unifi_password" {
 }
 
 data "aws_ssm_parameter" "cloudflare_api_key" {
-  name = var.cloudflare_api_key_store
+  name = var.cloudflare.api_key_store
 }
 
 data "aws_ssm_parameter" "github_token" {
-  name = var.github_token_store
+  name = var.github.token_store
 }
 
 provider "aws" {
@@ -30,13 +30,14 @@ provider "rancher2" {
 }
 
 provider "rancher2" {
+  alias     = "admin"
   api_url   = module.rancher.rancher_admin_url
   token_key = module.rancher.rancher_admin_token
   insecure  = false
 }
 
 provider "cloudflare" {
-  email   = var.master_email
+  email   = var.cloudflare.email
   api_key = data.aws_ssm_parameter.cloudflare_api_key.value
 }
 
@@ -99,11 +100,11 @@ provider "flux" {
 }
 
 data "aws_ssm_parameter" "flux_ssh_key" {
-  name = var.github_ssh_key_store
+  name = var.github.ssh_key_store
 }
 
 data "aws_ssm_parameter" "healthchecksio_api_key" {
-  name = var.healthchecksio_api_key_store
+  name = var.healthchecksio.api_key_store
 }
 
 provider "healthchecksio" {
