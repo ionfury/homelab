@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/diced/zipline
-      IMAGE_TAG: 3.7.5 # {"$imagepolicy": "media:zipline-automation:tag"}
+      IMAGE_TAG: 3.7.6 # {"$imagepolicy": "media:zipline-automation:tag"}
