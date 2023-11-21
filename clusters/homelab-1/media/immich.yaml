@@ -11,7 +11,7 @@ spec:
       MICROSERVICES_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-server
       MICROSERVICES_IMAGE_TAG: v1.87.0 # {"$imagepolicy": "media:immich-microservices-automation:tag"}
       SERVER_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-server
-      SERVER_IMAGE_TAG: v1.87.0 # {"$imagepolicy": "media:immich-server-automation:tag"}
+      SERVER_IMAGE_TAG: v1.88.0 # {"$imagepolicy": "media:immich-server-automation:tag"}
       WEB_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-web
       WEB_IMAGE_TAG: v1.87.0 # {"$imagepolicy": "media:immich-web-automation:tag"}
       TYPESENSE_IMAGE_REPOSITORY: docker.io/typesense/typesense
