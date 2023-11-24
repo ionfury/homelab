@@ -4,7 +4,6 @@ resources:
   - microservices
   - server
   - typesense
-  - web
 configMapGenerator:
   - name: config
     options:
