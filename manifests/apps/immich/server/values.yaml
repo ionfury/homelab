@@ -60,6 +60,31 @@ service:
     ports:
       http:
         port: 3001
+ingress:
+  main:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        rewrite /api/(.*) /$1 break;
+      nignx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: High performance self-hosted photo and video backup solution.
+      gethomepage.dev/group: Media
+      gethomepage.dev/icon: immich.png
+      gethomepage.dev/name: Immich
+      #gethomepage.dev/widget.type: immich
+      #gethomepage.dev/widget.url:
+    ingressClassName: internal
+    hosts:
+      - host: photos.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+      - hosts:
+          - photos.${INTERNAL_DOMAIN}
+        secretName: immich-tls
 podLabels:
   required-volume: upload
 persistence:
