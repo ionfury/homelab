@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: louislam/uptime-kuma
-      IMAGE_TAG: 1.23.6 # {"$imagepolicy": "monitoring:uptime-kuma-automation:tag"}
+      IMAGE_TAG: 1.23.7 # {"$imagepolicy": "monitoring:uptime-kuma-automation:tag"}
