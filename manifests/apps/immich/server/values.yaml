@@ -82,6 +82,7 @@ ingress:
         paths:
           - path: /
             pathType: Prefix
+    tls:
       - hosts:
           - photos.${INTERNAL_DOMAIN}
         secretName: immich-tls
