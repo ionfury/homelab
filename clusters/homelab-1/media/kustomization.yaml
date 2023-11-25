@@ -2,6 +2,7 @@ namespace: media
 components:
   - ../../../manifests/components/namespace
 resources:
+  - bazarr.yaml
   - jellyfin.yaml
   - transmission.yaml
   - lidarr.yaml
