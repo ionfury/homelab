@@ -39,8 +39,11 @@ controllers:
       main:
         resources:
           requests:
-            cpu: 940m
-            memory: 1014Mi
+            cpu: 573m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 10Gi
         env:
           TZ: ${TZ}
           POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
