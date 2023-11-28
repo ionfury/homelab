@@ -65,8 +65,6 @@ ingress:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
-      nginx.ingress.kubernetes.io/configuration-snippet: |
-        rewrite /api/(.*) /$1 break;
       nignx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
       gethomepage.dev/enabled: "true"
