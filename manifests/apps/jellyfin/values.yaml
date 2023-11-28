@@ -16,7 +16,7 @@ ingress:
       cert-manager.io/cluster-issuer: "cloudflare"
       nginx.ingress.kubernetes.io/configuration-snippet: |
           proxy_set_header Accept-Encoding "";
-          sub_filter '</body>' '<script plugin="Jellyscrub" version="1.0.0.0" src="/Trickplay/ClientScript"></script></body>';
+          sub_filter '</body>' '<script plugin="Jellyscrub" version="1.1.1.0" src="/Trickplay/ClientScript"></script></body>';
           sub_filter_once on;
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached.
