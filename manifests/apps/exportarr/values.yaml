@@ -1,0 +1,59 @@
+controllers:
+  main:
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 100Mi
+        env:
+          TZ: ${TZ}
+          PORT: 9797
+          URL: http://${TARGET:=none}.${TARGET_NAMESPACE:=media}.svc.cluster.local:${TARGET_PORT:=80}
+          API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: ${TARGET:=none}-secret
+                key: key
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: http
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: http
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: http
+service:
+  main:
+    ports:
+      http:
+        port: 9797
+serviceMonitor:
+  main:
+    enabled: true
+    endpoints:
+      - port: http
+        scheme: http
+        path: /metrics
+        interval: 1m
+        scrapeTimeout: 10s

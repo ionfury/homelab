@@ -1,0 +1,8 @@
+namePrefix: ${TARGET:=none}-exportarr-
+components:
+  - ../../components/helm-release-app-template-oci-v2
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
