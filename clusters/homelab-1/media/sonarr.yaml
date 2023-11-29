@@ -14,7 +14,7 @@ kind: Kustomization
 metadata:
   name: sonarr-exportarr
 spec:
-  path: ./manifests/apps/sonarr-exportarr
+  path: ./manifests/apps/exportarr
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
