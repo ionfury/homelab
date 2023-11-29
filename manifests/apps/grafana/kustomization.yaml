@@ -28,6 +28,16 @@ secretGenerator:
         grafana_dashboard: "true"
     files:
       - home-dashboard.json
+  # https://github.com/onedr0p/exportarr/blob/master/examples/grafana/dashboard2.json
+  - name: exportarr-dashboard
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+      labels:
+        grafana_dashboard: "true"
+    files:
+      - exportarr-dashboard.json
 patches:
   - target:
       kind: HelmRelease
