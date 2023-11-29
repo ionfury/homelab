@@ -21,4 +21,4 @@ spec:
       IMAGE_TAG: v1.5.3 # {"$imagepolicy": "media:lidarr-exportarr-automation:tag"}
       TARGET: lidarr
       TARGET_NAMESPACE: media
-      TARGET_PORT: 8686
+      TARGET_PORT: "8686"

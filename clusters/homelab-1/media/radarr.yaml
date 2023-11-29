@@ -21,4 +21,4 @@ spec:
       IMAGE_TAG: v1.5.3 # {"$imagepolicy": "media:radarr-exportarr-automation:tag"}
       TARGET: radarr
       TARGET_NAMESPACE: media
-      TARGET_PORT: 7878
+      TARGET_PORT: "7878"

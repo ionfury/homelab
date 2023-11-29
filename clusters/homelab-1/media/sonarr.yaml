@@ -21,4 +21,4 @@ spec:
       IMAGE_TAG: v1.5.3 # {"$imagepolicy": "media:sonarr-exportarr-automation:tag"}
       TARGET: sonarr
       TARGET_NAMESPACE: media
-      TARGET_PORT: 8989
+      TARGET_PORT: "8989"
