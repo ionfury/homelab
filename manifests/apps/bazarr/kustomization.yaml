@@ -14,6 +14,8 @@ secretGenerator:
         secret-generator.v1.mittwald.de/autogenerate: username,password,key
         secret-generator.v1.mittwald.de/type: base64url
         secret-generator.v1.mittwald.de/length: "32"
+        replicator.v1.mittwald.de/replication-allowed: "true"
+        replicator.v1.mittwald.de/replication-allowed-namespaces: ".*"
   - name: postgres-superuser
     options:
       disableNameSuffixHash: true
