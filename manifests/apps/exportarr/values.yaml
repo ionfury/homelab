@@ -8,6 +8,8 @@ controllers:
         fsGroupChangePolicy: OnRootMismatch
     containers:
       main:
+        args:
+          - ${TARGET:=none}
         resources:
           requests:
             cpu: 10m
