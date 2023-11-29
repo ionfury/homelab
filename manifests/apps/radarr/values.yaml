@@ -1,54 +1,83 @@
-initContainers:
-  01-init-db:
-    image: ghcr.io/onedr0p/postgres-init:14.8
-    imagePullPolicy: IfNotPresent
-    env:
-      INIT_POSTGRES_DBNAME: "radarr_main radarr_log"
-      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-      INIT_POSTGRES_USER:
-        valueFrom:
-          secretKeyRef:
-            name: radarr-secret
-            key: username
-      INIT_POSTGRES_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: radarr-secret
-            key: password
-      INIT_POSTGRES_SUPER_USER:
-        valueFrom:
-          secretKeyRef:
-            name: radarr-postgres-superuser
-            key: username
-      INIT_POSTGRES_SUPER_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: radarr-postgres-superuser
-            key: password
-env:
-  TZ: ${TZ}
-  RADARR__INSTANCE_NAME: Radarr
-  RADARR__PORT: 7878
-  RADARR__LOG_LEVEL: info
-  RADARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-  RADARR__POSTGRES_PORT: 5432
-  RADARR__POSTGRES_MAIN_DB: radarr_main
-  RADARR__POSTGRES_LOG_DB: radarr_log
-  RADARR__POSTGRES_USER:
-    valueFrom:
-      secretKeyRef:
-        name: radarr-secret
-        key: username
-  RADARR__POSTGRES_PASSWORD:
-    valueFrom:
-      secretKeyRef:
-        name: radarr-secret
-        key: password
-  RADARR__API_KEY:
-    valueFrom:
-      secretKeyRef:
-        name: radarr-secret
-        key: key
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      01-init-db:
+        image:
+          repository: ghcr.io/onedr0p/postgres-init
+          tag: "14.8"
+        imagePullPolicy: IfNotPresent
+        env:
+          INIT_POSTGRES_DBNAME: "radarr_main radarr_log"
+          INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          INIT_POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-secret
+                key: username
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-secret
+                key: password
+          INIT_POSTGRES_SUPER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-postgres-superuser
+                key: username
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-postgres-superuser
+                key: password
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 39m
+            memory: 381Mi
+        env:
+          TZ: ${TZ}
+          RADARR__INSTANCE_NAME: Radarr
+          RADARR__PORT: 7878
+          RADARR__LOG_LEVEL: info
+          RADARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          RADARR__POSTGRES_PORT: 5432
+          RADARR__POSTGRES_MAIN_DB: radarr_main
+          RADARR__POSTGRES_LOG_DB: radarr_log
+          RADARR__POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-secret
+                key: username
+          RADARR__POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-secret
+                key: password
+          RADARR__API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-secret
+                key: key
+defaultPodOptions:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
 service:
   main:
     ports:
@@ -66,58 +95,35 @@ ingress:
       gethomepage.dev/name: Radarr
       gethomepage.dev/widget.type: radarr
       gethomepage.dev/widget.url: http://radarr-app.${NAMESPACE}.svc.cluster.local:7878
-    ingressClassName: internal
+    className: internal
     hosts:
       - host: radarr.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - radarr.${INTERNAL_DOMAIN}
         secretName: radarr-tls
-  api:
-    enabled: true
-    annotations:
-      cert-manager.io/cluster-issuer: "cloudflare"
-    ingressClassName: internal
-    hosts:
-      - host: radarr.${INTERNAL_DOMAIN}
-        paths:
-          - path: /api
-            pathType: Prefix
-    tls:
-      - hosts:
-          - radarr.${INTERNAL_DOMAIN}
-        secretName: radarr-tls
-podSecurityContext:
-  runAsUser: 568
-  runAsGroup: 568
-  fsGroup: 568
-  fsGroupChangePolicy: OnRootMismatch
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
     mountPath: /media
+    advancedMounts:
+      main:
+        main:
+          - path: /media
   config:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 10Gi
     accessMode: ReadWriteOnce
-    mountPath: /config
-affinity:
-  podAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: required-volume
-              operator: In
-              values:
-                - media
-        topologyKey: kubernetes.io/hostname
-resources:
-  requests:
-    cpu: 39m
-    memory: 381Mi
+    advancedMounts:
+      main:
+        main:
+          - path: /config
