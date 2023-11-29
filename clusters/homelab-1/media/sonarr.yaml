@@ -18,7 +18,7 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
-      IMAGE_TAG: v1.5.3 # {"$imagepolicy": "media:sonarr-exportarr-automation:tag"}
+      IMAGE_TAG: v1.6.0 # {"$imagepolicy": "media:sonarr-exportarr-automation:tag"}
       TARGET: sonarr
       TARGET_NAMESPACE: media
       TARGET_PORT: "8989"
