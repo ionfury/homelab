@@ -1,54 +1,83 @@
-initContainers:
-  01-init-db:
-    image: ghcr.io/onedr0p/postgres-init:14.8
-    imagePullPolicy: IfNotPresent
-    env:
-      INIT_POSTGRES_DBNAME: "prowlarr_main prowlarr_log"
-      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-      INIT_POSTGRES_USER:
-        valueFrom:
-          secretKeyRef:
-            name: prowlarr-secret
-            key: username
-      INIT_POSTGRES_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: prowlarr-secret
-            key: password
-      INIT_POSTGRES_SUPER_USER:
-        valueFrom:
-          secretKeyRef:
-            name: prowlarr-postgres-superuser
-            key: username
-      INIT_POSTGRES_SUPER_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: prowlarr-postgres-superuser
-            key: password
-env:
-  TZ: ${TZ}
-  PROWLARR__INSTANCE_NAME: Prowlarr
-  PROWLARR__PORT: 80
-  PROWLARR__LOG_LEVEL: info
-  PROWLARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-  PROWLARR__POSTGRES_PORT: 5432
-  PROWLARR__POSTGRES_MAIN_DB: prowlarr_main
-  PROWLARR__POSTGRES_LOG_DB: prowlarr_log
-  PROWLARR__POSTGRES_USER:
-    valueFrom:
-      secretKeyRef:
-        name: prowlarr-secret
-        key: username
-  PROWLARR__POSTGRES_PASSWORD:
-    valueFrom:
-      secretKeyRef:
-        name: prowlarr-secret
-        key: password
-  PROWLARR__API_KEY:
-    valueFrom:
-      secretKeyRef:
-        name: prowlarr-secret
-        key: key
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      01-init-db:
+        image:
+          repository: ghcr.io/onedr0p/postgres-init
+          tag: "14.8"
+        imagePullPolicy: IfNotPresent
+        env:
+          INIT_POSTGRES_DBNAME: "prowlarr_main prowlarr_log"
+          INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          INIT_POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secret
+                key: username
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secret
+                key: password
+          INIT_POSTGRES_SUPER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-postgres-superuser
+                key: username
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-postgres-superuser
+                key: password
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 669m
+            memory: 473Mi
+        env:
+          TZ: ${TZ}
+          PROWLARR__INSTANCE_NAME: Prowlarr
+          PROWLARR__PORT: 80
+          PROWLARR__LOG_LEVEL: info
+          PROWLARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          PROWLARR__POSTGRES_PORT: 5432
+          PROWLARR__POSTGRES_MAIN_DB: prowlarr_main
+          PROWLARR__POSTGRES_LOG_DB: prowlarr_log
+          PROWLARR__POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secret
+                key: username
+          PROWLARR__POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secret
+                key: password
+          PROWLARR__API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secret
+                key: key
+defaultPodOptions:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
 service:
   main:
     ports:
@@ -66,30 +95,35 @@ ingress:
       gethomepage.dev/name: prowlarr
       gethomepage.dev/widget.type: prowlarr
       gethomepage.dev/widget.url: http://prowlarr-app.${NAMESPACE}.svc.cluster.local:80
-    ingressClassName: internal
+    className: internal
     hosts:
       - host: prowlarr.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - prowlarr.${INTERNAL_DOMAIN}
         secretName: prowlarr-tls
-podSecurityContext:
-  runAsUser: 568
-  runAsGroup: 568
-  fsGroup: 568
-  fsGroupChangePolicy: OnRootMismatch
 persistence:
+  media:
+    enabled: true
+    existingClaim: jellyfin-app-media
+    mountPath: /media
+    advancedMounts:
+      main:
+        main:
+          - path: /media
   config:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 10Gi
     accessMode: ReadWriteOnce
-    mountPath: /config
-resources:
-  requests:
-    cpu: 669m
-    memory: 473Mi
+    advancedMounts:
+      main:
+        main:
+          - path: /config
