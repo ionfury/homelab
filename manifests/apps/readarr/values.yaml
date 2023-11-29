@@ -1,55 +1,84 @@
-initContainers:
-  01-init-db:
-    image: ghcr.io/onedr0p/postgres-init:14.8
-    imagePullPolicy: IfNotPresent
-    env:
-      INIT_POSTGRES_DBNAME: "readarr_main readarr_log readarr_cache"
-      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-      INIT_POSTGRES_USER:
-        valueFrom:
-          secretKeyRef:
-            name: readarr-secret
-            key: username
-      INIT_POSTGRES_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: readarr-secret
-            key: password
-      INIT_POSTGRES_SUPER_USER:
-        valueFrom:
-          secretKeyRef:
-            name: readarr-postgres-superuser
-            key: username
-      INIT_POSTGRES_SUPER_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: readarr-postgres-superuser
-            key: password
-env:
-  TZ: ${TZ}
-  READARR__INSTANCE_NAME: Readarr
-  READARR__PORT: 8787
-  READARR__LOG_LEVEL: info
-  READARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-  READARR__POSTGRES_PORT: 5432
-  READARR__POSTGRES_MAIN_DB: readarr_main
-  READARR__POSTGRES_LOG_DB: readarr_log
-  READARR__POSTGRES_CACHE_DB: readarr_cache
-  READARR__POSTGRES_USER:
-    valueFrom:
-      secretKeyRef:
-        name: readarr-secret
-        key: username
-  READARR__POSTGRES_PASSWORD:
-    valueFrom:
-      secretKeyRef:
-        name: readarr-secret
-        key: password
-  READARR__API_KEY:
-    valueFrom:
-      secretKeyRef:
-        name: readarr-secret
-        key: key
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      01-init-db:
+        image:
+          repository: ghcr.io/onedr0p/postgres-init
+          tag: "14.8"
+        imagePullPolicy: IfNotPresent
+        env:
+          INIT_POSTGRES_DBNAME: "readarr_main readarr_log readarr_cache"
+          INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          INIT_POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: readarr-secret
+                key: username
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: readarr-secret
+                key: password
+          INIT_POSTGRES_SUPER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: readarr-postgres-superuser
+                key: username
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: readarr-postgres-superuser
+                key: password
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 22m
+            memory: 149Mi
+        env:
+          TZ: ${TZ}
+          READARR__INSTANCE_NAME: Readarr
+          READARR__PORT: 8787
+          READARR__LOG_LEVEL: info
+          READARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          READARR__POSTGRES_PORT: 5432
+          READARR__POSTGRES_MAIN_DB: readarr_main
+          READARR__POSTGRES_LOG_DB: readarr_log
+          READARR__POSTGRES_CACHE_DB: readarr_cache
+          READARR__POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: readarr-secret
+                key: username
+          READARR__POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: readarr-secret
+                key: password
+          READARR__API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: readarr-secret
+                key: key
+defaultPodOptions:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
 service:
   main:
     ports:
@@ -67,44 +96,35 @@ ingress:
       gethomepage.dev/name: readarr
       gethomepage.dev/widget.type: readarr
       gethomepage.dev/widget.url: http://readarr-app.${NAMESPACE}.svc.cluster.local:8787
-    ingressClassName: internal
+    className: internal
     hosts:
       - host: readarr.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - readarr.${INTERNAL_DOMAIN}
-        secretName: readarr-tls
-podSecurityContext:
-  runAsUser: 568
-  runAsGroup: 568
-  fsGroup: 568
-  fsGroupChangePolicy: OnRootMismatch
+        secretName: lidarr-tls
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
     mountPath: /media
+    advancedMounts:
+      main:
+        main:
+          - path: /media
   config:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 10Gi
     accessMode: ReadWriteOnce
-    mountPath: /config
-affinity:
-  podAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: required-volume
-              operator: In
-              values:
-                - media
-        topologyKey: kubernetes.io/hostname
-resources:
-  requests:
-    cpu: 22m
-    memory: 149Mi
+    advancedMounts:
+      main:
+        main:
+          - path: /config
