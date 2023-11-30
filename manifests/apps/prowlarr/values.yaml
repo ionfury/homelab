@@ -46,7 +46,7 @@ controllers:
         env:
           TZ: ${TZ}
           PROWLARR__INSTANCE_NAME: Prowlarr
-          PROWLARR__PORT: 80
+          PROWLARR__PORT: 9696
           PROWLARR__LOG_LEVEL: info
           PROWLARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           PROWLARR__POSTGRES_PORT: 5432
@@ -82,7 +82,7 @@ service:
   main:
     ports:
       http:
-        port: 80
+        port: 9696
 ingress:
   main:
     enabled: true
