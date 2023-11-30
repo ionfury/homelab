@@ -8,17 +8,3 @@ spec:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/radarr-nightly
       IMAGE_TAG: 4.7.5.7821 # {"$imagepolicy": "media:radarr-automation:tag"}
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: radarr-exportarr
-spec:
-  path: ./manifests/apps/exportarr
-  postBuild:
-    substitute:
-      IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
-      IMAGE_TAG: v1.6.0 # {"$imagepolicy": "media:radarr-exportarr-automation:tag"}
-      TARGET: radarr
-      TARGET_NAMESPACE: media
-      TARGET_PORT: "7878"

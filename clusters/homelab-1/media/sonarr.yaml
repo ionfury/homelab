@@ -8,17 +8,3 @@ spec:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/sonarr-develop
       IMAGE_TAG: 4.0.0.733 # {"$imagepolicy": "media:sonarr-automation:tag"}
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: sonarr-exportarr
-spec:
-  path: ./manifests/apps/exportarr
-  postBuild:
-    substitute:
-      IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
-      IMAGE_TAG: v1.6.0 # {"$imagepolicy": "media:sonarr-exportarr-automation:tag"}
-      TARGET: sonarr
-      TARGET_NAMESPACE: media
-      TARGET_PORT: "8989"
