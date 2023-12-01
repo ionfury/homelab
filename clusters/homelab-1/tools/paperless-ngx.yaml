@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/paperless-ngx/paperless-ngx
-      IMAGE_TAG: 2.0.0 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}
+      IMAGE_TAG: 2.0.1 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}
