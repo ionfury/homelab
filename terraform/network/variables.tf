@@ -27,8 +27,11 @@ variable "unifi" {
 
 variable "networks" {
   type = map(object({
-    name = string
-    vlan = number
-    cidr = string
+    name       = string
+    vlan       = number
+    cidr       = string
+    dhcp_start = number
+    dhcp_stop  = number
+    site       = string
   }))
 }

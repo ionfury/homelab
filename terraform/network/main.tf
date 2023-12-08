@@ -3,7 +3,7 @@ resource "unifi_network" "networks" {
 
   name        = each.value.name
   purpose     = "corporate"
-  site        = "default"
+  site        = each.value.site
   domain_name = "${each.value.name}.${var.tld}"
   vlan_id     = each.value.vlan
   subnet      = each.value.cidr
@@ -11,8 +11,8 @@ resource "unifi_network" "networks" {
   dhcp_dns           = []
   dhcp_enabled       = true
   dhcp_relay_enabled = false
-  dhcp_start         = cidrhost(each.value.cidr, 10)
-  dhcp_stop          = cidrhost(each.value.cidr, 254)
+  dhcp_start         = cidrhost(each.value.cidr, each.value.dhcp_start)
+  dhcp_stop          = cidrhost(each.value.cidr, each.value.dhcp_stop)
   dhcpd_boot_enabled = false
 
   dhcp_v6_dns      = []
