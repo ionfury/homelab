@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: haugene/transmission-openvpn
-      IMAGE_TAG: 5.2.0 # {"$imagepolicy": "media:transmission-automation:tag"}
+      IMAGE_TAG: 5.3.1 # {"$imagepolicy": "media:transmission-automation:tag"}
