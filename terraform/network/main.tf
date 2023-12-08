@@ -1,13 +1,3 @@
-moved {
-  from = unifi_network.this
-  to   = unifi_network.networks["citadel"]
-}
-
-moved {
-  from = unifi_port_profile.this
-  to   = unifi_port_profile.profiles["citadel"]
-}
-
 resource "unifi_network" "networks" {
   for_each = var.networks
 
