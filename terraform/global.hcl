@@ -76,6 +76,40 @@ locals {
     address = "https://192.168.1.1"
     username = "terraform"
     password_store = "unifi-password"
+
+    devices = {
+      usw_agg_0 = {
+        mac = "f4:e2:c6:59:e0:8f"
+        name = "Harvester Switch"
+        port_overrides = [
+          # Figure out how to flatten this list later
+          {
+            network = "citadel"
+            port = 1
+          },
+          {
+            network = "citadel"
+            port = 2
+          },
+          {
+            network = "citadel"
+            port = 3
+          },
+          {
+            network = "citadel"
+            port = 4
+          },
+          {
+            network = "citadel"
+            port = 5
+          },
+          {
+            network = "citadel"
+            port = 6
+          }
+        ]
+      }
+    }
   }
 
   networks = {
@@ -83,31 +117,6 @@ locals {
       name = "citadel"
       vlan = 10
       cidr = "192.168.10.0/24"
-    },
-    default = {
-      name = "default"
-      vlan = 1
-      cidr = "192.168.1.0/24"
-    },
-    guest = {
-      name = "guest"
-      vlan = 2
-      cidr = "192.168.2.0/24"
-    },
-    iot = {
-      name = "iot"
-      vlan = 3
-      cidr = "192.168.3.0/24"
-    },
-    camera = {
-      name = "camera"
-      vlan = 4
-      cidr = "192.168.4.0/24"
-    },
-    trusted = {
-      name = "trusted"
-      vlan = 5
-      cidr = "192.168.5.0/24"
     }
   }
 
