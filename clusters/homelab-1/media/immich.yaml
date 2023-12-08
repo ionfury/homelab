@@ -7,7 +7,7 @@ spec:
   postBuild:
     substitute:
       MACHINE_LEARNING_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-machine-learning
-      MACHINE_LEARNING_IMAGE_TAG: v1.89.0 # {"$imagepolicy": "media:immich-machine-learning-automation:tag"}
+      MACHINE_LEARNING_IMAGE_TAG: v1.90.0 # {"$imagepolicy": "media:immich-machine-learning-automation:tag"}
       MICROSERVICES_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-server
       MICROSERVICES_IMAGE_TAG: v1.89.0 # {"$imagepolicy": "media:immich-microservices-automation:tag"}
       SERVER_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-server
