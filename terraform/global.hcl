@@ -46,6 +46,25 @@ locals {
       }
     }
 
+    inventory = {
+      harvester2 = {
+        primary_disk = "/dev/sda"
+        mac = 0c:c4:7a:22:41:d2"
+        host = "192.168.10.69"
+        port = "623"
+        insecure_tls = "false"
+        password_store = "ipmi-hosts"
+      }
+      harvester3 = {
+        primary_disk = "/dev/sda"
+        management_interfance_mac_address = "0c:c4:7a:22:41:d7"
+        host = "192.168.10.74"
+        port = "623"
+        insecure_tls = "false"
+        password_store = "ipmi-hosts"
+      }
+    }
+
     uplink = [
       "eno2",
       "eno3"
