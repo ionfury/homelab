@@ -117,6 +117,9 @@ locals {
       name = "citadel"
       vlan = 10
       cidr = "192.168.10.0/24"
+      dhcp_start = 10
+      dhcp_stop = 254
+      site = "default"
     }
   }
 
