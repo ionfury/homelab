@@ -10,4 +10,4 @@ spec:
       HELM_CHART_VERSION: 1.2.3
       HELM_CHART_REPOSITORY: https://jameswynn.github.io/helm-charts
       IMAGE_REPOSITORY: ghcr.io/gethomepage/homepage
-      IMAGE_TAG: v0.8.2 # {"$imagepolicy": "tools:homepage-automation:tag"}
+      IMAGE_TAG: v0.8.3 # {"$imagepolicy": "tools:homepage-automation:tag"}
