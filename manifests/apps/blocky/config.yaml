@@ -6,6 +6,7 @@ upstream:
 conditional:
   fallbackUpstream: true
   mapping:
+    citadel.tomnowak.work: 192.168.1.1
     .: 192.168.1.1
 customDNS:
   mapping:
