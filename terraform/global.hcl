@@ -60,19 +60,6 @@ locals {
           password_path = "password"
         }
       }
-      node2 = {
-        primary_disk = "/dev/sda"
-        mac = "0c:c4:7a:22:41:d7"
-        host = "ipmi-node2"
-        ip = "192.168.10.74"
-        port = "623"
-        insecure_tls = "false"
-        credentials = {
-          store = "/ipmi-credentials/node2"
-          username_path = "username"
-          password_path = "password"
-        }
-      }
     }
 
     uplink = [
