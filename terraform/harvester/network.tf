@@ -32,14 +32,34 @@ resource "harvester_vlanconfig" "this" {
   tags                 = {}
 
   # If we add additional nodes we will need specific configs for nodes.
-  #  node_selector = {
-  #    "kubernetes.io/hostname" : "harvester0"
-  #  }
+  node_selector = {
+    "kubernetes.io/hostname" : "harvester0"
+  }
 
   uplink {
     bond_miimon = 0
     mtu         = 1500
     bond_mode   = "balance-tlb"
     nics        = var.harvester.uplink
+  }
+}
+
+resource "harvester_vlanconfig" "inventory" {
+  for_each = var.harvester.inventory
+
+  cluster_network_name = harvester_clusternetwork.this.name
+  description          = "Uplink for ${each.key} to vlan ${harvester_clusternetwork.this.name}."
+  name                 = var.harvester.network_name
+  tags                 = {}
+
+  node_selector = {
+    "kubernetes.io/hostname" : each.value.host
+  }
+
+  uplink {
+    bond_miimon = 0
+    mtu         = 1500
+    bond_mode   = "balance-tlb"
+    nics        = each.value.uplink
   }
 }
