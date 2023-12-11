@@ -47,21 +47,31 @@ locals {
     }
 
     inventory = {
-      harvester2 = {
+      node1 = {
         primary_disk = "/dev/sda"
         mac = "0c:c4:7a:22:41:d2"
-        host = "192.168.10.69"
+        host = "ipmi-node1"
+        ip = "192.168.10.69"
         port = "623"
         insecure_tls = "false"
-        password_store = "ipmi-hosts"
+        credentials = {
+          store = "/ipmi-credentials/node1"
+          username_path = "username"
+          password_path = "password"
+        }
       }
-      harvester3 = {
+      node2 = {
         primary_disk = "/dev/sda"
-        management_interfance_mac_address = "0c:c4:7a:22:41:d7"
-        host = "192.168.10.74"
+        mac = "0c:c4:7a:22:41:d7"
+        host = "ipmi-node2"
+        ip = "192.168.10.74"
         port = "623"
         insecure_tls = "false"
-        password_store = "ipmi-hosts"
+        credentials = {
+          store = "/ipmi-credentials/node2"
+          username_path = "username"
+          password_path = "password"
+        }
       }
     }
 
@@ -136,6 +146,9 @@ locals {
       name = "citadel"
       vlan = 10
       cidr = "192.168.10.0/24"
+      gateway = "192.168.10.1"
+      netmask = "255.255.255.0"
+      dhcp_cidr = "192.168.10.10/24"
       dhcp_start = 10
       dhcp_stop = 254
       site = "default"

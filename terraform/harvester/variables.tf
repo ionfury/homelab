@@ -11,13 +11,14 @@ variable "aws" {
 }
 
 variable "harvester" {
-  description = "Configuration for the harvester instance."
   type = object({
     cluster_name       = string
     kubeconfig_path    = string
     management_address = string
     network_name       = string
-    node_count         = number
+
+    node_count = number
+    uplink     = list(string)
 
     storage = map(object({
       name       = string
@@ -25,15 +26,33 @@ variable "harvester" {
       is_default = bool
     }))
 
-    uplink = list(string)
+    inventory = map(object({
+      primary_disk = string
+      mac          = string
+      host         = string
+      ip           = string
+      port         = string
+      insecure_tls = string
+      credentials = object({
+        store         = string
+        username_path = string
+        password_path = string
+      })
+    }))
   })
 }
 
 variable "networks" {
   type = map(object({
-    name = string
-    vlan = number
-    cidr = string
+    name       = string
+    vlan       = number
+    cidr       = string
+    gateway    = string
+    netmask    = string
+    dhcp_cidr  = string
+    dhcp_start = number
+    dhcp_stop  = number
+    site       = string
   }))
 }
 

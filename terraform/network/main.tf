@@ -52,3 +52,13 @@ resource "unifi_device" "devices" {
     }
   }
 }
+
+resource "unifi_user" "inventory" {
+  for_each = var.harvester.inventory
+
+  name = each.value.host
+  mac  = each.value.mac
+
+  fixed_ip   = each.value.ip
+  network_id = unifi_network.networks[var.harvester.network_name].id
+}
