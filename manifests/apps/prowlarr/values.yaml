@@ -94,7 +94,7 @@ ingress:
       gethomepage.dev/icon: prowlarr.png
       gethomepage.dev/name: prowlarr
       gethomepage.dev/widget.type: prowlarr
-      gethomepage.dev/widget.url: http://prowlarr-app.${NAMESPACE}.svc.cluster.local:80
+      gethomepage.dev/widget.url: http://prowlarr-app.${NAMESPACE}.svc.cluster.local:9696
     className: internal
     hosts:
       - host: prowlarr.${INTERNAL_DOMAIN}
