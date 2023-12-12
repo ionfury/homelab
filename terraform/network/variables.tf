@@ -37,14 +37,11 @@ variable "networks" {
 }
 
 variable "harvester" {
-  type = object({
+  type = map(object({
     cluster_name       = string
     kubeconfig_path    = string
     management_address = string
     network_name       = string
-
-    node_count = number
-    uplink     = list(string)
 
     storage = map(object({
       name       = string
@@ -56,6 +53,7 @@ variable "harvester" {
       primary_disk = string
       mac          = string
       host         = string
+      uplink       = list(string)
       ip           = string
       port         = string
       insecure_tls = string
@@ -65,5 +63,8 @@ variable "harvester" {
         password_path = string
       })
     }))
-  })
+
+    uplink     = list(string)
+    node_count = number
+  }))
 }

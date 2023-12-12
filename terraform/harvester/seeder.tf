@@ -10,8 +10,8 @@ resource "kubectl_manifest" "inventory_secret" {
   yaml_body = <<YAML
 apiVersion: v1
 data:
-  username: ${jsondecode(data.aws_ssm_parameter.credentials[each.key].value)[each.value.credentials.username_path]}
-  password: ${jsondecode(data.aws_ssm_parameter.credentials[each.key].value)[each.value.credentials.password_path]}
+  username: ${base64encode(jsondecode(data.aws_ssm_parameter.credentials[each.key].value)[each.value.credentials.username_path])}
+  password: ${base64encode(jsondecode(data.aws_ssm_parameter.credentials[each.key].value)[each.value.credentials.password_path])}
 kind: Secret
 metadata:
   name: "${each.key}-inventory"
@@ -35,11 +35,14 @@ spec:
   baseboardSpec:
     connection:
       host: "${each.value.ip}"
-      port: "${each.value.port}"
-      insecureTlS: "${each.value.insecure_tls}"
+      port: ${each.value.port}
+      insecureTLS: ${each.value.insecure_tls}
       authSecretRef:
         name: "${each.key}-inventory"
         namespace: default
+  events:
+    enabled: true
+    pollingInterval: "1h"
 YAML
 }
 

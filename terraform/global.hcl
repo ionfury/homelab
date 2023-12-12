@@ -50,7 +50,8 @@ locals {
       node1 = {
         primary_disk = "/dev/sda"
         mac = "0c:c4:7a:22:41:d2"
-        host = "ipmi-node1"
+        host = "node1"
+        uplink = [ "enp1s0f1" ]
         ip = "192.168.10.69"
         port = "623"
         insecure_tls = "false"

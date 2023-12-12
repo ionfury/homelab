@@ -64,6 +64,22 @@ config:
             - abbr: N0
               href: https://${IDRAC_ADDRESS}/
               description: IDRAC management interface.
+        - Node1:
+            - abbr: N1IPMI
+              href: https://${NODE1_IPMI_ADDRESS}/
+              description: Node1 IPMI interface.
+        - Node2:
+            - abbr: N2IPMI
+              href: https://${NODE2_IPMI_ADDRESS}/
+              description: Node2 IPMI interface.
+        - Node3:
+            - abbr: N3IPMI
+              href: https://${NODE3_IPMI_ADDRESS}/
+              description: Node3 IPMI interface.
+        - UPS:
+            - abbr: UPS
+              href: https://${UPS_ADDRESS}/
+              description: UPS management interface.
   services:
     - Network:
         - Rancher:
