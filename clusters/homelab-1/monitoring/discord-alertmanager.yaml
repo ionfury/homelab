@@ -9,3 +9,5 @@ spec:
       HELM_CHART: discord-alertmanager
       HELM_CHART_VERSION: 1.0.6
       HELM_CHART_REPOSITORY: https://helm.liam.sh/
+      IMAGE_REPOSITORY: ghcr.io/lrstanley/discord-alertmanager
+      IMAGE_TAG: 1.0.0 # {"$imagepolicy": "network:discord-alertmanagerautomation:tag"}
