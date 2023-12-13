@@ -1,0 +1,9 @@
+image:
+  repository: ${IMAGE_REPOSITORY}
+  tag: ${IMAGE_TAG}
+environmentFrom:
+  - secretRef:
+      name: discord-alertmanager-token
+environment:
+  - name: ALERTMANAGER_URL
+    value: http://kube-prometheus-stack-app-alertmanager.monitoring.svc.cluster.local:9093

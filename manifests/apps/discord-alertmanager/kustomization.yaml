@@ -1,0 +1,11 @@
+namePrefix: discord-alertmanager
+resources:
+  - external-secret.yaml
+components:
+  - ../../components/helm-release
+  - ../../components/image-automation
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
