@@ -7,7 +7,7 @@ spec:
   postBuild:
     substitute:
       HELM_CHART: gha-runner-scale-set
-      HELM_CHART_VERSION: 0.8.0 # {"$imagepolicy": "tools:gha-runner-scale-set-automation:tag"}
+      HELM_CHART_VERSION: 0.8.1 # {"$imagepolicy": "tools:gha-runner-scale-set-automation:tag"}
       HELM_CHART_REPOSITORY: ghcr.io/actions/actions-runner-controller-charts
       IMAGE_REPOSITORY: ghcr.io/onedr0p/github-actions-runner
       IMAGE_TAG: 2.311.0 # {"$imagepolicy": "tools:gha-runner-scale-set-automation-image:tag"}
