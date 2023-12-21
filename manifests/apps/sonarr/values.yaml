@@ -93,8 +93,6 @@ ingress:
       gethomepage.dev/group: Media
       gethomepage.dev/icon: sonarr.png
       gethomepage.dev/name: sonarr
-      gethomepage.dev/widget.type: sonarr
-      gethomepage.dev/widget.url: http://sonarr-app.${NAMESPACE}.svc.cluster.local:8989
     className: internal
     hosts:
       - host: sonarr.${INTERNAL_DOMAIN}

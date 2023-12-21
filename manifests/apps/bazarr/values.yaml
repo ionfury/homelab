@@ -93,8 +93,6 @@ ingress:
       gethomepage.dev/group: Media
       gethomepage.dev/icon: bazarr.png
       gethomepage.dev/name: bazarr
-      gethomepage.dev/widget.type: bazarr
-      gethomepage.dev/widget.url: http://bazarr-app.${NAMESPACE}.svc.cluster.local:6767
     className: internal
     hosts:
       - host: bazarr.${INTERNAL_DOMAIN}

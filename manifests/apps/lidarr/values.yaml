@@ -93,8 +93,6 @@ ingress:
       gethomepage.dev/group: Media
       gethomepage.dev/icon: lidarr.png
       gethomepage.dev/name: Lidarr
-      gethomepage.dev/widget.type: lidarr
-      gethomepage.dev/widget.url: http://lidarr-app.${NAMESPACE}.svc.cluster.local:8686
     className: internal
     hosts:
       - host: lidarr.${INTERNAL_DOMAIN}
