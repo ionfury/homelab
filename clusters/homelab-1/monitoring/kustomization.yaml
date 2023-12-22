@@ -5,6 +5,7 @@ resources:
   - discord-alertmanager.yaml
   - dell-idrac-snmp-exporter.yaml
   - grafana.yaml
+  - ipmi-exporter.yaml
   - komodor.yaml
   - kube-prometheus-stack.yaml
   - kube-state-metrics.yaml
