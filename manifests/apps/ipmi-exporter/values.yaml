@@ -1,6 +1,6 @@
 resources:
   requests:
-    cpu: 200m
+    cpu: 100m
     memory: 128Mi
 serviceMonitor:
   enabled: true

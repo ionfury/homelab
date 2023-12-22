@@ -1,4 +1,4 @@
-namePrefix: ipmi-exporter
+namePrefix: ipmi-exporter-
 components:
   - ../../components/helm-release-oci
 configMapGenerator:
