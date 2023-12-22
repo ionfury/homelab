@@ -4,3 +4,14 @@ resources:
     memory: 128Mi
 serviceMonitor:
   enabled: true
+modules:
+  default:
+    privilege: public
+    timeout: 10000
+    collectors:
+      - bmc
+      - ipmi
+      - chassis
+    driver: LAN_2_0
+    user: "test"
+    pass: "test"
