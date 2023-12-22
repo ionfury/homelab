@@ -6,7 +6,7 @@ serviceMonitor:
   enabled: true
 modules:
   default:
-    privilege: public
+    privilege: user
     timeout: 10000
     collectors:
       - bmc
