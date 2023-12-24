@@ -23,5 +23,5 @@ spec:
   jobLabel: ipmi-exporter-supermicro-targets
   selector:
     matchLabels:
-      app.kubernetes.io/instance: ipmi-exporter-supermicr-app
+      app.kubernetes.io/instance: ipmi-exporter-supermicro-app
       app.kubernetes.io/name: prometheus-ipmi-exporter
