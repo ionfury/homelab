@@ -17,12 +17,12 @@ patches:
         value:
           targetPath: modules.supermicro.user
           kind: Secret
-          name: k8s-ipmi-supermicro-monitoring
+          name: ipmi-exporter-supermicro-monitoring
           valuesKey: username
       - op: add
         path: /spec/valuesFrom/-
         value:
           targetPath: modules.supermicro.pass
           kind: Secret
-          name: k8s-ipmi-supermicro-monitoring
+          name: ipmi-exporter-supermicro-monitoring
           valuesKey: password
