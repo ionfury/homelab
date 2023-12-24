@@ -16,5 +16,6 @@ modules:
       - bmc
       - ipmi
       - chassis
+      - dcmi
     driver: LAN_2_0
     timeout: 10000
