@@ -71,7 +71,7 @@ resource "unifi_device" "devices" {
 resource "unifi_user" "inventory" {
   for_each = var.harvester.inventory
 
-  name = each.value.host
+  name = each.value.ipmi_host
   mac  = each.value.mac
 
   fixed_ip   = each.value.ip

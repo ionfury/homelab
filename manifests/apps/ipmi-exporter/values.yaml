@@ -16,5 +16,5 @@ modules:
       - ipmi
       - chassis
     driver: LAN_2_0
-    user: "test"
-    pass: "test"
+    user: "monitoring"
+    pass: "monitoring"

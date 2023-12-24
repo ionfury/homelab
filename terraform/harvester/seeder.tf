@@ -4,6 +4,7 @@ data "aws_ssm_parameter" "credentials" {
   name = each.value.credentials.store
 }
 
+/*
 resource "kubectl_manifest" "inventory_secret" {
   for_each = var.harvester.inventory
 
@@ -59,3 +60,4 @@ spec:
   netmask: "${var.networks[var.harvester.network_name].netmask}"
 YAML
 }
+*/
