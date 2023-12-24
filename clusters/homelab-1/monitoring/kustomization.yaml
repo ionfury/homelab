@@ -2,7 +2,7 @@ namespace: monitoring
 components:
   - ../../../manifests/components/namespace
 resources:
-  - discord-alertmanager.yaml
+  # - discord-alertmanager.yaml
   - dell-idrac-snmp-exporter.yaml
   - grafana.yaml
   - ipmi-exporter.yaml
