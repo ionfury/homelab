@@ -2,19 +2,20 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
 additionalAnnotation:
   reloader.stakater.com/auto: "true"
-
 serviceMonitor:
   enabled: true
+  telemetryPath: /ipmi/target=${TARGET}
 modules:
-  default:
+  supermicro:
     privilege: user
-    timeout: 10000
     collectors:
       - bmc
       - ipmi
       - chassis
     driver: LAN_2_0
-    user: "monitoring"
-    pass: "monitoring"
+    timeout: 10000

@@ -1,4 +1,6 @@
 namePrefix: ipmi-exporter-
+resources:
+  - external-secret.yaml
 components:
   - ../../components/helm-release-oci
 configMapGenerator:
@@ -6,3 +8,21 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: modules.supermicro.user
+          kind: Secret
+          name: k8s-ipmi-supermicro-monitoring
+          valuesKey: username
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: modules.supermicro.pass
+          kind: Secret
+          name: k8s-ipmi-supermicro-monitoring
+          valuesKey: password
