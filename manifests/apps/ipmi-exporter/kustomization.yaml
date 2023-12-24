@@ -1,4 +1,4 @@
-namePrefix: ipmi-exporter-
+namePrefix: ${TARGET_NAME}-ipmi-exporter-
 resources:
   - external-secret.yaml
 components:

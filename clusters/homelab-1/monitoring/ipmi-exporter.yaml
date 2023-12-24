@@ -10,3 +10,4 @@ spec:
       HELM_CHART_VERSION: 0.2.0 # {"$imagepolicy": "monitoring:ipmi-exporter-automation:tag"}
       HELM_CHART_REPOSITORY: ghcr.io/prometheus-community/charts
       TARGET: ${NODE1_IPMI_ADDRESS}
+      TARGET_NAME: node1

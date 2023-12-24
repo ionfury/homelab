@@ -9,9 +9,9 @@ additionalAnnotation:
   reloader.stakater.com/auto: "true"
 serviceMonitor:
   enabled: true
-  telemetryPath: /ipmi/target=${TARGET}
+  telemetryPath: /ipmi?target=${TARGET}
 modules:
-  supermicro:
+  default:
     privilege: user
     collectors:
       - bmc
