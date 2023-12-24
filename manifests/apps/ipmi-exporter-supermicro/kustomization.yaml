@@ -1,4 +1,4 @@
-namePrefix: ${TARGET_NAME}-ipmi-exporter-
+namePrefix: ipmi-exporter-supermicro-
 resources:
   - external-secret.yaml
 components:
