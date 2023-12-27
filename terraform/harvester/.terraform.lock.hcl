@@ -19,14 +19,14 @@ provider "registry.terraform.io/gavinbunney/kubectl" {
 }
 
 provider "registry.terraform.io/harvester/harvester" {
-  version     = "0.6.3"
-  constraints = "0.6.3"
+  version     = "0.6.4"
+  constraints = "0.6.4"
   hashes = [
-    "h1:6nQMrdXa8ZQB8eYLbtIQS80ARKZ4cXjZ+u29wz6z+yo=",
-    "zh:2f365a6c0999b6f0ff82cf5cd22409687e665c8dd9b0f5328ed5dbc7cc0ddf47",
-    "zh:4337e68baec525e40e2d3712737fda6b152df50db1ea11d8415256621b7671c2",
-    "zh:50965fca76ad24830e3e879e401e86cffb6b23c4210dfd0f3102bc2ea1283803",
-    "zh:d2f6bb81ba1af032082ff0deef1dbc8f988ba04388e319919d5ceee486d55324",
+    "h1:GVa7VuCfQOLCqQ9ajgrVyDJGnv3HSxcR9CROE6s0p3c=",
+    "zh:2b249034120f20629f57e2afdb44368fd1ec4b984f894b4dfd49aa8abff742d4",
+    "zh:2c557ab60bc824033258efd00189e4759cda8beef8a19d89fe0679caaee894ba",
+    "zh:2d25f0ccbfb348d96e6d82729451337b96d7c7e65eff96cc72ce7d0b139193d4",
+    "zh:a1bb9d05770dc991f83408b7cac77af7877da3ca7ae3ed1df76cb0a6d93d8934",
   ]
 }
 
