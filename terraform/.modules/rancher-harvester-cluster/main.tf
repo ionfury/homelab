@@ -10,6 +10,19 @@ resource "rancher2_cloud_credential" "harvester" {
     kubeconfig_content = data.rancher2_cluster_v2.harvester.kube_config
   }
 }
+resource "random_string" "random" {
+  length  = 6
+  special = false
+  lower   = true
+  upper   = false
+}
+
+locals {
+  service_account_name                     = "harvester-cloud-provider-${var.name}"
+  harvester_cloud_provider_kubeconfig_path = "~/.kube/harvester-cloud-provider-kubeconfig-${var.name}.yaml"
+  cloud_provider_secret_name               = "harvester-config-${random_string.random.result}"
+  cloud_provider_secret_namespace          = "fleet-default"
+}
 
 resource "null_resource" "curl_harvester_cloud_provider" {
   depends_on = [rancher2_cloud_credential.harvester]
@@ -23,14 +36,32 @@ resource "null_resource" "curl_harvester_cloud_provider" {
 curl -k -X POST ${var.rancher_admin_url}/k8s/clusters/${data.rancher2_cluster_v2.harvester.cluster_v1_id}/v1/harvester/kubeconfig \
   -H 'Content-Typecation/json' \
   -H "Authorization: Bearer ${var.rancher_admin_token}" \
-  -d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "'harvester-cloud-provider'"}' | xargs | sed 's/\\n/\n/g' > ${pathexpand("~/.kube/harvester-cloud-provider-kubeconfig.yaml")}
+  -d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "${var.namespace}", "serviceAccountName": "'${local.service_account_name}'"}' | xargs | sed 's/\\n/\n/g' > ${pathexpand("${local.harvester_cloud_provider_kubeconfig_path}")}
 EOF
   }
 }
 
 data "local_file" "cloud_provider_kubeconfig" {
   depends_on = [null_resource.curl_harvester_cloud_provider]
-  filename   = pathexpand("~/.kube/harvester-cloud-provider-kubeconfig.yaml")
+  filename   = pathexpand("${local.harvester_cloud_provider_kubeconfig_path}")
+}
+
+resource "kubectl_manifest" "harvester_cloud_provider_secret" {
+  depends_on = [data.local_file.cloud_provider_kubeconfig]
+  yaml_body  = <<YAML
+apiVersion: v1
+data:
+  credential: "${data.local_file.cloud_provider_kubeconfig.content_base64}"
+kind: Secret
+metadata:
+  name: "${local.cloud_provider_secret_name}"
+  namespace: "${local.cloud_provider_secret_namespace}"
+  annotations:
+  annotations:
+    v2prov-authorized-secret-deletes-on-cluster-removal: "true"
+    v2prov-secret-authorized-for-cluster: "${var.name}"
+type: Opaque
+YAML
 }
 
 resource "harvester_image" "this" {
@@ -116,7 +147,7 @@ resource "rancher2_machine_config_v2" "worker" {
 }
 
 resource "rancher2_cluster_v2" "cluster" {
-  depends_on = [data.local_file.cloud_provider_kubeconfig]
+  depends_on = [kubectl_manifest.harvester_cloud_provider_secret]
 
   name               = var.name
   kubernetes_version = var.kubernetes_version
@@ -158,7 +189,7 @@ resource "rancher2_cluster_v2" "cluster" {
     }
     machine_selector_config {
       config = {
-        cloud-provider-config = data.local_file.cloud_provider_kubeconfig.content
+        cloud-provider-config = "secret://fleet-default:harvesterconfiglk2c4" #"secret://${local.cloud_provider_secret_namespace}:${local.cloud_provider_secret_name}"
         cloud-provider-name   = "harvester"
       }
     }

@@ -4,6 +4,10 @@ terraform {
       source  = "rancher/rancher2"
       version = "3.1.0"
     }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = "1.14.0"
+    }
     aws = {
       source  = "hashicorp/aws"
       version = ">=4.62.0"
@@ -14,7 +18,7 @@ terraform {
     }
     harvester = {
       source  = "harvester/harvester"
-      version = ">=0.6.3"
+      version = "0.6.4"
     }
   }
 }

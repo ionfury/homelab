@@ -108,6 +108,6 @@ variable "image" {
 
 variable "image_ssh_user" {
   description = "Default SSH user for image."
-  type        = string
-  default     = "ubuntu"
+  type = string
+  default = "ubuntu"
 }

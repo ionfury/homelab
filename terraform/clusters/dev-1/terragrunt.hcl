@@ -11,17 +11,17 @@ inputs = {
   kubernetes_version = "v1.26.8+rke2r1"
 
   control_plane = {
-    nodes = 3
+    nodes = 1
     cpu = 2
     memory = 8
     disk = 60
   }
 
   worker = {
-    nodes = 3
-    cpu = 8
-    memory = 32
-    disk = 100
+    nodes = 1
+    cpu = 2
+    memory = 8
+    disk = 60
   }
 
   image_name = "${basename(get_terragrunt_dir())}-ubuntu-2004-latest"

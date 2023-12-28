@@ -1,3 +1,4 @@
+
 module "this" {
   source = "../../.modules/rancher-harvester-cluster"
 
@@ -24,6 +25,7 @@ module "this" {
   image_ssh_user = var.image_ssh_user
 
   providers = {
+    kubectl   = kubectl
     rancher2  = rancher2
     harvester = harvester
     aws       = aws
@@ -42,9 +44,9 @@ resource "local_file" "kubeconfig" {
   file_permission = "0644"
 }
 
-resource "aws_iam_access_key" "external_secrets_access_key" {
+/*data "aws_iam_access_keys" "external_secrets_access_key" {
   user = var.external_secrets_access_key_store
-}
+}*/
 
 data "aws_ssm_parameter" "github_ssh_key" {
   name = var.github.ssh_key_store
@@ -59,22 +61,11 @@ module "bootstrap" {
   github_ssh_key = data.aws_ssm_parameter.github_ssh_key.value
   known_hosts    = var.github.ssh_known_hosts
 
-  external_secrets_access_key_id     = aws_iam_access_key.external_secrets_access_key.id
-  external_secrets_access_key_secret = aws_iam_access_key.external_secrets_access_key.secret
+  external_secrets_access_key_id     = "123"
+  external_secrets_access_key_secret = "123"
 
   providers = {
     flux           = flux
     healthchecksio = healthchecksio
   }
 }
-/*
-module "tunnel" {
-  source = "../../.modules/tunnel"
-
-  name                    = var.cluster_name
-  cloudflare_account_name = var.cloudflare.account_name
-
-  providers = {
-    cloudflare = cloudflare
-  }
-}*/

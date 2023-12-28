@@ -17,6 +17,7 @@ module "cluster" {
     harvester = harvester
     rke       = rke
     tls       = tls
+    kubectl   = kubectl.harvester
   }
 }
 

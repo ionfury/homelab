@@ -87,5 +87,8 @@ resource "harvester_virtualmachine" "nodes" {
       EOF
   }
 
-  tags = var.tags
+  tags = {
+    "vm-set"             = "${var.name}"
+    managed-by-terraform = true
+  }
 }

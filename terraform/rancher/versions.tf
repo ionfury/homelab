@@ -2,7 +2,7 @@ terraform {
   required_providers {
     harvester = {
       source  = "harvester/harvester"
-      version = "0.6.3"
+      version = "0.6.4"
     }
     rke = {
       source  = "rancher/rke"

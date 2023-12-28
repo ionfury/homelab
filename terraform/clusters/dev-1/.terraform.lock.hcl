@@ -177,7 +177,7 @@ provider "registry.terraform.io/hashicorp/random" {
 
 provider "registry.terraform.io/kristofferahl/healthchecksio" {
   version     = "1.10.1"
-  constraints = "1.10.1"
+  constraints = ">= 1.10.0"
   hashes = [
     "h1:Lr/K29AUPTeouvSjWH/fJa+xqtD/WRY+yx0hPmqY61M=",
     "zh:176b9142eabbbe2d83c4a1e4fb7b6d4ecc415268baec762b4af10f1c0d356e19",
