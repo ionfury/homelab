@@ -3,7 +3,6 @@ components:
   - ../../../manifests/components/namespace
 resources:
   # - discord-alertmanager.yaml
-  - dell-idrac-snmp-exporter.yaml
   - grafana.yaml
   - ipmi-exporter-supermicro.yaml
   - komodor.yaml
