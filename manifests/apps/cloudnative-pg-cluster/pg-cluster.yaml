@@ -33,3 +33,19 @@ spec:
           key: BUCKET_SECRET_ACCESS_KEY
       wal:
         compression: gzip
+  recovery:
+    source: postgres
+  externalClusters:
+    - name: postgres
+      barmanObjectStore:
+        destinationPath: s3://postgres-backup/
+        endpointURL: http://${CLUSTER_MINIO_HOST}:9000
+        s3Credentials:
+          accessKeyId:
+            name: s3-bucket
+            key: BUCKET_ACCESS_KEY_ID
+          secretAccessKey:
+            name: s3-bucket
+            key: BUCKET_SECRET_ACCESS_KEY
+        wal:
+          compression: gzip
