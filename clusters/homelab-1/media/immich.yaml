@@ -15,4 +15,4 @@ spec:
       WEB_IMAGE_REPOSITORY: ghcr.io/immich-app/immich-web
       WEB_IMAGE_TAG: v1.87.0 # {"$imagepolicy": "media:immich-web-automation:tag"}
       TYPESENSE_IMAGE_REPOSITORY: docker.io/typesense/typesense
-      TYPESENSE_IMAGE_TAG: 0.25.1 # {"$imagepolicy": "media:immich-typesense-automation:tag"}
+      TYPESENSE_IMAGE_TAG: 0.25.2 # {"$imagepolicy": "media:immich-typesense-automation:tag"}
