@@ -72,58 +72,29 @@ resource "harvester_image" "this" {
   url          = var.image
 }
 
-resource "rancher2_machine_config_v2" "control_plane" {
-  generate_name = "${var.name}-control-plane"
-  harvester_config {
-    vm_namespace = var.namespace
-    cpu_count    = var.control_plane_cpu
-    memory_size  = var.control_plane_memory
-    disk_info    = <<EOF
-    {
-      "disks": [{
-        "imageName": "${harvester_image.this.namespace}/${harvester_image.this.name}",
-        "size": ${var.control_plane_disk},
-        "bootOrder": 1
-      }]
-    }
-    EOF
-    network_info = <<EOF
-    {
-      "interfaces": [{
-        "networkName": "default/${var.network_name}"
-      }]
-    }
-    EOF
-    ssh_user     = var.image_ssh_user
-    user_data    = <<EOF
-      package_update: true
-      packages:
-        - qemu-guest-agent
-        - iptables
-      runcmd:
-        - - systemctl
-          - enable
-          - '--now'
-          - qemu-guest-agent.service
-    EOF
-  }
-}
+resource "rancher2_machine_config_v2" "machines" {
+  for_each = var.machine_pools
 
-resource "rancher2_machine_config_v2" "worker" {
-  generate_name = "${var.name}-worker"
+  generate_name = "${var.name}-${each.key}"
+
   harvester_config {
     vm_namespace = var.namespace
-    cpu_count    = var.worker_cpu
-    memory_size  = var.worker_memory
-    disk_info    = <<EOF
+    cpu_count    = each.value.resources.cpu
+    memory_size  = each.value.resources.memory
+    ssh_user     = var.image_ssh_user
+
+    vm_affinity = each.value.vm_affinity_b64
+
+    disk_info = <<EOF
     {
       "disks": [{
         "imageName": "${harvester_image.this.namespace}/${harvester_image.this.name}",
-        "size": ${var.worker_disk},
+        "size": ${each.value.resources.disk},
         "bootOrder": 1
       }]
     }
     EOF
+
     network_info = <<EOF
     {
       "interfaces": [{
@@ -131,8 +102,8 @@ resource "rancher2_machine_config_v2" "worker" {
       }]
     }
     EOF
-    ssh_user     = var.image_ssh_user
-    user_data    = <<EOF
+
+    user_data = <<EOF
       package_update: true
       packages:
         - qemu-guest-agent
@@ -157,39 +128,39 @@ resource "rancher2_cluster_v2" "cluster" {
   default_pod_security_admission_configuration_template_name = "warn-rancher-restricted"
 
   rke_config {
-    machine_pools {
-      name                           = "control-plane"
-      cloud_credential_secret_name   = rancher2_cloud_credential.harvester.id
-      control_plane_role             = true
-      etcd_role                      = true
-      worker_role                    = false
-      quantity                       = var.control_plane_node_count
-      node_startup_timeout_seconds   = 1200
-      unhealthy_node_timeout_seconds = 240
-      max_unhealthy                  = "1"
-      machine_config {
-        kind = rancher2_machine_config_v2.control_plane.kind
-        name = rancher2_machine_config_v2.control_plane.name
-      }
-    }
-    machine_pools {
-      name                           = "worker"
-      cloud_credential_secret_name   = rancher2_cloud_credential.harvester.id
-      control_plane_role             = false
-      etcd_role                      = false
-      worker_role                    = true
-      quantity                       = var.worker_node_count
-      node_startup_timeout_seconds   = 1200
-      unhealthy_node_timeout_seconds = 240
-      max_unhealthy                  = "1"
-      machine_config {
-        kind = rancher2_machine_config_v2.worker.kind
-        name = rancher2_machine_config_v2.worker.name
+    dynamic "machine_pools" {
+      iterator = pool
+      for_each = var.machine_pools
+
+      content {
+        name                         = pool.key
+        cloud_credential_secret_name = rancher2_cloud_credential.harvester.id
+
+        control_plane_role = pool.value.roles.control_plane
+        etcd_role          = pool.value.roles.etcd
+        worker_role        = pool.value.roles.worker
+
+        quantity = pool.value.min_size
+
+        node_startup_timeout_seconds   = pool.value.node_startup_timeout_seconds
+        unhealthy_node_timeout_seconds = pool.value.unhealthy_node_timeout_seconds
+        max_unhealthy                  = pool.value.max_unhealthy
+        machine_labels                 = pool.value.machine_labels
+
+        annotations = {
+          "cluster.provisioning.cattle.io/autoscaler-min-size" = "${pool.value.min_size}"
+          "cluster.provisioning.cattle.io/autoscaler-max-size" = "${pool.value.max_size}"
+        }
+
+        machine_config {
+          kind = rancher2_machine_config_v2.machines[pool.key].kind
+          name = rancher2_machine_config_v2.machines[pool.key].name
+        }
       }
     }
     machine_selector_config {
       config = {
-        cloud-provider-config = "secret://fleet-default:harvesterconfiglk2c4" #"secret://${local.cloud_provider_secret_namespace}:${local.cloud_provider_secret_name}"
+        cloud-provider-config = "secret://${local.cloud_provider_secret_namespace}:${local.cloud_provider_secret_name}"
         cloud-provider-name   = "harvester"
       }
     }

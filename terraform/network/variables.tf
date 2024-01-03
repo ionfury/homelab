@@ -50,22 +50,22 @@ variable "harvester" {
     }))
 
     inventory = map(object({
-      primary_disk = string
-      mac          = string
-      host         = string
-      ipmi_host    = string
-      uplink       = list(string)
       ip           = string
-      port         = string
-      insecure_tls = string
-      credentials = object({
-        store         = string
-        username_path = string
-        password_path = string
+      primary_disk = string
+      uplinks      = list(string)
+
+      ipmi = object({
+        mac          = string
+        ip           = string
+        port         = string
+        host         = string
+        insecure_tls = string
+        credentials = object({
+          store         = string
+          username_path = string
+          password_path = string
+        })
       })
     }))
-
-    uplink     = list(string)
-    node_count = number
   })
 }

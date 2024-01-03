@@ -14,7 +14,7 @@
 
 ![cluster](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=cluster&query=%24.status&url=https%3A%2F%2Fhealthchecks.io%2Fbadge%2Fb4308338-139b-4907-bee3-37c2da%2FiS3vfgkr-2.json&style=for-the-badge&logo=kubernetes&logoColor=white)
 [![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label=discord&logo=discord&logoColor=white&color=blue)](https://discord.gg/k8s-at-home)
-[![harvester](https://img.shields.io/badge/harvester-v1.2.1-brightgreen?style=for-the-badge&logo=openSUSE&logoColor=white&color=blue)](https://https://harvesterhci.io/)
+[![harvester](https://img.shields.io/badge/harvester-v1.2.1-brightgreen?style=for-the-badge&logo=openSUSE&logoColor=white&color=blue)](https://harvesterhci.io/)
 [![rancher](https://img.shields.io/badge/rancher-v2.7.6-brightgreen?style=for-the-badge&logo=rancher&logoColor=white&color=blue)](https://www.rancher.com)
 [![kubernetes](https://img.shields.io/badge/kubernetes-v1.26.8-brightgreen?style=for-the-badge&logo=kubernetes&logoColor=white&color=blue)](https://kubernetes.io/)
 
@@ -24,17 +24,23 @@
 
 ## Overview
 
-This mono repository contains the infrastructure and deployment code for my HomeLab. The HomeLab is built on top of Harvester, Rancher, and Kubernetes using Terraform to manage infrastructure and Flux for deployment.
+This repository contains the infrastructure and deployment code for my HomeLab. The lab is built using [Harvester](https://harvesterhci.io/), [Rancher](https://www.rancher.com), and [Kubernetes](https://kubernetes.io/) and attempts to adhere to the principle of [Hyperconverged Infrastructure](https://www.suse.com/products/harvester/) (HCI).
+
+Through this approach, compute, disk, and networking is unified into a single cluster.  These resources are then manged through gitops tooling:
+
+- [**Terraform**](https://www.terraform.io/), for managing infrastructure.
+- [**Flux**](https://fluxcd.io/), for managing services and software.
 
 ---
 
 ## Table of Contents
 
+- [Overview](#overview)
 - [Directories](#directories)
 - [Architecture](#architecture)
   - [Hardware](#hardware)
   - [Cloud Dependencies](#cloud-dependencies)
-- [Networking](#networking)
+  - [Networking](#networking)
 - [Bare Metal](#bare-metal)
 - [Provisioning](#provisioning)
 - [Deployment](#deployment)
@@ -46,17 +52,27 @@ This mono repository contains the infrastructure and deployment code for my Home
 
 ```sh
 📁
-├─📁 clusters       # Kubernetes clusters defined as code.
+├─📁 .taskfiles     # Commonly performed actions executable via taskfile.dev cli.
+├─📁 .vscode        # Portable configuration for this repo.
+├─📁 clusters       # Kubernetes clusters defined via gitops.
 ├─📁 docs           # Documentation, duh.
-├─📁 manifests      # Applications to be deployed into clusters.
-└─📁 terraform      # Infrastructure provisioned via terraform .
+├─📁 manifests      # Realm of the .yaml files.
+│ ├─📁 apps         # Kustomizations defining a single application to be deployed to a cluster.
+│ ├─📁 components   # Re-usable kustomize components for use across applications.
+│ └─📁 harvester    # Manifests used for harvester configuration.
+└─📁 terraform      # Infrastructure provisioned via terraform.
+  └─📁 .modules     # Re-usable terraform modules.
 ```
 
 ---
 
 ## Architecture
 
-The homelab is designed to emulate the principal of [Hyperconverged Infrastructure](https://www.suse.com/products/harvester/), or HCI, on bare metal in my basement.  The goal is to produce a near-complete cloud infrastructure locally, with minimal reliance on public cloud resources.
+The ultimate aim of my homelab is to deploy the entirety of my services on kubernetes.  There are many paths to acheiving this goal, but I chose [Harvester](https://harvesterhci.io/) for two primary reasons:
+
+- I wanted to try and use enterprise, rack mounted hardware
+
+The homelab is designed to emulate the principal of [Hyperconverged Infrastructure](https://www.suse.com/products/harvester/), or HCI, on bare metal in my basement.
 
 ---
 
@@ -64,10 +80,11 @@ The homelab is designed to emulate the principal of [Hyperconverged Infrastructu
 
 |Device|OS Disk|Data Disk|CPU|Memory|Purpose|
 |------|-------|---------|---|------|-------|
-|Dell R720xd|[2x 480Gb (RAID1)](https://www.amazon.com/gp/product/B07NRP3TVN)|[12x 4Tb (RAID50)](https://www.amazon.com/gp/product/B00A45JFJS/?th=1)|[2x E5-2620 @ 2.00GHz](https://www.cpubenchmark.net/cpu.php?cpu=intel+xeon+e5-2620+%40+2.00ghz&id=1214)|[16x 16GB DDR-3 (256GB)]()|HCI|
+|[Supermicro 1U](https://www.supermicro.com/en/products/system/1U/6018/SYS-6018U-TRTP_.cfm)|[2x 480Gb (RAID1)](https://www.amazon.com/gp/product/B07NRP3TVN)|[2x 480Gb (RAID1)](https://www.amazon.com/gp/product/B07NRP3TVN)|[E5-2630v4 2.20GHZ](https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2630+v4+%40+2.20GHz&id=2758&cpuCount=2)|8x 16GB DDR-4 (128GB)|HCI Node 1|
+|[Supermicro 1U](https://www.supermicro.com/en/products/system/1U/6018/SYS-6018U-TRTP_.cfm)|[2x 1TB (RAID1)](https://www.amazon.com/dp/B078211KBB/ref=pe_386300_440135490_TE_simp_item_image)|[2x 20TB (RAID1)](https://www.amazon.com/Seagate-Exos-20TB-SATA-ST20000NM007D/dp/B09MWKXR2T)|[E5-2630v4 2.20GHZ](https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2630+v4+%40+2.20GHz&id=2758&cpuCount=2)|8x 16GB DDR-4 (128GB)|HCI Node 2|
+|[Supermicro 4U](https://www.supermicro.com/products/system/4U/6048/SSG-6048R-E1CR36N.cfm)|[2x 1TB (RAID1)](https://www.amazon.com/dp/B078211KBB/ref=pe_386300_440135490_TE_simp_item_image)|[12x 4Tb (RAID50)](https://www.amazon.com/gp/product/B00A45JFJS/?th=1)|[E5-2630v4 2.20GHZ](https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2630+v4+%40+2.20GHz&id=2758&cpuCount=2)|8x 16GB DDR-4 (128GB)|HCI Node 3|
+|[Unifi Aggregation](https://store.ui.com/us/en/pro/category/switching-aggregation/products/usw-aggregation)|-|-|-|-|10G SFP+ Switch|
 |[CyberPower 1500VA UPS](https://www.cyberpowersystems.com/product/ups/smart-app-lcd/or1500lcdrt2u/)|-|-|-|-|Battery Backup|
-|[Unifi Dream Machine Pro]()|-|-|-|-|Network Controller|
-|[Unifi Switch 24 PoE]()|-|-|-|-|Home Network Switch|
 
 ---
 

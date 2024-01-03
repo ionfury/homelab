@@ -29,58 +29,9 @@ variable "kubernetes_version" {
   type        = string
   default     = "v1.24.3+rke2r1"
 }
-
-variable "control_plane_cpu" {
-  description = "CPU to allocate to control plane nodes."
-  type        = string
-  default     = "2"
-}
-
-variable "control_plane_memory" {
-  description = "Memory to allocate to control plane nodes."
-  type        = string
-  default     = "8"
-}
-
-variable "control_plane_disk" {
-  description = "Disk space to allocate to control plane nodes."
-  type        = string
-  default     = "60"
-}
-
-variable "control_plane_node_count" {
-  description = "Number of nodes to create for the control plane."
-  type        = number
-  default     = 1
-}
-
 variable "network_name" {
   description = "Name of the network to run nodes on."
   type        = string
-}
-
-variable "worker_cpu" {
-  description = "CPU to allocate to worker nodes."
-  type        = string
-  default     = "2"
-}
-
-variable "worker_memory" {
-  description = "Memory to allocate to worker nodes."
-  type        = string
-  default     = "8"
-}
-
-variable "worker_disk" {
-  description = "Disk space to allocate to worker nodes."
-  type        = string
-  default     = "60"
-}
-
-variable "worker_node_count" {
-  description = "Number of nodes to create for the worker."
-  type        = number
-  default     = 1
 }
 
 variable "image_namespace" {
@@ -101,6 +52,28 @@ variable "image" {
 
 variable "image_ssh_user" {
   description = "Default SSH user for image."
-  type = string
-  default = "ubuntu"
+  type        = string
+  default     = "ubuntu"
+}
+
+variable "machine_pools" {
+  type = map(object({
+    min_size                       = number
+    max_size                       = number
+    node_startup_timeout_seconds   = number
+    unhealthy_node_timeout_seconds = number
+    max_unhealthy                  = string
+    machine_labels                 = map(string)
+    vm_affinity_b64                = string
+    resources = object({
+      cpu    = number
+      memory = number
+      disk   = number
+    })
+    roles = object({
+      control_plane = bool
+      etcd          = bool
+      worker        = bool
+    })
+  }))
 }

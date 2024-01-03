@@ -6,7 +6,7 @@ resource "harvester_storageclass" "storage" {
 
   parameters = {
     "migratable"          = "true"
-    "numberOfReplicas"    = min(var.harvester.node_count, 3)
+    "numberOfReplicas"    = 1
     "staleReplicaTimeout" = "30"
     "dataLocality"        = "best-effort"
     "diskSelector"        = each.value.selector
@@ -21,7 +21,7 @@ resource "harvester_storageclass" "storage_backup" {
 
   parameters = {
     "migratable"          = "true"
-    "numberOfReplicas"    = min(var.harvester.node_count, 3)
+    "numberOfReplicas"    = 1
     "staleReplicaTimeout" = "30"
     "dataLocality"        = "best-effort"
     "diskSelector"        = each.value.selector

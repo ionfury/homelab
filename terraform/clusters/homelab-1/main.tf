@@ -1,3 +1,13 @@
+moved {
+  from = module.this.rancher2_machine_config_v2.control_plane
+  to   = module.this.rancher2_machine_config_v2.machines["control-plane"]
+}
+
+moved {
+  from = module.this.rancher2_machine_config_v2.worker
+  to   = module.this.rancher2_machine_config_v2.machines["worker"]
+}
+
 module "this" {
   source = "../../.modules/rancher-harvester-cluster"
 
@@ -6,15 +16,7 @@ module "this" {
   network_name           = var.harvester.network_name
   kubernetes_version     = var.kubernetes_version
 
-  control_plane_cpu        = var.control_plane.cpu
-  control_plane_memory     = var.control_plane.memory
-  control_plane_disk       = var.control_plane.disk
-  control_plane_node_count = var.control_plane.nodes
-
-  worker_cpu        = var.worker.cpu
-  worker_memory     = var.worker.memory
-  worker_disk       = var.worker.disk
-  worker_node_count = var.worker.nodes
+  machine_pools = var.machine_pools
 
   rancher_admin_token = data.aws_ssm_parameter.rancher_admin_token.value
   rancher_admin_url   = data.aws_ssm_parameter.rancher_admin_url.value

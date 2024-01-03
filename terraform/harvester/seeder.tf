@@ -1,7 +1,7 @@
 data "aws_ssm_parameter" "credentials" {
   for_each = var.harvester.inventory
 
-  name = each.value.credentials.store
+  name = each.value.ipmi.credentials.store
 }
 
 /*

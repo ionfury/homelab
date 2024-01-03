@@ -6,6 +6,10 @@
 
 Because I'm using machine templates to maintain cluster nodes indirectly, if those machines are re-created the GPU needs to be manually mounted back into them.
 
+## Prerequisite
+
+A host should be manually labeled with `gpu: true` in the harvester hosts configuration.  This is a selector on the GPU VM machine config in rancher to schedule GPU VMs on a GPU carrying host.
+
 ## Indication
 
 A firing alert `MissingQuadroP2000Node`.

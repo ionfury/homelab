@@ -25,40 +25,22 @@ resource "harvester_network" "this" {
   vlan_id       = var.networks[var.harvester.network_name].vlan
 }
 
-resource "harvester_vlanconfig" "this" {
-  cluster_network_name = harvester_clusternetwork.this.name
-  description          = "Default uplink for harvester network."
-  name                 = var.harvester.network_name
-  tags                 = {}
-
-  node_selector = {
-    "kubernetes.io/hostname" : "harvester0"
-  }
-
-  uplink {
-    bond_miimon = -1
-    mtu         = 1500
-    bond_mode   = "balance-tlb"
-    nics        = var.harvester.uplink
-  }
-}
-
 resource "harvester_vlanconfig" "inventory" {
   for_each = var.harvester.inventory
 
   cluster_network_name = harvester_clusternetwork.this.name
-  description          = "Uplink for ${each.value.host} to vlan ${harvester_clusternetwork.this.name}."
-  name                 = "${each.value.host}-${harvester_clusternetwork.this.name}"
+  description          = "Uplink for ${each.key} to vlan ${harvester_clusternetwork.this.name}."
+  name                 = "${each.key}-${harvester_clusternetwork.this.name}"
   tags                 = {}
 
   node_selector = {
-    "kubernetes.io/hostname" : "${each.value.host}"
+    "kubernetes.io/hostname" : "${each.key}"
   }
 
   uplink {
     bond_miimon = -1
     mtu         = 1500
     bond_mode   = "balance-tlb"
-    nics        = each.value.uplink
+    nics        = each.value.uplinks
   }
 }

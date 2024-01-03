@@ -12,25 +12,6 @@ variable "tld" {
   description = "Top Level Domain name."
   type        = string
 }
-
-variable "control_plane" {
-  type = object({
-    nodes  = number
-    cpu    = number
-    memory = number
-    disk   = number
-  })
-}
-
-variable "worker" {
-  type = object({
-    nodes  = number
-    cpu    = number
-    memory = number
-    disk   = number
-  })
-}
-
 variable "aws" {
   type = object({
     region  = string
@@ -44,12 +25,30 @@ variable "harvester" {
     kubeconfig_path    = string
     management_address = string
     network_name       = string
-    node_count         = number
 
     storage = map(object({
       name       = string
       selector   = string
       is_default = bool
+    }))
+
+    inventory = map(object({
+      ip           = string
+      primary_disk = string
+      uplinks      = list(string)
+
+      ipmi = object({
+        mac          = string
+        ip           = string
+        port         = string
+        host         = string
+        insecure_tls = string
+        credentials = object({
+          store         = string
+          username_path = string
+          password_path = string
+        })
+      })
     }))
   })
 }
@@ -93,6 +92,28 @@ variable "healthchecksio" {
 
 variable "external_secrets_access_key_store" {
   type = string
+}
+
+variable "machine_pools" {
+  type = map(object({
+    min_size                       = number
+    max_size                       = number
+    node_startup_timeout_seconds   = number
+    unhealthy_node_timeout_seconds = number
+    max_unhealthy                  = string
+    machine_labels                 = map(string)
+    vm_affinity_b64                = string
+    resources = object({
+      cpu    = number
+      memory = number
+      disk   = number
+    })
+    roles = object({
+      control_plane = bool
+      etcd          = bool
+      worker        = bool
+    })
+  }))
 }
 
 variable "image_name" {

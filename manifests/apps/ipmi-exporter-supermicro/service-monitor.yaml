@@ -10,8 +10,8 @@ spec:
           - supermicro
         target:
           - ${NODE1_IPMI_ADDRESS}
-          # - ${NODE2_IPMI_ADDRESS}
-          # - ${NODE3_IPMI_ADDRESS}
+          - ${NODE2_IPMI_ADDRESS}
+          - ${NODE3_IPMI_ADDRESS}
       path: /ipmi
       port: http
       relabelings:
