@@ -13,3 +13,12 @@ configMapGenerator:
       - snmp.yaml
     options:
       disableNameSuffixHash: true
+  - name: cyberpower-ups-dashboard
+    files:
+      - cyberpower-ups.json=./dashboard.json
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+      labels:
+        grafana_dashboard: "true"
