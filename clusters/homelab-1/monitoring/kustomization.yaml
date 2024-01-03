@@ -10,5 +10,6 @@ resources:
   - kube-state-metrics.yaml
   - loki.yaml
   - promtail.yaml
+  - snmp-exporter-cyberpower-ups.yaml
   - unpoller.yaml
   - uptime-kuma.yaml
