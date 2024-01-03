@@ -1,0 +1,15 @@
+namePrefix: snmp-exporter-cyberpower-ups
+components:
+  - ../../components/helm-release-oci
+#resources:
+#  - prometheus-rule.yaml
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+  - name: config
+    files:
+      - snmp.yaml
+    options:
+      disableNameSuffixHash: true
