@@ -1,4 +1,4 @@
-namePrefix: snmp-exporter-cyberpower-ups
+namePrefix: snmp-exporter-cyberpower-ups-
 components:
   - ../../components/helm-release-oci
 #resources:
