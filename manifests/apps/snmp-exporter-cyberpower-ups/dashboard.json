@@ -30,6 +30,135 @@
     {
       "datasource": {
         "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Status of the battery output",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "1": {
+                  "color": "dark-orange",
+                  "index": 0,
+                  "text": "Unknown"
+                },
+                "2": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "OK"
+                },
+                "3": {
+                  "color": "dark-orange",
+                  "index": 2,
+                  "text": "On Battery"
+                },
+                "4": {
+                  "color": "dark-orange",
+                  "index": 3,
+                  "text": "On Boost"
+                },
+                "5": {
+                  "color": "dark-orange",
+                  "index": 4,
+                  "text": "On Sleep"
+                },
+                "6": {
+                  "color": "dark-red",
+                  "index": 5,
+                  "text": "Off"
+                },
+                "7": {
+                  "color": "dark-red",
+                  "index": 6,
+                  "text": "Rebooting"
+                },
+                "8": {
+                  "color": "dark-green",
+                  "index": 7,
+                  "text": "On ECO"
+                },
+                "9": {
+                  "color": "dark-orange",
+                  "index": 8,
+                  "text": "On Bypass"
+                },
+                "10": {
+                  "color": "dark-orange",
+                  "index": 9,
+                  "text": "On Buck"
+                },
+                "11": {
+                  "color": "dark-orange",
+                  "index": 10,
+                  "text": "On Overload"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "upsBaseOutputStatus{instance=\"${instance}\"}",
+          "instant": true,
+          "legendFormat": "{{label_name}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Battery Status",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
         "uid": "Prometheus"
       },
       "fieldConfig": {
@@ -62,7 +191,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 0,
+        "x": 4,
         "y": 0
       },
       "id": 1,
@@ -70,14 +199,16 @@
       "options": {
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["last"],
+          "calcs": [
+            "last"
+          ],
           "fields": "",
           "values": false
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
           "datasource": {
@@ -139,7 +270,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 4,
+        "x": 8,
         "y": 0
       },
       "id": 2,
@@ -151,13 +282,15 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
           "datasource": {
@@ -219,7 +352,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 8,
+        "x": 12,
         "y": 0
       },
       "id": 11,
@@ -227,14 +360,16 @@
       "options": {
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["last"],
+          "calcs": [
+            "last"
+          ],
           "fields": "",
           "values": false
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
           "datasource": {
@@ -299,7 +434,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 12,
+        "x": 16,
         "y": 0
       },
       "id": 3,
@@ -311,13 +446,15 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
           "datasource": {
@@ -381,7 +518,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 16,
+        "x": 20,
         "y": 0
       },
       "id": 4,
@@ -393,13 +530,15 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["mean"],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
           "datasource": {
@@ -416,86 +555,6 @@
         }
       ],
       "title": "Time on Battery",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
-          "decimals": 1,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "celsius"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 4,
-        "x": 20,
-        "y": 0
-      },
-      "id": 12,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "upsAdvanceBatteryTemperature{instance=\"$instance\"}",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "range": true,
-          "refId": "A",
-          "step": 1800
-        }
-      ],
-      "title": "Battery Temperature",
       "type": "stat"
     },
     {
@@ -567,7 +626,11 @@
       "links": [],
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "max", "min"],
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -680,7 +743,11 @@
       "links": [],
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "max", "min"],
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -727,7 +794,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -809,7 +876,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "expr": "upsAdvanceOutputPower{instance=\"$instance\"}",
@@ -819,6 +886,18 @@
           "range": true,
           "refId": "A",
           "step": 60
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "upsAdvanceIdentLoadPower{instance=\"$instance\"}",
+          "hide": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "Output Current",
@@ -867,7 +946,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -963,7 +1042,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1060,7 +1139,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "10.0.2",
+      "pluginVersion": "9.5.2",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1126,8 +1205,8 @@
       {
         "current": {
           "selected": false,
-          "text": "ups.${PUBLIC_DOMAIN}",
-          "value": "ups.${PUBLIC_DOMAIN}"
+          "text": "192.168.10.130",
+          "value": "192.168.10.130"
         },
         "datasource": {
           "type": "prometheus",
@@ -1172,11 +1251,21 @@
       "2h",
       "1d"
     ],
-    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
   },
   "timezone": "",
   "title": "CyberPower UPS",
-  "uid": "",
-  "version": 1,
+  "uid": "eeefc26c-f2d3-48ed-a30b-297eb733f303",
+  "version": 3,
   "weekStart": ""
 }
