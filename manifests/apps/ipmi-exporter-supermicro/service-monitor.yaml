@@ -10,7 +10,33 @@ spec:
           - supermicro
         target:
           - ${NODE1_IPMI_ADDRESS}
+      path: /ipmi
+      port: http
+      relabelings:
+        - action: replace
+          sourceLabels:
+            - __param_target
+          targetLabel: instance
+      scrapeTimeout: 10s
+    - honorLabels: true
+      params:
+        module:
+          - supermicro
+        target:
           - ${NODE2_IPMI_ADDRESS}
+      path: /ipmi
+      port: http
+      relabelings:
+        - action: replace
+          sourceLabels:
+            - __param_target
+          targetLabel: instance
+      scrapeTimeout: 10s
+    - honorLabels: true
+      params:
+        module:
+          - supermicro
+        target:
           - ${NODE3_IPMI_ADDRESS}
       path: /ipmi
       port: http
