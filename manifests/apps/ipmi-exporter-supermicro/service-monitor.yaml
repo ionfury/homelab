@@ -45,7 +45,8 @@ spec:
           sourceLabels:
             - __param_target
           targetLabel: instance
-      scrapeTimeout: 10s
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: instance
   jobLabel: ipmi-exporter-supermicro-targets
   selector:
     matchLabels:
