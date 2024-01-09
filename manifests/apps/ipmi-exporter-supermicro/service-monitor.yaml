@@ -17,6 +17,8 @@ spec:
           sourceLabels:
             - __param_target
           targetLabel: instance
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: instance
       scrapeTimeout: 10s
     - honorLabels: true
       params:
@@ -30,6 +32,8 @@ spec:
         - action: replace
           sourceLabels:
             - __param_target
+          targetLabel: instance
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
           targetLabel: instance
       scrapeTimeout: 10s
     - honorLabels: true
