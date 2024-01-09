@@ -9,6 +9,15 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+  - name: supermicro-ipmi-dashboard
+    files:
+      - supermicro-ipmi-dashboard.json=./dashboard.json
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+      labels:
+        grafana_dashboard: "true"
 patches:
   - target:
       kind: HelmRelease
