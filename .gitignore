@@ -2,6 +2,7 @@
 kubeconfig.yaml
 *.kubeconfig
 age.agekey
+Brewfile.lock.json
 
 .certs/
 .secrets/
