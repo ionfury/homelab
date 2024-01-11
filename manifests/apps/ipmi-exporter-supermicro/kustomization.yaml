@@ -2,6 +2,7 @@ namePrefix: ipmi-exporter-supermicro-
 resources:
   - external-secret.yaml
   - service-monitor.yaml
+  - prometheus-rule.yaml
 components:
   - ../../components/helm-release-oci
 configMapGenerator:
