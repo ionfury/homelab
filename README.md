@@ -1,6 +1,6 @@
 <div align="center">
 
-![Kubernetes](https://camo.githubusercontent.com/a05fb318da00bebbe807c966aa70007465738655edf9e1879f7d6ab68a55327f/68747470733a2f2f692e696d6775722e636f6d2f7031527a586a512e706e67)
+![Kubernetes](https://github.com/ionfury/homelab/blob/main/docs/images/k8s-logo.png)
 
 ### My homelab repository
 
