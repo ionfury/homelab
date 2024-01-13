@@ -24,12 +24,9 @@
 
 ## Overview
 
-This repository contains the infrastructure and deployment code for my HomeLab. The lab is built using [Harvester](https://harvesterhci.io/), [Rancher](https://www.rancher.com), and [Kubernetes](https://kubernetes.io/) and attempts to adhere to the principle of [Hyperconverged Infrastructure](https://www.suse.com/products/harvester/) (HCI).
+This repository contains the infrastructure and deployment code for my Home Lab software and infrastructure.  The goal here is to experiment with, understand, and adopt GitOps and IaC best practices for Kubernetes.  Furthermore, this allows me to dabble all the way up the hardware stack to see where the rubber actually hits the road, so to speak.
 
-Through this approach, compute, disk, and networking is unified into a single cluster.  These resources are then manged through gitops tooling:
-
-- [**Terraform**](https://www.terraform.io/), for managing infrastructure.
-- [**Flux**](https://fluxcd.io/), for managing services and software.
+The path I've chosen is through [Harvester](https://harvesterhci.io/), [Rancher](https://www.rancher.com), and [Kubernetes](https://kubernetes.io/) and attempts to adhere to the principle of [Hyperconverged Infrastructure](https://www.suse.com/products/harvester/) (HCI).  To do this I'm leveraging older rackmounted hardware.  It's not the most power efficent, but it's also not the worst.
 
 ---
 
@@ -68,15 +65,35 @@ Through this approach, compute, disk, and networking is unified into a single cl
 
 ## Architecture
 
-The ultimate aim of my homelab is to deploy the entirety of my services on kubernetes.  There are many paths to acheiving this goal, but I chose [Harvester](https://harvesterhci.io/) for two primary reasons:
+My homelab architecture has gone through a number of revamps over the years but there has emerged a few key considerations:
 
-- I wanted to try and use enterprise, rack mounted hardware
+- Enterprise gear is cooler than consumer stuff.  This rules out NUCs.
+- Downtime is not fun when the wife is asking why the internet doesn't work.
+- I enjoy overengineering things.
 
-The homelab is designed to emulate the principal of [Hyperconverged Infrastructure](https://www.suse.com/products/harvester/), or HCI, on bare metal in my basement.
+Through the confluence of the above factors I've arrived on the current iteration of my setup, which is split into two physically distinct parts: the `home` and the `lab`.  The `home` portion is a standard Unifi setup, managed out of my UDM Pro.  The `lab` portion is managed and described here, and is arranged such that any outage or maintenance of the lab will not impact the `home` portion.
+
+The linkage between the two is done physically by a single 10Gb link, and by assigning the `client` vlan in the diagram below a primary dns server from the `lab` portion.  If, heaven forbid, the lab should suffer an outage, the `client` vlan is also given a second dns server to use.
+
+<details>
+  <summary>Click to see vlan diagram</summary>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/home-network-firewall.png" align="center" alt="firewall"/>
+</details>
 
 ---
 
 ### Hardware
+
+#### Network
+
+The network side of things is a straightforward Unifi setup.  The shelf up top houses some MoCA adapters for locations for convenience, and my modem tucked somewhere in the back.  My patch panels use a blue key for POE and gray for a non-POE jack.
+
+<details>
+  <summary>Click to see my network rack!</summary>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/network-1.jpg" align="center" alt="firewall"/>
+</details>
+
+#### Lab
 
 |Device|OS Disk|Data Disk|CPU|Memory|Purpose|
 |------|-------|---------|---|------|-------|
@@ -86,23 +103,38 @@ The homelab is designed to emulate the principal of [Hyperconverged Infrastructu
 |[Unifi Aggregation](https://store.ui.com/us/en/pro/category/switching-aggregation/products/usw-aggregation)|-|-|-|-|10G SFP+ Switch|
 |[CyberPower 1500VA UPS](https://www.cyberpowersystems.com/product/ups/smart-app-lcd/or1500lcdrt2u/)|-|-|-|-|Battery Backup|
 
+<details>
+  <summary>Click to see the front of my lab rack!</summary>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-1.jpg" align="center" alt="firewall"/>
+</details>
+
+<details>
+  <summary>Click to see the back of my lab rack!</summary>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-2.jpg" align="center" alt="firewall"/>
+</details>
+
+
 ---
 
 ### Cloud Dependencies
 
+I'm leveraging some cloud dependencies to really make things easier and dodge the harder questions.
+
 |tool|purpose|cost|
 |----|-------|----|
-|<img src="https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/f8baa56a7a29dec4603fa37651459234b2c693c9/assets/github-octocat.svg" width="24"> [github](https://www.github.com/)|Infrastructure as code management & CI/CD.| free |
+|<img src="https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/f8baa56a7a29dec4603fa37651459234b2c693c9/assets/github-octocat.svg" width="24"> [github](https://www.github.com/)|IaC, CI/CD, & SSO.| free |
 |<img src="https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/f8baa56a7a29dec4603fa37651459234b2c693c9/assets/cloudflare.svg" width="24"> [cloudflare](https://www.cloudflare.com/)|DNS & Proxy management.| ~$10/yr |
-|<img src="https://pbs.twimg.com/profile_images/1055543716201615365/geMDWaHV_400x400.jpg" width="24"> [healthchecks.io](https://healthchecks.io/) | Cluster heartbeats. | free |
-|<img src="https://github.com/loganmarchione/homelab-svg-assets/raw/main/assets/amazonwebservices.svg" width="24"> [amazon](https://s3.console.aws.amazon.com/) | Backups, terraform state, and pilot light secrets. | ~$10/yr |
+|<img src="https://healthchecks.io/static/img/logo.png" width="24"> [healthchecks.io](https://healthchecks.io/) | Cluster heartbeats. | free |
+|<img src="https://github.com/loganmarchione/homelab-svg-assets/raw/main/assets/amazonwebservices.svg" width="24"> [amazon](https://s3.console.aws.amazon.com/) | Backups, terraform state, secrets. | ~$10/yr |
 |||Total: ~$20/yr|
 
 ---
 
 ## Networking
 
-Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro) and is via [terraform](./terraform/network/).  The `citadel` vlan on `192.168.10.*` is dedicated to kubernetes nodes.
+Networking 
+
+Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro) and the lab portion is managed via [terraform](./terraform/network/).  The `citadel` vlan on `192.168.10.*` is allocated for the lab.
 
 `192.168.10.2` is reserved as a gateway IP for the harvester cluster.  All other IPs are assigned via DHCP.  Initial local dns to access rancher is configured via terraform to make `rancher.tomnowak.work` available.
 
@@ -111,11 +143,6 @@ Downstream kubernetes clusteres can create services of type `Loadbalancer` via t
 Once an ip has been assigned, the [`cluster-vars.env`](./clusters/homelab-1/cluster-vars.env) is updated to reflect that ip, and [`blocky`](./clusters/homelab-1/network/blocky.yaml) consumes that to provide dns for the cluster to other networks.
 
 Finally, the default vlan network is updated to provide the `blocky` loadbalancer ip for dns to all clients on the network, providing access to internal services and ad blocking.
-
-<details>
-  <summary>Click to see network security diagram</summary>
-  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/home-network-firewall.png" align="center" alt="firewall"/>
-</details>
 
 ---
 
@@ -126,6 +153,8 @@ Currently running [Harvester v1.1.2](https://github.com/harvester/harvester/rele
 For provisioning a new harvester node, follow the installation instructions [here](https://docs.harvesterhci.io/v1.1/install/iso-install) via [USB](https://docs.harvesterhci.io/v1.1/install/usb-install).  The USB stick is sitting on top of the rack :).
 
 Once the node has joined the cluster, manually log in to the web UI and configure the [host storage disk tags](https://docs.harvesterhci.io/v1.1/host/#multi-disk-management) through the [management interface](https://rancher.tomnowak.work/) with `hdd` and `ssd` tags.  Unfortunately the [terraform provider](https://github.com/harvester/terraform-provider-harvester) does not have functionality to facilitate host management.
+
+I'm running [seeder](https://docs.harvesterhci.io/v1.2/advanced/addons/seeder/) to manage basic BMC functionality on the nodes.  In the future I hope to manage provisioning for the cluster via this tool.
 
 ---
 
