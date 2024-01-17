@@ -64,7 +64,9 @@
         "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -154,7 +156,9 @@
         "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -237,7 +241,9 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -317,7 +323,9 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["mean"],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
         },
@@ -399,7 +407,9 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -440,67 +450,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "timeticks"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 4,
-        "x": 11,
-        "y": 3
-      },
-      "id": 1,
-      "options": {
-        "colorMode": "background_solid",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.5.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "sum(sysUpTime{service=\"dell-idrac-snmp-exporter\"})",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Uptime",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
           "decimals": 2,
           "mappings": [],
           "thresholds": {
@@ -517,10 +466,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 2,
+        "h": 4,
         "w": 4,
         "x": 11,
-        "y": 5
+        "y": 3
       },
       "id": 5,
       "options": {
@@ -529,7 +478,9 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -544,7 +495,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(sum_over_time(amperageProbeReading{service=\"dell-idrac-snmp-exporter\",amperageProbeIndex=\"3\"}[$__range]) / 120 / 1000 * 0.18)",
+          "expr": "sum(sum_over_time(upsAdvanceOutputPower{service=\"snmp-exporter-cyberpower-ups\"}[$__range]) / 120 / 1000 * 0.18)",
           "instant": true,
           "legendFormat": "Cost",
           "range": false,
@@ -894,7 +845,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "frameIndex": 2,
@@ -1130,6 +1083,6 @@
   "timezone": "",
   "title": "Home",
   "uid": "c5f44de6-fd51-4bc6-b926-8c6a044c9346",
-  "version": 4,
+  "version": 1,
   "weekStart": ""
 }
