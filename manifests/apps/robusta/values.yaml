@@ -44,5 +44,4 @@ runner:
           name: robusta-app-secrets
           key: rsa-public
 rsa:
-  private: "{{ env.RSA_PRIVATE}}"
-  public: "{{ env.RSA_PUBLIC}}"
+  existingSecret: robusta-app-secrets
