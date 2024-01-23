@@ -7,6 +7,7 @@ spec:
   postBuild:
     substitute:
       # using a custom image here for extension.  Look into Tembo for extension management https://tembo.io/blog/tembo-operator/
-      IMAGE_REPOSITORY: ghcr.io/tensorchord/cloudnative-pgvecto.rs
-      IMAGE_TAG: 15-v0.1.13 # {"$imagepolicy": "storage:cloudnative-pg-cluster-automation:tag"}
+      # Use this for > 0.1.13 images ghcr.io/tensorchord/cloudnative-pgvecto.rs
+      IMAGE_REPOSITORY: ghcr.io/bo0tzz/cnpgvecto.rs
+      IMAGE_TAG: 15-v0.1.11 # {"$imagepolicy": "storage:cloudnative-pg-cluster-automation:tag"}
       SIZE: 20Gi
