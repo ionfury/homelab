@@ -2,6 +2,10 @@ clusterName: "${CLUSTER_NAME}"
 globalConfig:
   signing_key: "{{ env.SIGNING_KEY }}"
   account_id: "{{ env.ACCOUNT_ID }}"
+  alertmanager_url: "http://kube-prometheus-stack-app-alertmanager.monitoring.svc.cluster.local:9093"
+  prometheus_url: "http://kube-prometheus-stack-app-prometheus.monitoring.svc.cluster.local:9090"
+  prometheus_additional_labels:
+    cluster: "${CLUSTER_NAME}"
 sinksConfig:
   - discord_sink:
       name: robusta-discord-sink
