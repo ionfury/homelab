@@ -6,6 +6,7 @@ spec:
   path: ./manifests/apps/cloudnative-pg-cluster
   postBuild:
     substitute:
+      # using a custom image here for extension.  Look into Tembo for extension management https://tembo.io/blog/tembo-operator/
       IMAGE_REPOSITORY: ghcr.io/tensorchord/cloudnative-pgvecto.rs
       IMAGE_TAG: 15-v0.1.13 # {"$imagepolicy": "storage:cloudnative-pg-cluster-automation:tag"}
       SIZE: 20Gi
