@@ -1,0 +1,10 @@
+namePrefix: robusta-
+resources:
+  - external-secret.yaml
+components:
+  - ../../components/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml

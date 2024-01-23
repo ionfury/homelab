@@ -1,0 +1,47 @@
+globalConfig:
+  signing_key: "{{ env.SIGNING_KEY }}"
+  account_id: "{{ env.ACCOUNT_ID }}"
+sinksConfig:
+  - discord_sink:
+      name: robusta-discord-sink
+      url: "{{ env.DISCORD_WEBHOOK }}"
+  - robusta_sink:
+      name: robusta_ui_sink
+      token: "{{ env.ROBUSTA_WEBHOOK }}"
+enablePlatformPlaybooks: true
+runner:
+  sendAdditionalTelemetry: true
+  additional_env_vars:
+    - name: DISCORD_WEBHOOK
+      valueFrom:
+        secretKeyRef:
+          name: robusta-app-secrets
+          key: discord-webhook
+    - name: ROBUSTA_WEBHOOK
+      valueFrom:
+        secretKeyRef:
+          name: robusta-app-secrets
+          key: robusta-webhook
+    - name: SIGNING_KEY
+      valueFrom:
+        secretKeyRef:
+          name: robusta-app-secrets
+          key: signing-key
+    - name: ACCOUNT_ID
+      valueFrom:
+        secretKeyRef:
+          name: robusta-app-secrets
+          key: account-id
+    - name: RSA_PRIVATE
+      valueFrom:
+        secretKeyRef:
+          name: robusta-app-secrets
+          key: rsa-private
+    - name: RSA_PUBLIC
+      valueFrom:
+        secretKeyRef:
+          name: robusta-app-secrets
+          key: rsa-public
+rsa:
+  private: "{{ env.RSA_PRIVATE}}"
+  public: "{{ env.RSA_PUBLIC}}"

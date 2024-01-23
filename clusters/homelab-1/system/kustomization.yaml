@@ -11,3 +11,4 @@ resources:
   - reloader.yaml
   - secret-generator.yaml
   - replicator.yaml
+  - robusta.yaml
