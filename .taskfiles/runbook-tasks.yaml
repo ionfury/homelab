@@ -5,5 +5,11 @@ tasks:
     desc: Remove the finalizers on VolumeAttachments pending deletion to remediate docs/runbooks/unstick-volume-attachments.md.
     cmds:
       - kubectl get volumeattachment -o json | jq -r '.items[] | select(.status.detachError != null)'.metadata.name | xargs -L 1 bash -c 'kubectl patch volumeattachment $0 -p '"'"'{"metadata":{"finalizers":null}}'"'"' --type=merge'
-  restart-servarr-stack:
-    desc: Restarts the entire servarr stack.
+  recreate-broken-postgres:
+    desc: Delete CrashLoopBackOff instance of postgres cluster.
+    vars:
+      LABEL: cnpg.io/cluster=postgres
+      NAMESPACE: storage
+      STATUS: CrashLoopBackOff
+    cmds:
+      - kubectl get pods -l {{ .LABEL }} -n {{ .NAMESPACE }} | grep "{{ .STATUS }}" | awk 'NR==2{print $1}' | xargs -I {} kubectl delete po -n {{ .NAMESPACE }} {} && kubectl delete pvc -n {{ .NAMESPACE }} {}
