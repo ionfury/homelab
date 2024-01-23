@@ -1,3 +1,5 @@
 namePrefix: cloudnative-pg-cluster-
 components:
   - ../../../components/image-automation
+patches:
+  - path: image-policy.yaml
