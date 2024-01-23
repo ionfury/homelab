@@ -6,6 +6,6 @@ spec:
   path: ./manifests/apps/cloudnative-pg-cluster
   postBuild:
     substitute:
-      IMAGE_REPOSITORY: ghcr.io/cloudnative-pg/postgresql
-      IMAGE_TAG: 15.5-14 # {"$imagepolicy": "storage:cloudnative-pg-cluster-automation:tag"}
+      IMAGE_REPOSITORY: ghcr.io/tensorchord/cloudnative-pgvecto.rs
+      IMAGE_TAG: 15-v0.1.13
       SIZE: 20Gi

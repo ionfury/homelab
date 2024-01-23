@@ -4,8 +4,8 @@ metadata:
   name: automation
 spec:
   filterTags:
-    pattern: '^(?P<major>\d+)\.(?P<minor>\d+)-(?P<revision>\d+)$'
-    extract: '$major.$minor.$revision'
+    pattern: '^15-v(?P<version>\d+\.\d+\.\d+)$'
+    extract: '$version'
   policy:
     semver:
-      range: '15.x'
+      range: '> 0.0.0'
