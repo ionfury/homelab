@@ -17,6 +17,13 @@ alertmanager:
             alertname: Watchdog
           repeat_interval: 1m
           group_interval: 1m
+        - receiver: robusta
+          group_wait: 1s
+          group_interval: 1s
+          matchers:
+            - severity =~ ".*"
+          repeat_interval: 4h
+          continue: true
         - receiver: "null"
           match:
             alertname: InfoInhibitor
