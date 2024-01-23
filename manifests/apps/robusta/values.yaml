@@ -17,31 +17,21 @@ runner:
       valueFrom:
         secretKeyRef:
           name: robusta-app-secrets
-          key: discord-webhook
+          key: DISCORD_WEBHOOK
     - name: ROBUSTA_WEBHOOK
       valueFrom:
         secretKeyRef:
           name: robusta-app-secrets
-          key: robusta-webhook
+          key: ROBUSTA_WEBHOOK
     - name: SIGNING_KEY
       valueFrom:
         secretKeyRef:
           name: robusta-app-secrets
-          key: signing-key
+          key: SIGNING_KEY
     - name: ACCOUNT_ID
       valueFrom:
         secretKeyRef:
           name: robusta-app-secrets
-          key: account-id
-    - name: RSA_PRIVATE
-      valueFrom:
-        secretKeyRef:
-          name: robusta-app-secrets
-          key: rsa-private
-    - name: RSA_PUBLIC
-      valueFrom:
-        secretKeyRef:
-          name: robusta-app-secrets
-          key: rsa-public
+          key: ACCOUNT_ID
 rsa:
   existingSecret: robusta-app-secrets
