@@ -8,4 +8,4 @@ spec:
     extract: '$major.$minor.$revision'
   policy:
     semver:
-      range: '15.x' # Pins to major version 15
+      range: '15.x'
