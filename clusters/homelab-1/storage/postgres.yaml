@@ -7,5 +7,5 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/cloudnative-pg/postgresql
-      IMAGE_TAG: 15.3-4
+      IMAGE_TAG: 15.3-4 # {"$imagepolicy": "storage:cloudnative-pg-cluster-automation:tag"}
       SIZE: 20Gi
