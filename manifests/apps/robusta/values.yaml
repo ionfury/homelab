@@ -38,4 +38,4 @@ runner:
           name: robusta-app-secrets
           key: ACCOUNT_ID
 rsa:
-  existingSecret: robusta-app-secrets
+  existingSecret: robusta-app-rsa-secrets
