@@ -13,6 +13,13 @@ controllers:
           storageClass: ${STORAGE_CLASS_FAST_BACKUP}
     containers:
       main:
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
         env:
           ADMIN_PASSWORD:
             valueFrom:
