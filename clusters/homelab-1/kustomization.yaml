@@ -5,7 +5,7 @@ resources:
   - app-template-helm-repo.yaml
   - cert-manager
   - flux-system
-  #- games
+  - games
   - kube-system
   - media
   - monitoring

@@ -1,0 +1,15 @@
+namePrefix: palworld-
+components:
+  - ../../components/helm-release-app-template-oci-v2
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+secretGenerator:
+  - name: passwords
+    behavior: create
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: admin-password,server-password
