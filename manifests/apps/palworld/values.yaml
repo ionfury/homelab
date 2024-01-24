@@ -36,8 +36,7 @@ controllers:
             cpu: 1
             memory: 2Gi
           limits:
-            cpu: 2
-            memory: 8Gi
+            memory: 16Gi
 service:
   main:
     type: LoadBalancer
