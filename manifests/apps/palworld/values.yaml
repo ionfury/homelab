@@ -40,6 +40,8 @@ service:
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
     ports:
+      http:
+        port: 80
       game:
         port: 8211
         protocol: TCP
