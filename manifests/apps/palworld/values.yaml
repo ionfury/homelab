@@ -49,3 +49,4 @@ persistence:
     storageClass: ${STORAGE_CLASS_FAST_BACKUP}
     size: 10Gi
     retain: true
+    accessMode: ReadWriteOnce
