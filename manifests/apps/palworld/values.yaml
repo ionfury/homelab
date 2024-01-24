@@ -47,6 +47,8 @@ service:
       game:
         port: 8211
         protocol: UDP
+nodeSelector:
+  nvidia.com/gpu.product: Quadro-P2000
 persistence:
   data:
     enabled: true
