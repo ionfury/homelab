@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: mbround18/palworld-docker
-      IMAGE_TAG: 1.0.0 # {"$imagepolicy": "media:palworld-automation:tag"}
+      IMAGE_TAG: latest # {"$imagepolicy": "media:palworld-automation:tag"}
