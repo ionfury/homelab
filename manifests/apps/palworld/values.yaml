@@ -51,7 +51,7 @@ service:
         port: 80
       game:
         port: 8211
-        protocol: TCP
+        protocol: UDP
 persistence:
   data:
     enabled: true
