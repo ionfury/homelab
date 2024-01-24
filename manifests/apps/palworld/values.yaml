@@ -17,12 +17,12 @@ controllers:
           ADMIN_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: palworld-app-passwords
+                name: palworld-passwords
                 key: admin-password
           SERVER_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: palworld-app-passwords
+                name: palworld-passwords
                 key: server-password
           SERVER_NAME: tomnowak.work
           PUBLIC_PORT: "8211"
