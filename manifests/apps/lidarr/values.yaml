@@ -41,8 +41,8 @@ controllers:
       main:
         resources:
           requests:
-            cpu: 940m
-            memory: 1014Mi
+            cpu: 36m
+            memory: 321Mi
         env:
           TZ: ${TZ}
           LIDARR__INSTANCE_NAME: Lidarr

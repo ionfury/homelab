@@ -112,8 +112,8 @@ read:
     storageClass: ${STORAGE_CLASS_SLOW}
   resources:
     requests:
-      cpu: 253m
-      memory: 638Mi
+      cpu: 120m
+      memory: 1967Mi
   extraVolumeMounts:
     - name: rules
       mountPath: /rules
