@@ -40,7 +40,7 @@ runner:
 rsa:
   existingSecret: robusta-app-rsa-secrets
 playbookRepos:
-  robusta_playbooks:
+  homelab_playbooks:
     url: "https://github.com/ionfury/robusta_playbooks.git"
 customPlaybooks:
   - triggers:
