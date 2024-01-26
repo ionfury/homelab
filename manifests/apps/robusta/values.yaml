@@ -17,7 +17,7 @@ enablePlatformPlaybooks: true
 runner:
   customClusterRoleRules:
     - apiGroups:
-        - ""
+        - storage.k8s.io
       resources:
         - volumeattachments
         - volumeattachments/status
