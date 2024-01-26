@@ -15,6 +15,17 @@ sinksConfig:
       token: "{{ env.ROBUSTA_WEBHOOK }}"
 enablePlatformPlaybooks: true
 runner:
+  customClusterRoleRules:
+    - apiGroups:
+        - ""
+      resources:
+        - volumeattachments
+        - volumeattachments/status
+      verbs:
+        - patch
+        - get
+        - list
+        - watch
   sendAdditionalTelemetry: true
   additional_env_vars:
     - name: DISCORD_WEBHOOK
