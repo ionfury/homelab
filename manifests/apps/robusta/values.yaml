@@ -39,3 +39,12 @@ runner:
           key: ACCOUNT_ID
 rsa:
   existingSecret: robusta-app-rsa-secrets
+playbookRepos:
+  robusta_playbooks:
+    url: "https://github.com/ionfury/robusta_playbooks.git"
+customPlaybooks:
+  - triggers:
+      - on_prometheus_alert:
+          alert_name: VolumeAttachmentNodeMismatch
+    actions:
+      - delete_volumeattachment_in_detacherror: {}
