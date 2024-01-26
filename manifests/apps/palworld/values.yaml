@@ -56,3 +56,7 @@ persistence:
     size: 10Gi
     retain: true
     accessMode: ReadWriteOnce
+    advancedMounts:
+      main:
+        main:
+          - path: /home/steam/palworld
