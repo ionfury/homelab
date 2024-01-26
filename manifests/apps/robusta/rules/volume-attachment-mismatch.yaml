@@ -9,7 +9,7 @@ spec:
     - alert: VolumeAttachmentNodeMismatch
       expr: |
         kube_volumeattachment_info unless on(node) kube_node_info
-      for: 5m
+      for: 10m
       labels:
         severity: critical
       annotations:
