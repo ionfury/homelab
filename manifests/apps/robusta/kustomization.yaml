@@ -1,6 +1,7 @@
 namePrefix: robusta-
 resources:
   - external-secret.yaml
+  - rules
 components:
   - ../../components/helm-release
 configMapGenerator:
