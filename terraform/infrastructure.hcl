@@ -2,7 +2,7 @@ locals {
 
   harvester = {
     cluster_name = "homelab"
-    kubeconfig_path = "~/.kube/harvester"
+    kubeconfig_path = "~/.kube/harvester.yaml"
     management_address = "https://192.168.10.2"
     network_name = "citadel"
 
