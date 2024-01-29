@@ -4,10 +4,10 @@ provider "aws" {
 }
 
 data "aws_ssm_parameter" "cloudflare_api_key" {
-  name = var.cloudflare_api_key_store
+  name = var.cloudflare.api_key_store
 }
 
 provider "cloudflare" {
-  email   = var.master_email
+  email   = var.cloudflare.email
   api_key = data.aws_ssm_parameter.cloudflare_api_key.value
 }

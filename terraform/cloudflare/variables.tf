@@ -5,13 +5,13 @@ variable "aws" {
   })
 }
 
-variable "master_email" {
-  description = "Master email used for everything."
-  type        = string
-}
-
-variable "cloudflare_api_key_store" {
-  type = string
+variable "cloudflare" {
+  description = "Configuration for Cloudflare"
+  type = object({
+    account_name  = string
+    email         = string
+    api_key_store = string
+  })
 }
 
 variable "tld" {
