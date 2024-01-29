@@ -62,7 +62,6 @@ provider "cloudflare" {
   api_key = data.aws_ssm_parameter.cloudflare_api_key.value
 }
 
-
 provider "kubectl" {
   config_path = "~/.kube/rancher-tRf58g"
 }

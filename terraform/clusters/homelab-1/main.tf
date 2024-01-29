@@ -69,14 +69,15 @@ module "bootstrap" {
     healthchecksio = healthchecksio
   }
 }
-/*
+
 module "tunnel" {
   source = "../../.modules/tunnel"
 
   name                    = var.cluster_name
   cloudflare_account_name = var.cloudflare.account_name
+  tld                     = var.tld
 
   providers = {
     cloudflare = cloudflare
   }
-}*/
+}

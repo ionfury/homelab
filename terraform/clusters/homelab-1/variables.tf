@@ -12,6 +12,7 @@ variable "tld" {
   description = "Top Level Domain name."
   type        = string
 }
+
 variable "aws" {
   type = object({
     region  = string

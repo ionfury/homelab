@@ -5,3 +5,7 @@ variable "name" {
 variable "cloudflare_account_name" {
   type = string
 }
+
+variable "tld" {
+  type = string
+}

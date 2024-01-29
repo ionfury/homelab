@@ -1,3 +1,4 @@
+/*
 resource "cloudflare_record" "apex" {
   name    = "ipv4"
   zone_id = data.cloudflare_zone.domain.id
@@ -15,3 +16,4 @@ resource "cloudflare_record" "root" {
   type    = "CNAME"
   ttl     = 1
 }
+*/
