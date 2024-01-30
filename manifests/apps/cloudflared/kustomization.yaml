@@ -8,3 +8,9 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+  - name: configmap
+    behavior: create
+    options:
+      disableNameSuffixHash: true
+    files:
+      - config/tunnel.yaml
