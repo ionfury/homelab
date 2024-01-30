@@ -21,7 +21,7 @@ resource "aws_ssm_parameter" "token" {
   name        = "k8s-${var.name}-cloudflare-tunnel"
   description = "Cloudflare tunnel for cluster: ${var.name}."
   type        = "SecureString"
-  value       = jsonencode({ "id" = "${cloudflare_tunnel.this.id}", "token" = "${cloudflare_tunnel.this.tunnel_token}" })
+  value       = jsonencode({ "id" = "${cloudflare_tunnel.this.id}", "token" = "${cloudflare_tunnel.this.tunnel_token}", "secret" = "${cloudflare_tunnel.this.secret}", "account" = "${cloudflare_tunnel.this.account_id}" })
 }
 
 resource "cloudflare_record" "this" {
