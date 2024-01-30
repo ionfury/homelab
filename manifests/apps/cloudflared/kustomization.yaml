@@ -13,4 +13,4 @@ configMapGenerator:
     options:
       disableNameSuffixHash: true
     files:
-      - config/tunnel.yaml
+      - ./config/config.yaml
