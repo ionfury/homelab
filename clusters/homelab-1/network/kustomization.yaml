@@ -3,6 +3,7 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - blocky.yaml
+  - cloudflared.yaml
   - ingress-nginx-external.yaml
   - ingress-nginx-internal.yaml
   - ingress-nginx-monitoring.yaml
