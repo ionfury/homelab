@@ -99,7 +99,7 @@ persistence:
         readOnly: true
   creds:
     type: secret
-    name: cloudflared-secret
+    name: cloudflare-tunnel
     globalMounts:
       - path: /etc/cloudflared/creds/credentials.json
         subPath: credentials.json
