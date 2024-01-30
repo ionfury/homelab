@@ -34,7 +34,7 @@ controllers:
           TUNNEL_ID:
             valueFrom:
               secretKeyRef:
-                name: cloudflared-secret
+                name: cloudflare-tunnel
                 key: TunnelID
         probes:
           liveness:
