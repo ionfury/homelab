@@ -4,6 +4,6 @@ metadata:
   name: tunnel
 spec:
   endpoints:
-    - dnsName: ingress-ext.${EXTERNAL_DOMAIN}
+    - dnsName: ${CLUSTER_NAME}.${EXTERNAL_DOMAIN}
       recordType: CNAME
       targets: ["${CLUSTER_CLOUDFLARE_TUNNEL_ID}.cfargotunnel.com"]
