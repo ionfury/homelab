@@ -1,5 +1,9 @@
 kind: Deployment
 replicas: 3
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
 leaderElection:
   enabled: true
   leaseDuration: 15s
