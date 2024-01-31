@@ -65,6 +65,7 @@ ingress:
     tls:
       - hosts:
           - echo-external.${EXTERNAL_DOMAIN}
+        secretName: echo-external-tls
   internal:
     enabled: true
     className: internal
@@ -78,3 +79,4 @@ ingress:
     tls:
       - hosts:
           - echo-internal.${INTERNAL_DOMAIN}
+        secretName: echo-internal-tls
