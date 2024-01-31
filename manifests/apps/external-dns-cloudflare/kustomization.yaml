@@ -1,6 +1,6 @@
-namePrefix: external-dns-
+namePrefix: external-dns-cloudflare-
 components:
-  - ../../components/helm-release
+  - ../../components/helm-release-app-template-oci-v2
 resources:
   - external-secret.yaml
   - dns_endpoint-crd.yaml
