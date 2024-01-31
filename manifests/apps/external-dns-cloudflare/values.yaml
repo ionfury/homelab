@@ -7,7 +7,7 @@ controllers:
       main:
         envFrom:
           - secretRef:
-              name: external-dns-cloudflare-secret
+              name: external-dns-cloudflare-api-key
         args:
           - --cloudflare-proxied
           - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
