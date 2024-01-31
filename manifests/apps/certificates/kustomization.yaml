@@ -1,0 +1,3 @@
+kind: Kustomization
+resources:
+  - certificate.yaml

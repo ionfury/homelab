@@ -3,6 +3,7 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - blocky.yaml
+  - certificates.yaml
   - cloudflared.yaml
   - echo-server.yaml
   - external-dns-cloudflare.yaml
