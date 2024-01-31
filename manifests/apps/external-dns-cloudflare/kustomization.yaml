@@ -3,7 +3,7 @@ components:
   - ../../components/helm-release-app-template-oci-v2
 resources:
   - external-secret.yaml
-  - dns_endpoint-crd.yaml
+  - dnsendpoint-crd.yaml
 configMapGenerator:
   - name: values
     behavior: replace
