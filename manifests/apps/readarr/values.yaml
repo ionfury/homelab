@@ -106,7 +106,7 @@ ingress:
     tls:
       - hosts:
           - readarr.${INTERNAL_DOMAIN}
-        secretName: lidarr-tls
+        secretName: readarr-tls
 persistence:
   media:
     enabled: true
