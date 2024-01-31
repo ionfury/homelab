@@ -41,10 +41,9 @@ controllers:
       main:
         resources:
           requests:
-            cpu: 573m
-            memory: 1Gi
+            cpu: 26m
+            memory: 213Mi
           limits:
-            cpu: 2000m
             memory: 10Gi
         env:
           TZ: ${TZ}
