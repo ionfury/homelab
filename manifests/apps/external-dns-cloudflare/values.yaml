@@ -24,7 +24,7 @@ controllers:
           - --source=crd
           - --source=ingress
           - --txt-owner-id=default
-          - --txt-prefix=${CLUSTER_NAME}
+          - --txt-prefix=${CLUSTER_NAME}-
         probes:
           liveness:
             enabled: true
