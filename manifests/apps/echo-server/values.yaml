@@ -1,0 +1,80 @@
+controllers:
+  main:
+    strategy: RollingUpdate
+    containers:
+      main:
+        image:
+          repository: docker.io/jmalloc/echo-server
+          tag: 0.3.6
+        env:
+          PORT: 8080
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          startup:
+            enabled: false
+        resources:
+          requests:
+            cpu: 5m
+            memory: 10M
+          limits:
+            memory: 64M
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+service:
+  main:
+    ports:
+      http:
+        port: 8080
+ingress:
+  main:
+    enabled: true
+    className: external
+    annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
+    #  external-dns.alpha.kubernetes.io/target: "external.${EXTERNAL_DOMAIN}"
+    hosts:
+      - host: echo-external.${EXTERNAL_DOMAIN}
+        paths:
+          - path: /
+            service:
+              name: main
+              port: http
+    tls:
+      - hosts:
+          - echo-external.${EXTERNAL_DOMAIN}
+  internal:
+    enabled: true
+    className: internal
+    hosts:
+      - host: echo-internal.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            service:
+              name: main
+              port: http
+    tls:
+      - hosts:
+          - echo-internal.${INTERNAL_DOMAIN}
