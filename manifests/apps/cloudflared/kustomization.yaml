@@ -2,6 +2,7 @@ namePrefix: cloudflared-
 components:
   - ../../components/helm-release-app-template-oci-v2
 resources:
+  - dns-endpoint.yaml
   - external-secret.yaml
 configMapGenerator:
   - name: values

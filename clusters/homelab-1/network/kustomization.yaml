@@ -4,6 +4,7 @@ components:
 resources:
   - blocky.yaml
   - cloudflared.yaml
+  - external-dns-cloudflare.yaml
   - ingress-nginx-external.yaml
   - ingress-nginx-internal.yaml
   - ingress-nginx-monitoring.yaml
