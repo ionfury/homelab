@@ -4,6 +4,7 @@ components:
 resources:
   - external-secret.yaml
   - dnsendpoint-crd.yaml
+  - rbac.yaml
 configMapGenerator:
   - name: values
     behavior: replace
