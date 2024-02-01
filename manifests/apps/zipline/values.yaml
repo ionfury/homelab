@@ -26,6 +26,7 @@ envFrom:
   - secretRef:
       name: zipline-storage-secret
 env:
+  # Core COnfig
   TZ: ${TZ}
   CORE_SECRET:
     valueFrom:
@@ -41,6 +42,25 @@ env:
   CORE_HOST: "0.0.0.0"
   CORE_PORT: "3000"
   CORE_RETURN_HTTPS: "true"
+  # Exif
+  EXIF_REMOVE_GPS: "true"
+  # Features
+  FEATURES_INVITES: "false"
+  FEATURES_ROBOTS_TXT: "false"
+  FEATURES_USER_REGISTRATION: "false"
+  # Uploader
+  UPLOADER_DEFAULT_FORMAT: "RANDOM"
+  UPLOADER_DISABLED_EXTENSIONS: "ps1,pdf,bat,exe,sh,fish"
+  UPLOADER_DEFAULT_EXPIRATION: ""
+  UPLOADER_ROUTE: "/u"
+  UPLOADER_LENGTH: 6
+  # URLs
+  URLS_ROUTE: "/go"
+  URLS_LENGTH: 6
+  # Website
+  WEBSITE_TITLE: "${EXTERNAL_DOMAIN}"
+  WEBSITE_SHOW_FILES_PER_USER: "false"
+  WEBSITE_SHOW_VERSION: "false"
 service:
   main:
     ports:
@@ -58,15 +78,37 @@ ingress:
       gethomepage.dev/name: Zipline
     ingressClassName: internal
     hosts:
-      - host: i.${INTERNAL_DOMAIN}
+      - host: img.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
     tls:
       - hosts:
-          - i.${INTERNAL_DOMAIN}
+          - img.${INTERNAL_DOMAIN}
         secretName: zipline-tls
+  external:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
+      external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+    hosts:
+      - host: img.${EXTERNAL_DOMAIN}
+        paths:
+          - path: /go
+            service:
+              name: main
+              port: http
+          - path: /u
+            service:
+              name: main
+              port: http
+    tls:
+      - hosts:
+          - img.${EXTERNAL_DOMAIN}
+        secretName: zipline-external-tls
 resources:
   requests:
-    cpu: 31m
-    memory: 245Mi
+    cpu: 5m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
