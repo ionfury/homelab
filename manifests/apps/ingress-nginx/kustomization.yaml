@@ -1,6 +1,7 @@
 namePrefix: ingress-nginx-${INGRESS_CLASS:=internal}-
 components:
   - ../../components/helm-release
+  - ../../components/image-automation
 configMapGenerator:
   - name: values
     behavior: replace
