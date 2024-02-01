@@ -44,11 +44,11 @@ ingress:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
+      external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
       nginx.ingress.kubernetes.io/configuration-snippet: |
         proxy_set_header Accept-Encoding "";
         sub_filter '</body>' '<script plugin="Jellyscrub" version="1.1.1.0" src="/Trickplay/ClientScript"></script></body>';
         sub_filter_once on;
-      gethomepage.dev/enabled: "false"
     ingressClassName: external
     hosts:
       - host: watch.${EXTERNAL_DOMAIN}
