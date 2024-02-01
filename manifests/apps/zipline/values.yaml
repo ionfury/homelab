@@ -95,13 +95,9 @@ ingress:
       - host: img.${EXTERNAL_DOMAIN}
         paths:
           - path: /go
-            service:
-              name: main
-              port: http
+            pathType: Prefix
           - path: /u
-            service:
-              name: main
-              port: http
+            pathType: Prefix
     tls:
       - hosts:
           - img.${EXTERNAL_DOMAIN}
