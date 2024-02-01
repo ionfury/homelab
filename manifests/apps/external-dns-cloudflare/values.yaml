@@ -23,6 +23,7 @@ controllers:
           - --registry=txt
           - --source=crd
           - --source=ingress
+          - --source=service
           - --txt-owner-id=default
           - --txt-prefix=${CLUSTER_NAME}-
         probes:
