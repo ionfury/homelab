@@ -91,6 +91,7 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+    ingressClassName: external
     hosts:
       - host: img.${EXTERNAL_DOMAIN}
         paths:
