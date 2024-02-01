@@ -43,6 +43,7 @@ service:
     externalTrafficPolicy: Cluster
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
+      external-dns.alpha.kubernetes.io/target: "ipv4.${EXTERNAL_DOMAIN}"
     ports:
       http:
         port: 80
