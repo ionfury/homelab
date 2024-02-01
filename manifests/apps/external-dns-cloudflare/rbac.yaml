@@ -20,7 +20,7 @@ rules:
     resources: ["dnsendpoints/status"]
     verbs: ["*"]
   - apiGroups: [""]
-    resources: ["services"]
+    resources: ["endpoints", "pods", "services"]
     verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
