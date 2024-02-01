@@ -99,6 +99,8 @@ ingress:
             pathType: Prefix
           - path: /u
             pathType: Prefix
+          - path: /code
+            pathType: Prefix
     tls:
       - hosts:
           - img.${EXTERNAL_DOMAIN}
