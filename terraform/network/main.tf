@@ -76,3 +76,5 @@ resource "unifi_user" "inventory" {
   fixed_ip   = each.value.ipmi.ip
   network_id = unifi_network.networks[var.harvester.network_name].id
 }
+
+# https://github.com/workerforce/unifi-ddns
