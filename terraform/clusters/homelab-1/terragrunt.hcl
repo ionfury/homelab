@@ -37,8 +37,8 @@ inputs = {
       unhealthy_node_timeout_seconds = 240
       max_unhealthy = "1"
       resources = {
-        cpu = 8
-        memory = 32
+        cpu = 4
+        memory = 16
         disk = 80
       }
       roles = {
@@ -56,8 +56,8 @@ inputs = {
       unhealthy_node_timeout_seconds = 600
       max_unhealthy = "1"
       resources = {
-        cpu = 16
-        memory = 64
+        cpu = 24
+        memory = 96
         disk = 120
       }
       roles = {
