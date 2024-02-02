@@ -73,7 +73,7 @@ persistence:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
-    size: 10Gi
+    size: 20Gi
   transcode:
     enabled: true
     retain: false
