@@ -1,6 +1,28 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
+provider "registry.terraform.io/fluxcd/flux" {
+  version     = "1.0.1"
+  constraints = "1.0.1"
+  hashes = [
+    "h1:e3sd5jVFYMkorp5DhSXTUQJ5qr1aO6clKr89FY/32tE=",
+    "zh:17c4d58c1df4a5455f9bebf8f4145c1885e378c587dfff76007011f43af97ddf",
+    "zh:23afee5b4806624db800e284222ff75302ea94b4d7fdaee3e39b0301bc5f73dd",
+    "zh:38d4d7251139ae08f96cbecbb699f7b4726042a854859ebf4e052c3b11761f5a",
+    "zh:408f2863b8ea868e44ada64d6fb21772132c829e2a2f461a12160248f23c0177",
+    "zh:43f251ee09412d2646421ee06a7ab71f5a9f3d776107e9dbca10f916e2712c43",
+    "zh:6d660bf355adbe9c7e676b2bce892438c793d9726ca9e33d43ecc57911b8f563",
+    "zh:795a7cc140b4ff642d8bfb629b9b2e160eb9f3e3d6a9d5fb0ad0f38281ab751c",
+    "zh:79da298dad4b6de03479199e11000cd31f2b6cb5738e90db3ae7cac3d697f625",
+    "zh:8e2a416fc4d493ed2af9de9d569f57882b55bc0217785f9d92a763da6186542e",
+    "zh:92924208582521b880df2a032f04460388eac7d3dbbd84e737ed902ef8b8f7fb",
+    "zh:93a0843f6d50225d77dc89d1e08c57a62b4b36b05cac54c8f85d0ac0a09b0d03",
+    "zh:c09c7bee9a2f549a3678eb8897728a2f13fe3674ccc7173551679e51f417d57b",
+    "zh:cc5005561f7e2ccb13885fc6458da6ceb5a4db2ee08f077edb56c9e378525397",
+    "zh:dac9549913e59355f4048736d0122bb1c7d94e0c9576d0c469f6d5a551b6217b",
+  ]
+}
+
 provider "registry.terraform.io/gavinbunney/kubectl" {
   version     = "1.14.0"
   constraints = "1.14.0"
@@ -53,5 +75,45 @@ provider "registry.terraform.io/hashicorp/aws" {
     "zh:a4810a034f5def017607b0b079c7867c983da653928bd9f67edbc18575c0b629",
     "zh:e1c10e1641b5f17fec61910d6c3514e241f650ced84523f09cb16271a9a1e651",
     "zh:f63593ee2e01a2e1096ae9959fa43f0521114b3335f6440170f0d35d1969e8a2",
+  ]
+}
+
+provider "registry.terraform.io/hashicorp/kubernetes" {
+  version = "2.25.2"
+  hashes = [
+    "h1:T1WAQt40cAk721H0AM/eZ5YuodJaIfS8r3Tu7rKCJJE=",
+    "zh:044788ac936e0e8ece8f78a2e4e366ecd435ea8235388eaf2cbc8e7975d9d970",
+    "zh:24f5ff01df91f51f00ee7ff39430adeb63bb2ca4ea0042e68f06d6b65808c02f",
+    "zh:49984aa0aa1faa8c4f01e8faa039322f1e6fdaeab0b7e32f5c6e96edfde36a38",
+    "zh:4eeceaff56bac9fc782e7e33f157fa2c7e9a47b2c3c3d12da2642c312ace73f6",
+    "zh:4f49b6419345960d5af475e0200c243af4c9c140b0ee64799fe1fc9b023c49ea",
+    "zh:7958414d516867a2263a978792a24843f80023fb233cf051ff4095adc9803d85",
+    "zh:c633a755fc95e9ff0cd73656f052947afd85883a0987dde5198113aa48474156",
+    "zh:cbfe958d119795004ce1e8001449d01c056fa2a062b51d07843d98be216337d7",
+    "zh:cfb85392e18768578d4c943438897083895719be678227fd90efbe3500702a56",
+    "zh:d705a661ed5da425dd236a48645bec39fe78a67d2e70e8460b720417cbf260ac",
+    "zh:ddd7a01263da3793df4f3b5af65f166307eed5acf525e51e058cda59009cc856",
+    "zh:f569b65999264a9416862bca5cd2a6177d94ccb0424f3a4ef424428912b9cb3c",
+  ]
+}
+
+provider "registry.terraform.io/kristofferahl/healthchecksio" {
+  version     = "1.10.1"
+  constraints = ">= 1.10.0, 1.10.1"
+  hashes = [
+    "h1:cXKfHi+qRqvEqMGtWovjQ/E+3NBnwxn84Ib4NC95BCI=",
+    "zh:176b9142eabbbe2d83c4a1e4fb7b6d4ecc415268baec762b4af10f1c0d356e19",
+    "zh:1b30cfe2fe1a9a652b7c801ddc0cbbede9dc6a72bc739b14640035897a409c79",
+    "zh:2766be8e560058fa31c451f74b9ad64cda4894b52846511b5eba307e54d9ee37",
+    "zh:44e5d622e711505edb5b5d839595c483f8e23fa84c18d68fe507341f337761a1",
+    "zh:4d7b1497e8362eb0c54410524315a7b1d58887ea1a21c821a2251f055ed73b83",
+    "zh:55bbe5e9274a560dbc46a6b8070878a1cc1838dd92dbee051690ab88f8d618c2",
+    "zh:59b46168a94ce07df1524212838711e255f69a4ed015f0aa660062e3bb358b79",
+    "zh:802b2f613c002d973997f64a54018e14e40157b02954975c449f41d17717841e",
+    "zh:91c757e4a9972e38d194f969ac248ead5dd250277ebc8eb9a0c75af0ed58e1a4",
+    "zh:a73d3b257b7e0898695375e7be6c94fa4e70afb4640c86c43219025557a8f0e2",
+    "zh:bff1c8b28ae909a9c896dc991d1e287ee333970528551848ea664f941806edaf",
+    "zh:ce0fb47d372caf0f6229e3c807a90b8591fa5c25e1e6a2b4ba0a3c682dbe5e99",
+    "zh:ebe300d00b451192d88d4b7c656ed396bab240ac2ca338f7a4aaa951cfdc237f",
   ]
 }

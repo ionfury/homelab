@@ -12,5 +12,9 @@ terraform {
       source  = "kristofferahl/healthchecksio"
       version = ">=1.10.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.25.2"
+    }
   }
 }

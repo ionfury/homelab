@@ -27,11 +27,12 @@ inputs = {
         etcd = true
         worker = false
       }
+      gpu_enabled = false
       machine_labels = {}
       vm_affinity_b64 = ""
     }
     worker = {
-      min_size = 1
+      min_size = 2
       max_size = 5
       node_startup_timeout_seconds = 1200
       unhealthy_node_timeout_seconds = 240
@@ -46,6 +47,7 @@ inputs = {
         etcd = false
         worker = true
       }
+      gpu_enabled = false
       machine_labels = {}
       vm_affinity_b64 = ""
     }
@@ -65,6 +67,7 @@ inputs = {
         etcd = false
         worker = true
       }
+      gpu_enabled = true
       machine_labels = {
         "gpu-required" = "true"
       }

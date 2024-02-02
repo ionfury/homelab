@@ -65,3 +65,27 @@ variable "public_ssh_keys" {
     public_key  = string
   }))
 }
+
+variable "github" {
+  description = "Github account information."
+  type = object({
+    email                = string
+    user                 = string
+    name                 = string
+    ssh_addr             = string
+    ssh_pub              = string
+    ssh_known_hosts      = string
+    token_store          = string
+    oauth_secret_store   = string
+    oauth_clientid_store = string
+    ssh_key_store        = string
+  })
+}
+
+variable "healthchecksio" {
+  description = "Healthchecksio account information."
+  type = object({
+    api_key_store = string
+  })
+}
+
