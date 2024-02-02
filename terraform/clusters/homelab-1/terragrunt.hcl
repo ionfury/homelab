@@ -31,14 +31,14 @@ inputs = {
       vm_affinity_b64 = ""
     }
     worker = {
-      min_size = 2
+      min_size = 1
       max_size = 5
       node_startup_timeout_seconds = 1200
       unhealthy_node_timeout_seconds = 240
       max_unhealthy = "1"
       resources = {
-        cpu = 4
-        memory = 16
+        cpu = 8
+        memory = 32
         disk = 80
       }
       roles = {
@@ -56,8 +56,8 @@ inputs = {
       unhealthy_node_timeout_seconds = 600
       max_unhealthy = "1"
       resources = {
-        cpu = 8
-        memory = 32
+        cpu = 16
+        memory = 64
         disk = 120
       }
       roles = {
