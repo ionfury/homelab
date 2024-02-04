@@ -109,6 +109,8 @@ resource "rancher2_machine_config_v2" "machines" {
         - qemu-guest-agent
         - iptables
       runcmd:
+        - sed -i '/swap/s/^/#/' /etc/fstab
+        - swapoff -a
         - - systemctl
           - enable
           - '--now'

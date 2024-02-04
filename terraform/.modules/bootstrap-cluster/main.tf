@@ -30,7 +30,7 @@ resource "kubernetes_secret" "ssh_key" {
     known_hosts    = "${var.known_hosts}"
   }
 }
-
+/*
 resource "flux_bootstrap_git" "this" {
   depends_on             = [kubernetes_secret.ssh_key]
   path                   = "clusters/${var.cluster_name}"
@@ -41,4 +41,4 @@ resource "flux_bootstrap_git" "this" {
     "image-automation-controller"
   ]
 }
-
+*/
