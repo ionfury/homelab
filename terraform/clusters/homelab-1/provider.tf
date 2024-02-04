@@ -39,7 +39,7 @@ provider "flux" {
   }
   git = {
     url          = "${var.github.ssh_addr}"
-    author_email = "flux@${var.default.network_tld}"
+    author_email = "flux@${var.tld}"
     author_name  = "flux"
     branch       = "main"
     ssh = {

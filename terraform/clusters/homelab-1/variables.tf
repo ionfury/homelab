@@ -104,6 +104,7 @@ variable "machine_pools" {
     max_unhealthy                  = string
     machine_labels                 = map(string)
     vm_affinity_b64                = string
+    gpu_enabled                    = bool
     resources = object({
       cpu    = number
       memory = number
