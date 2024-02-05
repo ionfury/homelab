@@ -26,6 +26,7 @@ runner:
         - get
         - list
         - watch
+        - delete
   sendAdditionalTelemetry: true
   additional_env_vars:
     - name: DISCORD_WEBHOOK
