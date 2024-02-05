@@ -55,6 +55,11 @@ playbookRepos:
     url: "https://github.com/ionfury/robusta_playbooks.git"
 customPlaybooks:
   - triggers:
+      - on_node_delete: {}
+    actions:
+      - delete_node_volumeattachments: {}
+
+  - triggers:
       - on_prometheus_alert:
           alert_name: VolumeAttachmentNodeMismatch
     actions:
