@@ -10,8 +10,12 @@ controllers:
     containers:
       main:
         args:
-          - --host 0.0.0.0
-          - --model ${MODEL}
+          - "--host"
+          - "0.0.0.0"
+          - "--model"
+          - "${MODEL}"
+          - "--dtype"
+          - "half"
         envFrom:
           - secretRef:
               name: huggingface-secret
