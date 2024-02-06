@@ -25,6 +25,8 @@ controllers:
             enabled: false
           startup:
             enabled: false
+nodeSelector:
+  nvidia.com/gpu.product: Quadro-P2000
 service:
   main:
     ports:
