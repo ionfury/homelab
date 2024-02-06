@@ -9,3 +9,4 @@ spec:
       IMAGE_REPOSITORY: ghcr.io/mistralai/mistral-src/vllm
       IMAGE_TAG: 1.0.0 # {"$imagepolicy": "ai:vllm-automation:tag"}
       MODEL: mistralai/Mistral-7B-Instruct-v0.2
+      MODEL_NAME: mixtral-7b
