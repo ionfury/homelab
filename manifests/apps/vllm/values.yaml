@@ -1,0 +1,32 @@
+envFrom:
+controllers:
+  main:
+    replicas: 1
+    strategy: RollingUpdate
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        args:
+          - --host 0.0.0.0
+          - --model ${MODEL}
+        envFrom:
+          - secretRef:
+              name: huggingface-secret
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+service:
+  main:
+    ports:
+      http:
+        port: 8000
