@@ -1,4 +1,6 @@
-envFrom:
+defaultPodOptions:
+  nodeSelector:
+    nvidia.com/gpu.product: Quadro-P2000
 controllers:
   main:
     replicas: 1
@@ -23,8 +25,6 @@ controllers:
             enabled: false
           startup:
             enabled: false
-nodeSelector:
-  nvidia.com/gpu.product: Quadro-P2000
 service:
   main:
     ports:
