@@ -1,7 +1,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: vllm-minstral-7b
+  name: minstral-7b
 spec:
   path: ./manifests/apps/vllm
   postBuild:
