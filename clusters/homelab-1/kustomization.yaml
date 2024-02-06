@@ -2,6 +2,7 @@ components:
   - ../../manifests/components/configurations/kustomization
   - ../../manifests/components/kustomization-cluster-vars
 resources:
+  - ai
   - app-template-helm-repo.yaml
   - cert-manager
   - flux-system
