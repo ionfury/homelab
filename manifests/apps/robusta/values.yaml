@@ -49,6 +49,16 @@ runner:
         secretKeyRef:
           name: robusta-app-secrets
           key: ACCOUNT_ID
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - prometheus
+          topologyKey: "kubernetes.io/hostname"
 rsa:
   existingSecret: robusta-app-rsa-secrets
 playbookRepos:
