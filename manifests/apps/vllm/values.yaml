@@ -3,8 +3,8 @@ defaultPodOptions:
     nvidia.com/gpu.product: Quadro-P2000
 controllers:
   main:
-    replicas: 1
-    strategy: RollingUpdate
+    replicas: 0
+    strategy: Recreate
     annotations:
       reloader.stakater.com/auto: "true"
     containers:
