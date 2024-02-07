@@ -4,6 +4,7 @@ components:
 resources:
   - bazarr.yaml
   - jellyfin.yaml
+  - jellyseerr.yaml
   - transmission.yaml
   - lidarr.yaml
   - prowlarr.yaml
