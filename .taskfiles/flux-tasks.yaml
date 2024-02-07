@@ -1,6 +1,22 @@
 version: "3"
 
 tasks:
+  is-git-synced:
+    silent: true
+    vars:
+      NAMESPACE: flux-system
+      NAME: flux-system
+    desc: Checks if the stored stored artifact git hash matches the remote hash.
+    cmds:
+      - cmd: |
+          currenthash=$(kubectl get gitrepositories.source.toolkit.fluxcd.io -n {{ .NAMESPACE }} {{ .NAME }} -o jsonpath='{.status.artifact.revision}' | awk -F'sha1:' '{print $2}')
+          repourl=$(kubectl get gitrepositories.source.toolkit.fluxcd.io -n {{ .NAMESPACE }} {{ .NAME }} -o jsonpath='{.spec.url}')
+          latesthash=$(git ls-remote $repourl main | cut -f1)
+          if [ "$currenthash" == "$latesthash" ]; then
+            echo "OK"
+          else
+            echo "NOT SYNCED"
+          fi
   reconcile-kustomization:
     desc: Force reconciliation of flux-system kustomization to pull in latest changes from Git
     cmds:
