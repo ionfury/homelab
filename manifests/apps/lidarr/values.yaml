@@ -102,9 +102,17 @@ ingress:
             service:
               name: main
               port: http
+      - host: music.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - lidarr.${INTERNAL_DOMAIN}
+          - music.${INTERNAL_DOMAIN}
         secretName: lidarr-tls
 persistence:
   media:
