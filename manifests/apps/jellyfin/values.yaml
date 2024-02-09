@@ -1,3 +1,4 @@
+automountServiceToken: false
 env:
   TZ: ${TZ}
   DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
