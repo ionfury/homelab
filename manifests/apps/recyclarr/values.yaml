@@ -4,10 +4,6 @@ controllers:
       reloader.stakater.com/auto: "true"
     containers:
       main:
-        args:
-          - --config /configs/radarr.yaml
-          - --config /configs/radarr-uhd.yaml
-          - --config /configs/sonarr.yaml
         env:
           TZ: ${TZ}
           RADARR_API_KEY:
@@ -52,5 +48,5 @@ persistence:
     type: configMap
     name: recyclarr-config
     globalMounts:
-      - path: /configs
+      - path: /config/configs
         readOnly: true
