@@ -10,9 +10,9 @@ configMapGenerator:
     options:
       disableNameSuffixHash: true
     files:
-      - radarr.yml=./config/radarr.yaml
-      - rdadarr-uhd.yml=./config/radarr-uhd.yaml
-      - sonarr.yml=./config/sonarr.yaml
+      - radarr.yaml=./config/radarr.yaml
+      - radarr-uhd.yaml=./config/radarr-uhd.yaml
+      - sonarr.yaml=./config/sonarr.yaml
 secretGenerator:
   - name: sonarr-secret
     options:

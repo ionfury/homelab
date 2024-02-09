@@ -4,6 +4,10 @@ controllers:
       reloader.stakater.com/auto: "true"
     containers:
       main:
+        args:
+          - -c /configs/radarr.yml
+          - -c /configs/radarr-uhd.yml
+          - -c /configs/sonarr.yml
         env:
           TZ: ${TZ}
           RADARR_API_KEY:
