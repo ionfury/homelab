@@ -21,11 +21,6 @@ controllers:
               secretKeyRef:
                 name: recyclarr-sonarr-secret
                 key: key
-          SONARR_UHD_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: recyclarr-sonarr-uhd-secret
-                key: key
         resources:
           requests:
             cpu: 10m
@@ -53,6 +48,5 @@ persistence:
     type: configMap
     name: recyclarr-config
     globalMounts:
-      - path: /config/recyclarr.yml
-        subPath: recyclarr.yml
+      - path: /configs
         readOnly: true
