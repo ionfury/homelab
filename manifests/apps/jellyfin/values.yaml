@@ -1,10 +1,62 @@
-automountServiceToken: false
-env:
-  TZ: ${TZ}
-  DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
-  JELLYFIN_FFmpeg__probesize: "500000000"
-  JELLYFIN_FFmpeg__analyzeduration: "5000000000"
-  JELLYFIN_PublishedServerUrl: jellyfin.${INTERNAL_DOMAIN}
+defaultPodOptions:
+  automountServiceAccountToken: false
+  enableServiceLinks: false
+  nodeSelector:
+    nvidia.com/gpu.product: Quadro-P2000
+  labels:
+    required-volume: media
+  securityContext:
+    runAsUser: 568
+    runAsGroup: 568
+    fsGroup: 568
+    fsGroupChangePolicy: OnRootMismatch
+    supplementalGroups:
+      - 44
+      - 109
+      - 10000
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        env:
+          TZ: ${TZ}
+          DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
+          JELLYFIN_FFmpeg__probesize: "500000000"
+          JELLYFIN_FFmpeg__analyzeduration: "5000000000"
+          JELLYFIN_PublishedServerUrl: jellyfin.${INTERNAL_DOMAIN}
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8096
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8096
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          startup:
+            enabled: false
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 4Gi
+          limits:
+            nvidia.com/gpu: 1
 service:
   main:
     ports:
@@ -26,16 +78,22 @@ ingress:
       gethomepage.dev/name: Jellyfin
       gethomepage.dev/widget.type: jellyfin
       gethomepage.dev/widget.url: http://jellyfin-app.${NAMESPACE}.svc.cluster.local:8096
-    ingressClassName: internal
+    className: internal
     hosts:
       - host: jellyfin.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
       - host: watch.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - jellyfin.${INTERNAL_DOMAIN}
@@ -50,56 +108,48 @@ ingress:
         proxy_set_header Accept-Encoding "";
         sub_filter '</body>' '<script plugin="Jellyscrub" version="1.1.1.0" src="/Trickplay/ClientScript"></script></body>';
         sub_filter_once on;
-    ingressClassName: external
+    className: external
     hosts:
       - host: watch.${EXTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - watch.${EXTERNAL_DOMAIN}
         secretName: external-jellyfin-tls
-podSecurityContext:
-  runAsUser: 568
-  runAsGroup: 568
-  fsGroup: 568
-  fsGroupChangePolicy: OnRootMismatch
-  supplementalGroups:
-    - 44
-    - 109
-    - 10000
 persistence:
   config:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 20Gi
+    globalMounts:
+      - path: /config
   transcode:
     enabled: true
     retain: false
     storageClass: ${STORAGE_CLASS_FAST}
     size: 200Gi
     accessMode: ReadWriteOnce
+    globalMounts:
+      - path: /transcode
   media:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW}
     size: 10Ti
     accessMode: ReadWriteOnce
+    globalMounts:
+      - path: /media
   media-uhd:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW}
     size: 5Ti
     accessMode: ReadWriteOnce
-podLabels:
-  required-volume: media
-nodeSelector:
-  nvidia.com/gpu.product: Quadro-P2000
-resources:
-  requests:
-    cpu: 563m
-    memory: 2833Mi
-  limits:
-    nvidia.com/gpu: 1
+    globalMounts:
+      - path: /media-uhd
