@@ -7,6 +7,8 @@ brew "jq"
 brew "helm"
 brew "kustomize"
 brew "kubeconform"
+tap "robusta-dev/homebrew-krr"
+brew "krr"
 
 # Flux
 tap "fluxcd/tap"
