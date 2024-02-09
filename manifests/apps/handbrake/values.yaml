@@ -18,8 +18,8 @@ controllers:
         #    nvidia.com/gpu: 1
         env:
           TZ: ${TZ}
-          USER_ID: 568
-          GROUP_ID: 568
+          #USER_ID: 568
+          #GROUP_ID: 568
           KEEP_APP_RUNNING: 0
           DARK_MODE: 1
           WEB_LISTENING_PORT: 5800
