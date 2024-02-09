@@ -12,7 +12,7 @@ configMapGenerator:
     files:
       - radarr.yml=./config/radarr.yaml
       - rdadarr-uhd.yml=./config/radarr-uhd.yaml
-      - sonarr.yml=./config/sonarr-uhd.yaml
+      - sonarr.yml=./config/sonarr.yaml
 secretGenerator:
   - name: sonarr-secret
     options:
