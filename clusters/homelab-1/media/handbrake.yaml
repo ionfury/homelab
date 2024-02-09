@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: docker.io/jlesage/handbrake
-      IMAGE_TAG: v24.01.2 # {"$imagepolicy": "media:handbrake-automation:tag"}
+      IMAGE_TAG: v23.12.2 # {"$imagepolicy": "media:handbrake-automation:tag"}
