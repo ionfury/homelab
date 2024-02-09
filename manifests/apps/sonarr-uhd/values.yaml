@@ -51,7 +51,7 @@ controllers:
           SONARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           SONARR__POSTGRES_PORT: 5432
           SONARR__POSTGRES_MAIN_DB: sonarr_uhd_main
-          SONARR__POSTGRES_LOG_DB: sonarr__uhd_log
+          SONARR__POSTGRES_LOG_DB: sonarr_uhd_log
           SONARR__POSTGRES_USER:
             valueFrom:
               secretKeyRef:
