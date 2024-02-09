@@ -113,16 +113,16 @@ ingress:
       - hosts:
           - radarr-uhd.${INTERNAL_DOMAIN}
           - movies-uhd.${INTERNAL_DOMAIN}
-        secretName: radarr-tls
+        secretName: radarr-uhd-tls
 persistence:
   media-uhd:
     enabled: true
     existingClaim: jellyfin-app-media-uhd
-    mountPath: /media-uhd
+    mountPath: /media
     advancedMounts:
       main:
         main:
-          - path: /media-uhd
+          - path: /media
   config:
     enabled: true
     retain: true
