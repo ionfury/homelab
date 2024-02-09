@@ -1,6 +1,5 @@
 controllers:
   main:
-    type: statefulset
     annotations:
       reloader.stakater.com/auto: "true"
     containers:
@@ -37,18 +36,19 @@ controllers:
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
-    statefulset:
-      volumeClaimTemplates:
-        - name: config
-          accessMode: ReadWriteOnce
-          size: 1Gi
-          storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
-          globalMounts:
-            - path: /config
 service:
   main:
     enabled: false
 persistence:
+  config:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
+    advancedMounts:
+      main:
+        main:
+          - path: /config
   config-file:
     type: configMap
     name: recyclarr-config
