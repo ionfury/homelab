@@ -86,6 +86,12 @@ persistence:
     storageClass: ${STORAGE_CLASS_SLOW}
     size: 10Ti
     accessMode: ReadWriteOnce
+  media-uhd:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_SLOW}
+    size: 5Ti
+    accessMode: ReadWriteOnce
 podLabels:
   required-volume: media
 nodeSelector:

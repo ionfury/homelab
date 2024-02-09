@@ -9,6 +9,7 @@ resources:
   - lidarr.yaml
   - prowlarr.yaml
   - radarr.yaml
+  - radarr-uhd.yaml
   - readarr.yaml
   - recyclarr.yaml
   - sonarr.yaml

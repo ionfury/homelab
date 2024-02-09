@@ -22,3 +22,8 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         replicator.v1.mittwald.de/replicate-from: media/radarr-secret
+  - name: radarr-uhd-secret
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        replicator.v1.mittwald.de/replicate-from: media/radarr-uhd-secret

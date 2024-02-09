@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: radarr-uhd
+spec:
+  path: ./manifests/apps/radarr-uhd
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/radarr-nightly
+      IMAGE_TAG: 4.7.5.7821 # {"$imagepolicy": "media:radarr-automation:tag"}

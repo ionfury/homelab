@@ -12,6 +12,11 @@ controllers:
               secretKeyRef:
                 name: recyclarr-radarr-secret
                 key: key
+          RADARR_UHD_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: recyclarr-radarr-uhd-secret
+                key: key
           SONARR_API_KEY:
             valueFrom:
               secretKeyRef:
