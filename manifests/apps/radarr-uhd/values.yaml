@@ -118,6 +118,14 @@ persistence:
   media-uhd:
     enabled: true
     existingClaim: jellyfin-app-media-uhd
+    mountPath: /media-uhd
+    advancedMounts:
+      main:
+        main:
+          - path: /media-uhd
+  media:
+    enabled: true
+    existingClaim: jellyfin-app-media
     mountPath: /media
     advancedMounts:
       main:
