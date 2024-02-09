@@ -6,6 +6,7 @@ resources:
   - jellyfin.yaml
   - jellyseerr.yaml
   - transmission.yaml
+  - handbrake.yaml
   - lidarr.yaml
   - prowlarr.yaml
   - radarr.yaml
