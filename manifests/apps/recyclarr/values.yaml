@@ -5,9 +5,9 @@ controllers:
     containers:
       main:
         args:
-          - -c /configs/radarr.yml
-          - -c /configs/radarr-uhd.yml
-          - -c /configs/sonarr.yml
+          - --config /configs/radarr.yaml
+          - --config /configs/radarr-uhd.yaml
+          - --config /configs/sonarr.yaml
         env:
           TZ: ${TZ}
           RADARR_API_KEY:
