@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: sonarr-uhd
+spec:
+  path: ./manifests/apps/sonarr-uhd
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/sonarr-develop
+      IMAGE_TAG: 4.0.1.1096 # {"$imagepolicy": "media:sonarr-automation:tag"}

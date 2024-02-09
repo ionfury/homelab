@@ -13,5 +13,6 @@ resources:
   - readarr.yaml
   - recyclarr.yaml
   - sonarr.yaml
+  - sonarr-uhd.yaml
   - immich.yaml
   - zipline.yaml

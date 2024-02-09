@@ -12,60 +12,60 @@ controllers:
       01-init-db:
         image:
           repository: ghcr.io/onedr0p/postgres-init
-          tag: "15"
+          tag: "14.8"
         imagePullPolicy: IfNotPresent
         env:
-          INIT_POSTGRES_DBNAME: "radarr_uhd_main radarr_uhd_log"
+          INIT_POSTGRES_DBNAME: "sonarr_uhd_main sonarr_uhd_log"
           INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           INIT_POSTGRES_USER:
             valueFrom:
               secretKeyRef:
-                name: radarr-uhd-secret
+                name: sonarr-uhd-secret
                 key: username
           INIT_POSTGRES_PASS:
             valueFrom:
               secretKeyRef:
-                name: radarr-uhd-secret
+                name: sonarr-uhd-secret
                 key: password
           INIT_POSTGRES_SUPER_USER:
             valueFrom:
               secretKeyRef:
-                name: radarr-uhd-postgres-superuser
+                name: sonarr-uhd-postgres-superuser
                 key: username
           INIT_POSTGRES_SUPER_PASS:
             valueFrom:
               secretKeyRef:
-                name: radarr-uhd-postgres-superuser
+                name: sonarr-uhd-postgres-superuser
                 key: password
     containers:
       main:
         resources:
           requests:
-            cpu: 39m
-            memory: 381Mi
+            cpu: 116m
+            memory: 298Mi
         env:
           TZ: ${TZ}
-          RADARR__INSTANCE_NAME: Radarr-uhd
-          RADARR__PORT: 7878
-          RADARR__LOG_LEVEL: info
-          RADARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-          RADARR__POSTGRES_PORT: 5432
-          RADARR__POSTGRES_MAIN_DB: radarr_uhd_main
-          RADARR__POSTGRES_LOG_DB: radarr_uhd_log
-          RADARR__POSTGRES_USER:
+          SONARR__INSTANCE_NAME: Sonarr-uhd
+          SONARR__PORT: 8989
+          SONARR__LOG_LEVEL: info
+          SONARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          SONARR__POSTGRES_PORT: 5432
+          SONARR__POSTGRES_MAIN_DB: sonarr_uhd_main
+          SONARR__POSTGRES_LOG_DB: sonarr__uhd_log
+          SONARR__POSTGRES_USER:
             valueFrom:
               secretKeyRef:
-                name: radarr-uhd-secret
+                name: sonarr-uhd-secret
                 key: username
-          RADARR__POSTGRES_PASSWORD:
+          SONARR__POSTGRES_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: radarr-uhd-secret
+                name: sonarr-uhd-secret
                 key: password
-          RADARR__API_KEY:
+          SONARR__API_KEY:
             valueFrom:
               secretKeyRef:
-                name: radarr-uhd-secret
+                name: sonarr-uhd-secret
                 key: key
 defaultPodOptions:
   affinity:
@@ -82,27 +82,27 @@ service:
   main:
     ports:
       http:
-        port: 7878
+        port: 8989
 ingress:
   main:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Radarr is a movie collection manager for Usenet and BitTorrent users.
+      gethomepage.dev/description: Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them.
       gethomepage.dev/group: Media
-      gethomepage.dev/icon: radarr.png
-      gethomepage.dev/name: Radarr-uhd
+      gethomepage.dev/icon: sonarr.png
+      gethomepage.dev/name: sonarr-uhd
     className: internal
     hosts:
-      - host: radarr-uhd.${INTERNAL_DOMAIN}
+      - host: sonarr-uhd.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
               name: main
               port: http
-      - host: movies-uhd.${INTERNAL_DOMAIN}
+      - host: shows-uhd.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
@@ -111,9 +111,9 @@ ingress:
               port: http
     tls:
       - hosts:
-          - radarr-uhd.${INTERNAL_DOMAIN}
-          - movies-uhd.${INTERNAL_DOMAIN}
-        secretName: radarr-tls
+          - sonarr-uhd.${INTERNAL_DOMAIN}
+          - shows-uhd.${INTERNAL_DOMAIN}
+        secretName: sonarr-uhd-tls
 persistence:
   media-uhd:
     enabled: true
