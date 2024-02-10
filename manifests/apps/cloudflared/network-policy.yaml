@@ -10,7 +10,7 @@ spec:
     - Egress
     - Ingress
   egress:
-    - from:
+    - to:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: ingress-nginx
