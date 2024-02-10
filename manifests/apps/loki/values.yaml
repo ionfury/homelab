@@ -88,6 +88,7 @@ gateway:
       cpu: 10m
       memory: 100Mi
   service:
+    type: LoadBalancer
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
   ingress:
