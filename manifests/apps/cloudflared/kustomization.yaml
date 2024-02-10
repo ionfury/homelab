@@ -4,6 +4,7 @@ components:
 resources:
   - dns-endpoint.yaml
   - external-secret.yaml
+  - network-policy.yaml
 configMapGenerator:
   - name: values
     behavior: replace
