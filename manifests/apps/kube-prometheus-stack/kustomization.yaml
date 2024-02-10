@@ -3,6 +3,7 @@ components:
   - ../../components/helm-release-oci
 resources:
   - alertmanager-webhook-secret.yaml
+  - node-exporter-rules.yaml
 configMapGenerator:
   - name: values
     behavior: replace
