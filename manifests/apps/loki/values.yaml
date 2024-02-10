@@ -87,8 +87,11 @@ gateway:
     requests:
       cpu: 10m
       memory: 100Mi
+  service:
+    annotations:
+      cloudprovider.harvesterhci.io/ipam: dhcp
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: cloudflare
       gethomepage.dev/enabled: "true"
