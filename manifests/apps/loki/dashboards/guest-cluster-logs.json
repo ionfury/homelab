@@ -524,7 +524,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Loki Kubernetes Logs",
+  "title": "Homelab Cluster Logs",
   "uid": "o6-BGgnnk",
   "version": 2,
   "weekStart": ""
