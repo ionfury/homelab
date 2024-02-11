@@ -1,6 +1,12 @@
 namespace: media
 components:
   - ../../../manifests/components/namespace
+  # - ../.network-policies/allow-same-namespace
+  # - ../.network-policies/allow-ingress-from-internal
+  # - ../.network-policies/allow-ingress-from-external
+  # - ../.network-policies/allow-ingress-from-prometheus
+  # - ../.network-policies/allow-ingress-from-uptime-kuma
+  # - ../.network-policies/allow-egress-to-postgres
 resources:
   - bazarr.yaml
   - jellyfin.yaml
@@ -14,6 +20,3 @@ resources:
   - readarr.yaml
   - recyclarr.yaml
   - sonarr.yaml
-  - sonarr-uhd.yaml
-  - immich.yaml
-  - zipline.yaml

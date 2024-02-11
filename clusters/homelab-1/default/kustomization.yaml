@@ -1,12 +1,10 @@
-namespace: network
+namespace: default
 components:
   - ../../../manifests/components/namespace
   # - ../.network-policies/allow-same-namespace
+  # - ../.network-policies/allow-ingress-from-internal
   # - ../.network-policies/allow-ingress-from-prometheus
   # - ../.network-policies/allow-ingress-from-uptime-kuma
 resources:
-  - blocky.yaml
-  - certificates.yaml
-  - external-dns-cloudflare.yaml
-  - unifi-network.yaml
-  - unifi-protect.yaml
+  - homepage.yaml
+  - libreddit.yaml

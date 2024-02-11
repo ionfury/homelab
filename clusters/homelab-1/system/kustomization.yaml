@@ -1,14 +1,14 @@
 namespace: system
 components:
   - ../../../manifests/components/namespace
+  # - ../.network-policies/allow-same-namespace
+  # - ../.network-policies/allow-ingress-from-prometheus
 resources:
   - cloudnative-pg.yaml
   - dragonfly-db-operator.yaml
   - external-secrets-stores.yaml
   - external-secrets.yaml
-  - gha-runner-scale-set-controller.yaml
   - harvester-storage-classes.yaml
   - reloader.yaml
-  - secret-generator.yaml
   - replicator.yaml
-  - robusta.yaml
+  - secret-generator.yaml

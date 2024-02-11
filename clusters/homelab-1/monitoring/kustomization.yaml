@@ -1,15 +1,12 @@
 namespace: monitoring
 components:
   - ../../../manifests/components/namespace
+  # - ../.network-policies/allow-same-namespace
+  # - ../.network-policies/allow-ingress-from-internal
+  # - ../.network-policies/allow-egress-all
 resources:
-  # - discord-alertmanager.yaml
   - grafana.yaml
-  - ipmi-exporter-supermicro.yaml
   - komodor.yaml
   - kube-prometheus-stack.yaml
-  - kube-state-metrics.yaml
-  - loki.yaml
-  - promtail.yaml
-  - snmp-exporter-cyberpower-ups.yaml
-  - unpoller.yaml
   - uptime-kuma.yaml
+  - robusta.yaml

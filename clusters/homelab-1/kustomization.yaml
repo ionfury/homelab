@@ -2,16 +2,20 @@ components:
   - ../../manifests/components/configurations/kustomization
   - ../../manifests/components/kustomization-cluster-vars
 resources:
-  - ai
   - app-template-helm-repo.yaml
+  - ai
   - cert-manager
+  - default
+  - exporters
   - flux-system
   - games
+  - images
   - kube-system
+  - logging
   - media
   - monitoring
   - network
-  #- policy
+  - runners
   - storage
   - system
   - tools

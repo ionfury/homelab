@@ -1,6 +1,10 @@
 namespace: games
 components:
   - ../../../manifests/components/namespace
+  # - ../.network-policies/allow-same-namespace
+  # - ../.network-policies/allow-ingress-from-internal
+  # - ../.network-policies/allow-ingress-from-external
+  # - ../.network-policies/allow-ingress-from-prometheus
 resources:
   - palworld.yaml
   #- plexheim.yaml

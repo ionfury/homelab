@@ -1,6 +1,8 @@
 namespace: cert-manager
 components:
   - ../../../manifests/components/namespace
+  # - ../.network-policies/allow-same-namespace
+  # - ../.network-policies/allow-ingress-from-prometheus
 resources:
   - cert-manager.yaml
   - issuers.yaml

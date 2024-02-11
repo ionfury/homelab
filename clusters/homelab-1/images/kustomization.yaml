@@ -1,14 +1,13 @@
-namespace: tools
+namespace: images
 components:
   - ../../../manifests/components/namespace
   # - ../.network-policies/allow-same-namespace
-  # - ../.network-policies/allow-ingress-from-prometheus
   # - ../.network-policies/allow-ingress-from-internal
+  # - ../.network-policies/allow-ingress-from-external
+  # - ../.network-policies/allow-ingress-from-prometheus
   # - ../.network-policies/allow-ingress-from-uptime-kuma
   # - ../.network-policies/allow-egress-to-minio
   # - ../.network-policies/allow-egress-to-dragonfly
-  # - ../.network-policies/allow-egress-to-postgres
 resources:
-  - firefly-iii.yaml
-  - paperless-ngx.yaml
-  - tandoor-recipes.yaml
+  - zipline.yaml
+  - immich.yaml
