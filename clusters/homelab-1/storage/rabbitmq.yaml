@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rabbitmq
+spec:
+  path: ./manifests/apps/rabbitmq
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: rabbitmq
+      IMAGE_TAG: 3.12.12 # {"$imagepolicy": "storage:rabbitmq-automation:tag"}

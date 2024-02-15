@@ -5,3 +5,4 @@ resources:
   - dragonfly-db.yaml
   - postgres.yaml
   - minio.yaml
+  - rabbitmq.yaml

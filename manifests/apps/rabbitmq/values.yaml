@@ -1,0 +1,54 @@
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    type: statefulset
+    containers:
+      main:
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 5672
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 5672
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 5672
+        env:
+          RABBITMQ_DEFAULT_USER:
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-app-credentials
+                key: username
+          RABBITMQ_DEFAULT_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-app-credentials
+                key: password
+        resources:
+          requests:
+            cpu: 10m
+            memory: 200Mi
+          limits:
+            memory: 2Gi
+service:
+  main:
+    ports:
+      http:
+        port: 5672
+defaultPodOptions:
+  securityContext:
+    runAsUser: 995
+    runAsGroup: 991
+    fsGroup: 991
+    fsGroupChangePolicy: "OnRootMismatch"
