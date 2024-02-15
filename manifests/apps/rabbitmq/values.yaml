@@ -28,12 +28,12 @@ controllers:
           RABBITMQ_DEFAULT_USER:
             valueFrom:
               secretKeyRef:
-                name: rabbitmq-app-credentials
+                name: rabbitmq-credentials
                 key: username
           RABBITMQ_DEFAULT_PASS:
             valueFrom:
               secretKeyRef:
-                name: rabbitmq-app-credentials
+                name: rabbitmq-credentials
                 key: password
         resources:
           requests:
