@@ -6,7 +6,6 @@ resources:
   - jellyfin.yaml
   - jellyseerr.yaml
   - transmission.yaml
-  - handbrake.yaml
   - lidarr.yaml
   - prowlarr.yaml
   - radarr.yaml
@@ -14,6 +13,5 @@ resources:
   - readarr.yaml
   - recyclarr.yaml
   - sonarr.yaml
-  - sonarr-uhd.yaml
   - immich.yaml
   - zipline.yaml
