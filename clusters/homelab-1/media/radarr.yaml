@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/radarr-nightly
-      IMAGE_TAG: 5.3.5.8594 # {"$imagepolicy": "media:radarr-automation:tag"}
+      IMAGE_TAG: 5.3.6.8604 # {"$imagepolicy": "media:radarr-automation:tag"}
