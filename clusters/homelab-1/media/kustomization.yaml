@@ -4,7 +4,7 @@ components:
 resources:
   - bazarr.yaml
   - gearr.yaml
-  - gearr-worker.yaml
+  # - gearr-worker.yaml
   - jellyfin.yaml
   - jellyseerr.yaml
   - transmission.yaml
