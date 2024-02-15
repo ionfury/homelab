@@ -6,6 +6,7 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+secretGenerator:
   - name: credentials
     options:
       disableNameSuffixHash: true
