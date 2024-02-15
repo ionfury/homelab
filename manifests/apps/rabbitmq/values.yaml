@@ -52,3 +52,12 @@ defaultPodOptions:
     runAsGroup: 991
     fsGroup: 991
     fsGroupChangePolicy: "OnRootMismatch"
+persistence:
+  rabbit:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
+    size: 1Gi
+    globalMounts:
+      - path: /var/lib/rabbitmq
