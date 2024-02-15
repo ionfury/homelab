@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: gearr
+spec:
+  path: ./manifests/apps/gearr
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: ghcr.io/pando85/gearr
+      IMAGE_TAG: 0.1.0-server # {"$imagepolicy": "media:gearr-automation:tag"}

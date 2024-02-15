@@ -1,0 +1,180 @@
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    initContainers:
+      01-init-db:
+        image:
+          repository: ghcr.io/onedr0p/postgres-init
+          tag: "15.5"
+        imagePullPolicy: IfNotPresent
+        env:
+          INIT_POSTGRES_DBNAME: "gearr_main"
+          INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          INIT_POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-credentials
+                key: postgres-username
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-credentials
+                key: postgres-password
+          INIT_POSTGRES_SUPER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-postgres-superuser
+                key: username
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-postgres-superuser
+                key: password
+    containers:
+      main:
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /-/healthy
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /-/healthy
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /-/healthy
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+        env:
+          TZ: ${TZ}
+          CONFIG_PATH: /etc/transcoder/config.yaml
+          DATABASE_HOST: ${CLUSTER_POSTGRES_HOST}
+          DATABASE_PORT: 5432
+          DATABASE_DATABASE: gearr_main
+          DATABASE_USER:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-credentials
+                key: postgres-username
+          DATABASE_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-credentials
+                key: postgres-password
+          SCHEDULER_DOMAIN: https://transcoder.${INTERNAL_DOMAIN}
+          WEB_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-credentials
+                key: token
+          BROKER_HOST: rabbitmq-app.storage
+          BROKER_PORT: 5672
+          BROKER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-rabbitmq-credentials
+                key: username
+          BROKER_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: gearr-rabbitmq-credentials
+                key: password
+        resources:
+          requests:
+            cpu: 10m
+            memory: 200Mi
+          limits:
+            memory: 400Mi
+service:
+  main:
+    ports:
+      http:
+        port: 8080
+ingress:
+  main:
+    enabled: true
+    className: internal
+    annotations:
+      external-dns.alpha.kubernetes.io/enabled: "true"
+      cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-body-size: 20G
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    hosts:
+      - host: transcode.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: main
+              port: http
+    tls:
+      - hosts:
+          - transcode.${INTERNAL_DOMAIN}
+        secretName: gearr-tls
+
+defaultPodOptions:
+  securityContext:
+    runAsUser: 995
+    runAsGroup: 991
+    fsGroup: 991
+    fsGroupChangePolicy: "OnRootMismatch"
+
+persistence:
+  config:
+    enabled: true
+    type: secret
+    name: transcoder-config
+    advancedMounts:
+      main:
+        main:
+          - path: /etc/transcoder/
+  #  series:
+  #    enabled: true
+  #    type: hostPath
+  #    hostPath: /datasets/series
+  #    advancedMounts:
+  #      main:
+  #        main:
+  #          - path: /datasets/series
+  #  peliculas:
+  #    enabled: true
+  #    type: hostPath
+  #    hostPath: /datasets/peliculas
+  #    advancedMounts:
+  #      main:
+  #        main:
+  #          - path: /datasets/peliculas
+  transcode:
+    enabled: true
+    retain: false
+    storageClass: ${STORAGE_CLASS_FAST}
+    size: 200Gi
+    accessMode: ReadWriteOnce
+    globalMounts:
+      - path: /transcode
