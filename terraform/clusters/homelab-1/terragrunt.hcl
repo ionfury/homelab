@@ -8,7 +8,7 @@ dependencies {
 
 inputs = {
   cluster_name = "${basename(get_terragrunt_dir())}"
-  kubernetes_version = "v1.26.8+rke2r1"
+  kubernetes_version = "v1.26.13+rke2r1"
 
   machine_pools = {
     control-plane = {

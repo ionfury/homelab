@@ -174,6 +174,7 @@ disable:
   - rke2-ingress-nginx
 disable-kube-proxy: false
 etcd-expose-metrics: true
+embedded-registry: true
 kube-apiserver-arg:
 - admission-control-config-file=/etc/rancher/rke2/config/rancher-psact.yaml
 EOF
