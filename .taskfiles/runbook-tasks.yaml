@@ -1,6 +1,12 @@
 version: "3"
 
 tasks:
+  repair-loadbalancers:
+    desc: Remove & recreate disconnected LoadBalancers.
+    cmds:
+      - kubectl get svc --all-namespaces -o yaml | yq e '.items[] | select(.spec.type == "LoadBalancer") | . as $item | "---\n" + ($item | to_yaml)' - | tee out.yaml
+      - kubectl delete -f out.yaml
+      - kubectl apply -f out.yaml
   finalize-pending-volume-attachments:
     desc: Remove the finalizers on VolumeAttachments pending deletion to remediate docs/runbooks/unstick-volume-attachments.md.
     cmds:
