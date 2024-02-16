@@ -115,16 +115,15 @@ service:
 ingress:
   main:
     enabled: true
-    className: internal
     annotations:
-      external-dns.alpha.kubernetes.io/enabled: "true"
-      cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+      cert-manager.io/cluster-issuer: "cloudflare"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
       nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
       nginx.ingress.kubernetes.io/proxy-body-size: 20G
       nginx.ingress.kubernetes.io/proxy-buffering: "off"
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    className: internal
     hosts:
       - host: transcode.${INTERNAL_DOMAIN}
         paths:
@@ -146,14 +145,6 @@ defaultPodOptions:
     fsGroupChangePolicy: "OnRootMismatch"
 
 persistence:
-  config:
-    enabled: true
-    type: secret
-    name: transcoder-config
-    advancedMounts:
-      main:
-        main:
-          - path: /etc/transcoder/
   #  series:
   #    enabled: true
   #    type: hostPath
