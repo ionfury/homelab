@@ -2,7 +2,6 @@ controllers:
   main:
     annotations:
       reloader.stakater.com/auto: "true"
-    type: statefulset
     containers:
       main:
         probes:
