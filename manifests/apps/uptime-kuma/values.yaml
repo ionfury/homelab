@@ -37,6 +37,21 @@ ingress:
       - hosts:
           - uptime-kuma.${INTERNAL_DOMAIN}
         secretName: uptime-kuma-tls
+  external:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
+      external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+    ingressClassName: external
+    hosts:
+      - host: status.${EXTERNAL_DOMAIN}
+        paths:
+          - path: /status/external
+            pathType: Prefix
+    tls:
+      - hosts:
+          - status.${EXTERNAL_DOMAIN}
+        secretName: external-uptime-kuma-tls
 persistence:
   data:
     enabled: true
