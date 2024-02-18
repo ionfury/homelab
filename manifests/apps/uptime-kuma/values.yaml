@@ -42,6 +42,7 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+      nginx.ingress.kubernetes.io/use-forwarded-headers: true
     ingressClassName: external
     hosts:
       - host: status.${EXTERNAL_DOMAIN}
