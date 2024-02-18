@@ -28,7 +28,7 @@ spec:
 
       - alert: HostUnusualNetworkThroughputIn
         expr: '(sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 1h
         labels:
           severity: warning
         annotations:
@@ -37,7 +37,7 @@ spec:
   
       - alert: HostUnusualNetworkThroughputOut
         expr: '(sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 1h
         labels:
           severity: warning
         annotations:
@@ -46,7 +46,7 @@ spec:
   
       - alert: HostUnusualDiskReadRate
         expr: '(sum by (instance) (rate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 1h
         labels:
           severity: warning
         annotations:
@@ -55,7 +55,7 @@ spec:
   
       - alert: HostUnusualDiskWriteRate
         expr: '(sum by (instance) (rate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 2m
+        for: 30m
         labels:
           severity: warning
         annotations:
@@ -154,7 +154,7 @@ spec:
   
       - alert: HostUnusualDiskIo
         expr: '(rate(node_disk_io_time_seconds_total[1m]) > 0.5) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 1h
         labels:
           severity: warning
         annotations:
