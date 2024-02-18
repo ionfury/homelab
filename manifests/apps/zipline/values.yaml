@@ -20,8 +20,14 @@ initContainers:
             key: password
 automountServiceAccountToken: false
 controller:
+  annotations:
+    reloader.stakater.com/auto: "true"
   type: deployment
-  replicas: 1
+  replicas: 3
+  strategy: RollingUpdate
+  rollingUpdate:
+    surge: 25%
+    unavailable: 25%
 envFrom:
   - secretRef:
       name: zipline-storage-secret
@@ -113,3 +119,15 @@ resources:
     memory: 256Mi
   limits:
     memory: 512Mi
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - zipline-app
+          topologyKey: kubernetes.io/hostname
