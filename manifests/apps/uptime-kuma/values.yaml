@@ -42,11 +42,12 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+      nginx.ingress.kubernetes.io/rewrite-target: /status/external
     ingressClassName: external
     hosts:
       - host: status.${EXTERNAL_DOMAIN}
         paths:
-          - path: /status/external
+          - path: /
             pathType: Prefix
     tls:
       - hosts:
