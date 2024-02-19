@@ -47,6 +47,24 @@ ingress:
       - hosts:
           - accounts.${INTERNAL_DOMAIN}
         secretName: jellyfin-accounts-tls
+  external:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
+      external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+    className: external
+    hosts:
+      - host: accounts.${EXTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: main
+              port: http
+    tls:
+      - hosts:
+          - accounts.${EXTERNAL_DOMAIN}
+        secretName: external-jellyfin-accounts-tls
 persistence:
   config:
     enabled: true
