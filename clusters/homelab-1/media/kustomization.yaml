@@ -6,6 +6,7 @@ resources:
   - gearr.yaml
   # - gearr-worker.yaml
   - jellyfin.yaml
+  - jellyfin-accounts.yaml
   - jellyseerr.yaml
   - transmission.yaml
   - lidarr.yaml
