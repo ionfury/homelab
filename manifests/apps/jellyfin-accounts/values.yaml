@@ -36,7 +36,7 @@ ingress:
       gethomepage.dev/name: Jellyfin Accounts
     className: internal
     hosts:
-      - host: jellyfin-accounts.${INTERNAL_DOMAIN}
+      - host: accounts.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
@@ -45,7 +45,7 @@ ingress:
               port: http
     tls:
       - hosts:
-          - jellyfin-accounts.${INTERNAL_DOMAIN}
+          - accounts.${INTERNAL_DOMAIN}
         secretName: jellyfin-accounts-tls
 persistence:
   config:
