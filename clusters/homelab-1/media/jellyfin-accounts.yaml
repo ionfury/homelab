@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: hrfee/jfa-go
-      IMAGE_TAG: v0.5.1 # {"$imagepolicy": "media:jellyfin-accounts-automation:tag"}
+      IMAGE_TAG: latest # {"$imagepolicy": "media:jellyfin-accounts-automation:tag"}
