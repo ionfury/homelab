@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: rabbitmq
-      IMAGE_TAG: 3.12.13 # {"$imagepolicy": "storage:rabbitmq-automation:tag"}
+      IMAGE_TAG: 3.13.0 # {"$imagepolicy": "storage:rabbitmq-automation:tag"}
