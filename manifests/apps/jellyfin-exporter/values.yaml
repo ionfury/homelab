@@ -5,8 +5,8 @@ controllers:
     containers:
       main:
         env:
-          JF_URL: http://jellyfin-app.${NAMESPACE}.svc.cluster.local/
-          TOKEN:
+          JELLYFIN_URL: http://jellyfin-app.${NAMESPACE}.svc.cluster.local:8096
+          JELLYFIN_TOKEN:
             valueFrom:
               secretKeyRef:
                 name: jellyfin-exporter-token
@@ -18,7 +18,7 @@ service:
   main:
     ports:
       http:
-        port: 8080
+        port: 8000
 serviceMonitor:
   main:
     enabled: true
