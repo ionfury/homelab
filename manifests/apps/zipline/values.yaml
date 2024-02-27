@@ -1,72 +1,98 @@
-initContainers:
-  01-init-db:
-    image: ghcr.io/onedr0p/postgres-init:14.8
-    imagePullPolicy: IfNotPresent
-    envFrom:
-      - secretRef:
-          name: zipline-storage-secret
-    env:
-      INIT_POSTGRES_DBNAME: "zipline_main"
-      INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-      INIT_POSTGRES_SUPER_USER:
-        valueFrom:
-          secretKeyRef:
-            name: zipline-postgres-superuser
-            key: username
-      INIT_POSTGRES_SUPER_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: zipline-postgres-superuser
-            key: password
-automountServiceAccountToken: false
-controller:
-  annotations:
-    reloader.stakater.com/auto: "true"
-  type: deployment
-  replicas: 3
-  strategy: RollingUpdate
-  rollingUpdate:
-    surge: 25%
-    unavailable: 25%
-envFrom:
-  - secretRef:
-      name: zipline-storage-secret
-env:
-  # Core COnfig
-  TZ: ${TZ}
-  CORE_SECRET:
-    valueFrom:
-      secretKeyRef:
-        name: zipline-secret
-        key: key
-  DATASOURCE_TYPE: s3
-  DATASOURCE_S3_BUCKET: zipline
-  DATASOURCE_S3_ENDPOINT: ${CLUSTER_MINIO_HOST}
-  DATASOURCE_S3_FORCE_S3_PATH: "true"
-  DATASOURCE_S3_PORT: "9000"
-  DATASOURCE_S3_USE_SSL: "false"
-  CORE_HOST: "0.0.0.0"
-  CORE_PORT: "3000"
-  CORE_RETURN_HTTPS: "true"
-  # Exif
-  EXIF_REMOVE_GPS: "true"
-  # Features
-  FEATURES_INVITES: "false"
-  FEATURES_ROBOTS_TXT: "false"
-  FEATURES_USER_REGISTRATION: "false"
-  # Uploader
-  UPLOADER_DEFAULT_FORMAT: "RANDOM"
-  UPLOADER_DISABLED_EXTENSIONS: "ps1,pdf,bat,exe,sh,fish"
-  UPLOADER_DEFAULT_EXPIRATION: ""
-  UPLOADER_ROUTE: "/u"
-  UPLOADER_LENGTH: 6
-  # URLs
-  URLS_ROUTE: "/go"
-  URLS_LENGTH: 6
-  # Website
-  WEBSITE_TITLE: "${EXTERNAL_DOMAIN}"
-  WEBSITE_SHOW_FILES_PER_USER: "false"
-  WEBSITE_SHOW_VERSION: "false"
+defaultPodOptions:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - zipline-app
+            topologyKey: kubernetes.io/hostname
+controllers:
+  main:
+    type: deployment
+    replicas: 3
+    strategy: RollingUpdate
+    rollingUpdate:
+      surge: 25%
+      unavailable: 25%
+    annotations:
+      reloader.stakater.com/auto: "true"
+    initContainers:
+      01-init-db:
+        image:
+          repository: ghcr.io/onedr0p/postgres-init
+          tag: 14.8
+        imagePullPolicy: IfNotPresent
+        envFrom:
+          - secretRef:
+              name: zipline-storage-secret
+        env:
+          INIT_POSTGRES_DBNAME: "zipline_main"
+          INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
+          INIT_POSTGRES_SUPER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-postgres-superuser
+                key: username
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-postgres-superuser
+                key: password
+    containers:
+      main:
+        image:
+          repository: asdf
+          tag: asdf
+        resources:
+          requests:
+            cpu: 5m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        envFrom:
+          - secretRef:
+              name: zipline-storage-secret
+        env:
+          # Core COnfig
+          TZ: ${TZ}
+          CORE_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-secret
+                key: key
+          DATASOURCE_TYPE: s3
+          DATASOURCE_S3_BUCKET: zipline
+          DATASOURCE_S3_ENDPOINT: ${CLUSTER_MINIO_HOST}
+          DATASOURCE_S3_FORCE_S3_PATH: "true"
+          DATASOURCE_S3_PORT: "9000"
+          DATASOURCE_S3_USE_SSL: "false"
+          CORE_HOST: "0.0.0.0"
+          CORE_PORT: "3000"
+          CORE_RETURN_HTTPS: "true"
+          # Exif
+          EXIF_REMOVE_GPS: "true"
+          # Features
+          FEATURES_INVITES: "false"
+          FEATURES_ROBOTS_TXT: "false"
+          FEATURES_USER_REGISTRATION: "false"
+          # Uploader
+          UPLOADER_DEFAULT_FORMAT: "RANDOM"
+          UPLOADER_DISABLED_EXTENSIONS: "ps1,pdf,bat,exe,sh,fish"
+          UPLOADER_DEFAULT_EXPIRATION: ""
+          UPLOADER_ROUTE: "/u"
+          UPLOADER_LENGTH: 6
+          # URLs
+          URLS_ROUTE: "/go"
+          URLS_LENGTH: 6
+          # Website
+          WEBSITE_TITLE: "${EXTERNAL_DOMAIN}"
+          WEBSITE_SHOW_FILES_PER_USER: "false"
+          WEBSITE_SHOW_VERSION: "false"
 service:
   main:
     ports:
@@ -82,12 +108,15 @@ ingress:
       gethomepage.dev/group: Share
       gethomepage.dev/icon: zipline.png
       gethomepage.dev/name: Zipline
-    ingressClassName: internal
+    className: internal
     hosts:
       - host: img.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - img.${INTERNAL_DOMAIN}
@@ -97,37 +126,31 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
-    ingressClassName: external
+    className: external
     hosts:
       - host: img.${EXTERNAL_DOMAIN}
         paths:
           - path: /go
             pathType: Prefix
+            service:
+              name: main
+              port: http
           - path: /u
             pathType: Prefix
+            service:
+              name: main
+              port: http
           - path: /code
             pathType: Prefix
+            service:
+              name: main
+              port: http
           - path: /view
             pathType: Prefix
+            service:
+              name: main
+              port: http
     tls:
       - hosts:
           - img.${EXTERNAL_DOMAIN}
         secretName: zipline-external-tls
-resources:
-  requests:
-    cpu: 5m
-    memory: 256Mi
-  limits:
-    memory: 512Mi
-affinity:
-  podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - zipline-app
-          topologyKey: kubernetes.io/hostname
