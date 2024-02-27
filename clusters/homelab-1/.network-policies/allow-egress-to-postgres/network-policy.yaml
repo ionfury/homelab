@@ -15,6 +15,6 @@ spec:
             matchLabels:
               cnpg.io/cluster: postgres
               postgresql: postgres
-          ports:
-            - protocol: TCP
-              port: 5432
+      ports:
+        - protocol: TCP
+          port: 5432
