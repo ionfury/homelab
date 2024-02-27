@@ -6,6 +6,6 @@ components:
   - ../.network-policies/allow-ingress-from-prometheus
   - ../.network-policies/allow-ingress-from-uptime-kuma
   #- ../.network-policies/allow-egress-to-minio
-  - ../.network-policies/allow-egress-to-postgres
+  #- ../.network-policies/allow-egress-to-postgres
 resources:
   - zipline.yaml
