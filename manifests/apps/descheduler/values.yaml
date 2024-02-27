@@ -50,11 +50,12 @@ deschedulerPolicy:
             excludeOwnerKinds:
               - Job
             includingInitContainers: true
-            minPodLifetimeSeconds: 3600
+            minPodLifetimeSeconds: 1800
             reasons:
               - NodeShutdown
               - ImagePullBackOff
               - CreateContainerConfigError
+              - UnexpectedAdmissionError
         - name: RemovePodsHavingTooManyRestarts
           args:
             includingInitContainers: true
