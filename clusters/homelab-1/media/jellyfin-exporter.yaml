@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: jellyfin-exporter
+spec:
+  path: ./manifests/apps/jellyfin-exporter
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: ghcr.io/stefanabl/jellyfin-prometheus-exporter
+      IMAGE_TAG: latest # {"$imagepolicy": "media:jellyfin-exporter-automation:tag"}
