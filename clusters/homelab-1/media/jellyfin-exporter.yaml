@@ -6,5 +6,5 @@ spec:
   path: ./manifests/apps/jellyfin-exporter
   postBuild:
     substitute:
-      IMAGE_REPOSITORY: ghcr.io/opspotes/jellyfin-prometheus-exporter:sha-0b4aeb4
+      IMAGE_REPOSITORY: ghcr.io/opspotes/jellyfin-prometheus-exporter
       IMAGE_TAG: latest # {"$imagepolicy": "media:jellyfin-exporter-automation:tag"}
