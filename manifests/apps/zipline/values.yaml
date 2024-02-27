@@ -45,9 +45,6 @@ controllers:
                 key: password
     containers:
       main:
-        image:
-          repository: asdf
-          tag: asdf
         resources:
           requests:
             cpu: 5m
@@ -58,7 +55,7 @@ controllers:
           - secretRef:
               name: zipline-storage-secret
         env:
-          # Core COnfig
+          # Core Config
           TZ: ${TZ}
           CORE_SECRET:
             valueFrom:
