@@ -5,6 +5,7 @@ controllers:
     containers:
       main:
         env:
+          SERVER_PORT: 8000
           JELLYFIN_URL: http://jellyfin-app.${NAMESPACE}.svc.cluster.local:8096
           JELLYFIN_TOKEN:
             valueFrom:
