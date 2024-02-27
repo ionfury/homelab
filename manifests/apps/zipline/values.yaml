@@ -11,12 +11,12 @@ initContainers:
       INIT_POSTGRES_SUPER_USER:
         valueFrom:
           secretKeyRef:
-            name: lidarr-postgres-superuser
+            name: zipline-postgres-superuser
             key: username
       INIT_POSTGRES_SUPER_PASS:
         valueFrom:
           secretKeyRef:
-            name: lidarr-postgres-superuser
+            name: zipline-postgres-superuser
             key: password
 automountServiceAccountToken: false
 controller:
