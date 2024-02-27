@@ -8,10 +8,7 @@ spec:
     - Ingress
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              name: network
-          podSelector:
+        - podSelector:
             matchLabels:
               app.kubernetes.io/instance: ingress-nginx-internal-app
               app.kubernetes.io/name: ingress-nginx

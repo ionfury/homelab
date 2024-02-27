@@ -8,10 +8,7 @@ spec:
     - Egress
   egress:
     - to:
-        - namespaceSelector:
-            matchLabels:
-              name: storage
-          podSelector:
+        - podSelector:
             matchLabels:
               app.kubernetes.io/name: dragonfly
       ports:

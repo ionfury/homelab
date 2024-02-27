@@ -8,10 +8,7 @@ spec:
     - Ingress
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              name: monitoring
-          podSelector:
+        - podSelector:
             matchLabels:
               app.kubernetes.io/name: prometheus
               app.kubernetes.io/instance: kube-prometheus-stack-app
