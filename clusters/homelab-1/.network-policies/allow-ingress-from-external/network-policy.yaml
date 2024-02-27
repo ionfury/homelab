@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      networking/ingress/allow/external-nginx: "true"
+      networking/ingress-allow-external-nginx: "true"
   policyTypes:
     - Ingress
   ingress:

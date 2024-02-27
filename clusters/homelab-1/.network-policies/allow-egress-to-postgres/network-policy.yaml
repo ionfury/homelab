@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      networking/egress/allow/postgres: "true"
+      networking/egress-allow-postgres: "true"
   policyTypes:
     - Egress
   egress:

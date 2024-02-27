@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      networking/ingress/allow/prometheus: "true"
+      networking/ingress-allow-prometheus: "true"
   policyTypes:
     - Ingress
   ingress:
