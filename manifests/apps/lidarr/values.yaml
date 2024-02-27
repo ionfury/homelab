@@ -1,12 +1,12 @@
 defaultPodOptions:
   labels:
-    networking/allow-internet-egress: "false"
-    networking/allow-postgres-egress: "true"
-    networking/allow-minio-egress: "true"
-    networking/allow-internal-ingress: "true"
-    networking/allow-external-ingress: "true"
-    networking/allow-prometheus-ingress: "true"
-    networking/allow-uptime-kuma-ingress: "true"
+    networking/egress/allow/internet: "false"
+    networking/egress/allow/postgres: "true"
+    networking/egress/allow/minio: "true"
+    networking/egress/allow/internal-nginx: "true"
+    networking/egress/allow/external-nginx: "true"
+    networking/ingress/allow/prometheus: "true"
+    networking/ingress/allow/uptime-kuma: "true"
   affinity:
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
