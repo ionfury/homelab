@@ -1,5 +1,5 @@
 namespace: share
 components:
-  - ../../../manifests/components/namespace
+  - ../../../../manifests/components/namespace
 resources:
   - zipline.yaml
