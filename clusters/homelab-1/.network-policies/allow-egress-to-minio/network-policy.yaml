@@ -14,6 +14,3 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: minio-app
-      ports:
-        - protocol: TCP
-          port: 9000
