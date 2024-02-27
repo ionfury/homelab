@@ -14,7 +14,6 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: minio-app
-              app.kubernetes.io/instance: minio-app
       ports:
         - protocol: TCP
           port: api
