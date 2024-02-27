@@ -8,7 +8,10 @@ spec:
     - Ingress
   ingress:
     - from:
-        - podSelector:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
             matchLabels:
               app.kubernetes.io/name: uptime-kuma-app
               app.kubernetes.io/instance: uptime-kuma-app
