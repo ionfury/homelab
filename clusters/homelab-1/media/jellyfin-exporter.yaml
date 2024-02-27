@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: rafaelvieiras/jellyfin-exporter
-      IMAGE_TAG: latest # {"$imagepolicy": "media:jellyfin-exporter-automation:tag"}
+      IMAGE_TAG: master # {"$imagepolicy": "media:jellyfin-exporter-automation:tag"}
