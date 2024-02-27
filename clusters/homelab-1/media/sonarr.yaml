@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/sonarr-develop
-      IMAGE_TAG: 4.0.1.1168 # {"$imagepolicy": "media:sonarr-automation:tag"}
+      IMAGE_TAG: 4.0.2.1192 # {"$imagepolicy": "media:sonarr-automation:tag"}
