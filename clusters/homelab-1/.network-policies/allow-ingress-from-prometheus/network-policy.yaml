@@ -3,7 +3,9 @@ kind: NetworkPolicy
 metadata:
   name: allow-ingress-from-prometheus
 spec:
-  podSelector: {}
+  podSelector:
+    matchLabels:
+      networking/ingress/allow/prometheus: "true"
   policyTypes:
     - Ingress
   ingress:

@@ -3,7 +3,9 @@ kind: NetworkPolicy
 metadata:
   name: allow-ingress-from-internal
 spec:
-  podSelector: {}
+  podSelector:
+    matchLabels:
+      networking/ingress/allow/internal-nginx: "true"
   policyTypes:
     - Ingress
   ingress:
