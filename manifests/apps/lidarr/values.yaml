@@ -1,3 +1,22 @@
+defaultPodOptions:
+  labels:
+    networking/allow-internet-egress: "false"
+    networking/allow-postgres-egress: "true"
+    networking/allow-minio-egress: "true"
+    networking/allow-internal-ingress: "true"
+    networking/allow-external-ingress: "true"
+    networking/allow-prometheus-ingress: "true"
+    networking/allow-uptime-kuma-ingress: "true"
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
 controllers:
   main:
     annotations:
@@ -67,17 +86,6 @@ controllers:
               secretKeyRef:
                 name: lidarr-secret
                 key: key
-defaultPodOptions:
-  affinity:
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: required-volume
-                operator: In
-                values:
-                  - media
-          topologyKey: kubernetes.io/hostname
 service:
   main:
     ports:
