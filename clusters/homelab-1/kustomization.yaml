@@ -12,7 +12,7 @@ resources:
   - monitoring
   - network
   #- policy
-  - share
+  - namespaces/share
   - storage
   - system
   - tools

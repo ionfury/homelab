@@ -79,7 +79,7 @@ ingress:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: A ShareX/file upload server that is easy to use, packed with features, and with an easy setup!
-      gethomepage.dev/group: Media
+      gethomepage.dev/group: Share
       gethomepage.dev/icon: zipline.png
       gethomepage.dev/name: Zipline
     ingressClassName: internal
