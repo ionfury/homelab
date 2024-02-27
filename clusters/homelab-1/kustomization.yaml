@@ -12,6 +12,7 @@ resources:
   - monitoring
   - network
   #- policy
+  - share
   - storage
   - system
   - tools
