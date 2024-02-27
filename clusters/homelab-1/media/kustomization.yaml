@@ -18,4 +18,3 @@ resources:
   - recyclarr.yaml
   - sonarr.yaml
   - immich.yaml
-  - zipline.yaml
