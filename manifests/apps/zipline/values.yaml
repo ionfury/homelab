@@ -3,6 +3,7 @@ defaultPodOptions:
     networking/egress-allow-internet: "false"
     networking/egress-allow-postgres: "true"
     networking/egress-allow-minio: "true"
+    networking/egress-allow-kubedns: "true"
     networking/ingress-allow-internal-nginx: "true"
     networking/ingress-allow-external-nginx: "true"
     networking/ingress-allow-prometheus: "true"
