@@ -3,14 +3,16 @@ kind: NetworkPolicy
 metadata:
   name: allow-egress-to-minio
 spec:
-  podSelector: {}
+  podSelector:
+    matchLabels:
+      networking/egress/allow/minio: "true"
   policyTypes:
     - Egress
   egress:
     - to:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: storage
+              kubernetes.io/metadata.name: "storage"
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: minio-app
+              app.kubernetes.io/name: "minio-app"
