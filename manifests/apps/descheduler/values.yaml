@@ -41,7 +41,7 @@ deschedulerPolicy:
               pods: 20
         - name: PodLifeTime
           args:
-            maxPodLifeTimeSeconds: 36000
+            maxPodLifeTimeSeconds: 18000
             labelSelector:
               matchLabels:
                 app.kubernetes.io/name: transmission-app
