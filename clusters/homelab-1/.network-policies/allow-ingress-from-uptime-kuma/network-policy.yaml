@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      networking/ingress-allow-uptime-kuma: "true"
+      networking/allow-ingress-to-uptime-kuma: "true"
   policyTypes:
     - Ingress
   ingress:

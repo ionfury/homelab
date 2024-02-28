@@ -3,7 +3,9 @@ kind: NetworkPolicy
 metadata:
   name: allow-egress-to-dragonfly
 spec:
-  podSelector: {}
+  podSelector:
+    matchLabels:
+      networking/allow-egress-to-dragonfly: "true"
   policyTypes:
     - Egress
   egress:

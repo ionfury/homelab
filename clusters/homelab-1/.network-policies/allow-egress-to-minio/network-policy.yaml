@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      networking/egress-allow-minio: "true"
+      networking/allow-egress-to-minio: "true"
   policyTypes:
     - Egress
   egress:

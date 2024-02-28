@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      networking/egress-allow-kubedns: "true"
+      networking/allow-egress-to-kubedns: "true"
   policyTypes:
     - Egress
   egress:
