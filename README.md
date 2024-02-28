@@ -113,7 +113,6 @@ The network side of things is a straightforward Unifi setup.  The shelf up top h
   <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-2.jpg" align="center" alt="firewall"/>
 </details>
 
-
 ---
 
 ### Cloud Dependencies
@@ -132,7 +131,7 @@ I'm leveraging some cloud dependencies to really make things easier and dodge th
 
 ## Networking
 
-Networking 
+Networking
 
 Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro) and the lab portion is managed via [terraform](./terraform/network/).  The `citadel` vlan on `192.168.10.*` is allocated for the lab.
 
@@ -180,6 +179,20 @@ terragrunt run-all apply
 ## Deployment
 
 [Flux](https://fluxcd.io/) handles deploying and managing workloads on the downstream clusters.  Flux is installed on the cluster and watches the directory in this repository in the previous step, syncing the cluster with any manifests found there.
+
+---
+
+## Network Policy
+
+Internal cluster policy is handled entirely via vanilla kubernetes `NetworkPolicy`.  The approach described here is to enable netpol to be implemented post deployment in a low-impact rollout.
+
+  The policy is implemented at the cluster and namespace level.  Cluster network policy is described in the `clusters/<cluster>/.network-policies` directory.
+
+Each subdirectory of `.network-policies` represents a specific policy.  These polices are generic to the point that they should be applicable to every namespace and bound to specific pods via labels.  Each policy should have a `source` and `destination` subdirectory, which contains the specific policy to be applied in a namespace. The policy is then included into namespaces as a kustomize component.  Policies are connected to pods via labels like `networking/<policy>`.
+
+For a specific example, lets look at `.network-policies/allow-egress-to-postgres`.  Including the `source` subdirectory component in a namespace adds the policy, which matches the `networking/allow-egress-to-postgres: "true"` label.  Apps should include this label to use postgres.
+
+The `allow-same-namespace` policy can be included in a namespace as an 'on' switch for netpol in a namespace.
 
 ---
 
