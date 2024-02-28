@@ -17,4 +17,3 @@ resources:
   - readarr.yaml
   - recyclarr.yaml
   - sonarr.yaml
-  - immich.yaml
