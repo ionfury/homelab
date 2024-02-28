@@ -12,11 +12,10 @@ spec:
     - to:
         - namespaceSelector:
             matchLabels:
-              name: storage
+              kubernetes.io/metadata.name: storage
           podSelector:
             matchLabels:
               cnpg.io/cluster: postgres
-              postgresql: postgres
-      ports:
-        - protocol: TCP
-          port: 5432
+          ports:
+            - protocol: TCP
+              port: 5432
