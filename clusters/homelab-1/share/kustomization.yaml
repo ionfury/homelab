@@ -1,13 +1,13 @@
 namespace: share
 components:
   - ../../../manifests/components/namespace
-  - ../.network-policies/allow-ingress-from-internal
-  - ../.network-policies/allow-ingress-from-external
-  - ../.network-policies/allow-ingress-from-prometheus
-  - ../.network-policies/allow-ingress-from-uptime-kuma
-  - ../.network-policies/allow-egress-to-minio
-  - ../.network-policies/allow-egress-to-postgres
-  - ../.network-policies/allow-egress-to-kubedns
+  - ../.network-policies/allow-ingress-from-internal/destination
+  - ../.network-policies/allow-ingress-from-external/destination
+  - ../.network-policies/allow-ingress-from-prometheus/destination
+  - ../.network-policies/allow-ingress-from-uptime-kuma/destination
+  - ../.network-policies/allow-egress-to-minio/source
+  - ../.network-policies/allow-egress-to-postgres/source
+  - ../.network-policies/allow-egress-to-kubedns/source
   #- ../.network-policies/allow-same-namespace
 resources:
   - zipline.yaml
