@@ -1,4 +1,10 @@
 # ghcr.io/0xerr0r/blocky
+podLabels:
+  networking/allow-egress-to-internet: "true"
+  networking/allow-egress-to-dragonfly: "true"
+  networking/allow-egress-to-kubedns: "true"
+  networking/allow-ingress-to-prometheus: "true"
+  networking/allow-ingress-to-uptime-kuma: "true"
 service:
   main:
     annotations:

@@ -1,12 +1,11 @@
-controllers:
-  main:
-    annotations:
-      reloader.stakater.com/auto: "true"
-    containers:
-      main:
-        env:
-          TZ: ${TZ}
 defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet: "true"
+    networking/allow-egress-to-kubedns: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-external-nginx: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-uptime-kuma: "true"
   automountServiceAccountToken: false
   enableServiceLinks: false
   affinity:
@@ -19,6 +18,14 @@ defaultPodOptions:
                 values:
                   - media
           topologyKey: kubernetes.io/hostname
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        env:
+          TZ: ${TZ}
 service:
   main:
     ports:

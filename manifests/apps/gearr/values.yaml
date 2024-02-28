@@ -1,3 +1,11 @@
+defaultPodOptions:
+  labels:
+    networking/allow-ingress-to-prometheus: "true"
+  securityContext:
+    runAsUser: 995
+    runAsGroup: 991
+    fsGroup: 991
+    fsGroupChangePolicy: "OnRootMismatch"
 controllers:
   main:
     annotations:
@@ -136,13 +144,6 @@ ingress:
       - hosts:
           - transcode.${INTERNAL_DOMAIN}
         secretName: gearr-tls
-
-defaultPodOptions:
-  securityContext:
-    runAsUser: 995
-    runAsGroup: 991
-    fsGroup: 991
-    fsGroupChangePolicy: "OnRootMismatch"
 
 persistence:
   #  series:

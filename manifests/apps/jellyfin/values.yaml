@@ -5,6 +5,11 @@ defaultPodOptions:
     nvidia.com/gpu.product: Quadro-P2000
   labels:
     required-volume: media
+    networking/allow-egress-to-internet: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-external-nginx: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-uptime-kuma: "true"
   securityContext:
     runAsUser: 568
     runAsGroup: 568

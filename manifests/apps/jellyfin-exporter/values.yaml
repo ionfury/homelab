@@ -1,3 +1,8 @@
+defaultPodOptions:
+  labels:
+    networking/allow-ingress-to-prometheus: "true"
+  automountServiceAccountToken: false
+  enableServiceLinks: false
 controllers:
   main:
     annotations:
@@ -12,9 +17,6 @@ controllers:
               secretKeyRef:
                 name: jellyfin-exporter-token
                 key: token
-defaultPodOptions:
-  automountServiceAccountToken: false
-  enableServiceLinks: false
 service:
   main:
     ports:
