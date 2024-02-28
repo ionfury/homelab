@@ -20,4 +20,4 @@ spec:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
       IMAGE_TAG: v1.6.1 # {"$imagepolicy": "media:lidarr-exportarr-automation:tag"}
       TARGET: lidarr
-      TARGET_PORT: 8686
+      TARGET_PORT: "8686"
