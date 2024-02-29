@@ -3,6 +3,7 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - bazarr.yaml
+  - dashboards.yaml
   - gearr.yaml
   # - gearr-worker.yaml
   - jellyfin.yaml
