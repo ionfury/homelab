@@ -7,5 +7,5 @@ spec:
   postBuild:
     substitute:
       HELM_CHART: prometheus-snmp-exporter
-      HELM_CHART_VERSION: 3.1.0 # {"$imagepolicy": "monitoring:snmp-exporter-cyberpower-ups-automation:tag"}
+      HELM_CHART_VERSION: 4.0.0 # {"$imagepolicy": "monitoring:snmp-exporter-cyberpower-ups-automation:tag"}
       HELM_CHART_REPOSITORY: ghcr.io/prometheus-community/charts
