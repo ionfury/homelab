@@ -16,6 +16,7 @@ serviceMonitor:
           password:
             name: uptime-kuma-api-key
             key: key
+          username: ""
 ingress:
   main:
     enabled: true
