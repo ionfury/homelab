@@ -1,5 +1,5 @@
 podLabels:
-  networking/allow-egress-to-internet: "true"
+  networking/allow-egress-to-internet-except-private: "true"
   networking/allow-ingress-to-prometheus: "true"
   networking/allow-ingress-to-uptime-kuma: "true"
   networking/allow-ingress-to-internal-nginx: "true"
