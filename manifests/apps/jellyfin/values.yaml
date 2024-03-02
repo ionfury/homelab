@@ -6,6 +6,7 @@ defaultPodOptions:
   labels:
     required-volume: media
     networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-kubedns: "true"
     networking/allow-ingress-to-internal-nginx: "true"
     networking/allow-ingress-to-external-nginx: "true"
     networking/allow-ingress-to-prometheus: "true"
