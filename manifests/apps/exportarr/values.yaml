@@ -1,3 +1,6 @@
+defaultPodOptions:
+  labels:
+    networking/allow-ingress-to-prometheus: "true"
 controllers:
   main:
     annotations:

@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-egress-to-internet-except-private
-  namespace: share
 spec:
   podSelector:
     matchLabels:
@@ -10,14 +9,7 @@ spec:
   policyTypes:
     - Egress
   egress:
-    - ports:
-        - port: 53
-          protocol: UDP
-        - port: 443
-          protocol: TCP
-        - port: 80
-          protocol: TCP
-      to:
+    - to:
         - ipBlock:
             cidr: 0.0.0.0/0
             except:

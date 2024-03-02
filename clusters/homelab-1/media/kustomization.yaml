@@ -1,6 +1,7 @@
 namespace: media
 components:
   - ../../../manifests/components/namespace
+  - ../.network-policies
 resources:
   - bazarr.yaml
   - dashboards.yaml

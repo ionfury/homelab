@@ -1,3 +1,21 @@
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-postgres: "true"
+    networking/allow-egress-to-kubedns: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-uptime-kuma: "true"
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
 controllers:
   main:
     annotations:
@@ -67,17 +85,6 @@ controllers:
               secretKeyRef:
                 name: prowlarr-secret
                 key: key
-defaultPodOptions:
-  affinity:
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: required-volume
-                operator: In
-                values:
-                  - media
-          topologyKey: kubernetes.io/hostname
 service:
   main:
     ports:
