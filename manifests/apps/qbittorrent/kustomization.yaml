@@ -1,4 +1,4 @@
-namePrefix: radarr-
+namePrefix: qbittorrent-
 components:
   - ../../components/helm-release-app-template-oci-v2
 resources:
