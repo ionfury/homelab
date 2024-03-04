@@ -11,4 +11,4 @@ spec:
       GLUETUN_IMAGE_REPOSITORY: ghcr.io/qdm12/gluetun
       GLUETUN_IMAGE_TAG: v3.37.0
       PORTSYNC_IMAGE_REPOSITORY: docker.io/snoringdragon/gluetun-qbittorrent-port-manager
-      PORTSYNC_IMAGE_TAG: "1.0"
+      PORTSYNC_IMAGE_TAG: "v1.3"
