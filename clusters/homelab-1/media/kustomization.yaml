@@ -14,7 +14,7 @@ resources:
   - transmission.yaml
   - lidarr.yaml
   - prowlarr.yaml
-  - qbittorrent.yaml
+  #- qbittorrent.yaml
   - radarr.yaml
   - radarr-uhd.yaml
   - readarr.yaml
