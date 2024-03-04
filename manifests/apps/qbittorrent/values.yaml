@@ -36,9 +36,6 @@ controllers:
         securityContext:
           runAsUser: 568
           runAsGroup: 568
-          runAsNonRoot: true
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
           capabilities:
             drop:
               - ALL
@@ -70,8 +67,8 @@ controllers:
           - name: PORT_FORWARDED
             value: "/tmp/gluetun/forwarded_port"
         securityContext:
-          runAsUser: ${APP_UID}
-          runAsGroup: ${APP_GID}
+          runAsUser: 568
+          runAsGroup: 568
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
