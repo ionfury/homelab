@@ -5,7 +5,7 @@ components:
 resources:
   - bazarr.yaml
   - dashboards.yaml
-  - gearr.yaml
+  # - gearr.yaml
   # - gearr-worker.yaml
   - jellyfin.yaml
   - jellyfin-accounts.yaml
