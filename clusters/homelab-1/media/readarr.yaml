@@ -8,3 +8,16 @@ spec:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/readarr-nightly
       IMAGE_TAG: 0.3.19.2437 # {"$imagepolicy": "media:readarr-automation:tag"}
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: readarr-exportarr
+spec:
+  path: ./manifests/apps/exportarr
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
+      IMAGE_TAG: v2.0.0 # {"$imagepolicy": "media:readarr-exportarr-automation:tag"}
+      TARGET: readarr
+      TARGET_PORT: "8787"

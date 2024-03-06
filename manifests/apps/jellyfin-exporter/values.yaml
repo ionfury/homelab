@@ -1,6 +1,7 @@
 defaultPodOptions:
   labels:
     networking/allow-ingress-to-prometheus: "true"
+    networking/allow-egress-to-kubedns: "true"
   automountServiceAccountToken: false
   enableServiceLinks: false
 controllers:

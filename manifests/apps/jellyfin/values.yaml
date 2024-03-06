@@ -5,7 +5,8 @@ defaultPodOptions:
     nvidia.com/gpu.product: Quadro-P2000
   labels:
     required-volume: media
-    networking/allow-egress-to-internet: "true"
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-kubedns: "true"
     networking/allow-ingress-to-internal-nginx: "true"
     networking/allow-ingress-to-external-nginx: "true"
     networking/allow-ingress-to-prometheus: "true"

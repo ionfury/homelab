@@ -28,9 +28,7 @@ spec:
           annotations:
             description: Too many 5XXs
             summary: More than 5% of all requests returned 5XX, this requires your attention
-          expr:
-            100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests)
-            ) > 5
+          expr: (100 * ( sum(rate(nginx_ingress_controller_requests{status=~"5.+"}[5m])) / sum(rate(nginx_ingress_controller_requests[5m])))) > 5
           for: 1m
           labels:
             severity: warning
@@ -38,9 +36,7 @@ spec:
           annotations:
             description: Too many 4XXs
             summary: More than 5% of all requests returned 4XX, this requires your attention
-          expr:
-            100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests)
-            ) > 5
+          expr: (100 * ( sum(rate(nginx_ingress_controller_requests{status=~"4.+"}[5m])) / sum(rate(nginx_ingress_controller_requests[5m])))) > 5
           for: 1m
           labels:
             severity: warning

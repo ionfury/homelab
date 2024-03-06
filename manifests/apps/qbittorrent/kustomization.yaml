@@ -1,9 +1,8 @@
-namePrefix: uptime-kuma-
+namePrefix: qbittorrent-
 components:
-  - ../../components/helm-release-app-template-oci
+  - ../../components/helm-release-app-template-oci-v2
 resources:
   - external-secret.yaml
-  - prometheus-rules.yaml
 configMapGenerator:
   - name: values
     behavior: replace

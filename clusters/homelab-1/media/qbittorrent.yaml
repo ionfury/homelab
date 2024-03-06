@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: qbittorrent
+spec:
+  path: ./manifests/apps/qbittorrent
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: ghcr.io/onedr0p/qbittorrent
+      IMAGE_TAG: 4.6.3 # {"$imagepolicy": "media:qbittorrent-automation:tag"}
+      GLUETUN_IMAGE_REPOSITORY: ghcr.io/qdm12/gluetun
+      GLUETUN_IMAGE_TAG: v3.37.0
+      PORTSYNC_IMAGE_REPOSITORY: docker.io/snoringdragon/gluetun-qbittorrent-port-manager
+      PORTSYNC_IMAGE_TAG: "1.3"

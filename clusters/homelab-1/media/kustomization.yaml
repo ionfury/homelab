@@ -1,9 +1,11 @@
 namespace: media
 components:
   - ../../../manifests/components/namespace
+  - ../.network-policies
 resources:
   - bazarr.yaml
-  - gearr.yaml
+  - dashboards.yaml
+  # - gearr.yaml
   # - gearr-worker.yaml
   - jellyfin.yaml
   - jellyfin-accounts.yaml
@@ -12,6 +14,7 @@ resources:
   - transmission.yaml
   - lidarr.yaml
   - prowlarr.yaml
+  #- qbittorrent.yaml
   - radarr.yaml
   - radarr-uhd.yaml
   - readarr.yaml

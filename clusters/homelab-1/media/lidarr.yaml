@@ -7,7 +7,7 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/lidarr-nightly
-      IMAGE_TAG: 2.2.0.4053 # {"$imagepolicy": "media:lidarr-automation:tag"}
+      IMAGE_TAG: 2.2.2.4076 # {"$imagepolicy": "media:lidarr-automation:tag"}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -18,6 +18,6 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
-      IMAGE_TAG: v1.6.1 # {"$imagepolicy": "media:lidarr-exportarr-automation:tag"}
+      IMAGE_TAG: v2.0.0 # {"$imagepolicy": "media:lidarr-exportarr-automation:tag"}
       TARGET: lidarr
       TARGET_PORT: "8686"
