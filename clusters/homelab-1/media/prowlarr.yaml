@@ -7,7 +7,7 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly
-      IMAGE_TAG: 1.14.3.4322 # {"$imagepolicy": "media:prowlarr-automation:tag"}
+      IMAGE_TAG: 1.14.3.4324 # {"$imagepolicy": "media:prowlarr-automation:tag"}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
