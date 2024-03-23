@@ -45,7 +45,7 @@ service:
   main:
     ports:
       http:
-        port: 4008
+        port: 8945
 ingress:
   main:
     enabled: true
