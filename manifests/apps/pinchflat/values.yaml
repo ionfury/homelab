@@ -80,13 +80,11 @@ persistence:
       main:
         main:
           - path: /config
-  downloads:
+  media:
     enabled: true
-    retain: true
-    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
-    size: 1Gi
-    accessMode: ReadWriteOnce
+    existingClaim: jellyfin-app-media
+    mountPath: /media
     advancedMounts:
       main:
         main:
-          - path: /downloads
+          - path: /media
