@@ -1,0 +1,19 @@
+namePrefix: gatus
+components:
+  - ../../components/helm-release-app-template-oci-v2
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+  - name: config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - ./configs/config.aml
+secretGenerator:
+  - name: postgres-superuser
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser

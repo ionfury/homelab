@@ -1,0 +1,119 @@
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/onedr0p/postgres-init
+          tag: "14.8"
+        envFrom:
+          - secretRef:
+              name: gatus-secret
+    containers:
+      main:
+        env:
+          TZ: ${TZ}
+          GATUS_CONFIG_PATH: /config
+          CUSTOM_WEB_PORT: 80
+        envFrom:
+          - secretRef:
+              name: gatus-secret
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 80
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 80
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+    pod:
+      #dnsConfig:
+      #  options:
+      #    - name: ndots
+      #      value: "1"
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        runAsNonRoot: true
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+ingress:
+  main:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Gatus is a developer-oriented health dashboard that gives you the ability to monitor your services.
+      gethomepage.dev/group: Monitoring
+      gethomepage.dev/icon: gatus.png
+      gethomepage.dev/name: Gatus
+    className: internal
+    hosts:
+      - host: gatus.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            service:
+              name: app
+              port: http
+      - host: status.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            service:
+              name: app
+        tls:
+          - hosts:
+              - gatus.${INTERNAL_DOMAIN}
+              - status.${INTERNAL_DOMAIN}
+service:
+  main:
+    ports:
+      http:
+        port: 80
+persistence:
+  config:
+    type: emptyDir
+  config-file:
+    type: configMap
+    name: gatus-configmap
+    globalMounts:
+      - path: /config/config.yaml
+        subPath: config.yaml
+        readOnly: true
+serviceAccount:
+  create: true
+  name: gatus
+serviceMonitor:
+  app:
+    serviceName: gatus
+    endpoints:
+      - port: http
+        scheme: http
+        path: /metrics
+        interval: 1m
+        scrapeTimeout: 10s
