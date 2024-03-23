@@ -13,7 +13,7 @@ resources:
   - jellyseerr.yaml
   - transmission.yaml
   - lidarr.yaml
-  - pinchflat.yaml
+  #- pinchflat.yaml
   - prowlarr.yaml
   #- qbittorrent.yaml
   - radarr.yaml
