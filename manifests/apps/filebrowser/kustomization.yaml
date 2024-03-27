@@ -8,5 +8,7 @@ configMapGenerator:
       - values.yaml
   - name: config
     behavior: create
+    options:
+      disableNameSuffixHash: true
     files:
       - settings.json=config.json
