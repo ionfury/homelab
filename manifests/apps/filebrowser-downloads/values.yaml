@@ -1,0 +1,112 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-uptime-kuma: "true"
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    pod:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        runAsNonRoot: true
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [10000]
+    containers:
+      main:
+        env:
+          TZ: ${TZ}
+          FB_DATABASE: /db/filebrowser.db
+          FB_ROOT: /srv
+          FB_LOG: stdout
+          FB_NOAUTH: true
+          FB_PORT: &port 8080
+        resources:
+          requests:
+            cpu: 10m
+            memory: 256Mi
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: *port
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probes
+          startup:
+            enabled: false
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: { drop: ["ALL"] }
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: *port
+ingress:
+  main:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+      cert-manager.io/cluster-issuer: cloudflare
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Network file management share.
+      gethomepage.dev/group: Share
+      gethomepage.dev/icon: filebrowser.png
+      gethomepage.dev/name: Filebrowser
+    className: internal
+    hosts:
+      - host: &host files-download.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: filebrowser-downloads-app #hack
+              port: *port
+    tls:
+      - secretName: filebrowser-downloads-tls
+        hosts:
+          - *host
+persistence:
+  root:
+    enabled: true
+    existingClaim: jellyfin-app-media
+    advancedMounts:
+      main:
+        main:
+          - path: /srv
+  db:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_FAST}
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    advancedMounts:
+      main:
+        main:
+          - path: /db
