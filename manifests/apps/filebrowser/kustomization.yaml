@@ -1,14 +1,8 @@
 namePrefix: filebrowser-
 components:
-  - ../../components/helm-release-app-template-oci-v2
+  - ../../components/helm-release-app-template-oci-v3
 configMapGenerator:
   - name: values
     behavior: replace
     files:
       - values.yaml
-  - name: config
-    behavior: create
-    options:
-      disableNameSuffixHash: true
-    files:
-      - settings.json=config.json

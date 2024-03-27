@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -12,8 +15,10 @@ controllers:
       securityContext:
         runAsUser: 568
         runAsGroup: 568
+        runAsNonRoot: true
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [10000]
     containers:
       main:
         env:
@@ -51,16 +56,14 @@ controllers:
               timeoutSeconds: 1
               failureThreshold: 3
           startup:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /health
-                port: 8080
-              failureThreshold: 30
-              periodSeconds: 10
+            enabled: false
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: { drop: ["ALL"] }
 service:
   main:
+    controller: main
     ports:
       http:
         port: 8080
@@ -84,7 +87,7 @@ ingress:
             pathType: Prefix
             service:
               name: main
-              port: http
+              port: 8080
     tls:
       - secretName: filebrowser-tls
         hosts:
