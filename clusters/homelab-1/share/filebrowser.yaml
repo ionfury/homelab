@@ -6,6 +6,5 @@ spec:
   path: ./manifests/apps/filebrowser
   postBuild:
     substitute:
-      HELM_CHART: filebrowser
-      HELM_CHART_VERSION: 1.0.0
-      HELM_CHART_REPOSITORY: https://utkuozdemir.org/helm-charts
+      IMAGE_REPOSITORY: filebrowser/filebrowser
+      IMAGE_TAG: v2.27.0 # {"$imagepolicy": "media:filebrowser-automation:tag"}
