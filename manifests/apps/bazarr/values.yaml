@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -31,16 +34,15 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "14.8"
-        imagePullPolicy: IfNotPresent
         env:
-          INIT_POSTGRES_DBNAME: "bazarr_main"
+          INIT_POSTGRES_DBNAME: &db bazarr_main
           INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-          INIT_POSTGRES_USER:
+          INIT_POSTGRES_USER: &username
             valueFrom:
               secretKeyRef:
                 name: bazarr-secret
                 key: username
-          INIT_POSTGRES_PASS:
+          INIT_POSTGRES_PASS: &password
             valueFrom:
               secretKeyRef:
                 name: bazarr-secret
@@ -68,17 +70,9 @@ controllers:
           POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           POSTGRES_PORT: 5432
           POSTGRES_ENABLED: "true"
-          POSTGRES_DATABASE: bazarr_main
-          POSTGRES_USERNAME:
-            valueFrom:
-              secretKeyRef:
-                name: bazarr-secret
-                key: username
-          POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: bazarr-secret
-                key: password
+          POSTGRES_DATABASE: *db
+          POSTGRES_USERNAME: *username
+          POSTGRES_PASSWORD: *password
           API_KEY:
             valueFrom:
               secretKeyRef:
@@ -86,9 +80,10 @@ controllers:
                 key: key
 service:
   main:
+    controller: main
     ports:
       http:
-        port: 6767
+        port: &port 6767
 ingress:
   main:
     enabled: true
@@ -101,22 +96,21 @@ ingress:
       gethomepage.dev/name: bazarr
     className: internal
     hosts:
-      - host: bazarr.${INTERNAL_DOMAIN}
+      - host: &host bazarr.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
+              name: bazarr-app #hack
+              port: *port
     tls:
       - hosts:
-          - bazarr.${INTERNAL_DOMAIN}
+          - *host
         secretName: bazarr-tls
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
-    mountPath: /media
     advancedMounts:
       main:
         main:

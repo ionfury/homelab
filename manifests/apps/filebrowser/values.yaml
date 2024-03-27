@@ -71,7 +71,7 @@ ingress:
       gethomepage.dev/name: Filebrowser
     className: internal
     hosts:
-      - host: files.${INTERNAL_DOMAIN}
+      - host: &host files.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
@@ -81,7 +81,7 @@ ingress:
     tls:
       - secretName: filebrowser-tls
         hosts:
-          - files.${INTERNAL_DOMAIN}
+          - *host
 persistence:
   root:
     enabled: true
