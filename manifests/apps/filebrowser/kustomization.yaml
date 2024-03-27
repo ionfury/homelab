@@ -9,4 +9,4 @@ configMapGenerator:
   - name: config
     behavior: create
     files:
-      - config.json
+      - settings.json=config.json
