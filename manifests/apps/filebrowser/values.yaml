@@ -86,7 +86,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: main
+              name: filebrowser-app #hack
               port: 8080
     tls:
       - secretName: filebrowser-tls
