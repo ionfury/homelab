@@ -88,7 +88,7 @@ controllers:
           FEATURES_USER_REGISTRATION: "false"
           # Uploader
           UPLOADER_DEFAULT_FORMAT: "RANDOM"
-          UPLOADER_DISABLED_EXTENSIONS: "ps1,pdf,bat,exe,sh,fish"
+          UPLOADER_DISABLED_EXTENSIONS: "ps1,pdf,bat,sh,fish"
           UPLOADER_DEFAULT_EXPIRATION: ""
           UPLOADER_ROUTE: "/u"
           UPLOADER_LENGTH: 6
