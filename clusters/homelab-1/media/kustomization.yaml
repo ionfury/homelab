@@ -3,6 +3,7 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
+  - filebrowser-downloads.yaml
   - bazarr.yaml
   - dashboards.yaml
   # - gearr.yaml

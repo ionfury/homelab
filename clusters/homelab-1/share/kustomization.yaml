@@ -4,5 +4,4 @@ components:
   - ../.network-policies
 resources:
   - filebrowser.yaml
-  - filebrowser-downloads.yaml
   - zipline.yaml
