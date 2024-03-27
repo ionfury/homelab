@@ -83,6 +83,12 @@ ingress:
         hosts:
           - files.${INTERNAL_DOMAIN}
 persistence:
+  config-file:
+    type: configMap
+    name: filebrowser-config
+    globalMounts:
+      - path: /config
+        readOnly: true
   root:
     enabled: true
     retain: true
