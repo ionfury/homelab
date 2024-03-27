@@ -1,8 +1,12 @@
 namePrefix: filebrowser-
 components:
-  - ../../components/helm-release
+  - ../../components/helm-release-app-template-oci-v2
 configMapGenerator:
   - name: values
     behavior: replace
     files:
       - values.yaml
+  - name: config
+    behavior: create
+    files:
+      - config.json
