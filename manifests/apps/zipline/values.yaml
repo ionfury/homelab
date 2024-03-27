@@ -108,6 +108,8 @@ ingress:
   main:
     enabled: true
     annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: A ShareX/file upload server that is easy to use, packed with features, and with an easy setup!
