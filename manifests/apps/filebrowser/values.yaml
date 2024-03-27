@@ -22,6 +22,7 @@ controllers:
           FB_ROOT: /srv
           FB_LOG: stdout
           FB_NOAUTH: true
+          FB_PORT: 8080
         resources:
           requests:
             cpu: 10m
@@ -33,7 +34,7 @@ controllers:
             spec:
               httpGet:
                 path: /health
-                port: 80
+                port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
@@ -44,7 +45,7 @@ controllers:
             spec:
               httpGet:
                 path: /health
-                port: 80
+                port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
@@ -55,14 +56,14 @@ controllers:
             spec:
               httpGet:
                 path: /health
-                port: 80
+                port: 8080
               failureThreshold: 30
               periodSeconds: 10
 service:
   main:
     ports:
       http:
-        port: 80
+        port: 8080
 ingress:
   main:
     enabled: true
