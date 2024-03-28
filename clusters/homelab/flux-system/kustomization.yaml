@@ -1,3 +1,5 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -17,7 +19,7 @@ patches:
     patch: |
       - op: replace
         path: /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/valuesFrom/items/properties/targetPath/pattern
-        value: ^([a-zA-Z0-9_\-.\\\\\\\/]|\[[0-9]{1,5}\])+$
+        value: ^([a-zA-Z0-9_\-.\\\\/]|\[[0-9]{1,5}\])+$
   # REQUIRED: Enable Helm near OOM detection
   # https://fluxcd.io/flux/cheatsheets/bootstrap/#enable-helm-near-oom-detection
   - patch: |
