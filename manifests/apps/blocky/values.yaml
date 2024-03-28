@@ -65,7 +65,7 @@ service:
     controller: main
     ports:
       metrics:
-        port: &metrics 4000
+        port: &metrics "4000"
 serviceMonitor:
   metrics:
     enabled: true
