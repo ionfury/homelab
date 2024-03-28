@@ -46,7 +46,7 @@ controllers:
               initialDelaySeconds: 0
               periodSeconds: 10
               tcpSocket:
-                port: 54
+                port: *port
               timeoutSeconds: 1
           readiness: *probe
           startup: *probe
