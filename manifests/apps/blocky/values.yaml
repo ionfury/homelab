@@ -1,70 +1,88 @@
-# ghcr.io/0xerr0r/blocky
-podLabels:
-  networking/allow-egress-to-internet-except-private: "true"
-  networking/allow-egress-to-dragonfly: "true"
-  networking/allow-egress-to-kubedns: "true"
-  networking/allow-ingress-to-prometheus: "true"
-  networking/allow-ingress-to-uptime-kuma: "true"
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-dragonfly: "true"
+    networking/allow-egress-to-kubedns: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-uptime-kuma: "true"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - blocky-app
+            topologyKey: kubernetes.io/hostname
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    replicas: 3
+    strategy: RollingUpdate
+    rollingUpdate:
+      surge: 25%
+      unavailable: 25%
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 100Mi
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            type: TCP
+            port: &port 53
+            spec:
+              failureThreshold: 3
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              tcpSocket:
+                port: 54
+              timeoutSeconds: 1
+          readiness: *probe
+          startup: *probe
 service:
   main:
+    nameOverride: blocky
+    controller: main
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
     externalTrafficPolicy: Cluster
     type: LoadBalancer
     ports:
-      http:
-        enabled: false
       dns:
-        port: 53
+        port: *port
         protocol: UDP
   metrics:
+    controller: main
     ports:
       metrics:
-        port: 4000
+        port: &metrics 4000
 serviceMonitor:
   metrics:
     enabled: true
     serviceName: blocky-app-metrics
     endpoints:
-      - port: metrics
+      - port: *metrics
         interval: 30s
         scrapeTimeout: 10s
         path: /metrics
-controller:
-  annotations:
-    reloader.stakater.com/auto: "true"
-  replicas: 3
-  strategy: RollingUpdate
-  rollingUpdate:
-    surge: 25%
-    unavailable: 25%
-probes:
-  liveness:
-    port: dns
-  readiness:
-    port: dns
-  startup:
-    port: dns
 persistence:
   config:
     enabled: true
     type: configMap
     name: blocky-config
-    mountPath: /app/config.yml
-    subPath: config.yml
-resources:
-  requests:
-    cpu: 10m
-    memory: 100Mi
-affinity:
-  podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - blocky-app
-          topologyKey: kubernetes.io/hostname
+    advancedMounts:
+      main:
+        main:
+          - path: /app/config.yml
+            subPath: config.yml

@@ -1,6 +1,6 @@
 namePrefix: blocky-
 components:
-  - ../../components/helm-release-app-template-oci
+  - ../../components/helm-release-app-template-oci-v3
 configMapGenerator:
   - name: values
     behavior: replace
