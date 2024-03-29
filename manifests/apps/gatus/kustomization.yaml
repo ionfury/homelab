@@ -13,7 +13,7 @@ configMapGenerator:
     options:
       disableNameSuffixHash: true
     files:
-      - ./configs/config.yaml
+      - config.yaml
 secretGenerator:
   - name: postgres-superuser
     options:
