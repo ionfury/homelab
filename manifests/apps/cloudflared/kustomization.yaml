@@ -3,7 +3,7 @@
 
 namePrefix: cloudflared-
 components:
-  - ../../components/helm-release-app-template-oci-v2
+  - ../../components/helm-release-app-template-oci-v3
 resources:
   - dns-endpoint.yaml
   - external-secret.yaml

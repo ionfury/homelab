@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodoptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -42,50 +45,32 @@ controllers:
                 name: cloudflare-tunnel
                 key: TunnelID
         probes:
-          liveness:
+          liveness: &probe
             enabled: true
             custom: true
             spec:
               httpGet:
                 path: /ready
-                port: 8080
+                port: &port 8080
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
               failureThreshold: 3
-          readiness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /ready
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
-          startup:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /ready
-                port: 8080
-              failureThreshold: 30
-              periodSeconds: 10
+          readiness: *probe
+          startup: *probe
         resources:
           requests:
             cpu: 6m
             memory: 105Mi
-          limits:
-            memory: 105Mi
 service:
   main:
+    controller: main
     ports:
       http:
-        port: 8080
+        port: *port
 serviceMonitor:
   main:
+    serviceName: cloudflared-app
     enabled: true
     endpoints:
       - port: http
