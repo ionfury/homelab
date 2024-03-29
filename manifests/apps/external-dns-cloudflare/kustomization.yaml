@@ -3,7 +3,7 @@
 
 namePrefix: external-dns-cloudflare-
 components:
-  - ../../components/helm-release-app-template-oci-v2
+  - ../../components/helm-release-app-template-oci-v3
 resources:
   - external-secret.yaml
   - dnsendpoint-crd.yaml
