@@ -1,36 +1,32 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 8080
 controllers:
   main:
     strategy: RollingUpdate
     containers:
       main:
-        image:
-          repository: docker.io/jmalloc/echo-server
-          tag: 0.3.6
         env:
-          PORT: 8080
+          PORT: *port
         probes:
-          liveness:
+          liveness: &probe
             enabled: true
             custom: true
             spec:
               httpGet:
                 path: /health
-                port: 8080
+                port: *port
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
               failureThreshold: 3
-          readiness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /health
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
+          readiness: *probe
           startup:
             enabled: false
         resources:
@@ -43,11 +39,6 @@ controllers:
       securityContext:
         runAsUser: 568
         runAsGroup: 568
-service:
-  main:
-    ports:
-      http:
-        port: 8080
 ingress:
   main:
     enabled: true
@@ -56,27 +47,27 @@ ingress:
       cert-manager.io/cluster-issuer: "cloudflare"
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
     hosts:
-      - host: echo-external.${EXTERNAL_DOMAIN}
+      - host: &externalhost echo-external.${EXTERNAL_DOMAIN}
         paths:
           - path: /
             service:
-              name: main
-              port: http
+              name: echo-server-app # hack
+              port: *port
     tls:
       - hosts:
-          - echo-external.${EXTERNAL_DOMAIN}
+          - *externalhost
         secretName: echo-external-tls
   internal:
     enabled: true
     className: internal
     hosts:
-      - host: echo-internal.${INTERNAL_DOMAIN}
+      - host: &internalhost echo-internal.${INTERNAL_DOMAIN}
         paths:
           - path: /
             service:
-              name: main
-              port: http
+              name: echo-server-app # hack
+              port: *port
     tls:
       - hosts:
-          - echo-internal.${INTERNAL_DOMAIN}
+          - *internalhost
         secretName: echo-internal-tls
