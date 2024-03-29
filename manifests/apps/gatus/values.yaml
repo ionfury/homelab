@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 controllers:
   main:
     annotations:
@@ -15,33 +18,23 @@ controllers:
         env:
           TZ: ${TZ}
           GATUS_CONFIG_PATH: /config
-          CUSTOM_WEB_PORT: 80
+          CUSTOM_WEB_PORT: &port 80
         envFrom:
           - secretRef:
               name: gatus-secret
         probes:
-          liveness:
+          liveness: &probe
             enabled: true
             custom: true
             spec:
               httpGet:
                 path: /health
-                port: 80
+                port: *port
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
               failureThreshold: 3
-          readiness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /health
-                port: 80
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
+          readiness: *probe
         resources:
           requests:
             cpu: 10m
@@ -75,26 +68,22 @@ ingress:
       gethomepage.dev/name: Gatus
     className: internal
     hosts:
-      - host: gatus.${INTERNAL_DOMAIN}
+      - host: &host gatus.${INTERNAL_DOMAIN}
         paths:
           - path: /
             service:
-              name: app
-              port: http
-      - host: status.${INTERNAL_DOMAIN}
-        paths:
-          - path: /
-            service:
-              name: app
-        tls:
-          - hosts:
-              - gatus.${INTERNAL_DOMAIN}
-              - status.${INTERNAL_DOMAIN}
+              name: gatus-app # hack
+              port: *port
+    tls:
+      - hosts:
+          - *host
+        secretName: gatus-tls
 service:
   main:
+    controller: main
     ports:
       http:
-        port: 80
+        port: *port
 persistence:
   config:
     type: emptyDir

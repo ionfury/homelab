@@ -101,7 +101,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: bazarr-app #hack
+              name: bazarr-app # hack
               port: *port
     tls:
       - hosts:
