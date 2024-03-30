@@ -16,6 +16,7 @@ resources:
   - jellyseerr.yaml
   - transmission.yaml
   - lidarr.yaml
+  - lidatube.yaml
   #- pinchflat.yaml
   - prowlarr.yaml
   #- qbittorrent.yaml
