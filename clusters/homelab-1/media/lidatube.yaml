@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: thewicklowwolf/lidatube
-      IMAGE_TAG: latest # {"$imagepolicy": "media:lidarr-automation:tag"}
+      IMAGE_TAG: 2.2.4.4100 # {"$imagepolicy": "media:lidarr-automation:tag"}
