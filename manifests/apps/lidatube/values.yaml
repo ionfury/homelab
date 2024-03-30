@@ -19,7 +19,7 @@ defaultPodOptions:
           topologyKey: kubernetes.io/hostname
 service:
   main:
-    controller: lidatube-app
+    controller: main
     ports:
       http:
         port: &port 5000
