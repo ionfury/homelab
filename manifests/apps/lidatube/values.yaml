@@ -47,7 +47,7 @@ controllers:
           lidarr_api_key:
             valueFrom:
               secretKeyRef:
-                name: lidatube-secret
+                name: lidarr-secret
                 key: key
           lidarr_timeout: "120"
           thread_limit: "4"
