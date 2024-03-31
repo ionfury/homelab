@@ -17,7 +17,7 @@ controllers:
       surge: 25%
       unavailable: 25%
     initContainers:
-      init-db:
+      01-init-db:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "14.8"
@@ -45,10 +45,27 @@ controllers:
               secretKeyRef:
                 name: gatus-postgres-superuser
                 key: password
+      02-init-config: &syncContainer
+        image:
+          repository: ghcr.io/kiwigrid/k8s-sidecar
+          tag: 1.26.1
+        env:
+          FOLDER: /config
+          LABEL: gatus.io/enabled
+          NAMESPACE: ALL
+          RESOURCE: both
+          UNIQUE_FILENAMES: true
+          METHOD: LIST
+        resources:
+          requests:
+            cpu: 10m
+            memory: 10Mi
+          limits:
+            memory: 128Mi
     containers:
       main:
         env:
-          TZ: ${TZ}
+          TZ: *tz
           GATUS_CONFIG_PATH: /config
           CUSTOM_WEB_PORT: *port
           INIT_POSTGRES_DBNAME: *pgdb
@@ -79,6 +96,7 @@ controllers:
           capabilities:
             drop:
               - ALL
+      sync: *syncContainer
     pod:
       #dnsConfig:
       #  options:
