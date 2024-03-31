@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/echo-server
   postBuild:
     substitute:
+      HOSTNAME: echo
       IMAGE_REPOSITORY: docker.io/jmalloc/echo-server
       IMAGE_TAG: 0.3.6 # {"$imagepolicy": "network:echo-server-automation:tag"}

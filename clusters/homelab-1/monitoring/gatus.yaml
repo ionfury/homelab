@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/gatus
   postBuild:
     substitute:
+      HOSTNAME: status
       IMAGE_REPOSITORY: ghcr.io/twin/gatus
       IMAGE_TAG: v5.8.0 # {"$imagepolicy": "monitoring:gatus-automation:tag"}

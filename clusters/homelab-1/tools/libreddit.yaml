@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/libreddit
   postBuild:
     substitute:
+      HOSTNAME: reddit
       IMAGE_REPOSITORY: ghcr.io/auricom/libreddit
       IMAGE_TAG: 0.30.1 # {"$imagepolicy": "tools:libreddit-automation:tag"}

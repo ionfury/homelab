@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/paperless-ngx
   postBuild:
     substitute:
+      HOSTNAME: documents
       IMAGE_REPOSITORY: ghcr.io/paperless-ngx/paperless-ngx
       IMAGE_TAG: 2.6.3 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}

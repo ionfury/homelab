@@ -6,6 +6,7 @@ spec:
   path: ./manifests/apps/homepage
   postBuild:
     substitute:
+      HOSTNAME: homepage
       HELM_CHART: homepage
       HELM_CHART_VERSION: 1.2.3
       HELM_CHART_REPOSITORY: https://jameswynn.github.io/helm-charts
