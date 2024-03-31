@@ -11,6 +11,11 @@ controllers:
   main:
     annotations:
       reloader.stakater.com/auto: "true"
+    replicas: 2
+    strategy: RollingUpdate
+    rollingUpdate:
+      surge: 25%
+      unavailable: 25%
     initContainers:
       init-db:
         image:
