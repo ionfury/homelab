@@ -8,5 +8,5 @@ configMapGenerator:
     files:
       - config.yaml
     options:
-      annotations:
+      labels:
         gatus.io/enabled: "true"
