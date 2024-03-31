@@ -9,3 +9,12 @@ debug: false
 ui:
   title: Status | Gatus
   header: Status
+endpoints:
+  - name: status
+    group: external
+    url: https://status.${EXTERNAL_DOMAIN}
+    interval: 1m
+    client:
+      dns-resolver: tcp://1.1.1.1:53
+    conditions:
+      - "[STATUS] == 200"
