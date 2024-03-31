@@ -1,7 +1,7 @@
 endpoints:
-  - name: "${HOSTNAME}"
+  - name: "${HOSTNAME:=app}"
     group: internal
-    url: "https://${HOSTNAME}.${INTERNAL_DOMAIN}"
+    url: "https://${HOSTNAME:=app}.${INTERNAL_DOMAIN}"
     interval: 1m
     client:
       dns-resolver: "udp://${DNS_IP}:53"

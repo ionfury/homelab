@@ -71,7 +71,7 @@ ingress:
       gethomepage.dev/name: Filebrowser
     className: internal
     hosts:
-      - host: &host files.${INTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=filebrowser}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
