@@ -1,6 +1,12 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
 
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 80
 controllers:
   main:
     annotations:
@@ -10,18 +16,40 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "14.8"
-        envFrom:
-          - secretRef:
-              name: gatus-secret
+        env:
+          TZ: &tz ${TZ}
+          INIT_POSTGRES_DBNAME: &pgdb gatus_main
+          INIT_POSTGRES_HOST: &pghost ${CLUSTER_POSTGRES_HOST}
+          INIT_POSTGRES_USER: &pguser
+            valueFrom:
+              secretKeyRef:
+                name: gatus-secret
+                key: username
+          INIT_POSTGRES_PASS: &pgpass
+            valueFrom:
+              secretKeyRef:
+                name: gatus-secret
+                key: password
+          INIT_POSTGRES_SUPER_USER:
+            valueFrom:
+              secretKeyRef:
+                name: gatus-postgres-superuser
+                key: username
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: gatus-postgres-superuser
+                key: password
     containers:
       main:
         env:
           TZ: ${TZ}
           GATUS_CONFIG_PATH: /config
-          CUSTOM_WEB_PORT: &port 80
-        envFrom:
-          - secretRef:
-              name: gatus-secret
+          CUSTOM_WEB_PORT: *port
+          INIT_POSTGRES_DBNAME: *pgdb
+          INIT_POSTGRES_HOST: *pghost
+          INIT_POSTGRES_USER: *pguser
+          INIT_POSTGRES_PASS: *pgpass
         probes:
           liveness: &probe
             enabled: true
@@ -78,12 +106,6 @@ ingress:
       - hosts:
           - *host
         secretName: gatus-tls
-service:
-  main:
-    controller: main
-    ports:
-      http:
-        port: *port
 persistence:
   config:
     type: emptyDir

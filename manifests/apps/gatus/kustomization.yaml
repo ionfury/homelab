@@ -17,6 +17,13 @@ configMapGenerator:
     files:
       - config.yaml
 secretGenerator:
+  - name: secret
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: username,password,key
+        secret-generator.v1.mittwald.de/encoding: base64url
+        secret-generator.v1.mittwald.de/length: "32"
   - name: postgres-superuser
     options:
       disableNameSuffixHash: true
