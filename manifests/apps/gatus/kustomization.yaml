@@ -4,6 +4,8 @@
 namePrefix: gatus-
 components:
   - ../../components/helm-release-app-template-oci-v3
+resources:
+  - rbac.yaml
 configMapGenerator:
   - name: values
     behavior: replace

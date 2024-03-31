@@ -141,7 +141,7 @@ persistence:
         readOnly: true
 serviceAccount:
   create: true
-  name: gatus
+  name: gatus-app
 serviceMonitor:
   app:
     serviceName: gatus
