@@ -1,0 +1,9 @@
+endpoints:
+  - name: "${HOSTNAME}"
+    group: external
+    url: "https://${HOSTNAME}.${EXTERNAL_DOMAIN}"
+    interval: 1m
+    client:
+      dns-resolver: "udp://1.1.1.1:53"
+    conditions:
+      - "[STATUS] == 200"
