@@ -6,6 +6,7 @@ spec:
   path: ./manifests/apps/lidarr
   postBuild:
     substitute:
+      HOSTNAME: music
       IMAGE_REPOSITORY: ghcr.io/onedr0p/lidarr-nightly
       IMAGE_TAG: 2.2.4.4100 # {"$imagepolicy": "media:lidarr-automation:tag"}
 ---

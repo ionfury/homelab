@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/transmission
   postBuild:
     substitute:
+      HOSTNAME: torrent
       IMAGE_REPOSITORY: haugene/transmission-openvpn
       IMAGE_TAG: 5.3.1 # {"$imagepolicy": "media:transmission-automation:tag"}

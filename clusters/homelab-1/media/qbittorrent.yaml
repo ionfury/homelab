@@ -6,6 +6,7 @@ spec:
   path: ./manifests/apps/qbittorrent
   postBuild:
     substitute:
+      HOSTNAME: torrent
       IMAGE_REPOSITORY: ghcr.io/onedr0p/qbittorrent
       IMAGE_TAG: 4.6.3 # {"$imagepolicy": "media:qbittorrent-automation:tag"}
       GLUETUN_IMAGE_REPOSITORY: ghcr.io/qdm12/gluetun

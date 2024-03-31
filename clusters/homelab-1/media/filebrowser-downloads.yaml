@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/filebrowser-downloads
   postBuild:
     substitute:
+      HOSTNAME: filebrowser-downloads
       IMAGE_REPOSITORY: filebrowser/filebrowser
       IMAGE_TAG: v2.27.0 # {"$imagepolicy": "media:filebrowser-downloads-automation:tag"}

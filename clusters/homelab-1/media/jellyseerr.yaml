@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/jellyseerr
   postBuild:
     substitute:
+      HOSTNAME: request
       IMAGE_REPOSITORY: docker.io/fallenbagel/jellyseerr
       IMAGE_TAG: 1.7.0 # {"$imagepolicy": "media:jellyseerr-automation:tag"}

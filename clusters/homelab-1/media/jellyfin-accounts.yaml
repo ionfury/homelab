@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/jellyfin-accounts
   postBuild:
     substitute:
+      HOSTNAME: accounts
       IMAGE_REPOSITORY: hrfee/jfa-go
       IMAGE_TAG: latest # {"$imagepolicy": "media:jellyfin-accounts-automation:tag"}

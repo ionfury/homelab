@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/pinchflat
   postBuild:
     substitute:
+      HOSTNAME: youtube
       IMAGE_REPOSITORY: keglin/pinchflat
       IMAGE_TAG: latest # {"$imagepolicy": "media:pinchflat-automation:tag"}

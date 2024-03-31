@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/lidatube
   postBuild:
     substitute:
+      HOSTNAME: youtube-music
       IMAGE_REPOSITORY: thewicklowwolf/lidatube
       IMAGE_TAG: latest # {"$imagepolicy": "media:lidatube-automation:tag"}

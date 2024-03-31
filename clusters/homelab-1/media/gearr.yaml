@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/gearr
   postBuild:
     substitute:
+      HOSTNAME: gearr
       IMAGE_REPOSITORY: ghcr.io/pando85/gearr
       IMAGE_TAG: 0.1.11-server # {"$imagepolicy": "media:gearr-automation:tag"}

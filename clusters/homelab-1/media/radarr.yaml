@@ -6,6 +6,7 @@ spec:
   path: ./manifests/apps/radarr
   postBuild:
     substitute:
+      HOSTNAME: movies
       IMAGE_REPOSITORY: ghcr.io/onedr0p/radarr-nightly
       IMAGE_TAG: 5.4.5.8692 # {"$imagepolicy": "media:radarr-automation:tag"}
 ---

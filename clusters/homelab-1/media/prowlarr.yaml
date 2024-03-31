@@ -6,6 +6,7 @@ spec:
   path: ./manifests/apps/prowlarr
   postBuild:
     substitute:
+      HOSTNAME: indexer
       IMAGE_REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly
       IMAGE_TAG: 1.16.0.4364 # {"$imagepolicy": "media:prowlarr-automation:tag"}
 ---
