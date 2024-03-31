@@ -1,0 +1,9 @@
+endpoints:
+  - name: "${HOSTNAME}"
+    group: internal
+    url: "https://${HOSTNAME}.${INTERNAL_DOMAIN}"
+    interval: 1m
+    client:
+      dns-resolver: "tcp://${DNS_IP}:53"
+    conditions:
+      - "[STATUS] == 200"

@@ -9,6 +9,7 @@ defaultPodOptions:
     networking/allow-ingress-to-internal-nginx: "true"
     networking/allow-ingress-to-prometheus: "true"
     networking/allow-ingress-to-uptime-kuma: "true"
+    networking/allow-ingress-to-gatus: "true"
   affinity:
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -96,7 +97,7 @@ ingress:
       gethomepage.dev/name: bazarr
     className: internal
     hosts:
-      - host: &host bazarr.${INTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=bazarr}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix

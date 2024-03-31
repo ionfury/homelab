@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-from-gatus
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gatus-app
+      app.kubernetes.io/instance: gatus-app
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              networking/allow-ingress-to-gatus: "true"

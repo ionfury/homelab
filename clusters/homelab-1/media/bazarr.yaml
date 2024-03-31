@@ -6,6 +6,7 @@ spec:
   path: ./manifests/apps/bazarr
   postBuild:
     substitute:
+      HOSTNAME: bazarr
       IMAGE_REPOSITORY: ghcr.io/onedr0p/bazarr
       IMAGE_TAG: 1.4.2 # {"$imagepolicy": "media:bazarr-automation:tag"}
 ---
