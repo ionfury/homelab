@@ -1,19 +1,8 @@
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: gatus
-  namespace: monitoring
-  labels:
-    app.kubernetes.io/managed-by: Helm
-  annotations:
-    meta.helm.sh/release-name: gatus
-    meta.helm.sh/release-namespace: monitoring
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: gatus
+  name: app
   namespace: monitoring
 rules:
   - apiGroups: [""]
@@ -23,13 +12,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: gatus
+  name: app
   namespace: monitoring
 roleRef:
   kind: ClusterRole
-  name: gatus
+  name: app
   apiGroup: rbac.authorization.k8s.io
 subjects:
   - kind: ServiceAccount
-    name: gatus
+    name: gatus-app
     namespace: monitoring
