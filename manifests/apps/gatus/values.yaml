@@ -72,19 +72,19 @@ controllers:
           INIT_POSTGRES_HOST: *pghost
           INIT_POSTGRES_USER: *pguser
           INIT_POSTGRES_PASS: *pgpass
-        #probes:
-        #  liveness: &probe
-        #    enabled: true
-        #    custom: true
-        #    spec:
-        #      httpGet:
-        #        path: /health
-        #        port: *port
-        #      initialDelaySeconds: 0
-        #      periodSeconds: 10
-        #      timeoutSeconds: 1
-        #      failureThreshold: 3
-        #  readiness: *probe
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: *port
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probe
         resources:
           requests:
             cpu: 10m
@@ -96,7 +96,6 @@ controllers:
           capabilities:
             drop:
               - ALL
-      sync: *syncContainer
     pod:
       #dnsConfig:
       #  options:
