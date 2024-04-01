@@ -8,7 +8,7 @@ spec:
     substitute:
       HOSTNAME: music
       IMAGE_REPOSITORY: ghcr.io/onedr0p/lidarr-nightly
-      IMAGE_TAG: 2.2.4.4100 # {"$imagepolicy": "media:lidarr-automation:tag"}
+      IMAGE_TAG: 2.2.4.4116 # {"$imagepolicy": "media:lidarr-automation:tag"}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
