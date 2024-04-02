@@ -5,6 +5,7 @@ defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
     networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-external-nginx: "true"
     networking/allow-ingress-to-prometheus: "true"
     networking/allow-ingress-to-uptime-kuma: "true"
   affinity:
