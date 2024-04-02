@@ -36,7 +36,7 @@ controllers:
           FB_DATABASE: /db/filebrowser.db
           FB_ROOT: /srv
           FB_LOG: stdout
-          FB_NOAUTH: true
+          #FB_NOAUTH: true
           FB_PORT: &port 8080
         resources:
           requests:
