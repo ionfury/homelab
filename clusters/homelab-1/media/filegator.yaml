@@ -1,0 +1,11 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: filegator
+spec:
+  path: ./manifests/apps/filegator
+  postBuild:
+    substitute:
+      HOSTNAME: filegator-downloads
+      IMAGE_REPOSITORY: filegator/filegator
+      IMAGE_TAG: v7.9.3 # {"$imagepolicy": "media:filegator-automation:tag"}

@@ -6,6 +6,7 @@ components:
   - ../.network-policies
 resources:
   - filebrowser-downloads.yaml
+  - filegator.yaml
   - bazarr.yaml
   - dashboards.yaml
   # - gearr.yaml
