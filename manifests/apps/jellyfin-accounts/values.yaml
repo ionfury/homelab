@@ -52,7 +52,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: main
+              name: jellyfin-accounts-app
               port: *port
     tls:
       - hosts:
