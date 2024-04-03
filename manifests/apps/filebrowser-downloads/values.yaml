@@ -94,6 +94,30 @@ ingress:
       - secretName: filebrowser-downloads-tls
         hosts:
           - *host
+  internal:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+      cert-manager.io/cluster-issuer: cloudflare
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: Network file management share.
+      gethomepage.dev/group: Share
+      gethomepage.dev/icon: filebrowser.png
+      gethomepage.dev/name: Filebrowser
+    className: external
+    hosts:
+      - host: &host ${HOSTNAME:=filebrowser-downloads}.${EXTERNAL_DOMAIN}
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: filebrowser-downloads-app #hack
+              port: *port
+    tls:
+      - secretName: filebrowser-downloads-internal-tls
+        hosts:
+          - *host
 persistence:
   root:
     enabled: true
