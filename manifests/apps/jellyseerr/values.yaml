@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -7,6 +10,12 @@ defaultPodOptions:
     networking/allow-ingress-to-prometheus: "true"
     networking/allow-ingress-to-uptime-kuma: "true"
   automountServiceAccountToken: false
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 8080
 controllers:
   main:
     annotations:
@@ -15,17 +24,11 @@ controllers:
       main:
         env:
           LOG_LEVEL: "info"
-          PORT: 8080
+          PORT: *port
         resources:
           requests:
+            cpu: 10m
             memory: 443M
-          limits:
-            memory: 536M
-service:
-  main:
-    ports:
-      http:
-        port: 8080
 ingress:
   main:
     enabled: true
@@ -38,16 +41,16 @@ ingress:
       gethomepage.dev/name: jellyseerr
     className: internal
     hosts:
-      - host: request.${INTERNAL_DOMAIN}
+      - host: &internalhost request.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
+              name: jellyseerr-app # hack
+              port: *port
     tls:
       - hosts:
-          - request.${INTERNAL_DOMAIN}
+          - *internalhost
         secretName: request-tls
   external:
     enabled: true
@@ -56,16 +59,16 @@ ingress:
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
     className: external
     hosts:
-      - host: request.${EXTERNAL_DOMAIN}
+      - host: &externalhost request.${EXTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
+              name: jellyseerr-app # hack
+              port: *port
     tls:
       - hosts:
-          - request.${EXTERNAL_DOMAIN}
+          - *externalhost
         secretName: request-tls
 persistence:
   config:
