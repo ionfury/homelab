@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet: "false"
@@ -20,6 +23,12 @@ defaultPodOptions:
                   values:
                     - zipline-app
             topologyKey: kubernetes.io/hostname
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 3000
 controllers:
   main:
     type: deployment
@@ -35,7 +44,6 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: 14.8
-        imagePullPolicy: IfNotPresent
         envFrom:
           - secretRef:
               name: zipline-storage-secret
@@ -78,7 +86,7 @@ controllers:
           DATASOURCE_S3_PORT: "9000"
           DATASOURCE_S3_USE_SSL: "false"
           CORE_HOST: "0.0.0.0"
-          CORE_PORT: "3000"
+          CORE_PORT: *port
           CORE_RETURN_HTTPS: "true"
           # Exif
           EXIF_REMOVE_GPS: "true"
@@ -99,11 +107,6 @@ controllers:
           WEBSITE_TITLE: "${EXTERNAL_DOMAIN}"
           WEBSITE_SHOW_FILES_PER_USER: "false"
           WEBSITE_SHOW_VERSION: "false"
-service:
-  main:
-    ports:
-      http:
-        port: 3000
 ingress:
   main:
     enabled: true
@@ -118,16 +121,16 @@ ingress:
       gethomepage.dev/name: Zipline
     className: internal
     hosts:
-      - host: img.${INTERNAL_DOMAIN}
+      - host: &internalhost img.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
+              name: zipline-app # hack
+              port: *port
     tls:
       - hosts:
-          - img.${INTERNAL_DOMAIN}
+          - *internalhost
         secretName: zipline-tls
   external:
     enabled: true
@@ -136,29 +139,29 @@ ingress:
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
     className: external
     hosts:
-      - host: img.${EXTERNAL_DOMAIN}
+      - host: &externalhost img.${EXTERNAL_DOMAIN}
         paths:
           - path: /go
             pathType: Prefix
             service:
-              name: main
-              port: http
+              name: zipline-app # hack
+              port: *port
           - path: /u
             pathType: Prefix
             service:
-              name: main
-              port: http
+              name: zipline-app # hack
+              port: *port
           - path: /code
             pathType: Prefix
             service:
-              name: main
-              port: http
+              name: zipline-app # hack
+              port: *port
           - path: /view
             pathType: Prefix
             service:
               name: main
-              port: http
+              port: *port
     tls:
       - hosts:
-          - img.${EXTERNAL_DOMAIN}
+          - *externalhost
         secretName: zipline-external-tls
