@@ -7,5 +7,5 @@ spec:
   postBuild:
     substitute:
       HOSTNAME: samba
-      IMAGE_REPOSITORY: dperson/samb
+      IMAGE_REPOSITORY: dperson/samba
       IMAGE_TAG: latest
