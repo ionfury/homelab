@@ -10,6 +10,7 @@ resources:
   - flux-system
   - games
   - kube-system
+  - lan
   - media
   - monitoring
   - network
