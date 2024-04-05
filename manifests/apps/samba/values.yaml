@@ -18,10 +18,10 @@ controllers:
           requests:
             cpu: 10m
             memory: 256Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          #  readOnlyRootFilesystem: true
-          capabilities: { drop: ["ALL"] }
+        # securityContext:
+        # allowPrivilegeEscalation: false
+        #  readOnlyRootFilesystem: true
+        # capabilities: { drop: ["ALL"] }
 
 service:
   main:
