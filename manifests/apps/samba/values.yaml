@@ -19,7 +19,7 @@ controllers:
             memory: 256Mi
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
+          #  readOnlyRootFilesystem: true
           capabilities: { drop: ["ALL"] }
 
 service:
