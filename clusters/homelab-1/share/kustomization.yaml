@@ -5,6 +5,5 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
-  - samba.yaml
   - filebrowser.yaml
   - zipline.yaml

@@ -6,6 +6,7 @@ components:
 resources:
   #- code-server.yaml
   #- filebrowser.yaml
+  - samba.yaml
   - gha-runners.yaml
   - homepage.yaml
   - firefly-iii.yaml
