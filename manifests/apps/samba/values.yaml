@@ -3,7 +3,8 @@
 
 defaultPodOptions:
   labels:
-    #
+    networking/allow-egress-to-private: "true"
+    networking/allow-egress-from-private: "true"
 controllers:
   main:
     annotations:
