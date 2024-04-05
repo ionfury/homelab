@@ -42,4 +42,4 @@ persistence:
     advancedMounts:
       main:
         main:
-          - path: /srv
+          - path: /mount
