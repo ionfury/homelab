@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    #
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        #env:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: { drop: ["ALL"] }
+
+service:
+  main:
+    controller: main
+    annotations:
+      cloudprovider.harvesterhci.io/ipam: dhcp
+    ports:
+      nmbd:
+        port: 137
+      dgm:
+        port: 138
+      ldap:
+        port: 445
+persistence:
+  root:
+    enabled: true
+    retain: true
+    storageClass: ${STORAGE_CLASS_FAST}
+    size: 50Gi
+    accessMode: ReadWriteOnce
+    advancedMounts:
+      main:
+        main:
+          - path: /srv
