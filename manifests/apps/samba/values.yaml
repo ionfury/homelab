@@ -5,6 +5,16 @@ defaultPodOptions:
   labels:
     networking/allow-egress-to-private: "true"
     networking/allow-egress-from-private: "true"
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - lan
+          topologyKey: kubernetes.io/hostname
 controllers:
   main:
     annotations:
