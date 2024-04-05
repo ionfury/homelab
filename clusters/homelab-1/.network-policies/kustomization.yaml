@@ -12,9 +12,11 @@ components:
   - allow-egress-to-kubedns/source
   - allow-egress-to-minio/source
   - allow-egress-to-postgres/source
+  - allow-egress-to-private/source
 
   # Ingress Policies
   - allow-ingress-from-external/destination
   - allow-ingress-from-internal/destination
   - allow-ingress-from-prometheus/destination
   - allow-ingress-from-uptime-kuma/destination
+  - allow-ingress-from-private/destination
