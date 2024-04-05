@@ -10,7 +10,9 @@ controllers:
       reloader.stakater.com/auto: "true"
     containers:
       main:
-        #env:
+        env:
+          TZ: ${TZ}
+          SAMBA_LOG_LEVEL: 0
         resources:
           requests:
             cpu: 10m
@@ -26,14 +28,23 @@ service:
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
     ports:
-      nmbd:
-        port: 137
-      dgm:
-        port: 138
-      ldap:
+      smb:
         port: 445
+      discovery:
+        port: 3702
+      llmnr:
+        port: 5355
 persistence:
-  root:
+  config:
+    enabled: true
+    type: configMap
+    name: samba-config
+    advancedMounts:
+      main:
+        main:
+          - path: /data/config.yml
+            subPath: config.yml
+  share:
     enabled: true
     retain: true
     storageClass: ${STORAGE_CLASS_FAST}
@@ -42,4 +53,4 @@ persistence:
     advancedMounts:
       main:
         main:
-          - path: /mount
+          - path: /share

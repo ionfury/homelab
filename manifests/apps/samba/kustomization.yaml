@@ -8,3 +8,8 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+  - name: config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - config.yml=config.yaml

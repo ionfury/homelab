@@ -1,0 +1,8 @@
+share:
+  - name: public
+    comment: Public
+    path: /share
+    browsable: yes
+    readonly: no
+    guestok: yes
+    veto: no
