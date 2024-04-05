@@ -49,10 +49,7 @@ persistence:
             subPath: config.yml
   share:
     enabled: true
-    retain: true
-    storageClass: ${STORAGE_CLASS_FAST}
-    size: 50Gi
-    accessMode: ReadWriteOnce
+    existingClaim: filebrowser-lan-app-share
     advancedMounts:
       main:
         main:
