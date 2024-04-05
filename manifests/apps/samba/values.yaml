@@ -27,6 +27,8 @@ service:
     controller: main
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
+    externalTrafficPolicy: Cluster
+    type: LoadBalancer
     ports:
       smb:
         port: 445
