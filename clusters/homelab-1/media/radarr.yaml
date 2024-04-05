@@ -19,6 +19,6 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/onedr0p/exportarr
-      IMAGE_TAG: v2.0.0 # {"$imagepolicy": "media:radarr-exportarr-automation:tag"}
+      IMAGE_TAG: v2.0.1 # {"$imagepolicy": "media:radarr-exportarr-automation:tag"}
       TARGET: radarr
       TARGET_PORT: "7878"
