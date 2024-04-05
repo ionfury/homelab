@@ -59,7 +59,7 @@ persistence:
             subPath: config.yml
   share:
     enabled: true
-    existingClaim: filebrowser-lan-app-share
+    existingClaim: filebrowser-app-root
     advancedMounts:
       main:
         main:
