@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: documents
       IMAGE_REPOSITORY: ghcr.io/paperless-ngx/paperless-ngx
-      IMAGE_TAG: 2.7.1 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}
+      IMAGE_TAG: 2.7.2 # {"$imagepolicy": "tools:paperless-ngx-automation:tag"}

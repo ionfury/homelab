@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: recipies
       IMAGE_REPOSITORY: ghcr.io/tandoorrecipes/recipes
-      IMAGE_TAG: 1.5.16 # {"$imagepolicy": "tools:tandoor-recipes-automation:tag"}
+      IMAGE_TAG: 1.5.17 # {"$imagepolicy": "tools:tandoor-recipes-automation:tag"}
