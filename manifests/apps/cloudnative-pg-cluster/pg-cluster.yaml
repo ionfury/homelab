@@ -8,6 +8,7 @@ spec:
   instances: 3
   imageName: ${IMAGE_REPOSITORY}:${IMAGE_TAG}
   primaryUpdateStrategy: unsupervised
+  enableSuperuserAccess: true
   superuserSecret:
     name: generated-postgres-superuser
   storage:
