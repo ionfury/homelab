@@ -1,31 +1,31 @@
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: &app ipmi-node1
-  namespace: &ns network
+  name: ipmi-node1
+  namespace: network
 subsets:
   - addresses:
       - ip: ${NODE1_IPMI_ADDRESS}
     ports:
-      - port: &port 443
+      - port: 443
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: *app
-  namespace: *ns
+  name: ipmi-node1
+  namespace: network
 spec:
   clusterIP: None
   ports:
-    - port: *port
+    - port: 443
       protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: *app
-  namespace: *ns
-  annotations:
+  name: ipmi-node1
+  namespace: network
+  annotationetwork:
     cert-manager.io/cluster-issuer: cloudflare
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
@@ -43,9 +43,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: *app
+                name: ipmi-node1
                 port:
-                  number: *port
+                  number: 443
   tls:
     - hosts:
         - *host

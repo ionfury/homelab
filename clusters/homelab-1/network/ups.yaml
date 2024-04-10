@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: ups
+  namespace: network
+subsets:
+  - addresses:
+      - ip: ${UPS_ADDRESS}
+    ports:
+      - port: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ups
+  namespace: network
+spec:
+  clusterIP: None
+  ports:
+    - port: 443
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ups
+  namespace: network
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: Cyberpower UPS
+    gethomepage.dev/group: Network
+    gethomepage.dev/icon: cyberpower.png
+    gethomepage.dev/name: UPS
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host ups.${INTERNAL_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ups
+                port:
+                  number: 443
+  tls:
+    - hosts:
+        - *host
+      secretName: ups-tls

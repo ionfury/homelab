@@ -1,30 +1,30 @@
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: &app harvester
-  namespace: &ns network
+  name: harvester
+  namespace: network
 subsets:
   - addresses:
       - ip: ${HARVESTER_IP_ADDRESS}
     ports:
-      - port: &port 443
+      - port: 443
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: *app
-  namespace: *ns
+  name: harvester
+  namespace: network
 spec:
   clusterIP: None
   ports:
-    - port: *port
+    - port: 443
       protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: *app
-  namespace: *ns
+  name: harvester
+  namespace: network
   annotations:
     cert-manager.io/cluster-issuer: cloudflare
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
@@ -43,9 +43,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: *app
+                name: harvester
                 port:
-                  number: *port
+                  number: 443
   tls:
     - hosts:
         - *host
