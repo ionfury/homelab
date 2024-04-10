@@ -25,7 +25,7 @@ kind: Ingress
 metadata:
   name: ipmi-node1
   namespace: network
-  annotationetwork:
+  annotations:
     cert-manager.io/cluster-issuer: cloudflare
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
