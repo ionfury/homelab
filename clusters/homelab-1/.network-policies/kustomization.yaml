@@ -13,6 +13,7 @@ components:
   - allow-egress-to-minio/source
   - allow-egress-to-postgres/source
   - allow-egress-to-private/source
+  - allow-egress-to-prometheus/source
 
   # Ingress Policies
   - allow-ingress-from-external/destination
