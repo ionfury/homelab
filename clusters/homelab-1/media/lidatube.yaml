@@ -7,5 +7,5 @@ spec:
   postBuild:
     substitute:
       HOSTNAME: youtube-music
-      IMAGE_REPOSITORY: thewicklowwolf/lidatube
+      IMAGE_REPOSITORY: ionfury/lidatube
       IMAGE_TAG: latest # {"$imagepolicy": "media:lidatube-automation:tag"}
