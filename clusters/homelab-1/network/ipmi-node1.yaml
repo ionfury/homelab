@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: &app ipmi-node1
+  namespace: &ns network
+subsets:
+  - addresses:
+      - ip: ${NODE1_IPMI_ADDRESS}
+    ports:
+      - port: &port 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: *app
+  namespace: *ns
+spec:
+  clusterIP: None
+  ports:
+    - port: *port
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: *app
+  namespace: *ns
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: IPMIView monitors and reports on the status of SuperBlade systems, including the blade server, power supply, gigabit switch, InfiniBand and CMM modules.
+    gethomepage.dev/group: Network
+    gethomepage.dev/icon: supermicro.png
+    gethomepage.dev/name: IPMI Node1
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host ipmi-node1.${INTERNAL_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: *port
+  tls:
+    - hosts:
+        - *host
+      secretName: ipmi-node1-tls

@@ -11,5 +11,11 @@ resources:
   - ingress-nginx-external.yaml
   - ingress-nginx-internal.yaml
   - ingress-nginx-monitoring.yaml
+
+  - harvester.yaml
+  - ipmi-node1.yaml
+  - ipmi-node2.yaml
+  - ipmi-node2.yaml
+  - ups.yaml
   - unifi-network.yaml
   - unifi-protect.yaml

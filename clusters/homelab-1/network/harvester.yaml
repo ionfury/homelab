@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: &app harvester
+  namespace: &ns network
+subsets:
+  - addresses:
+      - ip: ${HARVESTER_IP_ADDRESS}
+    ports:
+      - port: &port 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: *app
+  namespace: *ns
+spec:
+  clusterIP: None
+  ports:
+    - port: *port
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: *app
+  namespace: *ns
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: Harvester is a modern, open, interoperable, hyperconverged infrastructure (HCI) solution built on Kubernetes.
+    gethomepage.dev/group: Network
+    gethomepage.dev/icon: harvester.png
+    gethomepage.dev/name: Harvester
+spec:
+  ingressClassName: internal
+  rules:
+    - host: &host network.${INTERNAL_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: *app
+                port:
+                  number: *port
+  tls:
+    - hosts:
+        - *host
+      secretName: harvester-tls
