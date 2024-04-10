@@ -8,15 +8,21 @@
 
 </div>
 
-<br />
+<div align="center">
+
+[![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label&logo=discord&logoColor=white&color=blue)](https://discord.gg/home-operations)&nbsp;&nbsp;
+[![Kubernetes](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dkubernetes_version&style=for-the-badge&logo=kubernetes&logoColor=white&color=blue&label=%20)](https://docs.rke2.io/)
+
+
+</div>
 
 <div align="center">
 
-![cluster](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=cluster&query=%24.status&url=https%3A%2F%2Fhealthchecks.io%2Fbadge%2Fb4308338-139b-4907-bee3-37c2da%2FiS3vfgkr-2.json&style=for-the-badge&logo=kubernetes&logoColor=white)
-[![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label=discord&logo=discord&logoColor=white&color=blue)](https://discord.gg/k8s-at-home)
-[![harvester](https://img.shields.io/badge/harvester-v1.2.1-brightgreen?style=for-the-badge&logo=openSUSE&logoColor=white&color=blue)](https://harvesterhci.io/)
-[![rancher](https://img.shields.io/badge/rancher-v2.7.6-brightgreen?style=for-the-badge&logo=rancher&logoColor=white&color=blue)](https://www.rancher.com)
-[![kubernetes](https://img.shields.io/badge/kubernetes-v1.26.8-brightgreen?style=for-the-badge&logo=kubernetes&logoColor=white&color=blue)](https://kubernetes.io/)
+![heartbeat](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=heartbeat&query=%24.status&url=https%3A%2F%2Fhealthchecks.io%2Fbadge%2Fb4308338-139b-4907-bee3-37c2da%2FiS3vfgkr-2.json&style=flat-square&logo=kubernetes&logoColor=white)&nbsp;&nbsp;
+[![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_node_count&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_pod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_memory_usage&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 
 </div>
 
