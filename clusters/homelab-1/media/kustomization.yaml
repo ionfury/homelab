@@ -5,7 +5,7 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
-  - filebrowser-downloads.yaml
+  #- filebrowser-downloads.yaml
   #- filegator.yaml
   - bazarr.yaml
   - dashboards.yaml
