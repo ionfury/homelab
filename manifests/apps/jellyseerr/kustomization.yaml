@@ -4,6 +4,8 @@
 namePrefix: jellyseerr-
 components:
   - ../../components/helm-release-app-template-oci-v3
+  - ../../components/gatus-internal
+  - ../../components/gatus-external
 configMapGenerator:
   - name: values
     behavior: replace
