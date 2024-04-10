@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+
+namePrefix: kromgo-
+components:
+  - ../../components/helm-release-app-template-oci-v3
+  - ../../components/gatus-external
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+  - name: config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - config.yaml
