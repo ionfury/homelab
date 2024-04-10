@@ -1,7 +1,7 @@
 endpoints:
   - name: "${HOSTNAME:=app}"
     group: external
-    url: "https://${HOSTNAME:=app}.${EXTERNAL_DOMAIN}"
+    url: "https://${HOSTNAME:=app}.${EXTERNAL_DOMAIN}/${PATH:=}"
     interval: 1m
     client:
       dns-resolver: "udp://1.1.1.1:53"
