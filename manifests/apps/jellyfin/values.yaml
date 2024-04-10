@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   automountServiceAccountToken: false
   enableServiceLinks: false
@@ -20,6 +23,12 @@ defaultPodOptions:
       - 44
       - 109
       - 10000
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 8096
 controllers:
   main:
     annotations:
@@ -33,28 +42,18 @@ controllers:
           JELLYFIN_FFmpeg__analyzeduration: "5000000000"
           JELLYFIN_PublishedServerUrl: jellyfin.${INTERNAL_DOMAIN}
         probes:
-          liveness:
+          liveness: &probe
             enabled: true
             custom: true
             spec:
               httpGet:
                 path: /health
-                port: 8096
+                port: *port
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
               failureThreshold: 3
-          readiness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /health
-                port: 8096
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
+          readiness: *probe
           startup:
             enabled: false
         resources:
@@ -63,17 +62,12 @@ controllers:
             memory: 4Gi
           limits:
             nvidia.com/gpu: 1
-service:
-  main:
-    ports:
-      http:
-        port: 8096
 ingress:
   main:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
-      nginx.ingress.kubernetes.io/configuration-snippet: |
+      nginx.ingress.kubernetes.io/configuration-snippet: &configurationsnippit |
         proxy_set_header Accept-Encoding "";
         sub_filter '</body>' '<script plugin="Jellyscrub" version="1.1.1.0" src="/Trickplay/ClientScript"></script></body>';
         sub_filter_once on;
@@ -82,50 +76,32 @@ ingress:
       gethomepage.dev/group: Media
       gethomepage.dev/icon: jellyfin.png
       gethomepage.dev/name: Jellyfin
-      gethomepage.dev/widget.type: jellyfin
-      gethomepage.dev/widget.url: http://jellyfin-app.${NAMESPACE}.svc.cluster.local:8096
     className: internal
     hosts:
-      - host: jellyfin.${INTERNAL_DOMAIN}
-        paths:
+      - host: &internalhost watch.${INTERNAL_DOMAIN}
+        paths: &paths
           - path: /
             pathType: Prefix
             service:
               name: main
-              port: http
-      - host: watch.${INTERNAL_DOMAIN}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: main
-              port: http
+              port: *port
     tls:
       - hosts:
-          - jellyfin.${INTERNAL_DOMAIN}
-          - watch.${INTERNAL_DOMAIN}
+          - *internalhost
         secretName: jellyfin-tls
   external:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
-      nginx.ingress.kubernetes.io/configuration-snippet: |
-        proxy_set_header Accept-Encoding "";
-        sub_filter '</body>' '<script plugin="Jellyscrub" version="1.1.1.0" src="/Trickplay/ClientScript"></script></body>';
-        sub_filter_once on;
+      nginx.ingress.kubernetes.io/configuration-snippet: *configurationsnippit
     className: external
     hosts:
-      - host: watch.${EXTERNAL_DOMAIN}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: main
-              port: http
+      - host: &externalhost watch.${EXTERNAL_DOMAIN}
+        paths: *paths
     tls:
       - hosts:
-          - watch.${EXTERNAL_DOMAIN}
+          - *externalhost
         secretName: external-jellyfin-tls
 persistence:
   config:
@@ -133,6 +109,7 @@ persistence:
     retain: true
     storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
     size: 20Gi
+    accessMode: ReadWriteOnce
     globalMounts:
       - path: /config
   transcode:

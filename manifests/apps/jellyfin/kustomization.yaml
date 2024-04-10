@@ -1,24 +1,16 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+
 namePrefix: jellyfin-
 components:
-  - ../../components/helm-release-app-template-oci-v2
+  - ../../components/helm-release-app-template-oci-v3
 resources:
   - external-secret.yaml
   - prometheus-rules.yaml
+  - ../../components/gatus-internal
+  - ../../components/gatus-external
 configMapGenerator:
   - name: values
     behavior: replace
     files:
       - values.yaml
-patches:
-  - target:
-      kind: HelmRelease
-    patch: |
-      - op: add
-        path: /spec/valuesFrom/-
-        value:
-          targetPath: ingress.main.annotations.gethomepage\.dev/widget\.key
-          kind: Secret
-          name: jellyfin-key
-          valuesKey: key
