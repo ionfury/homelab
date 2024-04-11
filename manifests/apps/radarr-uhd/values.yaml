@@ -97,7 +97,7 @@ ingress:
       gethomepage.dev/name: Radarr-uhd
     className: internal
     hosts:
-      - host: &host movies-uhd.${INTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=radarr-uhd}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix

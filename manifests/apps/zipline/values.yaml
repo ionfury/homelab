@@ -121,7 +121,7 @@ ingress:
       gethomepage.dev/name: Zipline
     className: internal
     hosts:
-      - host: &internalhost img.${INTERNAL_DOMAIN}
+      - host: &internalhost ${HOSTNAME:=zipline}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
@@ -139,7 +139,7 @@ ingress:
       external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
     className: external
     hosts:
-      - host: &externalhost img.${EXTERNAL_DOMAIN}
+      - host: &externalhost ${HOSTNAME:=zipline}.${EXTERNAL_DOMAIN}
         paths:
           - path: /go
             pathType: Prefix

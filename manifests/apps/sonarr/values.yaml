@@ -98,7 +98,7 @@ ingress:
       gethomepage.dev/name: sonarr
     className: internal
     hosts:
-      - host: &host shows.${INTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=sonarr}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
