@@ -2,7 +2,8 @@
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 namePrefix: radarr-
 components:
-  - ../../components/helm-release-app-template-oci-v2
+  - ../../components/helm-release-app-template-oci-v3
+  - ../../components/gatus-internal
 configMapGenerator:
   - name: values
     behavior: replace
@@ -25,13 +26,3 @@ secretGenerator:
         replicator.v1.mittwald.de/replicate-from: storage/generated-postgres-superuser
 patches:
   - path: image-automation.yaml
-  - target:
-      kind: HelmRelease
-    patch: |
-      - op: add
-        path: /spec/valuesFrom/-
-        value:
-          targetPath: ingress.main.annotations.gethomepage\.dev/widget\.key
-          kind: Secret
-          name: radarr-secret
-          valuesKey: key

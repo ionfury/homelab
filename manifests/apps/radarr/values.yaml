@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -16,6 +19,12 @@ defaultPodOptions:
                 values:
                   - media
           topologyKey: kubernetes.io/hostname
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 7878
 controllers:
   main:
     annotations:
@@ -31,16 +40,15 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "14.8"
-        imagePullPolicy: IfNotPresent
         env:
           INIT_POSTGRES_DBNAME: "radarr_main radarr_log"
           INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-          INIT_POSTGRES_USER:
+          INIT_POSTGRES_USER: &pguser
             valueFrom:
               secretKeyRef:
                 name: radarr-secret
                 key: username
-          INIT_POSTGRES_PASS:
+          INIT_POSTGRES_PASS: &pgpass
             valueFrom:
               secretKeyRef:
                 name: radarr-secret
@@ -64,32 +72,19 @@ controllers:
         env:
           TZ: ${TZ}
           RADARR__INSTANCE_NAME: Radarr
-          RADARR__PORT: 7878
+          RADARR__PORT: *port
           RADARR__LOG_LEVEL: info
           RADARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           RADARR__POSTGRES_PORT: 5432
           RADARR__POSTGRES_MAIN_DB: radarr_main
           RADARR__POSTGRES_LOG_DB: radarr_log
-          RADARR__POSTGRES_USER:
-            valueFrom:
-              secretKeyRef:
-                name: radarr-secret
-                key: username
-          RADARR__POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: radarr-secret
-                key: password
+          RADARR__POSTGRES_USER: *pguser
+          RADARR__POSTGRES_PASSWORD: *pgpass
           RADARR__API_KEY:
             valueFrom:
               secretKeyRef:
                 name: radarr-secret
                 key: key
-service:
-  main:
-    ports:
-      http:
-        port: 7878
 ingress:
   main:
     enabled: true
@@ -102,30 +97,20 @@ ingress:
       gethomepage.dev/name: Radarr
     className: internal
     hosts:
-      - host: radarr.${INTERNAL_DOMAIN}
+      - host: &host movies.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
-      - host: movies.${INTERNAL_DOMAIN}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: main
+              identifier: main
               port: http
     tls:
-      - hosts:
-          - radarr.${INTERNAL_DOMAIN}
-          - movies.${INTERNAL_DOMAIN}
+      - hosts: [*host]
         secretName: radarr-tls
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
-    mountPath: /media
     advancedMounts:
       main:
         main:
