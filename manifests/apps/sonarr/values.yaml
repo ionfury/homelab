@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -17,6 +20,12 @@ defaultPodOptions:
                 values:
                   - media
           topologyKey: kubernetes.io/hostname
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 8989
 controllers:
   main:
     annotations:
@@ -32,16 +41,15 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "14.8"
-        imagePullPolicy: IfNotPresent
         env:
           INIT_POSTGRES_DBNAME: "sonarr_main sonarr_log"
           INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-          INIT_POSTGRES_USER:
+          INIT_POSTGRES_USER: &pguser
             valueFrom:
               secretKeyRef:
                 name: sonarr-secret
                 key: username
-          INIT_POSTGRES_PASS:
+          INIT_POSTGRES_PASS: &pgpass
             valueFrom:
               secretKeyRef:
                 name: sonarr-secret
@@ -65,32 +73,19 @@ controllers:
         env:
           TZ: ${TZ}
           SONARR__INSTANCE_NAME: Sonarr
-          SONARR__PORT: 8989
+          SONARR__PORT: *port
           SONARR__LOG_LEVEL: info
           SONARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           SONARR__POSTGRES_PORT: 5432
           SONARR__POSTGRES_MAIN_DB: sonarr_main
           SONARR__POSTGRES_LOG_DB: sonarr_log
-          SONARR__POSTGRES_USER:
-            valueFrom:
-              secretKeyRef:
-                name: sonarr-secret
-                key: username
-          SONARR__POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: sonarr-secret
-                key: password
+          SONARR__POSTGRES_USER: *pguser
+          SONARR__POSTGRES_PASSWORD: *pgpass
           SONARR__API_KEY:
             valueFrom:
               secretKeyRef:
                 name: sonarr-secret
                 key: key
-service:
-  main:
-    ports:
-      http:
-        port: 8989
 ingress:
   main:
     enabled: true
@@ -103,30 +98,20 @@ ingress:
       gethomepage.dev/name: sonarr
     className: internal
     hosts:
-      - host: sonarr.${INTERNAL_DOMAIN}
+      - host: &host shows.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
-      - host: shows.${INTERNAL_DOMAIN}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: main
+              identifier: main
               port: http
     tls:
-      - hosts:
-          - sonarr.${INTERNAL_DOMAIN}
-          - shows.${INTERNAL_DOMAIN}
+      - hosts: [*host]
         secretName: sonarr-tls
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
-    mountPath: /media
     advancedMounts:
       main:
         main:
