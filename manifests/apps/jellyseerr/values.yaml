@@ -64,7 +64,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: jellyseerr-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts:

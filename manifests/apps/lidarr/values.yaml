@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -16,6 +19,12 @@ defaultPodOptions:
                 values:
                   - media
           topologyKey: kubernetes.io/hostname
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 8686
 controllers:
   main:
     annotations:
@@ -31,16 +40,15 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "14.8"
-        imagePullPolicy: IfNotPresent
         env:
           INIT_POSTGRES_DBNAME: "lidarr_main lidarr_log"
           INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-          INIT_POSTGRES_USER:
+          INIT_POSTGRES_USER: &pguser
             valueFrom:
               secretKeyRef:
                 name: lidarr-secret
                 key: username
-          INIT_POSTGRES_PASS:
+          INIT_POSTGRES_PASS: &pgpass
             valueFrom:
               secretKeyRef:
                 name: lidarr-secret
@@ -64,32 +72,19 @@ controllers:
         env:
           TZ: ${TZ}
           LIDARR__INSTANCE_NAME: Lidarr
-          LIDARR__PORT: 8686
+          LIDARR__PORT: *port
           LIDARR__LOG_LEVEL: info
           LIDARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           LIDARR__POSTGRES_PORT: 5432
           LIDARR__POSTGRES_MAIN_DB: lidarr_main
           LIDARR__POSTGRES_LOG_DB: lidarr_log
-          LIDARR__POSTGRES_USER:
-            valueFrom:
-              secretKeyRef:
-                name: lidarr-secret
-                key: username
-          LIDARR__POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: lidarr-secret
-                key: password
+          LIDARR__POSTGRES_USER: *pguser
+          LIDARR__POSTGRES_PASSWORD: *pgpass
           LIDARR__API_KEY:
             valueFrom:
               secretKeyRef:
                 name: lidarr-secret
                 key: key
-service:
-  main:
-    ports:
-      http:
-        port: 8686
 ingress:
   main:
     enabled: true
@@ -102,30 +97,20 @@ ingress:
       gethomepage.dev/name: Lidarr
     className: internal
     hosts:
-      - host: lidarr.${INTERNAL_DOMAIN}
+      - host: &host music.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
-      - host: music.${INTERNAL_DOMAIN}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: main
+              identifier: main
               port: http
     tls:
-      - hosts:
-          - lidarr.${INTERNAL_DOMAIN}
-          - music.${INTERNAL_DOMAIN}
+      - hosts: [*host]
         secretName: lidarr-tls
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
-    mountPath: /media
     advancedMounts:
       main:
         main:
