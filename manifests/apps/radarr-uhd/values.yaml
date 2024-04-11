@@ -1,3 +1,30 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-postgres: "true"
+    networking/allow-egress-to-kubedns: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-uptime-kuma: "true"
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: required-volume
+                operator: In
+                values:
+                  - media
+          topologyKey: kubernetes.io/hostname
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 7878
 controllers:
   main:
     annotations:
@@ -13,16 +40,15 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "15"
-        imagePullPolicy: IfNotPresent
         env:
           INIT_POSTGRES_DBNAME: "radarr_uhd_main radarr_uhd_log"
           INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-          INIT_POSTGRES_USER:
+          INIT_POSTGRES_USER: &pguser
             valueFrom:
               secretKeyRef:
                 name: radarr-uhd-secret
                 key: username
-          INIT_POSTGRES_PASS:
+          INIT_POSTGRES_PASS: &pgpass
             valueFrom:
               secretKeyRef:
                 name: radarr-uhd-secret
@@ -46,50 +72,19 @@ controllers:
         env:
           TZ: ${TZ}
           RADARR__INSTANCE_NAME: Radarr-uhd
-          RADARR__PORT: 7878
+          RADARR__PORT: *port
           RADARR__LOG_LEVEL: info
           RADARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           RADARR__POSTGRES_PORT: 5432
           RADARR__POSTGRES_MAIN_DB: radarr_uhd_main
           RADARR__POSTGRES_LOG_DB: radarr_uhd_log
-          RADARR__POSTGRES_USER:
-            valueFrom:
-              secretKeyRef:
-                name: radarr-uhd-secret
-                key: username
-          RADARR__POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: radarr-uhd-secret
-                key: password
+          RADARR__POSTGRES_USER: *pguser
+          RADARR__POSTGRES_PASSWORD: *pgpass
           RADARR__API_KEY:
             valueFrom:
               secretKeyRef:
                 name: radarr-uhd-secret
                 key: key
-defaultPodOptions:
-  labels:
-    networking/allow-egress-to-internet-except-private: "true"
-    networking/allow-egress-to-postgres: "true"
-    networking/allow-egress-to-kubedns: "true"
-    networking/allow-ingress-to-internal-nginx: "true"
-    networking/allow-ingress-to-prometheus: "true"
-    networking/allow-ingress-to-uptime-kuma: "true"
-  affinity:
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: required-volume
-                operator: In
-                values:
-                  - media
-          topologyKey: kubernetes.io/hostname
-service:
-  main:
-    ports:
-      http:
-        port: 7878
 ingress:
   main:
     enabled: true
@@ -102,30 +97,20 @@ ingress:
       gethomepage.dev/name: Radarr-uhd
     className: internal
     hosts:
-      - host: radarr-uhd.${INTERNAL_DOMAIN}
+      - host: &host movies-uhd.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
-              port: http
-      - host: movies-uhd.${INTERNAL_DOMAIN}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: main
+              identifier: main
               port: http
     tls:
-      - hosts:
-          - radarr-uhd.${INTERNAL_DOMAIN}
-          - movies-uhd.${INTERNAL_DOMAIN}
+      - hosts: [*host]
         secretName: radarr-uhd-tls
 persistence:
   media-uhd:
     enabled: true
     existingClaim: jellyfin-app-media-uhd
-    mountPath: /media-uhd
     advancedMounts:
       main:
         main:
@@ -133,7 +118,6 @@ persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
-    mountPath: /media
     advancedMounts:
       main:
         main:
