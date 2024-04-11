@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
@@ -16,6 +19,12 @@ defaultPodOptions:
                 values:
                   - media
           topologyKey: kubernetes.io/hostname
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: &port 9696
 controllers:
   main:
     annotations:
@@ -31,16 +40,15 @@ controllers:
         image:
           repository: ghcr.io/onedr0p/postgres-init
           tag: "14.8"
-        imagePullPolicy: IfNotPresent
         env:
           INIT_POSTGRES_DBNAME: "prowlarr_main prowlarr_log"
           INIT_POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
-          INIT_POSTGRES_USER:
+          INIT_POSTGRES_USER: &pguser
             valueFrom:
               secretKeyRef:
                 name: prowlarr-secret
                 key: username
-          INIT_POSTGRES_PASS:
+          INIT_POSTGRES_PASS: &pgpass
             valueFrom:
               secretKeyRef:
                 name: prowlarr-secret
@@ -64,32 +72,14 @@ controllers:
         env:
           TZ: ${TZ}
           PROWLARR__INSTANCE_NAME: Prowlarr
-          PROWLARR__PORT: 9696
+          PROWLARR__PORT: *port
           PROWLARR__LOG_LEVEL: info
           PROWLARR__POSTGRES_HOST: ${CLUSTER_POSTGRES_HOST}
           PROWLARR__POSTGRES_PORT: 5432
           PROWLARR__POSTGRES_MAIN_DB: prowlarr_main
           PROWLARR__POSTGRES_LOG_DB: prowlarr_log
-          PROWLARR__POSTGRES_USER:
-            valueFrom:
-              secretKeyRef:
-                name: prowlarr-secret
-                key: username
-          PROWLARR__POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: prowlarr-secret
-                key: password
-          PROWLARR__API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: prowlarr-secret
-                key: key
-service:
-  main:
-    ports:
-      http:
-        port: 9696
+          PROWLARR__POSTGRES_USER: *pguser
+          PROWLARR__POSTGRES_PASSWORD: *pgpass
 ingress:
   main:
     enabled: true
@@ -102,22 +92,20 @@ ingress:
       gethomepage.dev/name: prowlarr
     className: internal
     hosts:
-      - host: prowlarr.${INTERNAL_DOMAIN}
+      - host: &host prowlarr.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
             service:
-              name: main
+              identifier: main
               port: http
     tls:
-      - hosts:
-          - prowlarr.${INTERNAL_DOMAIN}
+      - hosts: [*host]
         secretName: prowlarr-tls
 persistence:
   media:
     enabled: true
     existingClaim: jellyfin-app-media
-    mountPath: /media
     advancedMounts:
       main:
         main:
