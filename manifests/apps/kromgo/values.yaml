@@ -77,7 +77,7 @@ ingress:
   internal:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
-    className: external
+    className: internal
     hosts:
       - host: &internalhost ${HOSTNAME:=kromgo}.${INTERNAL_DOMAIN}
         paths:
