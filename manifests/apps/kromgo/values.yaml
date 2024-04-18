@@ -74,6 +74,19 @@ ingress:
               port: http
     tls:
       - hosts: [*host]
+  internal:
+    annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
+    className: external
+    hosts:
+      - host: &internalhost ${HOSTNAME:=kromgo}.${INTERNAL_DOMAIN}
+        paths:
+          - path: /
+            service:
+              identifier: main
+              port: http
+    tls:
+      - hosts: [*internalhost]
 persistence:
   config-file:
     type: configMap
