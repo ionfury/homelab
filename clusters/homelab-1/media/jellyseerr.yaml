@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: request
       IMAGE_REPOSITORY: docker.io/fallenbagel/jellyseerr
-      IMAGE_TAG: 1.8.0 # {"$imagepolicy": "media:jellyseerr-automation:tag"}
+      IMAGE_TAG: 1.8.1 # {"$imagepolicy": "media:jellyseerr-automation:tag"}
