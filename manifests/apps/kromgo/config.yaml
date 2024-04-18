@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/kashalls/kromgo/main/config.schema.json
-debug: true
+
 metrics:
   - name: kubernetes_version
     query: kubernetes_build_info{service="kubernetes"}
