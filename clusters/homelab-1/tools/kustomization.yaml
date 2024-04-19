@@ -5,9 +5,9 @@ components:
   - ../../../manifests/components/namespace
 resources:
   #- code-server.yaml
-  - gha-runners.yaml
-  - homepage.yaml
-  - firefly-iii.yaml
-  - libreddit.yaml
-  - paperless-ngx.yaml
-  - tandoor-recipes.yaml
+  #- gha-runners.yaml
+  #- homepage.yaml
+  #- firefly-iii.yaml
+  #- libreddit.yaml
+  #- paperless-ngx.yaml
+  #- tandoor-recipes.yaml
