@@ -5,5 +5,5 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
-  - zipline.yaml
-  - kromgo.yaml
+  #- zipline.yaml
+  #ß- kromgo.yaml

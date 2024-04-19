@@ -5,6 +5,6 @@ components:
   - ../../../manifests/components/namespace
 resources:
   - dragonfly-db.yaml
-  - postgres.yaml
-  - minio.yaml
-  - rabbitmq.yaml
+  #- postgres.yaml
+  #- minio.yaml
+  #- rabbitmq.yaml
