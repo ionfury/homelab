@@ -23,7 +23,7 @@ spec:
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
-      destinationPath: s3://postgres-backup/v3
+      destinationPath: s3://postgres-backup/v1
       endpointURL: http://${CLUSTER_MINIO_HOST}:9000
       s3Credentials:
         accessKeyId:
