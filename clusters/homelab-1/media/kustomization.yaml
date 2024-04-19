@@ -11,7 +11,7 @@ resources:
   - dashboards.yaml
   # - gearr.yaml
   # - gearr-worker.yaml
-  - jellyfin.yaml
+  #- jellyfin.yaml
   #- jellyfin-accounts.yamlß
   #- jellyfin-exporter.yaml
   #- jellyseerr.yaml
