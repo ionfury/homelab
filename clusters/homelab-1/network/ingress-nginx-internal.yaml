@@ -11,4 +11,4 @@ spec:
       HELM_CHART_VERSION: 4.10.0
       HELM_CHART_REPOSITORY: https://kubernetes.github.io/ingress-nginx
       IMAGE_REPOSITORY: registry.k8s.io/ingress-nginx/controller
-      IMAGE_TAG: v1.10.0 # {"$imagepolicy": "network:ingress-nginx-internal-automation:tag"}
+      IMAGE_TAG: v1.10.1 # {"$imagepolicy": "network:ingress-nginx-internal-automation:tag"}
