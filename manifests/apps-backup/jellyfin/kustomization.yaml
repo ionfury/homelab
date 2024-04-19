@@ -9,6 +9,7 @@ components:
 resources:
   - external-secret.yaml
   - prometheus-rules.yaml
+  - pv.yaml
 configMapGenerator:
   - name: values
     behavior: replace

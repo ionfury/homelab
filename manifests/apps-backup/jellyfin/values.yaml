@@ -106,7 +106,7 @@ ingress:
 persistence:
   config:
     enabled: true
-    existingClaim: ${CONFIG_CLAIM}
+    existingClaim: jellyfin-config-backup
     globalMounts:
       - path: /config
   transcode:
