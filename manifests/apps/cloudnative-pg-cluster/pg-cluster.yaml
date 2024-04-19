@@ -34,9 +34,6 @@ spec:
           key: BUCKET_SECRET_ACCESS_KEY
       wal:
         compression: gzip
-  bootstrap:
-    recovery:
-      source: postgres
   externalClusters:
     - name: postgres
       barmanObjectStore:
