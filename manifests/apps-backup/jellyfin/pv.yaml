@@ -16,3 +16,16 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: slow-backup
   volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: config-backup
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: slow-backup
+  resources:
+    requests:
+      storage: 20Gi
+  volumeMode: Filesystem
+  volumeName: config-backup
