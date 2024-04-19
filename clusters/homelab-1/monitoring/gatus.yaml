@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: status
       IMAGE_REPOSITORY: ghcr.io/twin/gatus
-      IMAGE_TAG: v5.9.0 # {"$imagepolicy": "monitoring:gatus-automation:tag"}
+      IMAGE_TAG: v5.10.0 # {"$imagepolicy": "monitoring:gatus-automation:tag"}
