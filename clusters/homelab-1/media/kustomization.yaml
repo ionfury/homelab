@@ -5,24 +5,18 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
-  #- filebrowser-downloads.yaml
-  #- filegator.yaml
-  #- bazarr.yaml
+  - bazarr.yaml
   - dashboards.yaml
-  # - gearr.yaml
-  # - gearr-worker.yaml
-  #- jellyfin.yaml
-  #- jellyfin-accounts.yamlß
-  #- jellyfin-exporter.yaml
-  #- jellyseerr.yaml
-  #- transmission.yaml
-  #- lidarr.yaml
-  #- lidatube.yaml
-  #- pinchflat.yaml
-  #- prowlarr.yaml
-  #- qbittorrent.yaml
-  #- radarr.yaml
-  #- radarr-uhd.yaml
-  #- readarr.yaml
-  #- recyclarr.yaml
-  #- sonarr.yaml
+  - jellyfin.yaml
+  - jellyfin-accounts.yaml
+  - jellyfin-exporter.yaml
+  - jellyseerr.yaml
+  - transmission.yaml
+  - lidarr.yaml
+  - lidatube.yaml
+  - prowlarr.yaml
+  - radarr.yaml
+  - radarr-uhd.yaml
+  - readarr.yaml
+  - recyclarr.yaml
+  - sonarr.yaml

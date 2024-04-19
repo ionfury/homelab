@@ -3,10 +3,9 @@ kind: Kustomization
 metadata:
   name: jellyfin
 spec:
-  path: ./manifests/apps-backup/jellyfin
+  path: ./manifests/apps/jellyfin
   postBuild:
     substitute:
       HOSTNAME: watch
       IMAGE_REPOSITORY: docker.io/jellyfin/jellyfin
       IMAGE_TAG: 10.8.13 # {"$imagepolicy": "media:jellyfin-automation:tag"}
-      CONFIG_CLAIM: pvc-ad333c07-a158-4bb7-89cc-a4c91da6a989
