@@ -105,9 +105,9 @@ ingress:
       gethomepage.dev/group: Share
       gethomepage.dev/icon: filebrowser.png
       gethomepage.dev/name: Filebrowser
-    className: external
+    className: internal
     hosts:
-      - host: &host ${HOSTNAME:=filebrowser-downloads}.${EXTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=filebrowser-downloads}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
