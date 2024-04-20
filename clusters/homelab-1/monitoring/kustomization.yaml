@@ -5,7 +5,6 @@ components:
   - ../../../manifests/components/namespace
 resources:
   # - discord-alertmanager.yaml
-  - gatus.yaml
   - grafana.yaml
   - ipmi-exporter-supermicro.yaml
   - komodor.yaml

@@ -1,6 +1,16 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
 
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-private: "true"
+    networking/allow-egress-to-blocky: "true"
+    networking/allow-egress-to-kubedns: "true"
+    networking/allow-egress-to-postgres: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-external-nginx: "true"
+    networking/allow-ingress-to-prometheus: "true"
 service:
   main:
     controller: main
