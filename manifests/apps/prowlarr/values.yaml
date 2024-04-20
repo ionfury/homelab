@@ -89,7 +89,7 @@ ingress:
       gethomepage.dev/description: Prowlarr is an indexer manager/proxy built on the popular *arr .net/reactjs base stack to integrate with your various PVR apps.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: prowlarr.png
-      gethomepage.dev/name: prowlarr
+      gethomepage.dev/name: ${HOSTNAME:=prowlarr}
     className: internal
     hosts:
       - host: &host ${HOSTNAME:=prowlarr}.${INTERNAL_DOMAIN}
