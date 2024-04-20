@@ -33,7 +33,7 @@ controllers:
           tag: "14.8"
         env:
           TZ: &tz ${TZ}
-          INIT_POSTGRES_DBNAME: &pgdb gatus_main
+          INIT_POSTGRES_DBNAME: &pgdb gatus_main_2
           INIT_POSTGRES_HOST: &pghost ${CLUSTER_POSTGRES_HOST}
           INIT_POSTGRES_USER: &pguser
             valueFrom:
