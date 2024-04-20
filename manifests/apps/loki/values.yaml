@@ -113,7 +113,7 @@ gateway:
 read:
   replicas: 2
   persistence:
-    storageClass: ${STORAGE_CLASS_SLOW}
+    storageClass: ${STORAGE_CLASS_FAST}
   resources:
     requests:
       cpu: 120m
@@ -127,7 +127,7 @@ read:
 write:
   replicas: 2
   persistence:
-    storageClass: ${STORAGE_CLASS_SLOW}
+    storageClass: ${STORAGE_CLASS_FAST}
   resources:
     requests:
       cpu: 111m
@@ -135,7 +135,7 @@ write:
 backend:
   replicas: 2
   persistence:
-    storageClass: ${STORAGE_CLASS_SLOW}
+    storageClass: ${STORAGE_CLASS_FAST}
   resources:
     requests:
       cpu: 119m

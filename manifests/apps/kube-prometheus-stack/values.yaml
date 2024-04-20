@@ -233,7 +233,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: ${STORAGE_CLASS_SLOW:=default}
+          storageClassName: ${STORAGE_CLASS_FAST:=default}
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
