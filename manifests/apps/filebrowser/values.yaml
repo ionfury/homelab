@@ -6,7 +6,7 @@ defaultPodOptions:
     networking/allow-egress-to-internet-except-private: "true"
     networking/allow-ingress-to-internal-nginx: "true"
     networking/allow-ingress-to-prometheus: "true"
-    networking/allow-ingress-to-uptime-kuma: "true"
+    networking/allow-ingress-to-gatus: "true"
 controllers:
   main:
     annotations:

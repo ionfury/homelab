@@ -10,7 +10,7 @@ defaultPodOptions:
     networking/allow-ingress-to-internal-nginx: "true"
     networking/allow-ingress-to-external-nginx: "true"
     networking/allow-ingress-to-prometheus: "true"
-    networking/allow-ingress-to-uptime-kuma: "true"
+    networking/allow-ingress-to-gatus: "true"
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:

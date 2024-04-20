@@ -7,7 +7,7 @@ defaultPodOptions:
     networking/allow-egress-to-dragonfly: "true"
     networking/allow-egress-to-kubedns: "true"
     networking/allow-ingress-to-prometheus: "true"
-    networking/allow-ingress-to-uptime-kuma: "true"
+    networking/allow-ingress-to-gatus: "true"
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
