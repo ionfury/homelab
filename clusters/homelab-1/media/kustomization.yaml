@@ -18,5 +18,5 @@ resources:
   - prowlarr.yaml
   - radarr.yaml
   #- readarr.yaml
-  - recyclarr.yaml
+  #- recyclarr.yaml
   - sonarr.yaml
