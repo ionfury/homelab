@@ -94,7 +94,7 @@ ingress:
       gethomepage.dev/description: bazarr is a music collection manager for Usenet and BitTorrent users.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: bazarr.png
-      gethomepage.dev/name: bazarr
+      gethomepage.dev/name: ${HOSTNAME:=bazarr}
     className: internal
     hosts:
       - host: &host ${HOSTNAME:=bazarr}.${INTERNAL_DOMAIN}
