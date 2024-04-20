@@ -111,6 +111,7 @@ ingress:
   main:
     enabled: true
     annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Gatus is a developer-oriented health dashboard that gives you the ability to monitor your services.
       gethomepage.dev/group: Monitoring
