@@ -4,6 +4,7 @@ namespace: share
 components:
   - ../../../manifests/components/namespace
   - ../.network-policies
+  - ../.network-policies/allow-ingress-from-gatus/source
 resources:
   - gatus.yaml
   #- zipline.yaml
