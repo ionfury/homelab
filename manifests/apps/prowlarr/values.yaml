@@ -80,6 +80,11 @@ controllers:
           PROWLARR__POSTGRES_LOG_DB: prowlarr_log
           PROWLARR__POSTGRES_USER: *pguser
           PROWLARR__POSTGRES_PASSWORD: *pgpass
+          PROWLARR__API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secret
+                key: key
 ingress:
   main:
     enabled: true
