@@ -18,16 +18,15 @@ ingress:
       gethomepage.dev/description: Transmission is a fast, easy, and free BitTorrent client.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: transmission.png
-      gethomepage.dev/name: Transmission
+      gethomepage.dev/name: ${HOSTNAME:=transmission}
     ingressClassName: internal
     hosts:
-      - host: transmission.${INTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=transmission}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - hosts:
-          - transmission.${INTERNAL_DOMAIN}
+      - hosts: [*host]
         secretName: transmission-tls
 securityContext:
   allowPrivilegeEscalation: true
