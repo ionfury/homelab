@@ -5,11 +5,12 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
-  #- bazarr.yaml
-  #- dashboards.yaml
+  - bazarr.yaml
+  - dashboards.yaml
+  - filebrowser-downloads.yaml
   - jellyfin.yaml
   - jellyfin-accounts.yaml
-  #- jellyfin-exporter.yaml
+  - jellyfin-exporter.yaml
   - jellyseerr.yaml
   - transmission.yaml
   #- lidarr.yaml
