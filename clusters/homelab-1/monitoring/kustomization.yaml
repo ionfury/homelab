@@ -15,4 +15,3 @@ resources:
   - promtail.yaml
   - snmp-exporter-cyberpower-ups.yaml
   - unpoller.yaml
-  - uptime-kuma.yaml
