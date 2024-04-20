@@ -1,5 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+
 radarr:
   radarr:
     base_url: http://radarr-app.media.svc.cluster.local:7878
