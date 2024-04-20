@@ -11,10 +11,10 @@ resources:
   - jellyfin-accounts.yaml
   #- jellyfin-exporter.yaml
   - jellyseerr.yaml
-  #- transmission.yaml
+  - transmission.yaml
   #- lidarr.yaml
   #- lidatube.yaml
-  #- prowlarr.yaml
+  - prowlarr.yaml
   #- radarr.yaml
   #- readarr.yaml
   #- recyclarr.yaml
