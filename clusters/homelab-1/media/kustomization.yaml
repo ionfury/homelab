@@ -5,18 +5,17 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
-  - bazarr.yaml
-  - dashboards.yaml
+  #- bazarr.yaml
+  #- dashboards.yaml
   - jellyfin.yaml
   - jellyfin-accounts.yaml
-  - jellyfin-exporter.yaml
+  #- jellyfin-exporter.yaml
   - jellyseerr.yaml
-  - transmission.yaml
-  - lidarr.yaml
-  - lidatube.yaml
-  - prowlarr.yaml
-  - radarr.yaml
-  - radarr-uhd.yaml
-  - readarr.yaml
-  - recyclarr.yaml
-  - sonarr.yaml
+  #- transmission.yaml
+  #- lidarr.yaml
+  #- lidatube.yaml
+  #- prowlarr.yaml
+  #- radarr.yaml
+  #- readarr.yaml
+  #- recyclarr.yaml
+  #- sonarr.yaml
