@@ -83,7 +83,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: jellyfin-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts: [*internalhost]

@@ -72,7 +72,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: lidatube-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts:

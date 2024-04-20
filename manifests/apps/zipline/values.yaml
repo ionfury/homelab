@@ -126,7 +126,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: zipline-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts:
@@ -144,17 +144,17 @@ ingress:
           - path: /go
             pathType: Prefix
             service:
-              name: zipline-app # hack
+              identifier: main
               port: *port
           - path: /u
             pathType: Prefix
             service:
-              name: zipline-app # hack
+              identifier: main
               port: *port
           - path: /code
             pathType: Prefix
             service:
-              name: zipline-app # hack
+              identifier: main
               port: *port
           - path: /view
             pathType: Prefix

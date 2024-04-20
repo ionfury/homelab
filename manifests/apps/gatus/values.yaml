@@ -122,7 +122,7 @@ ingress:
         paths:
           - path: /
             service:
-              name: gatus-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts:

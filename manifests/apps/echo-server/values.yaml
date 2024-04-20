@@ -51,7 +51,7 @@ ingress:
         paths:
           - path: /
             service:
-              name: echo-server-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts:
@@ -65,7 +65,7 @@ ingress:
         paths:
           - path: /
             service:
-              name: echo-server-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts:

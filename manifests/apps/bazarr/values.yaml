@@ -102,7 +102,7 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: bazarr-app # hack
+              identifier: main
               port: *port
     tls:
       - hosts:
