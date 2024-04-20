@@ -6,7 +6,7 @@ components:
 resources:
   #- code-server.yaml
   #- gha-runners.yaml
-  #- homepage.yaml
+  - homepage.yaml
   #- firefly-iii.yaml
   #- libreddit.yaml
   #- paperless-ngx.yaml
