@@ -8,5 +8,5 @@ spec:
   postBuild:
     substitute:
       HELM_CHART: descheduler
-      HELM_CHART_VERSION: 0.27.1
+      HELM_CHART_VERSION: 0.29.0
       HELM_CHART_REPOSITORY: https://kubernetes-sigs.github.io/descheduler
