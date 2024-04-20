@@ -116,14 +116,14 @@ ingress:
       gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: gatus.png
       gethomepage.dev/name: ${HOSTNAME:=status}
-      nginx.ingress.kubernetes.io/server-snippet: |
+      nginx.ingress.kubernetes.io/server-snippet: &serversnippit |
         location /metrics {
           deny all;
         }
     className: internal
     hosts:
       - host: &host ${HOSTNAME:=status}.${INTERNAL_DOMAIN}
-        paths:
+        paths: &paths
           - path: /
             service:
               identifier: main
@@ -132,6 +132,19 @@ ingress:
       - hosts:
           - *host
         secretName: gatus-tls
+  external:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "cloudflare"
+      external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+      nginx.ingress.kubernetes.io/configuration-snippet: *serversnippit
+    className: external
+    hosts:
+      - host: &externalhost ${HOSTNAME:=status}.${EXTERNAL_DOMAIN}
+        paths: *paths
+    tls:
+      - hosts: [*externalhost]
+        secretName: external-gatus-tls
 persistence:
   config:
     type: emptyDir
