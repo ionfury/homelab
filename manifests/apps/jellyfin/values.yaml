@@ -75,10 +75,10 @@ ingress:
       gethomepage.dev/description: Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: jellyfin.png
-      gethomepage.dev/name: Jellyfin
+      gethomepage.dev/name: ${HOSTNAME:=jellyfin}
     className: internal
     hosts:
-      - host: &internalhost watch.${INTERNAL_DOMAIN}
+      - host: &internalhost ${HOSTNAME:=jellyfin}.${INTERNAL_DOMAIN}
         paths: &paths
           - path: /
             pathType: Prefix
@@ -86,8 +86,7 @@ ingress:
               name: jellyfin-app # hack
               port: *port
     tls:
-      - hosts:
-          - *internalhost
+      - hosts: [*internalhost]
         secretName: jellyfin-tls
   external:
     enabled: true
@@ -97,11 +96,10 @@ ingress:
       nginx.ingress.kubernetes.io/configuration-snippet: *configurationsnippit
     className: external
     hosts:
-      - host: &externalhost watch.${EXTERNAL_DOMAIN}
+      - host: &externalhost ${HOSTNAME:=jellyfin}.${EXTERNAL_DOMAIN}
         paths: *paths
     tls:
-      - hosts:
-          - *externalhost
+      - hosts: [*externalhost]
         secretName: external-jellyfin-tls
 persistence:
   config:
