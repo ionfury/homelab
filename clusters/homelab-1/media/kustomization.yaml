@@ -15,7 +15,7 @@ resources:
   #- lidarr.yaml
   #- lidatube.yaml
   - prowlarr.yaml
-  #- radarr.yaml
+  - radarr.yaml
   #- readarr.yaml
-  #- recyclarr.yaml
-  #- sonarr.yaml
+  - recyclarr.yaml
+  - sonarr.yaml
