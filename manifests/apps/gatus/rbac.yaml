@@ -3,7 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: app
-  namespace: monitoring
+  namespace: ${NAMESPACE}
 rules:
   - apiGroups: [""]
     resources: ["configmaps"]
@@ -13,7 +13,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: app
-  namespace: monitoring
+  namespace: ${NAMESPACE}
 roleRef:
   kind: ClusterRole
   name: app
@@ -21,4 +21,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: gatus-app
-    namespace: monitoring
+    namespace: ${NAMESPACE}
