@@ -95,7 +95,7 @@ ingress:
       gethomepage.dev/description: Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: sonarr.png
-      gethomepage.dev/name: sonarr
+      gethomepage.dev/name: ${HOSTNAME:=sonarr}
     className: internal
     hosts:
       - host: &host ${HOSTNAME:=sonarr}.${INTERNAL_DOMAIN}
