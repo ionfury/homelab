@@ -115,14 +115,14 @@ ingress:
       gethomepage.dev/description: Gatus is a developer-oriented health dashboard that gives you the ability to monitor your services.
       gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: gatus.png
-      gethomepage.dev/name: ${HOSTNAME:=status}
+      gethomepage.dev/name: ${HOSTNAME:=gatus}
       nginx.ingress.kubernetes.io/server-snippet: &serversnippit |
         location /metrics {
           deny all;
         }
     className: internal
     hosts:
-      - host: &host ${HOSTNAME:=status}.${INTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=gatus}.${INTERNAL_DOMAIN}
         paths: &paths
           - path: /
             service:
@@ -140,7 +140,7 @@ ingress:
       nginx.ingress.kubernetes.io/configuration-snippet: *serversnippit
     className: external
     hosts:
-      - host: &externalhost ${HOSTNAME:=status}.${EXTERNAL_DOMAIN}
+      - host: &externalhost ${HOSTNAME:=gatus}.${EXTERNAL_DOMAIN}
         paths: *paths
     tls:
       - hosts: [*externalhost]
