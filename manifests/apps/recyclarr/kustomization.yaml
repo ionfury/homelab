@@ -13,7 +13,7 @@ configMapGenerator:
       disableNameSuffixHash: true
     files:
       - radarr.yaml=./config/radarr.yaml
-      - radarr-uhd.yaml=./config/radarr-uhd.yaml
+      #    - radarr-uhd.yaml=./config/radarr-uhd.yaml
       - sonarr.yaml=./config/sonarr.yaml
 secretGenerator:
   - name: sonarr-secret
@@ -26,8 +26,8 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         replicator.v1.mittwald.de/replicate-from: media/radarr-secret
-  - name: radarr-uhd-secret
-    options:
-      disableNameSuffixHash: true
-      annotations:
-        replicator.v1.mittwald.de/replicate-from: media/radarr-uhd-secret
+  # - name: radarr-uhd-secret
+  #   options:
+  #     disableNameSuffixHash: true
+  #     annotations:
+  #       replicator.v1.mittwald.de/replicate-from: media/radarr-uhd-secret
