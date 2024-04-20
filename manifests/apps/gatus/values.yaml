@@ -124,7 +124,7 @@ ingress:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Gatus is a developer-oriented health dashboard that gives you the ability to monitor your services.
-      gethomepage.dev/group: Monitoring
+      gethomepage.dev/group: Share
       gethomepage.dev/icon: gatus.png
       gethomepage.dev/name: ${HOSTNAME:=gatus}
       nginx.ingress.kubernetes.io/server-snippet: &serversnippit |

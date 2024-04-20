@@ -12,7 +12,7 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: monitoring
+              kubernetes.io/metadata.name: share
           podSelector:
             matchLabels:
               app.kubernetes.io/name: gatus-app
