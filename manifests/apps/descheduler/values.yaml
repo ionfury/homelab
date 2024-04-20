@@ -15,6 +15,17 @@ leaderElection:
 deschedulerPolicyAPIVersion: "descheduler/v1alpha2"
 deschedulerPolicy:
   profiles:
+    - name: RemoveUnexpectedAdmissionErrors
+      pluginConfig:
+        - name: "PodLifeTime"
+          args:
+            maxPodLifeTimeSeconds: 600
+            states:
+              - "UnexpectedAdmissionError"
+      plugins:
+        deschedule:
+          enabled:
+            - "PodLifeTime"
     - name: Default
       pluginConfig:
         - name: "RemoveDuplicates"
