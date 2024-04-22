@@ -43,7 +43,7 @@ persistence:
     mountPath: /config
     retain: true
     accessMode: ReadWriteOnce
-    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
     size: 10Gi
   # Persist World
   data:
@@ -51,7 +51,7 @@ persistence:
     mountPath: /opt/valheim
     retain: true
     accessMode: ReadWriteOnce
-    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
     size: 20Gi
 resources:
   requests:

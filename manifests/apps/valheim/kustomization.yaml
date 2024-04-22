@@ -20,7 +20,7 @@ secretGenerator:
       - WORLD_NAME=plexheim
       - SERVER_PUBLIC=true
       - BACKUPS_MAX_COUNT=10
-      - PUBLIC_TEST=false
+      - PUBLIC_TEST=true
       - STATUS_HTTP=true
       - RESTART_MSG="Server is restarting..."
       - START_MSG="Server is up!"
