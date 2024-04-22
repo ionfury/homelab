@@ -42,14 +42,3 @@ secretGenerator:
         grafana_dashboard: "true"
     files:
       - exportarr-dashboard.json
-patches:
-  - target:
-      kind: HelmRelease
-    patch: |
-      - op: add
-        path: /spec/valuesFrom/-
-        value:
-          targetPath: ingress.annotations.gethomepage\.dev/widget\.password
-          kind: Secret
-          name: grafana-app
-          valuesKey: admin-password
