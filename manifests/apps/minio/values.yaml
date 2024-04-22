@@ -76,6 +76,11 @@ ingress:
       gethomepage.dev/description: "Minio Console"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "minio.png"
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        more_set_headers "Access-Control-Allow-Origin: $http_origin";
+      nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+      nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+      nginx.ingress.kubernetes.io/enable-cors: "true"
     className: internal
     hosts:
       - host: &host1 minio.${INTERNAL_DOMAIN}
