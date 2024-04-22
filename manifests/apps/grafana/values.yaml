@@ -4,16 +4,16 @@ extraInitContainers:
     imagePullPolicy: IfNotPresent
     env:
       - name: INIT_POSTGRES_DBNAME
-        value: grafana
+        value: &dbname grafana
       - name: INIT_POSTGRES_HOST
         value: ${CLUSTER_POSTGRES_HOST}
       - name: INIT_POSTGRES_USER
-        valueFrom:
+        valueFrom: &username
           secretKeyRef:
             name: grafana-postgres
             key: username
       - name: INIT_POSTGRES_PASS
-        valueFrom:
+        valueFrom: &password
           secretKeyRef:
             name: grafana-postgres
             key: password
@@ -39,7 +39,7 @@ grafana.ini:
   auth.anonymous:
     enabled: false
   server:
-    root_url: https://grafana.${INTERNAL_DOMAIN}
+    root_url: &host https://${HOSTNAME:=grafana}.${INTERNAL_DOMAIN}
   users:
     auto_assign_org_role: Admin
   auth.github:
@@ -53,20 +53,14 @@ env:
   GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
   GF_EXPLORE_ENABLED: true
   GF_FEATURE_TOGGLES_ENABLE: publicDashboards
-  GF_SERVER_ROOT_URL: https://grafana.${INTERNAL_DOMAIN}
-  GF_DATABASE_NAME: grafana
+  GF_SERVER_ROOT_URL: *host
+  GF_DATABASE_NAME: *dbname
   GF_DATABASE_HOST: ${CLUSTER_POSTGRES_HOST}:5432
   GF_DATABASE_SSL_MODE: disable
   GF_DATABASE_TYPE: postgres
 envValueFrom:
-  GF_DATABASE_USER:
-    secretKeyRef:
-      name: grafana-postgres
-      key: username
-  GF_DATABASE_PASSWORD:
-    secretKeyRef:
-      name: grafana-postgres
-      key: password
+  GF_DATABASE_USER: *username
+  GF_DATABASE_PASSWORD: *password
 envFromSecrets:
   - name: grafana-github-client
 ingress:
@@ -78,18 +72,16 @@ ingress:
     gethomepage.dev/description: Grafana is the open source analytics & monitoring solution for every database.
     gethomepage.dev/group: Monitoring
     gethomepage.dev/icon: grafana.png
-    gethomepage.dev/name: Grafana
+    gethomepage.dev/name: *host
     gethomepage.dev/widget.type: grafana
     gethomepage.dev/widget.url: http://grafana-app.${NAMESPACE}.svc.cluster.local:80
     gethomepage.dev/widget.username: admin
-    # gethomepage.dev/widget.password: patched in helm release
   ingressClassName: internal
-  hosts:
+  hosts: &hosts
     - grafana.${INTERNAL_DOMAIN}
   tls:
     - secretName: grafana-tls
-      hosts:
-        - grafana.${INTERNAL_DOMAIN}
+      hosts: *hosts
 dashboardProviders:
   dashboardproviders.yaml:
     apiVersion: 1
@@ -256,4 +248,4 @@ downloadDashboards:
 resources:
   requests:
     cpu: 82m
-    memory: 128M191Mi
+    memory: 128M
