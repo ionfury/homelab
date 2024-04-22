@@ -28,7 +28,7 @@ extraInitContainers:
             name: grafana-postgres-superuser
             key: password
 image:
-  repository: docker.io/grafana/grafana
+  repository: grafana/grafana
 replicas: 2
 deploymentStrategy:
   type: Recreate
