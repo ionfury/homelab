@@ -15,9 +15,9 @@ controllers:
           MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}/
           MINIO_SERVER_URL: http://minio-app.${NAMESPACE}.svc.cluster.local:9000
           MINIO_UPDATE: "off"
-        #envFrom:
-        #  - secretRef:
-        #      name: minio-secret
+        envFrom:
+          - secretRef:
+              name: minio-secret
         args: ["server", "/data", "--console-address", ":9001"]
         probes:
           liveness: &probes
