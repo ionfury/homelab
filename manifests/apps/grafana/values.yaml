@@ -4,7 +4,7 @@ extraInitContainers:
     imagePullPolicy: IfNotPresent
     env:
       - name: INIT_POSTGRES_DBNAME
-        value: &dbname grafana
+        value: &dbname grafana-2
       - name: INIT_POSTGRES_HOST
         value: ${CLUSTER_POSTGRES_HOST}
       - name: INIT_POSTGRES_USER
