@@ -6,5 +6,5 @@ components:
 resources:
   - dragonfly-db.yaml
   - postgres.yaml
-  - minio.yaml
+  #- minio.yaml
   #- rabbitmq.yaml

@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 namePrefix: minio-
 components:
-  - ../../components/helm-release-app-template-oci
+  - ../../components/helm-release-app-template-oci-v3
 configMapGenerator:
   - name: values
     behavior: replace
@@ -14,20 +14,3 @@ secretGenerator:
       disableNameSuffixHash: true
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: MINIO_ROOT_USER,MINIO_ROOT_PASSWORD
-patches:
-  - target:
-      kind: ImageRepository
-    patch: |
-      $patch: delete
-      apiVersion: image.toolkit.fluxcd.io/v1beta1
-      kind: ImageRepository
-      metadata:
-        name: DOES NOT MATTER
-  - target:
-      kind: ImagePolicy
-    patch: |
-      $patch: delete
-      apiVersion: image.toolkit.fluxcd.io/v1beta1
-      kind: ImagePolicy
-      metadata:
-        name: DOES NOT MATTER

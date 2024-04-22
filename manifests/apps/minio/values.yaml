@@ -1,81 +1,119 @@
-env:
-  TZ: ${TZ}
-  MINIO_UPDATE: "off"
-  MINIO_PROMETHEUS_URL: http://kube-prometheus-stack-app-prometheus.monitoring.svc.cluster.local:9090
-  MINIO_PROMETHEUS_JOB_ID: minio
-  MINIO_PROMETHEUS_AUTH_TYPE: "public"
-  MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}/
-  MINIO_SERVER_URL: http://minio-app.${NAMESPACE}.svc.cluster.local:9000
-  CONSOLE_MINIO_SERVER: https://minio.${INTERNAL_DOMAIN}
-  MINIO_DOMAIN: https://s3.${INTERNAL_DOMAIN}
-  MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${INTERNAL_DOMAIN},https://s3.${INTERNAL_DOMAIN}
-envFrom:
-  - secretRef:
-      name: minio-secret
-args: ["server", "/data", "--console-address", ":9001"]
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+controllers:
+  minio:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      app:
+        env:
+          MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${INTERNAL_DOMAIN},https://s3.${INTERNAL_DOMAIN}
+          MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}
+          MINIO_PROMETHEUS_JOB_ID: minio
+          MINIO_PROMETHEUS_URL: http://kube-prometheus-stack-app-prometheus.monitoring.svc.cluster.local:9090
+          MINIO_PROMETHEUS_AUTH_TYPE: public
+          MINIO_SERVER_URL: https://s3.${INTERNAL_DOMAIN}
+          MINIO_UPDATE: "off"
+        envFrom:
+          - secretRef:
+              name: minio-secret
+        args: ["server", "/data", "--console-address", ":9001"]
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /minio/health/live
+                port: 9000
+              initialDelaySeconds: 30
+              periodSeconds: 30
+              timeoutSeconds: 10
+              failureThreshold: 6
+          readiness: *probes
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: { drop: ["ALL"] }
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            memory: 2Gi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 568
+    runAsGroup: 568
+    fsGroup: 568
+    fsGroupChangePolicy: OnRootMismatch
+    supplementalGroups: [10000]
+    seccompProfile: { type: RuntimeDefault }
 service:
-  main:
-    enabled: true
+  app:
+    controller: minio
     ports:
       http:
         port: 9001
-      api:
-        enabled: true
+      s3:
         port: 9000
+serviceMonitor:
+  app:
+    serviceName: minio
+    endpoints:
+      - port: s3
+        scheme: http
+        path: /minio/v2/metrics/cluster
+        interval: 1m
+        scrapeTimeout: 10s
 ingress:
-  main:
-    enabled: true
+  app:
     annotations:
-      kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: cloudflare
       gethomepage.dev/enabled: "true"
       gethomepage.dev/name: "Minio"
       gethomepage.dev/description: "Minio Console"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "minio.png"
-    ingressClassName: internal
+    className: internal
     hosts:
-      - host: minio.${INTERNAL_DOMAIN}
+      - host: &host1 minio.${INTERNAL_DOMAIN}
         paths:
           - path: /
-            pathType: Prefix
             service:
-              port: 9001
+              identifier: app
+              port: http
     tls:
       - secretName: minio-tls
         hosts:
-          - minio.${INTERNAL_DOMAIN}
-  s3:
-    enabled: true
+          - *host1
+  storage:
     annotations:
-      kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: cloudflare
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
       nginx.ingress.kubernetes.io/proxy-body-size: 5000m
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       nginx.ingress.kubernetes.io/configuration-snippet: |
         chunked_transfer_encoding off;
-    ingressClassName: internal
+    className: internal
     hosts:
-      - host: s3.${INTERNAL_DOMAIN}
+      - host: &host2 s3.${INTERNAL_DOMAIN}
         paths:
           - path: /
-            pathType: Prefix
             service:
-              port: 9000
+              identifier: app
+              port: s3
     tls:
       - secretName: s3-tls
         hosts:
-          - s3.${INTERNAL_DOMAIN}
+          - *host2
 persistence:
   data:
     enabled: true
     retain: true
-    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
-    size: 300Gi
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
+    size: 150Gi
     accessMode: ReadWriteOnce
-    mountPath: /data
-resources:
-  requests:
-    cpu: 130m
-    memory: 1297Mi
+    globalMounts:
+      - path: /data
