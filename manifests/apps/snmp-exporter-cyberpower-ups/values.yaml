@@ -1,6 +1,7 @@
 fullnameOverride: snmp-exporter-cyberpower-ups
 image:
   repository: quay.io/prometheus/snmp-exporter
+  tag: ${IMAGE_TAG}
 extraArgs:
   - "--config.file=/config/snmp.yaml"
 extraConfigmapMounts:
