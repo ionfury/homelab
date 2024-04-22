@@ -76,7 +76,6 @@ ingress:
       gethomepage.dev/description: "Minio Console"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "minio.png"
-      nginx.ingress.kubernetes.io/rewrite-target: /
     className: internal
     hosts:
       - host: &host1 minio.${INTERNAL_DOMAIN}
