@@ -9,11 +9,11 @@ controllers:
       main:
         env:
           #  MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${INTERNAL_DOMAIN},https://s3.${INTERNAL_DOMAIN}
-          #MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}
+          MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}
           MINIO_PROMETHEUS_JOB_ID: minio
           MINIO_PROMETHEUS_URL: http://kube-prometheus-stack-app-prometheus.monitoring.svc.cluster.local:9090
           MINIO_PROMETHEUS_AUTH_TYPE: public
-          #MINIO_SERVER_URL: https://s3.${INTERNAL_DOMAIN}
+          MINIO_SERVER_URL: https://s3.${INTERNAL_DOMAIN}
           MINIO_UPDATE: "off"
         #envFrom:
         #  - secretRef:
@@ -76,6 +76,7 @@ ingress:
       gethomepage.dev/description: "Minio Console"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "minio.png"
+      nginx.ingress.kubernetes.io/rewrite-target: /
     className: internal
     hosts:
       - host: &host1 minio.${INTERNAL_DOMAIN}
