@@ -9,11 +9,11 @@ controllers:
       main:
         env:
           MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${INTERNAL_DOMAIN},https://s3.${INTERNAL_DOMAIN}
-          # MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}
           MINIO_PROMETHEUS_JOB_ID: minio
           MINIO_PROMETHEUS_URL: http://kube-prometheus-stack-app-prometheus.monitoring.svc.cluster.local:9090
           MINIO_PROMETHEUS_AUTH_TYPE: public
-          #MINIO_SERVER_URL: https://s3.${INTERNAL_DOMAIN}
+          MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}/
+          MINIO_SERVER_URL: http://minio-app.${NAMESPACE}.svc.cluster.local:9000
           MINIO_UPDATE: "off"
         #envFrom:
         #  - secretRef:
