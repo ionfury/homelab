@@ -21,16 +21,16 @@ configMapGenerator:
       disableNameSuffixHash: true
     files:
       - alerting-rules.yaml=./rules/alerting-rules.yaml
-  - name: grafana-dashboards
-    files:
-      - guest-cluster-logs.json=./dashboards/guest-cluster-logs.json
-      #- harvester-cluster-logs.json=./dashboards/harvester-cluster-logs.json
-    options:
-      disableNameSuffixHash: true
-      annotations:
-        kustomize.toolkit.fluxcd.io/substitute: disabled
-      labels:
-        grafana_dashboard: "true"
+  #- name: grafana-dashboards
+  #  files:
+  #    #- guest-cluster-logs.json=./dashboards/guest-cluster-logs.json
+  #    #- harvester-cluster-logs.json=./dashboards/harvester-cluster-logs.json
+  #  options:
+  #    disableNameSuffixHash: true
+  #    annotations:
+  #      kustomize.toolkit.fluxcd.io/substitute: disabled
+  #    labels:
+  #      grafana_dashboard: "true"
 patches:
   - target:
       kind: HelmRelease
