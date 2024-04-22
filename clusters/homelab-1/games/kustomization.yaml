@@ -7,6 +7,6 @@ components:
 resources:
   #- palworld.yaml
   #- plexheim.yaml
-  #- valheim.yaml
+  - valheim.yaml
   #- satisfactory.yaml
   #- valheim-exporter.yaml
