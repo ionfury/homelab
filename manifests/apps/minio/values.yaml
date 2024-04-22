@@ -82,7 +82,7 @@ ingress:
         paths:
           - path: /
             service:
-              identifier: app
+              identifier: main
               port: http
     tls:
       - secretName: minio-tls
@@ -102,7 +102,7 @@ ingress:
         paths:
           - path: /
             service:
-              identifier: app
+              identifier: main
               port: s3
     tls:
       - secretName: s3-tls
