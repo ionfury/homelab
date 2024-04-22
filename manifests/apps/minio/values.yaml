@@ -6,7 +6,7 @@ controllers:
     annotations:
       reloader.stakater.com/auto: "true"
     containers:
-      app:
+      main:
         env:
           MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${INTERNAL_DOMAIN},https://s3.${INTERNAL_DOMAIN}
           MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}
@@ -51,7 +51,7 @@ defaultPodOptions:
     supplementalGroups: [10000]
     seccompProfile: { type: RuntimeDefault }
 service:
-  app:
+  main:
     controller: minio
     ports:
       http:
@@ -59,7 +59,7 @@ service:
       s3:
         port: 9000
 serviceMonitor:
-  app:
+  main:
     serviceName: minio
     endpoints:
       - port: s3
@@ -68,7 +68,7 @@ serviceMonitor:
         interval: 1m
         scrapeTimeout: 10s
 ingress:
-  app:
+  main:
     annotations:
       cert-manager.io/cluster-issuer: cloudflare
       gethomepage.dev/enabled: "true"

@@ -1,5 +1,6 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+
 namePrefix: minio-
 components:
   - ../../components/helm-release-app-template-oci-v3
