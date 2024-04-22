@@ -15,9 +15,9 @@ controllers:
           MINIO_PROMETHEUS_AUTH_TYPE: public
           MINIO_SERVER_URL: https://s3.${INTERNAL_DOMAIN}
           MINIO_UPDATE: "off"
-        envFrom:
-          - secretRef:
-              name: minio-secret
+        #envFrom:
+        #  - secretRef:
+        #      name: minio-secret
         args: ["server", "/data", "--console-address", ":9001"]
         probes:
           liveness: &probes
