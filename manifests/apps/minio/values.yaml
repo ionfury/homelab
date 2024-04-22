@@ -52,7 +52,7 @@ defaultPodOptions:
     seccompProfile: { type: RuntimeDefault }
 service:
   main:
-    controller: minio
+    controller: main
     ports:
       http:
         port: 9001
@@ -60,7 +60,7 @@ service:
         port: 9000
 serviceMonitor:
   main:
-    serviceName: minio
+    serviceName: main
     endpoints:
       - port: s3
         scheme: http
