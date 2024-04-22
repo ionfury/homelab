@@ -72,7 +72,7 @@ ingress:
     gethomepage.dev/description: Grafana is the open source analytics & monitoring solution for every database.
     gethomepage.dev/group: Monitoring
     gethomepage.dev/icon: grafana.png
-    gethomepage.dev/name: *host
+    gethomepage.dev/name: ${HOSTNAME:=grafana}
   ingressClassName: internal
   hosts: &hosts
     - grafana.${INTERNAL_DOMAIN}
@@ -216,6 +216,8 @@ sidecar:
     searchNamespace: ALL
     label: grafana_dashboard
     labelValue: "true"
+    provider:
+      foldersFromFilesStructure: true
   datasources:
     enabled: true
     searchNamespace: ALL
