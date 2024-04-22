@@ -76,6 +76,7 @@ ingress:
       gethomepage.dev/description: "Minio Console"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "minio.png"
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
     className: internal
     hosts:
       - host: &host1 minio.${INTERNAL_DOMAIN}
@@ -91,6 +92,7 @@ ingress:
   storage:
     annotations:
       cert-manager.io/cluster-issuer: cloudflare
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
       nginx.ingress.kubernetes.io/proxy-body-size: 5000m
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
