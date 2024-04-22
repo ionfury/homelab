@@ -9,3 +9,4 @@ spec:
       HELM_CHART: prometheus-snmp-exporter
       HELM_CHART_VERSION: 5.1.1 # {"$imagepolicy": "monitoring:snmp-exporter-cyberpower-ups-automation:tag"}
       HELM_CHART_REPOSITORY: ghcr.io/prometheus-community/charts
+      IMAGE_TAG: v0.21.0 # 2024-04-22T15:16:33.777253963Z ts=2024-04-22T15:16:33.777Z caller=main.go:203 level=error msg="Possible old config file, see https://github.com/prometheus/snmp_exporter/blob/main/auth-split-migration.md"

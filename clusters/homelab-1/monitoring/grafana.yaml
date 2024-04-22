@@ -8,5 +8,5 @@ spec:
     substitute:
       HOSTNAME: grafana
       HELM_CHART: grafana
-      HELM_CHART_VERSION: 6.56.5
+      HELM_CHART_VERSION: 7.3.9
       HELM_CHART_REPOSITORY: https://grafana.github.io/helm-charts

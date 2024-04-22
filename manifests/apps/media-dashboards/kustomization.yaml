@@ -12,3 +12,4 @@ configMapGenerator:
     files:
       - dashboard1.json #https://github.com/onedr0p/exportarr/blob/master/examples/grafana/dashboard.json
       - dashboard2.json #https://github.com/onedr0p/exportarr/blob/master/examples/grafana/dashboard2.json
+      - dashboard3.json #jellyfin
