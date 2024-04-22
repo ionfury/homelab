@@ -5,7 +5,7 @@ components:
   - ../../../manifests/components/namespace
 resources:
   # - discord-alertmanager.yaml
-  - grafana.yaml
+  # - grafana.yaml
   - ipmi-exporter-supermicro.yaml
   - komodor.yaml
   - kube-prometheus-stack.yaml
