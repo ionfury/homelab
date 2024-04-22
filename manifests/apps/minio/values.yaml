@@ -15,6 +15,7 @@ controllers:
           MINIO_PROMETHEUS_AUTH_TYPE: public
           MINIO_SERVER_URL: https://s3.${INTERNAL_DOMAIN}
           MINIO_UPDATE: "off"
+          MC_DEBUG: "true"
         #envFrom:
         #  - secretRef:
         #      name: minio-secret
