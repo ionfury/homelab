@@ -27,10 +27,10 @@ spec:
       endpointURL: http://${CLUSTER_MINIO_HOST}:9000
       s3Credentials:
         accessKeyId:
-          name: minio-bucket-postgres
+          name: postgres-minio-bucket
           key: access_key
         secretAccessKey:
-          name: minio-bucket-postgres
+          name: postgres-minio-bucket
           key: secret_key
       wal:
         compression: gzip
