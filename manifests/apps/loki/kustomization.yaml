@@ -40,14 +40,14 @@ patches:
       - op: add
         path: /spec/valuesFrom/-
         value:
-          targetPath: loki.structuredConfig.common.storage.s3.access_key_id
+          targetPath: loki.storage.s3.accessKeyId
           kind: Secret
           name: loki-minio-bucket
           valuesKey: access_key
       - op: add
         path: /spec/valuesFrom/-
         value:
-          targetPath: loki.structuredConfig.common.storage.s3.secret_access_key
+          targetPath: loki.storage.s3.secretAccessKey
           kind: Secret
           name: loki-minio-bucket
           valuesKey: secret_key
