@@ -1,8 +1,25 @@
-envFrom:
-  - secretRef:
-      name: valheim-envs
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-kubedns: "true"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: required-volume
+                  operator: In
+                  values:
+                    - media
+            topologyKey: kubernetes.io/hostname
 service:
   main:
+    controller: main
     type: LoadBalancer
     externalTrafficPolicy: Cluster
     annotations:
@@ -22,38 +39,39 @@ service:
       supervisor:
         port: 9001
         protocol: TCP
-ingress:
+controllers:
   main:
-    enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: cloudflare
-    hosts:
-      - host: "valheim.${INTERNAL_DOMAIN}"
-        paths:
-          - path: /
-    tls:
-      - hosts:
-          - "valheim.${INTERNAL_DOMAIN}"
-        secretName: valheim-tls
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        resources:
+          requests:
+            memory: 8Gi
+            cpu: 2000m
+        envFrom:
+          - secretRef:
+              name: valheim-envs
 persistence:
   # Persist config
   config:
     enabled: true
-    mountPath: /config
     retain: true
     accessMode: ReadWriteOnce
-    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
     size: 10Gi
+    advancedMounts:
+      main:
+        main:
+          - path: /config
   # Persist World
   data:
     enabled: true
-    mountPath: /opt/valheim
     retain: true
     accessMode: ReadWriteOnce
-    storageClass: ${STORAGE_CLASS_SLOW_BACKUP}
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
     size: 20Gi
-resources:
-  requests:
-    memory: 8Gi
-    cpu: 2000m
+    advancedMounts:
+      main:
+        main:
+          - path: /opt/valheim

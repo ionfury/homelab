@@ -40,9 +40,9 @@ loki:
           s3: null
           insecure: true
           s3forcepathstyle: true
+          bucketnames: loki
+          bucket_host: ${CLUSTER_MINIO_HOST}:9000
           # from secret
-          # bucketnames:
-          # endpoint:
           # access_key_id:
           # secret_access_key:
       ring:

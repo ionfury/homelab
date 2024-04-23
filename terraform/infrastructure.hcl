@@ -1,4 +1,11 @@
 locals {
+  minio = {
+    password_store = "minio-password"
+    buckets = [
+      "loki",
+      "zipline"
+    ]
+  }
 
   harvester = {
     cluster_name = "homelab"

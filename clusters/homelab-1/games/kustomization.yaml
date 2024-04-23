@@ -5,8 +5,8 @@ components:
   - ../../../manifests/components/namespace
   # - ../.network-policies
 resources:
-  - palworld.yaml
+  #- palworld.yaml
   #- plexheim.yaml
-  #- valheim.yaml
+  - valheim.yaml
   #- satisfactory.yaml
   #- valheim-exporter.yaml
