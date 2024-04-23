@@ -3,6 +3,8 @@
 namePrefix: valheim-
 components:
   - ../../components/helm-release-app-template-oci-v3
+resources:
+  - network-policy.yaml
 configMapGenerator:
   - name: values
     behavior: replace

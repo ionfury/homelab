@@ -5,7 +5,7 @@ defaultPodOptions:
   labels:
     networking/allow-egress-to-internet-except-private: "true"
     networking/allow-egress-to-kubedns: "true"
-    networking/allow-ingress-from-private: "true"
+    network/allow-valheim-game: "true"
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
