@@ -31,7 +31,7 @@ spec:
           key: access_key
         secretAccessKey:
           name: postgres-minio-bucket
-          key: BUCKET_SECRET_ACCESS_KEY
+          key: secret_key
       wal:
         compression: gzip
   #externalClusters:
