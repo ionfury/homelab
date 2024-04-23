@@ -7,16 +7,14 @@ defaultPodOptions:
     networking/allow-egress-to-kubedns: "true"
   affinity:
     podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-                - key: required-volume
-                  operator: In
-                  values:
-                    - media
-            topologyKey: kubernetes.io/hostname
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: nvidia.com/gpu.present
+                operator: In
+                values:
+                  - "true"
+          topologyKey: "kubernetes.io/hostname"
 service:
   main:
     controller: main
