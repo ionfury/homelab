@@ -16,3 +16,9 @@ secretGenerator:
         replicator.v1.mittwald.de/replication-allowed-namespaces: ".*"
     literals:
       - username=postgres
+  - name: postgres-minio-bucket
+    behavior: create
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        replicator.v1.mittwald.de/replicate-from: storage/minio-bucket-loki

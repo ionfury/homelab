@@ -23,28 +23,28 @@ spec:
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
-      destinationPath: s3://postgres-backup/v1
+      destinationPath: s3://postgres/v1
       endpointURL: http://${CLUSTER_MINIO_HOST}:9000
       s3Credentials:
         accessKeyId:
-          name: s3-bucket
-          key: BUCKET_ACCESS_KEY_ID
+          name: postgres-minio-bucket
+          key: access_key
         secretAccessKey:
-          name: s3-bucket
+          name: postgres-minio-bucket
           key: BUCKET_SECRET_ACCESS_KEY
       wal:
         compression: gzip
-  externalClusters:
-    - name: postgres
-      barmanObjectStore:
-        destinationPath: s3://postgres-backup/v2
-        endpointURL: http://${CLUSTER_MINIO_HOST}:9000
-        s3Credentials:
-          accessKeyId:
-            name: s3-bucket
-            key: BUCKET_ACCESS_KEY_ID
-          secretAccessKey:
-            name: s3-bucket
-            key: BUCKET_SECRET_ACCESS_KEY
-        wal:
-          compression: gzip
+  #externalClusters:
+  #  - name: postgres
+  #    barmanObjectStore:
+  #      destinationPath: s3://postgres/v2
+  #      endpointURL: http://${CLUSTER_MINIO_HOST}:9000
+  #      s3Credentials:
+  #        accessKeyId:
+  #          name: postgres-minio-bucket
+  #          key: access_key
+  #        secretAccessKey:
+  #          name: postgres-minio-bucket
+  #          key: BUCKET_SECRET_ACCESS_KEY
+  #      wal:
+  #        compression: gzip
