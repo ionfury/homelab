@@ -10,7 +10,7 @@ resources:
   - komodor.yaml
   - kube-prometheus-stack.yaml
   - kube-state-metrics.yaml
-  - loki.yaml
+  #- loki.yaml
   - promtail.yaml
   - snmp-exporter-cyberpower-ups.yaml
   - unpoller.yaml
