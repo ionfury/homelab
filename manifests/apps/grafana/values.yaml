@@ -104,7 +104,7 @@ datasources:
         isDefault: true
       - name: Loki
         type: loki
-        url: http://loki-gateway.${NAMESPACE}
+        url: http://loki-app-gateway.${NAMESPACE}
         access: proxy
         jsonData:
           maxLines: 250
