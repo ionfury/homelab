@@ -3,7 +3,8 @@ locals {
     password_store = "minio-password"
     buckets = [
       "loki",
-      "zipline"
+      "zipline",
+      "postgres"
     ]
   }
 
