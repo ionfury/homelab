@@ -40,6 +40,13 @@ patches:
       - op: add
         path: /spec/valuesFrom/-
         value:
+          targetPath: loki.storage.bucketNames.chunks
+          kind: Secret
+          name: loki-minio-bucket
+          valuesKey: id
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
           targetPath: loki.storage.s3.accessKeyId
           kind: Secret
           name: loki-minio-bucket
