@@ -5,6 +5,8 @@ loki:
 ingester:
   chunk_encoding: snappy
 storage:
+  bucketNames:
+    chunks: loki
   type: s3
   s3:
     s3ForcePathStyle: true
