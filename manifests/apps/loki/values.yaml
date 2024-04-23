@@ -1,3 +1,6 @@
+global:
+  dnsService: rke2-coredns-rke2-coredns
+  dnsNamespace: kube-system
 deploymentMode: SimpleScalable
 loki:
   podAnnotations:
