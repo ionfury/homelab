@@ -6,15 +6,14 @@ defaultPodOptions:
     networking/allow-egress-to-internet-except-private: "true"
     networking/allow-egress-to-kubedns: "true"
   affinity:
-    podAntiAffinity:
+    nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
+        nodeSelectorTerms:
+          - matchExpressions:
               - key: nvidia.com/gpu.present
-                operator: In
+                operator: NotIn
                 values:
                   - "true"
-          topologyKey: "kubernetes.io/hostname"
 service:
   main:
     controller: main
