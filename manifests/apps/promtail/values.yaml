@@ -1,6 +1,6 @@
 config:
   clients:
-    - url: http://loki-gateway.${NAMESPACE}.svc.cluster.local/loki/api/v1/push
+    - url: http://loki-app-gateway.${NAMESPACE}.svc.cluster.local/loki/api/v1/push
   snippets:
     extraScrapeConfigs: |
       - job_name: drop-loki-logs
