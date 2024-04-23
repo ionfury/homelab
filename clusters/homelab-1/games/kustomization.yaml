@@ -3,7 +3,7 @@
 namespace: games
 components:
   - ../../../manifests/components/namespace
-  # - ../.network-policies
+  - ../.network-policies
 resources:
   #- palworld.yaml
   #- plexheim.yaml
