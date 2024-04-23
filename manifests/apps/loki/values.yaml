@@ -81,8 +81,6 @@ loki:
       reporting_enabled: false
 gateway:
   replicas: 2
-  image:
-    registry: ghcr.io
   resources:
     requests:
       cpu: 10m
