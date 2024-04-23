@@ -12,8 +12,8 @@ spec:
   ingress:
     - ports:
         - protocol: UDP
-          port: 2456-2457 # Port range for Valheim game traffic
+          port: 2456 # Port range for Valheim game traffic
   egress:
     - ports:
         - protocol: UDP
-          port: 2456-2457 # Port range for Valheim game traffic
+          port: 2456 # Port range for Valheim game traffic
