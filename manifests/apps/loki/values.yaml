@@ -12,7 +12,7 @@ loki:
     s3:
       s3ForcePathStyle: true
       insecure: true
-      region: ${CLUSTER_MINIO_HOST}:9000
+      endpoint: ${CLUSTER_MINIO_HOST}:9000
   schemaConfig:
     configs:
       - from: "2024-04-01" # quote
