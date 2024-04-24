@@ -21,6 +21,15 @@ defaultPodOptions:
       labelSelector:
         matchLabels:
           app.kubernetes.io/name: kromgo-app
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: nvidia.com/gpu.present
+                operator: NotIn
+                values:
+                  - "true"
 service:
   main:
     controller: main
