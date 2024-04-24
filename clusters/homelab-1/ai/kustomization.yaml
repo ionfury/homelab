@@ -3,5 +3,6 @@
 namespace: ai
 components:
   - ../../../manifests/components/namespace
+  - ../.network-policies
 resources:
   - minstral-7b.yaml

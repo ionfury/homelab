@@ -1,0 +1,17 @@
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      hour12: true
+- kubernetes:
+    cluster:
+      show: true
+      cpu: true
+      memory: true
+      showLabel: true
+      label: ${CLUSTER_NAME}
+    nodes:
+      show: false
+- search:
+    provider: google
+    target: _blank

@@ -18,16 +18,16 @@ ingress:
       gethomepage.dev/description: ibreddit is a portmanteau of "libre" (meaning freedom) and "Reddit". It is a private front-end like Invidious but for Reddit.
       gethomepage.dev/group: Share
       gethomepage.dev/icon: libreddit.png
-      gethomepage.dev/name: Libreddit
+      gethomepage.dev/name: ${HOSTNAME:=libreddit}
     ingressClassName: internal
     hosts:
-      - host: libreddit.${INTERNAL_DOMAIN}
+      - host: ${HOSTNAME:=libreddit}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
     tls:
       - hosts:
-          - libreddit.${INTERNAL_DOMAIN}
+          - ${HOSTNAME:=libreddit}.${INTERNAL_DOMAIN}
         secretName: libreddit-tls
 probes:
   liveness:

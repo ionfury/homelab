@@ -3,6 +3,7 @@
 namespace: lan
 components:
   - ../../../manifests/components/namespace
+  - ../.network-policies
 #resources:
 #- filebrowser.yaml
 #- samba.yaml

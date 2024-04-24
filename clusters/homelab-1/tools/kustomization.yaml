@@ -3,11 +3,12 @@
 namespace: tools
 components:
   - ../../../manifests/components/namespace
+  - ../.network-policies
 resources:
   #- code-server.yaml
   #- gha-runners.yaml
   - homepage.yaml
   #- firefly-iii.yaml
-  #- libreddit.yaml
+  - libreddit.yaml
   #- paperless-ngx.yaml
   #- tandoor-recipes.yaml

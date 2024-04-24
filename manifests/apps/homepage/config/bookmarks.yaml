@@ -1,0 +1,46 @@
+- Cloud:
+    - Github:
+        - abbr: GH
+          href: https://github.com/ionfury/homelab
+          ping: https://github.com
+          description: Homelab state repository.
+    - Cloudflare:
+        - abbr: CF
+          href: https://dash.cloudflare.com/2bfc6ea2b4517ff4c47f2cfdc943db42/domains
+          ping: https://www.cloudflare.com/
+          description: TLD provider for tomnowak.work.
+    - AWS_Console:
+        - abbr: AWS
+          href: https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin
+          ping: https://console.aws.amazon.com
+          description: Cloud provider for secrets, backup, & misc.
+- Harvester:
+    - HarvesterVIP:
+        - abbr: HVIP
+          href: https://${HARVESTER_IP_ADDRESS}/
+          description: Break glass in case of fire.
+    - Longhorn:
+        - abbr: LH
+          href: https://${HARVESTER_IP_ADDRESS}/k8s/clusters/local/api/v1/namespaces/longhorn-system/services/http:longhorn-frontend:80/proxy/#/dashboard
+          description: Break glass in case of fire.
+- Management:
+    - Harvester0:
+        - abbr: N0
+          href: https://${IDRAC_ADDRESS}/
+          description: IDRAC management interface.
+    - Node1:
+        - abbr: N1IPMI
+          href: https://${NODE1_IPMI_ADDRESS}/
+          description: Node1 IPMI interface.
+    - Node2:
+        - abbr: N2IPMI
+          href: https://${NODE2_IPMI_ADDRESS}/
+          description: Node2 IPMI interface.
+    - Node3:
+        - abbr: N3IPMI
+          href: https://${NODE3_IPMI_ADDRESS}/
+          description: Node3 IPMI interface.
+    - UPS:
+        - abbr: UPS
+          href: https://${UPS_ADDRESS}/
+          description: UPS management interface.
