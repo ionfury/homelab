@@ -29,4 +29,4 @@ secretGenerator:
     options:
       disableNameSuffixHash: true
       annotations:
-        replicator.v1.mittwald.de/replicate-from: storage/minio-bucket-loki
+        replicator.v1.mittwald.de/replicate-from: storage/minio-bucket-zipline
