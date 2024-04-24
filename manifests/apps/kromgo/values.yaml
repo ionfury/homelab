@@ -6,6 +6,7 @@ defaultPodOptions:
     networking/allow-egress-to-kubedns: "true"
     networking/allow-egress-to-prometheus: "true"
     networking/allow-ingress-to-external-nginx: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
     networking/allow-ingress-to-prometheus: "true"
   automountServiceAccountToken: false
   enableServiceLinks: false
