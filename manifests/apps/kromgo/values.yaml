@@ -40,6 +40,8 @@ controllers:
   main:
     replicas: 2
     strategy: RollingUpdate
+    rollingUpdate:
+      unavailable: 1
     annotations:
       reloader.stakater.com/auto: "true"
     containers:
