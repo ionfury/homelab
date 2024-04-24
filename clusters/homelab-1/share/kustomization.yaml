@@ -7,5 +7,5 @@ components:
   #- ../.network-policies/allow-ingress-from-gatus/source
 resources:
   - gatus.yaml
-  #- zipline.yaml
+  - zipline.yaml
   - kromgo.yaml
