@@ -3,6 +3,7 @@
 namePrefix: transmission-
 components:
   - ../../components/helm-release-app-template-oci
+  - ../../components/gatus-internal
 resources:
   - external-secrets.yaml
 configMapGenerator:
