@@ -6,5 +6,6 @@ spec:
   path: ./manifests/apps/minio
   postBuild:
     substitute:
+      HOSTNAME: minio
       IMAGE_REPOSITORY: quay.io/minio/minio
       IMAGE_TAG: RELEASE.2024-04-18T19-09-19Z # {"$imagepolicy": "storage:minio-automation:tag"}

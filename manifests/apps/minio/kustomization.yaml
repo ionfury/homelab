@@ -4,6 +4,7 @@
 namePrefix: minio-
 components:
   - ../../components/helm-release-app-template-oci-v3
+  - ../../components/gatus-internal
 configMapGenerator:
   - name: values
     behavior: replace

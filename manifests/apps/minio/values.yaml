@@ -8,11 +8,11 @@ controllers:
     containers:
       main:
         env:
-          MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${INTERNAL_DOMAIN},https://s3.${INTERNAL_DOMAIN}
+          MINIO_API_CORS_ALLOW_ORIGIN: https://${HOSTNAME}.${INTERNAL_DOMAIN},https://s3.${INTERNAL_DOMAIN}
           MINIO_PROMETHEUS_JOB_ID: minio
           MINIO_PROMETHEUS_URL: http://kube-prometheus-stack-app-prometheus.monitoring.svc.cluster.local:9090
           MINIO_PROMETHEUS_AUTH_TYPE: public
-          MINIO_BROWSER_REDIRECT_URL: https://minio.${INTERNAL_DOMAIN}/
+          MINIO_BROWSER_REDIRECT_URL: https://${HOSTNAME}.${INTERNAL_DOMAIN}/
           MINIO_SERVER_URL: http://minio-app.${NAMESPACE}.svc.cluster.local:9000
           MINIO_UPDATE: "off"
         envFrom:
@@ -78,7 +78,7 @@ ingress:
       gethomepage.dev/icon: "minio.png"
     className: internal
     hosts:
-      - host: &host1 minio.${INTERNAL_DOMAIN}
+      - host: &host1 ${HOSTNAME:=minio}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             service:
