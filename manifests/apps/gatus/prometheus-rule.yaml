@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gatus
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: gatus
+      rules:
+        - record: success_ratio
+          expr: sum(rate(gatus_results_total{success="true"}[24h])) by (name) / sum(rate(gatus_results_total[24h])) by (name)
+        - alert: GatusSuccessRatioBelowThreshold
+          expr: success_ratio < 0.99
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.name }} availability is below 99%."
+            description: "The availability {{ $labels.name }} service is below 99% for the last 24 hours. Investigate and take necessary actions."

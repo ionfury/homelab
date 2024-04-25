@@ -8,6 +8,7 @@ components:
   - ../../components/gatus-external
 resources:
   - rbac.yaml
+  - prometheus-rule.yaml
 configMapGenerator:
   - name: values
     behavior: replace
