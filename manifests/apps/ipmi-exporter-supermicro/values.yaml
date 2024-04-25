@@ -2,9 +2,6 @@ resources:
   requests:
     cpu: 200m
     memory: 256Mi
-  limits:
-    cpu: 400m
-    memory: 512Mi
 additionalAnnotation:
   reloader.stakater.com/auto: "true"
 serviceMonitor:
