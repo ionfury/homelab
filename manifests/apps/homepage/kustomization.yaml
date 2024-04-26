@@ -4,7 +4,7 @@ namePrefix: homepage-
 components:
   - ../../components/helm-release-app-template-oci-v3
   - ../../components/gatus-internal
-resouces:
+resources:
   - rbac.yaml
 configMapGenerator:
   - name: values
