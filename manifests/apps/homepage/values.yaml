@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
 controllers:
   main:
     replicas: 2
@@ -28,7 +31,7 @@ ingress:
       gethomepage.dev/description: "You are here!"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "homepage.png"
-    ingressClassName: internal
+    className: internal
     hosts:
       - host: ${HOSTNAME:=homepage}.${INTERNAL_DOMAIN}
         paths:
