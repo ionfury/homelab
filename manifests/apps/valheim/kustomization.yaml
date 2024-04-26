@@ -18,7 +18,7 @@ secretGenerator:
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: SERVER_PASS,SUPERVISOR_HTTP_PASS
     literals:
-      - SERVER_NAME=valheim.${INTERNAL_DOMAIN}
+      - SERVER_NAME=tomheim
       - WORLD_NAME=plexheim
       - SERVER_PUBLIC=true
       - BACKUPS_MAX_COUNT=10
