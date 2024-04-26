@@ -67,8 +67,8 @@ persistence:
     globalMounts:
       - subPath: bookmarks.yaml
         path: /app/config/bookmarks.yaml
-      - subPath: docker.yaml
-        path: /app/config/docker.yaml
+      #- subPath: docker.yaml
+      #  path: /app/config/docker.yaml
       - subPath: kubernetes.yaml
         path: /app/config/kubernetes.yaml
       #- subPath: services.yaml
