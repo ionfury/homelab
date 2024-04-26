@@ -1,6 +1,22 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
 
+defaultPodOptions:
+  labels:
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-gatus: "true"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - homepage-app
+            topologyKey: kubernetes.io/hostname
 controllers:
   main:
     replicas: 2
