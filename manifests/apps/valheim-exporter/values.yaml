@@ -1,39 +1,48 @@
-env:
-  - name: A2S_EXPORTER_QUERY_ADDRESS
-    value: valheim.${NAMESPACE}.svc.cluster.local:2457
-  - name: A2S_EXPORTER_PORT
-    value: "8000"
-  - name: A2S_EXPORTER_PATH
-    value: /metrics
-  - name: A2S_EXPORTER_NAMESPACE
-    value: valheim
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    network/allow-ingress-from-prometheus: "true"
 service:
   main:
+    controller: main
     ports:
       http:
-        port: 8000
+        port: &port 8000
+controllers:
+  main:
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        env:
+          - name: A2S_EXPORTER_QUERY_ADDRESS
+            value: valheim-app.${NAMESPACE}.svc.cluster.local:2457
+          - name: A2S_EXPORTER_PORT
+            value: "8000"
+          - name: A2S_EXPORTER_PATH
+            value: /metrics
+          - name: A2S_EXPORTER_NAMESPACE
+            value: valheim
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                port: http
+                path: metrics
+          readiness: *probe
+          startup: *probe
 serviceMonitor:
   main:
     enabled: true
-probes:
-  liveness:
-    enabled: true
-    custom: true
-    spec:
-      httpGet:
-        port: http
-        path: metrics
-  readiness:
-    enabled: true
-    custom: true
-    spec:
-      httpGet:
-        port: http
-        path: metrics
-  startup:
-    enabled: true
-    custom: true
-    spec:
-      httpGet:
-        port: http
-        path: metrics
+    serviceName: valheim-exporter-app
+    endpoints:
+      - port: *port
+        interval: 30s
+        scrapeTimeout: 10s
+        path: /metrics

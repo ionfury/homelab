@@ -9,4 +9,4 @@ resources:
   #- plexheim.yaml
   - valheim.yaml
   #- satisfactory.yaml
-  #- valheim-exporter.yaml
+  - valheim-exporter.yaml
