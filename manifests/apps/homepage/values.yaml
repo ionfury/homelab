@@ -19,7 +19,7 @@ defaultPodOptions:
             topologyKey: kubernetes.io/hostname
 controllers:
   main:
-    replicas: 2
+    replicas: 1
     strategy: RollingUpdate
     annotations:
       reloader.stakater.com/auto: "true"
