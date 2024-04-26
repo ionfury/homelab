@@ -23,16 +23,6 @@ controllers:
           A2S_EXPORTER_PORT: *port
           A2S_EXPORTER_PATH: /metrics
           A2S_EXPORTER_NAMESPACE: valheim
-        probes:
-          liveness: &probe
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                port: http
-                path: metrics
-          readiness: *probe
-          startup: *probe
 serviceMonitor:
   main:
     enabled: true
