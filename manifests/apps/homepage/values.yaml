@@ -69,8 +69,8 @@ persistence:
         path: /app/config/bookmarks.yaml
       #- subPath: docker.yaml
       #  path: /app/config/docker.yaml
-      #- subPath: kubernetes.yaml
-      #  path: /app/config/kubernetes.yaml
+      - subPath: kubernetes.yaml
+        path: /app/config/kubernetes.yaml
       #- subPath: services.yaml
       #  path: /app/config/services.yaml
       #- subPath: settings.yaml

@@ -1,17 +1,15 @@
-- datetime:
-    text_size: xl
-    format:
-      timeStyle: short
-      hour12: true
-- kubernetes:
-    cluster:
-      show: true
-      cpu: true
-      memory: true
-      showLabel: true
-      label: ${CLUSTER_NAME}
-    nodes:
-      show: false
+- resources:
+    backend: kubernetes
+    cpu: true
+    expanded: true
+    memory: true
 - search:
-    provider: google
+    provider: ["duckduckgo", "google"]
+    focus: false
     target: _blank
+- datetime:
+    text_size: l
+    format:
+      dateStyle: long
+      timeStyle: short
+      hourCycle: h23
