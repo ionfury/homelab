@@ -24,7 +24,7 @@ controllers:
           A2S_EXPORTER_PATH: /metrics
           A2S_EXPORTER_NAMESPACE: valheim
 serviceMonitor:
-  main:
+  metrics:
     enabled: true
     serviceName: valheim-exporter-app
     endpoints:
