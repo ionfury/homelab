@@ -19,14 +19,10 @@ controllers:
             cpu: 100m
             memory: 128Mi
         env:
-          - name: A2S_EXPORTER_QUERY_ADDRESS
-            value: valheim-app.${NAMESPACE}.svc.cluster.local:2457
-          - name: A2S_EXPORTER_PORT
-            value: "8000"
-          - name: A2S_EXPORTER_PATH
-            value: /metrics
-          - name: A2S_EXPORTER_NAMESPACE
-            value: valheim
+          A2S_EXPORTER_QUERY_ADDRESS: valheim-app.${NAMESPACE}.svc.cluster.local:2457
+          A2S_EXPORTER_PORT: *port
+          A2S_EXPORTER_PATH: /metrics
+          A2S_EXPORTER_NAMESPACE: valheim
         probes:
           liveness: &probe
             enabled: true
