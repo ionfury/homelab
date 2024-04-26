@@ -47,7 +47,7 @@ ingress:
 persistence:
   config:
     type: configMap
-    name: homepage-config
+    name: homepage-settings
     globalMounts:
       - subPath: bookmarks.yaml
         path: /app/config/bookmarks.yaml
