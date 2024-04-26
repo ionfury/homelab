@@ -79,4 +79,4 @@ persistence:
         path: /app/config/widgets.yaml
 serviceAccount:
   create: true
-  name: homepage
+  name: homepage-app
