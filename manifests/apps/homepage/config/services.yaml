@@ -1,5 +1,0 @@
-- Network:
-    - Rancher:
-        icon: rancher.png
-        href: https://rancher.tomnowak.work
-        description: Rancher kubernetes interface.
