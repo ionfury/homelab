@@ -6,7 +6,6 @@ components:
   - ../../components/gatus-internal
 resources:
   - rbac.yaml
-  - netpol.yaml
 configMapGenerator:
   - name: values
     behavior: replace
