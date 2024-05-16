@@ -211,8 +211,6 @@ prometheus:
       gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: prometheus.png
       gethomepage.dev/name: Prometheus
-      gethomepage.dev/widget.type: prometheus
-      gethomepage.dev/widget.url: http://kube-prometheus-stack-app-prometheus.${NAMESPACE}.svc.cluster.local:9090
     ingressClassName: internal
     hosts:
       - prometheus.${INTERNAL_DOMAIN}
