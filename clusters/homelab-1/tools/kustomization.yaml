@@ -3,7 +3,7 @@
 namespace: tools
 components:
   - ../../../manifests/components/namespace
-  #- ../.network-policies
+  - ../.network-policies
 resources:
   #- code-server.yaml
   #- gha-runners.yaml
