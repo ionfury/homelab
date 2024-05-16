@@ -3,6 +3,7 @@
 
 defaultPodOptions:
   labels:
+    networking/allow-egress-to-kube-api: "true"
     networking/allow-egress-to-internet-except-private: "true"
     networking/allow-egress-to-kubedns: "true"
     networking/allow-ingress-to-internal-nginx: "true"
