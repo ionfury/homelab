@@ -1,108 +1,82 @@
-image:
-  repository: ${IMAGE_REPOSITORY}
-  tag: ${IMAGE_TAG}
-resources:
-  requests:
-    cpu: 10m
-    memory: 106Mi
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-gatus: "true"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - homepage-app
+            topologyKey: kubernetes.io/hostname
+controllers:
+  main:
+    replicas: 1
+    strategy: RollingUpdate
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        env:
+          TZ: ${TZ}
+        resources:
+          requests:
+            cpu: 15m
+            memory: 128Mi
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 3000
 ingress:
   main:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: cloudflare
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/name: "Homepage"
+      gethomepage.dev/name: ${HOSTNAME:=homepage}
       gethomepage.dev/description: "You are here!"
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "homepage.png"
-    ingressClassName: internal
+    className: internal
     hosts:
-      - host: homepage.${INTERNAL_DOMAIN}
+      - host: ${HOSTNAME:=homepage}.${INTERNAL_DOMAIN}
         paths:
           - path: /
-            pathType: ImplementationSpecific
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
     tls:
       - secretName: homepage-tls
         hosts:
-          - homepage.${INTERNAL_DOMAIN}
+          - ${HOSTNAME:=homepage}.${INTERNAL_DOMAIN}
+persistence:
+  config:
+    type: configMap
+    name: homepage-settings
+    globalMounts:
+      - subPath: bookmarks.yaml
+        path: /app/config/bookmarks.yaml
+      #- subPath: docker.yaml
+      #  path: /app/config/docker.yaml
+      - subPath: kubernetes.yaml
+        path: /app/config/kubernetes.yaml
+      #- subPath: services.yaml
+      #  path: /app/config/services.yaml
+      - subPath: settings.yaml
+        path: /app/config/settings.yaml
+      - subPath: widgets.yaml
+        path: /app/config/widgets.yaml
 serviceAccount:
   create: true
-  name: homepage
-enableRbac: true
-config:
-  settings:
-    color: stone
-    theme: dark
-  bookmarks:
-    - Cloud:
-        - Github:
-            - abbr: GH
-              href: https://github.com/ionfury/homelab
-              ping: https://github.com
-              description: Homelab state repository.
-        - Cloudflare:
-            - abbr: CF
-              href: https://dash.cloudflare.com/2bfc6ea2b4517ff4c47f2cfdc943db42/domains
-              ping: https://www.cloudflare.com/
-              description: TLD provider for tomnowak.work.
-        - AWS_Console:
-            - abbr: AWS
-              href: https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin
-              ping: https://console.aws.amazon.com
-              description: Cloud provider for secrets, backup, & misc.
-    - Harvester:
-        - HarvesterVIP:
-            - abbr: HVIP
-              href: https://${HARVESTER_IP_ADDRESS}/
-              description: Break glass in case of fire.
-        - Longhorn:
-            - abbr: LH
-              href: https://${HARVESTER_IP_ADDRESS}/k8s/clusters/local/api/v1/namespaces/longhorn-system/services/http:longhorn-frontend:80/proxy/#/dashboard
-              description: Break glass in case of fire.
-    - Management:
-        - Harvester0:
-            - abbr: N0
-              href: https://${IDRAC_ADDRESS}/
-              description: IDRAC management interface.
-        - Node1:
-            - abbr: N1IPMI
-              href: https://${NODE1_IPMI_ADDRESS}/
-              description: Node1 IPMI interface.
-        - Node2:
-            - abbr: N2IPMI
-              href: https://${NODE2_IPMI_ADDRESS}/
-              description: Node2 IPMI interface.
-        - Node3:
-            - abbr: N3IPMI
-              href: https://${NODE3_IPMI_ADDRESS}/
-              description: Node3 IPMI interface.
-        - UPS:
-            - abbr: UPS
-              href: https://${UPS_ADDRESS}/
-              description: UPS management interface.
-  services:
-    - Network:
-        - Rancher:
-            icon: rancher.png
-            href: https://rancher.tomnowak.work
-            description: Rancher kubernetes interface.
-  widgets:
-    - datetime:
-        text_size: xl
-        format:
-          timeStyle: short
-          hour12: true
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: ${CLUSTER_NAME}
-        nodes:
-          show: false
-    - search:
-        provider: google
-        target: _blank
-  kubernetes:
-    mode: cluster
+  name: homepage-app
