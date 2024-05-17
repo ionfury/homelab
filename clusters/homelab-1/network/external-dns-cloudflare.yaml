@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: registry.k8s.io/external-dns/external-dns
-      IMAGE_TAG: v0.14.1 # {"$imagepolicy": "network:external-dns-cloudflare-automation:tag"}
+      IMAGE_TAG: v0.14.2 # {"$imagepolicy": "network:external-dns-cloudflare-automation:tag"}
