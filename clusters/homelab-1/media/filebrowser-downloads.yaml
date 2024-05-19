@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: downloads
       IMAGE_REPOSITORY: filebrowser/filebrowser
-      IMAGE_TAG: v2.29.0 # {"$imagepolicy": "media:filebrowser-downloads-automation:tag"}
+      IMAGE_TAG: v2.30.0 # {"$imagepolicy": "media:filebrowser-downloads-automation:tag"}
