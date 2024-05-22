@@ -1,60 +1,82 @@
-controller:
-  replicas: 3
-  strategy: RollingUpdate
-env:
-  LIBREDDIT_DEFAULT_SHOW_NSFW: true
-  LIBREDDIT_DEFAULT_WIDE: true
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-kubedns: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-gatus: "true"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - libreddit-app
+            topologyKey: kubernetes.io/hostname
 service:
   main:
+    controller: main
     ports:
       http:
-        port: 8080
+        port: &port 8080
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    replicas: 3
+    strategy: RollingUpdate
+    rollingUpdate:
+      surge: 25%
+      unavailable: 25%
+    containers:
+      main:
+        env:
+          LIBREDDIT_DEFAULT_SHOW_NSFW: true
+          LIBREDDIT_DEFAULT_WIDE: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 100Mi
+        probes:
+          liveness: &probe
+            enabled: true
+            custom: true
+            type: TCP
+            port: &port 53
+            spec:
+              failureThreshold: 3
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              httpGet:
+                path: /settings
+                port: *port
+              timeoutSeconds: 1
+          readiness: *probe
+          startup: *probe
 ingress:
   main:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: ibreddit is a portmanteau of "libre" (meaning freedom) and "Reddit". It is a private front-end like Invidious but for Reddit.
       gethomepage.dev/group: Share
       gethomepage.dev/icon: libreddit.png
       gethomepage.dev/name: ${HOSTNAME:=libreddit}
-    ingressClassName: internal
+    className: internal
     hosts:
-      - host: ${HOSTNAME:=libreddit}.${INTERNAL_DOMAIN}
+      - host: &host ${HOSTNAME:=libreddit}.${INTERNAL_DOMAIN}
         paths:
           - path: /
             pathType: Prefix
+            service:
+              identifier: main
+              port: http
     tls:
-      - hosts:
-          - ${HOSTNAME:=libreddit}.${INTERNAL_DOMAIN}
+      - hosts: [*host]
         secretName: libreddit-tls
-probes:
-  liveness:
-    enabled: true
-    custom: true
-    spec:
-      httpGet:
-        path: /settings
-        port: 8080
-      initialDelaySeconds: 0
-      periodSeconds: 10
-      timeoutSeconds: 1
-      failureThreshold: 3
-  readiness:
-    enabled: true
-    custom: true
-    spec:
-      httpGet:
-        path: /settings
-        port: 8080
-      initialDelaySeconds: 0
-      periodSeconds: 10
-      timeoutSeconds: 1
-      failureThreshold: 3
-  startup:
-    enabled: false
-resources:
-  requests:
-    cpu: 10m
-    memory: 100Mi
