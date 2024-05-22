@@ -47,8 +47,6 @@ controllers:
           liveness: &probe
             enabled: true
             custom: true
-            type: TCP
-            port: &port 53
             spec:
               failureThreshold: 3
               initialDelaySeconds: 0
