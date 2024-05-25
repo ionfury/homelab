@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/0xerr0r/blocky
-      IMAGE_TAG: v0.23 # {"$imagepolicy": "network:blocky-automation:tag"}
+      IMAGE_TAG: v0.24 # {"$imagepolicy": "network:blocky-automation:tag"}
