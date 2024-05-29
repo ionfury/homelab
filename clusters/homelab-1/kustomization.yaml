@@ -9,6 +9,7 @@ resources:
   - cert-manager
   - flux-system
   - games
+  - greg-bot
   - kube-system
   - lan
   - media

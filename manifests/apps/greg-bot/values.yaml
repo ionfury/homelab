@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.1/charts/other/app-template/values.schema.json
+
+defaultPodOptions:
+  labels:
+    networking/allow-egress-to-internet-except-private: "true"
+    networking/allow-egress-to-kubedns: "true"
+  #securityContext:
+  #  runAsUser: 568
+  #  runAsGroup: 568
+  #  runAsNonRoot: true
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+        env:
+          TZ: ${TZ}
+          REDIS_URL: redis://${CLUSTER_REDIS_HOST}:6479
+          DISCORD_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: greg-bot-token
+                key: discord-token
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: { drop: ["ALL"] }
