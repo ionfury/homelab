@@ -5,4 +5,4 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
-  - greg-bot
+  - greg-bot.yaml
