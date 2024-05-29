@@ -30,7 +30,8 @@ controllers:
         env:
           TZ: ${TZ}
           TRANSFORMERS_CACHE: &cachedir /cache
-          REDIS_URL: redis://${CLUSTER_REDIS_HOST}:6479
+          HF_HOME: *cachedir
+          REDIS_URL: redis://${CLUSTER_REDIS_HOST}:6379
           DISCORD_TOKEN:
             valueFrom:
               secretKeyRef:
