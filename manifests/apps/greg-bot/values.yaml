@@ -29,6 +29,7 @@ controllers:
             memory: 1024Mi
         env:
           TZ: ${TZ}
+          TRANSFORMERS_CACHE: &cachedir /cache
           REDIS_URL: redis://${CLUSTER_REDIS_HOST}:6479
           DISCORD_TOKEN:
             valueFrom:
@@ -39,3 +40,14 @@ controllers:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities: { drop: ["ALL"] }
+persistence:
+  cache:
+    enabled: true
+    retain: false
+    storageClass: ${STORAGE_CLASS_FAST}
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    advancedMounts:
+      main:
+        main:
+          - path: *cachedir
