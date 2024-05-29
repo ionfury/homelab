@@ -1,0 +1,10 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: greg-bot
+spec:
+  path: ./manifests/apps/greg-bot
+  postBuild:
+    substitute:
+      IMAGE_REPOSITORY: ghcr.io/gtamanini1/greg-bot
+      IMAGE_TAG: v0.0.0 # {"$imagepolicy": "media:greg-bot-automation:tag"}
