@@ -49,6 +49,12 @@ controllers:
     containers:
       main:
         env:
+          DISABLE_ADMIN_TOKEN: "false"
+          ADMIN_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-secret
+                key: token
           DATA_FOLDER: data
           ICON_CACHE_FOLDER: data/icon_cache
           ATTACHMENTS_FOLDER: data/attachments

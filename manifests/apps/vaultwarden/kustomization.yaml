@@ -14,7 +14,7 @@ secretGenerator:
     options:
       disableNameSuffixHash: true
       annotations:
-        secret-generator.v1.mittwald.de/autogenerate: username,password
+        secret-generator.v1.mittwald.de/autogenerate: username,password,token
         secret-generator.v1.mittwald.de/encoding: base64url
         secret-generator.v1.mittwald.de/length: "32"
         replicator.v1.mittwald.de/replication-allowed: "true"
