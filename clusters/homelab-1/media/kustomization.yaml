@@ -5,6 +5,7 @@ components:
   - ../../../manifests/components/namespace
   - ../.network-policies
 resources:
+  - audiobookshelf.yaml
   - bazarr.yaml
   - dashboards.yaml
   - filebrowser-downloads.yaml
