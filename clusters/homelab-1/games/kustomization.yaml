@@ -8,5 +8,6 @@ resources:
   #- palworld.yaml
   #- plexheim.yaml
   - valheim.yaml
+  - valheim-weekly.yaml
   #- satisfactory.yaml
   - valheim-exporter.yaml
