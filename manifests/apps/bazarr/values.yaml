@@ -90,7 +90,6 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Subtitle Management
       gethomepage.dev/group: Media
       gethomepage.dev/icon: bazarr.png
       gethomepage.dev/name: ${HOSTNAME:=bazarr}
