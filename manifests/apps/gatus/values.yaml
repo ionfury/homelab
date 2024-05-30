@@ -124,7 +124,7 @@ ingress:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: Uptime & Status Monitoring
-      gethomepage.dev/group: Share
+      gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: gatus.png
       gethomepage.dev/name: ${HOSTNAME:=gatus}
       nginx.ingress.kubernetes.io/server-snippet: &serversnippit |

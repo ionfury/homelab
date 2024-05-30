@@ -7,11 +7,14 @@ headerStyle: boxed
 statusStyle: dot
 layout:
   Media:
+    style: row
+    columns: 4
   Network:
-    style: Columns
-  Storage:
+    style: row
+    columns: 4
+  Share:
     style: row
     columns: 2
-  Observability:
+  Monitoring:
     style: row
     columns: 2
