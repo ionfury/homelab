@@ -16,6 +16,7 @@ resources:
   - monitoring
   - network
   #- policy
+  - secret
   - share
   - storage
   - system
