@@ -20,3 +20,6 @@ patches:
         path: /spec/secretRef
         value:
           name: greg-bot-regcred
+      - op: replace
+        path: /spec/interval
+        value: 5m
