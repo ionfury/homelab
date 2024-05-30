@@ -39,7 +39,6 @@ ingress:
     cert-manager.io/cluster-issuer: cloudflare
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Kubecost"
-    gethomepage.dev/description: "Kubecost helps you monitor and manage cost and capacity in Kubernetes environments."
     gethomepage.dev/group: "Share"
     gethomepage.dev/icon: "kubecost.png"
   hosts:

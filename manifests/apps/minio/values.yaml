@@ -73,7 +73,7 @@ ingress:
       cert-manager.io/cluster-issuer: cloudflare
       gethomepage.dev/enabled: "true"
       gethomepage.dev/name: "Minio"
-      gethomepage.dev/description: "Minio Console"
+      gethomepage.dev/description: Storage Management
       gethomepage.dev/group: "Share"
       gethomepage.dev/icon: "minio.png"
     className: internal

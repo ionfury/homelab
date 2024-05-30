@@ -9,7 +9,7 @@ ingress:
     cert-manager.io/cluster-issuer: cloudflare
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Weave Gitops"
-    gethomepage.dev/description: "Weave GitOps provides insights into your application deployments, and makes continuous delivery with GitOps easier to adopt and scale across your teams."
+    gethomepage.dev/description: Gitops Management
     gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "flux-cd.png"
   hosts:

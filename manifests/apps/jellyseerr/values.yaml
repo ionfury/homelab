@@ -35,7 +35,6 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Jellyseerr is a free and open source software application for managing requests for your media library.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: jellyseerr.png
       gethomepage.dev/name: ${HOSTNAME:=jellyseer}

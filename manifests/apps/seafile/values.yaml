@@ -20,7 +20,6 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Seafrile"
-    gethomepage.dev/description: "Testing"
     gethomepage.dev/group: "Share"
     gethomepage.dev/icon: "seafile.png"
   host: seafile.${INTERNAL_DOMAIN}

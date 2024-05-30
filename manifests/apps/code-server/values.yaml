@@ -9,7 +9,7 @@ initContainers:
         value: https://open-vsx.org/vscode/item
     command: ["/bin/sh", "-c"]
     args:
-      - chown -R 1000:1000 /home/coder; code-server --install-extension ms-kubernetes-tools; code-server --install-extension redhat.vscode-yaml; 
+      - chown -R 1000:1000 /home/coder; code-server --install-extension ms-kubernetes-tools; code-server --install-extension redhat.vscode-yaml;
       - curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash /dev/stdin 5.0.1 /usr/local/bin; \
       - curl -s https://fluxcd.io/install.sh | bash /dev/stdin /usr/local/bin; \
       - curl -L https://github.com/mozilla/sops/releases/download/v3.7.3/sops-v3.7.3.linux.amd64 -o sops && chmod +x sops && mv sops /usr/local/bin; \
@@ -31,7 +31,7 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: VSCode in the cloud!
+      gethomepage.dev/description: Code access
       gethomepage.dev/group: Share
       gethomepage.dev/icon: vscode.png
       gethomepage.dev/name: Code-Server

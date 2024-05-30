@@ -52,7 +52,7 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Pinchflat is a self-hosted app for downloading YouTube content built using yt-dlp.
+      gethomepage.dev/description: Youtube Downloader
       gethomepage.dev/group: Media
       gethomepage.dev/icon: youtube.png
       gethomepage.dev/name: Pinchflat

@@ -76,7 +76,7 @@ ingress:
       nginx.ingress.kubernetes.io/proxy-buffering: "off"
       cert-manager.io/cluster-issuer: cloudflare
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Network file management share.
+      gethomepage.dev/description: Download Management
       gethomepage.dev/group: Share
       gethomepage.dev/icon: filebrowser.png
       gethomepage.dev/name: Filebrowser

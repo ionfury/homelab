@@ -29,7 +29,7 @@ metadata:
     cert-manager.io/cluster-issuer: cloudflare
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: Unifi camera interface.
+    gethomepage.dev/description: Camera Management
     gethomepage.dev/group: Network
     gethomepage.dev/icon: unifi-protect.png
     gethomepage.dev/name: Unifi Protect

@@ -76,7 +76,6 @@ ingress:
           deny all;
         }
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: jellyfin.png
       gethomepage.dev/name: ${HOSTNAME:=jellyfin}

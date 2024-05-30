@@ -91,7 +91,6 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Lidarr is a music collection manager for Usenet and BitTorrent users.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: lidarr.png
       gethomepage.dev/name: Lidarr

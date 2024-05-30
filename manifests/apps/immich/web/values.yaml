@@ -42,7 +42,7 @@ ingress:
       nignx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: High performance self-hosted photo and video backup solution.
+      gethomepage.dev/description: Photos & Videos
       gethomepage.dev/group: Media
       gethomepage.dev/icon: immich.png
       gethomepage.dev/name: Immich

@@ -69,7 +69,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: "cloudflare"
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: Grafana is the open source analytics & monitoring solution for every database.
+    gethomepage.dev/description: Observability & Dashboarding
     gethomepage.dev/group: Monitoring
     gethomepage.dev/icon: grafana.png
     gethomepage.dev/name: ${HOSTNAME:=grafana}

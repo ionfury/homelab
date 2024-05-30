@@ -29,7 +29,7 @@ metadata:
     cert-manager.io/cluster-issuer: cloudflare
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: IPMIView monitors and reports on the status of SuperBlade systems, including the blade server, power supply, gigabit switch, InfiniBand and CMM modules.
+    gethomepage.dev/description: IPMI Management
     gethomepage.dev/group: Network
     gethomepage.dev/icon: supermicro.png
     gethomepage.dev/name: IPMI Node1

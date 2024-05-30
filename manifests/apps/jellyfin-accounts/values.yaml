@@ -41,7 +41,6 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: jfa-go is a user management app for Jellyfin (and Emby as 2nd class) that provides invite-based account creation as well as other features that make one's instance much easier to manage.
       gethomepage.dev/group: Media
       gethomepage.dev/icon: jellyfin.png
       gethomepage.dev/name: ${HOSTNAME:=jellyfin-accounts}

@@ -25,7 +25,6 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
       gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: uptime-kuma.png
       gethomepage.dev/name: Uptime Kuma

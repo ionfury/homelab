@@ -145,7 +145,7 @@ alertmanager:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: An open-source alerting system.
+      gethomepage.dev/description: Alerting
       gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: alertmanager.png
       gethomepage.dev/name: Alertmanager
@@ -207,7 +207,7 @@ prometheus:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Combine Prometheus metric alerts with log & trace alerts to improve accuracy.
+      gethomepage.dev/description: Monitoring
       gethomepage.dev/group: Monitoring
       gethomepage.dev/icon: prometheus.png
       gethomepage.dev/name: Prometheus

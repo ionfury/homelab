@@ -84,7 +84,7 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: "cloudflare"
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: The recipe manager that allows you to manage your ever growing collection of digital recipes.
+      gethomepage.dev/description: Recipie Management
       gethomepage.dev/group: Media
       gethomepage.dev/icon: tandoor.png
       gethomepage.dev/name: Tandoor Recipes

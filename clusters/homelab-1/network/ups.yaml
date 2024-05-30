@@ -29,7 +29,7 @@ metadata:
     cert-manager.io/cluster-issuer: cloudflare
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: Cyberpower UPS
+    gethomepage.dev/description: UPS Management
     gethomepage.dev/group: Network
     gethomepage.dev/icon: cyberpower.png
     gethomepage.dev/name: UPS

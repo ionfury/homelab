@@ -71,7 +71,6 @@ ingress:
       nginx.ingress.kubernetes.io/proxy-buffering: "off"
       cert-manager.io/cluster-issuer: cloudflare
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: Network file management share.
       gethomepage.dev/group: Share
       gethomepage.dev/icon: filegator.png
       gethomepage.dev/name: Filegator

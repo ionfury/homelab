@@ -29,7 +29,7 @@ metadata:
     cert-manager.io/cluster-issuer: cloudflare
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: Harvester is a modern, open, interoperable, hyperconverged infrastructure (HCI) solution built on Kubernetes.
+    gethomepage.dev/description: Virtualization management
     gethomepage.dev/group: Network
     gethomepage.dev/icon: harvester.png
     gethomepage.dev/name: Harvester
