@@ -67,6 +67,7 @@ ingress:
       gethomepage.dev/group: Share
       gethomepage.dev/icon: libreddit.png
       gethomepage.dev/name: ${HOSTNAME:=libreddit}
+      gethomepage.dev/description: Custom Reddit UI
     className: internal
     hosts:
       - host: &host ${HOSTNAME:=libreddit}.${INTERNAL_DOMAIN}
