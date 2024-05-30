@@ -20,3 +20,9 @@ secretGenerator:
         secret-generator.v1.mittwald.de/length: "16"
 patches:
   - path: image-policy.yaml
+  - target:
+      group: image.toolkit.fluxcd.io
+      kind: ImagePolicy
+    patch: |
+      - op: remove
+        path: /spec/policy/semver
