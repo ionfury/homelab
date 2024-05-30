@@ -11,3 +11,12 @@ configMapGenerator:
     behavior: replace
     files:
       - values.yaml
+patches:
+  - target:
+      group: image.toolkit.fluxcd.io
+      kind: ImageRepository
+    patch: |
+      - op: add
+        path: /spec/secretRef
+        value:
+          name: greg-bot-regcred
