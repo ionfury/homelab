@@ -22,7 +22,7 @@ secretGenerator:
       - WORLD_NAME=weekly
       - SERVER_PUBLIC=true
       - BACKUPS_MAX_COUNT=10
-      - PUBLIC_TEST=true
+      - PUBLIC_TEST=false
       - STATUS_HTTP=true
       - RESTART_MSG="Server is restarting..."
       - START_MSG="Server is up!"
@@ -30,6 +30,7 @@ secretGenerator:
       - BACKUP_MSG="Valheim backup to file @BACKUP_FILE@ is starting"
       - SUPERVISOR_HTTP=true
       - TZ=${TZ}
+      - SERVER_ARGS="-modifier deathpenalty casual"
 patches:
   - target:
       kind: ImagePolicy
