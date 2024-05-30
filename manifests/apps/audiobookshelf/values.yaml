@@ -27,30 +27,34 @@ service:
     ports:
       http:
         port: &port 8080
-containers:
+controllers:
   main:
-    env:
-      TZ: ${TZ}
-      PORT: *port
-      #AUDIOBOOKSHELF_UID: *uid
-      #AUDIOBOOKSHELF_GID: *gid
-      CONFIG_PATH: /config
-      METADATA_PATH: /config/metadata
-    probes:
-      liveness: &probes
-        enabled: true
-        custom: true
-        spec:
-          httpGet:
-            path: /healthcheck
-            port: *port
-      readiness: *probes
-    resources:
-      requests:
-        cpu: 50m
-        memory: 200Mi
-      limits:
-        memory: 600Mi
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        env:
+          TZ: ${TZ}
+          PORT: *port
+          #AUDIOBOOKSHELF_UID: *uid
+          #AUDIOBOOKSHELF_GID: *gid
+          CONFIG_PATH: /config
+          METADATA_PATH: /config/metadata
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthcheck
+                port: *port
+          readiness: *probes
+        resources:
+          requests:
+            cpu: 50m
+            memory: 200Mi
+          limits:
+            memory: 600Mi
 ingress:
   main:
     enabled: true
