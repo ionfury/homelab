@@ -6,3 +6,11 @@ components:
   - ../.network-policies
 resources:
   - greg-bot.yaml
+patches:
+  - target:
+      kind: ImageUpdateAutomation
+      name: automation
+    patch: |
+      - op: replace
+        path: /spec/interval
+        value: 5m
