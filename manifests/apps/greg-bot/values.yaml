@@ -16,6 +16,12 @@ defaultPodOptions:
   #  runAsNonRoot: true
 controllers:
   main:
+    type: deployment
+    replicas: 1
+    strategy: RollingUpdate
+    rollingUpdate:
+      surge: 25%
+      unavailable: 25%
     annotations:
       reloader.stakater.com/auto: "true"
     containers:
