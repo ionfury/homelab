@@ -18,3 +18,5 @@ secretGenerator:
         secret-generator.v1.mittwald.de/autogenerate: MINIO_ROOT_USER,MINIO_ROOT_PASSWORD
         secret-generator.v1.mittwald.de/encoding: hex
         secret-generator.v1.mittwald.de/length: "16"
+patches:
+  - path: image-policy.yaml
