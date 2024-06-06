@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: watch
       IMAGE_REPOSITORY: docker.io/jellyfin/jellyfin
-      IMAGE_TAG: 10.9.5 # {"$imagepolicy": "media:jellyfin-automation:tag"}
+      IMAGE_TAG: 10.9.6 # {"$imagepolicy": "media:jellyfin-automation:tag"}
