@@ -31,3 +31,10 @@ metrics:
       - { color: green, min: 0, max: 35 }
       - { color: orange, min: 36, max: 75 }
       - { color: red, min: 76, max: 9999 }
+
+  - name: apiserver_availability_30d
+    query: round(apiserver_request:availability30d, 0.0001)
+    suffix: "%"
+      - { color: green, min: 99.9900, max: 100 }
+      - { color: orange, min: 99.0000, max: 99.9899 }
+      - { color: red, min: 0, max: 98.9999 }
