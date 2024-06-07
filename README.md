@@ -18,6 +18,7 @@
 <div align="center">
 
 ![heartbeat](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=heartbeat&query=%24.status&url=https%3A%2F%2Fhealthchecks.io%2Fbadge%2Fb4308338-139b-4907-bee3-37c2da%2FiS3vfgkr-2.json&style=flat-square&logo=kubernetes&logoColor=white)&nbsp;&nbsp;
+[![30D-Availability](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dapiserver_availability_30d&style=flat-square&label=Availability)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 [![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_node_count&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 [![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_pod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 [![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
