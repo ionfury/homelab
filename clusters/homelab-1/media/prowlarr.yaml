@@ -8,7 +8,7 @@ spec:
     substitute:
       HOSTNAME: indexer
       IMAGE_REPOSITORY: ghcr.io/onedr0p/prowlarr-nightly
-      IMAGE_TAG: 1.19.0.4548 # {"$imagepolicy": "media:prowlarr-automation:tag"}
+      IMAGE_TAG: 1.19.0.4552 # {"$imagepolicy": "media:prowlarr-automation:tag"}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
