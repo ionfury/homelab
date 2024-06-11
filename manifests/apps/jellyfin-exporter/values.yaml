@@ -10,10 +10,14 @@ controllers:
       reloader.stakater.com/auto: "true"
     containers:
       main:
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: { drop: ["ALL"] }
         env:
-          SERVER_PORT: 8000
-          JELLYFIN_API_URL: http://jellyfin-app.${NAMESPACE}.svc.cluster.local:8096
-          JELLYFIN_TOKEN:
+          JELLYFIN_EXPORTER_PORT: &port 8080
+          JELLYFIN_EXPORTER_URL: http://jellyfin-app.${NAMESPACE}.svc.cluster.local:8096
+          JELLYFIN_EXPORTER_API_KEY:
             valueFrom:
               secretKeyRef:
                 name: jellyfin-exporter-token
@@ -22,7 +26,7 @@ service:
   main:
     ports:
       http:
-        port: 8000
+        port: *port
 serviceMonitor:
   main:
     enabled: true
