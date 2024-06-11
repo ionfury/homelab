@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: minio
       IMAGE_REPOSITORY: quay.io/minio/minio
-      IMAGE_TAG: RELEASE.2024-06-06T09-36-42Z # {"$imagepolicy": "storage:minio-automation:tag"}
+      IMAGE_TAG: RELEASE.2024-06-11T03-13-30Z # {"$imagepolicy": "storage:minio-automation:tag"}
