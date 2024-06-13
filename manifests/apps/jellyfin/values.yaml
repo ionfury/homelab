@@ -5,7 +5,7 @@ defaultPodOptions:
   automountServiceAccountToken: false
   enableServiceLinks: false
   nodeSelector:
-    nvidia.com/gpu.product: Quadro-P2000
+    nvidia.com/gpu.present: "true"
   labels:
     required-volume: media
     networking/allow-egress-to-internet-except-private: "true"
