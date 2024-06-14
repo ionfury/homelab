@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/ionfury/jellyfin-exporter
-      IMAGE_TAG: v0.0.2 # {"$imagepolicy": "media:jellyfin-exporter-automation:tag"}
+      IMAGE_TAG: v0.0.4 # {"$imagepolicy": "media:jellyfin-exporter-automation:tag"}
