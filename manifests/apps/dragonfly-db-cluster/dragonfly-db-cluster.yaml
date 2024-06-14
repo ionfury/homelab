@@ -19,4 +19,13 @@ spec:
       memory: 500Mi
     limits:
       cpu: 2000m
-      memory: 2000Mi
+      memory: 2000Mi    
+  snapshot:
+    cron: "*/5 * * * *"
+    persistentVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: ${STORAGE_CLASS_FAST_BACKUP)
+      resources:
+        requests:
+          storage: 2Gi
