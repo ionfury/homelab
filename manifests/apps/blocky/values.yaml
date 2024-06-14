@@ -64,14 +64,15 @@ service:
   metrics:
     controller: main
     ports:
-      metrics:
-        port: &metrics "4000"
+      http:
+        port: "4000"
 serviceMonitor:
   metrics:
     enabled: true
     serviceName: blocky-app-metrics
     endpoints:
-      - port: *metrics
+      - port: http
+        scheme: http
         interval: 30s
         scrapeTimeout: 10s
         path: /metrics
