@@ -25,7 +25,7 @@ spec:
     persistentVolumeClaimSpec:
       accessModes:
       - ReadWriteOnce
-      storageClassName: ${STORAGE_CLASS_FAST_BACKUP)
+      storageClassName: ${STORAGE_CLASS_FAST_BACKUP}
       resources:
         requests:
           storage: 2Gi
