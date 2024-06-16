@@ -50,6 +50,16 @@ controllers:
           readOnlyRootFilesystem: true
           capabilities: { drop: ["ALL"] }
 persistence:
+  tmp:
+    enabled: true
+    retain: false
+    storageClass: ${STORAGE_CLASS_FAST}
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    advancedMounts:
+      main:
+        main:
+          - path: /tmp
   model:
     enabled: true
     retain: false
