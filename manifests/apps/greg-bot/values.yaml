@@ -37,6 +37,8 @@ controllers:
           TZ: ${TZ}
           TRANSFORMERS_CACHE: &cachedir /cache
           HF_HOME: *cachedir
+          MODEL_DIR: /models
+          LOG_LEVEL: 20
           REDIS_URL: redis://${CLUSTER_REDIS_HOST}:6379
           DISCORD_TOKEN:
             valueFrom:
@@ -48,6 +50,16 @@ controllers:
           readOnlyRootFilesystem: true
           capabilities: { drop: ["ALL"] }
 persistence:
+  model:
+    enabled: true
+    retain: false
+    storageClass: ${STORAGE_CLASS_FAST}
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    advancedMounts:
+      main:
+        main:
+          - path: *modeldir
   cache:
     enabled: true
     retain: false
