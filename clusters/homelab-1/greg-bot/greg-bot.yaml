@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: ghcr.io/gtamanini1/greg-bot
-      IMAGE_TAG: v0.0.6 # {"$imagepolicy": "greg-bot:greg-bot-automation:tag"}
+      IMAGE_TAG: v0.1.0 # {"$imagepolicy": "greg-bot:greg-bot-automation:tag"}
