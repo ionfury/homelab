@@ -37,7 +37,7 @@ controllers:
           TZ: ${TZ}
           TRANSFORMERS_CACHE: &cachedir /cache
           HF_HOME: *cachedir
-          MODEL_DIR: /models
+          MODEL_DIR: /models &modeldir
           LOG_LEVEL: 20
           REDIS_URL: redis://${CLUSTER_REDIS_HOST}:6379
           DISCORD_TOKEN:
