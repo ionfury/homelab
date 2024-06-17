@@ -32,7 +32,7 @@ controllers:
             memory: 64Mi
           limits:
             cpu: 1000m
-            memory: 1024Mi
+            memory: 2048Mi
         env:
           TZ: ${TZ}
           TRANSFORMERS_CACHE: &cachedir /cache
