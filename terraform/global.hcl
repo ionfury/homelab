@@ -4,7 +4,7 @@ locals {
   rancher = {
     cluster_name = "rancher"
     ssh_key_name = "id-rsa-homelab-ssh-mac"
-    rancher_version = "2.7.6"
+    rancher_version = "2.8.4"
     kubernetes_version = "v1.26.4-rancher2-1"
     cert_manager_version = "1.12.0"
 
