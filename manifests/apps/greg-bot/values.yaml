@@ -50,6 +50,15 @@ controllers:
           readOnlyRootFilesystem: true
           capabilities: { drop: ["ALL"] }
 persistence:
+  drive:
+    enabled: true
+    type: secret
+    name: gregbot-drive
+    advancedMounts:
+      main:
+        main:
+          - path: /models/gregbot-service.json
+            subPath: gregbot-service.json
   tmp:
     enabled: true
     retain: false
