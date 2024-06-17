@@ -53,7 +53,7 @@ persistence:
   drive:
     enabled: true
     type: secret
-    name: gregbot-drive
+    name: greg-bot-drive
     advancedMounts:
       main:
         main:
