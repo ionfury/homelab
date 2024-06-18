@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: docker.io/cloudflare/cloudflared
-      IMAGE_TAG: 2024.6.0 # {"$imagepolicy": "network:cloudflared-automation:tag"}
+      IMAGE_TAG: 2024.6.1 # {"$imagepolicy": "network:cloudflared-automation:tag"}
