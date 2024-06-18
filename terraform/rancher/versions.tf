@@ -6,7 +6,7 @@ terraform {
     }
     rke = {
       source  = "rancher/rke"
-      version = "1.4.2"
+      version = "1.5.0"
     }
     tls = {
       source  = "hashicorp/tls"
