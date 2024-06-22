@@ -9,6 +9,21 @@ dependencies {
 inputs = {
   cluster_name = "${basename(get_terragrunt_dir())}"
   kubernetes_version = "v1.26.13+rke2r1"
+  node_base_image_version = "this"
+  node_base_image = {
+    this = {
+      name = "${basename(get_terragrunt_dir())}-ubuntu-2004-latest"
+      namespace = "default"
+      url = "http://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img"
+      ssh_user = "ubuntu"
+    }
+    next = {
+      name = "${basename(get_terragrunt_dir())}-ubuntu-2204-20240614"
+      namespace = "default"
+      url = "https://cloud-images.ubuntu.com/releases/jammy/release-20240614/ubuntu-22.04-server-cloudimg-amd64.img"
+      ssh_user = "ubuntu"
+    }
+  }
 
   machine_pools = {
     control-plane = {
@@ -75,8 +90,4 @@ inputs = {
       vm_affinity_b64 = "eyJub2RlQWZmaW5pdHkiOnsicmVxdWlyZWREdXJpbmdTY2hlZHVsaW5nSWdub3JlZER1cmluZ0V4ZWN1dGlvbiI6eyJub2RlU2VsZWN0b3JUZXJtcyI6W3sibWF0Y2hFeHByZXNzaW9ucyI6W3sia2V5IjoiZ3B1Iiwib3BlcmF0b3IiOiJJbiIsInZhbHVlcyI6WyJ0cnVlIl19XX1dfX19"
     }
   }
-
-  image_name = "${basename(get_terragrunt_dir())}-ubuntu-2004-latest"
-  image = "http://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img"
-  image_ssh_user = "ubuntu"
 }

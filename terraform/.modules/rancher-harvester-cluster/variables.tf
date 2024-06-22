@@ -34,26 +34,33 @@ variable "network_name" {
   type        = string
 }
 
-variable "image_namespace" {
-  type    = string
-  default = "default"
-}
-
-variable "image_name" {
-  type    = string
-  default = "ubuntu20"
-}
-
-variable "image" {
-  description = "Image to use for nodes."
+variable "node_base_image_version" {
+  description = "Specify which node base image version to use: 'this' or 'next'"
   type        = string
-  default     = "http://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img"
+  default     = "this"
+
+  validation {
+    condition     = contains(["this", "next"], var.node_base_image_version)
+    error_message = "The node_base_image_version must be either 'this' or 'next'."
+  }
 }
 
-variable "image_ssh_user" {
-  description = "Default SSH user for image."
-  type        = string
-  default     = "ubuntu"
+variable "node_base_image" {
+  description = "Configuration for node base images.  Providing these options allow for 'toggling' harvester images."
+  type = object({
+    this = object({
+      name      = string
+      namespace = string
+      url       = string
+      ssh_user  = string
+    })
+    next = object({
+      name      = string
+      namespace = string
+      url       = string
+      ssh_user  = string
+    })
+  })
 }
 
 variable "machine_pools" {

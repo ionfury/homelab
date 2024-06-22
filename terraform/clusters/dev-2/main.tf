@@ -1,13 +1,3 @@
-moved {
-  from = module.this.rancher2_machine_config_v2.control_plane
-  to   = module.this.rancher2_machine_config_v2.machines["control-plane"]
-}
-
-moved {
-  from = module.this.rancher2_machine_config_v2.worker
-  to   = module.this.rancher2_machine_config_v2.machines["worker"]
-}
-
 module "this" {
   source = "../../.modules/rancher-harvester-cluster"
 
@@ -42,7 +32,7 @@ resource "local_file" "kubeconfig" {
 
   file_permission = "0644"
 }
-
+/*
 resource "aws_iam_access_key" "external_secrets_access_key" {
   user = var.external_secrets_access_key_store
 }
@@ -80,3 +70,4 @@ module "tunnel" {
     cloudflare = cloudflare
   }
 }
+*/
