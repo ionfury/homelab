@@ -8,7 +8,7 @@ spec:
     substitute:
       HOSTNAME: shows
       IMAGE_REPOSITORY: ghcr.io/onedr0p/sonarr-develop
-      IMAGE_TAG: 4.0.5.1760 # {"$imagepolicy": "media:sonarr-automation:tag"}
+      IMAGE_TAG: 4.0.5.1778 # {"$imagepolicy": "media:sonarr-automation:tag"}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
