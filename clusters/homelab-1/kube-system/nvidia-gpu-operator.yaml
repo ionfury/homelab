@@ -7,5 +7,5 @@ spec:
   postBuild:
     substitute:
       HELM_CHART: gpu-operator
-      HELM_CHART_VERSION: v23.9.0
+      HELM_CHART_VERSION: v24.4.0
       HELM_CHART_REPOSITORY: https://helm.ngc.nvidia.com/nvidia
