@@ -45,6 +45,16 @@ variable "node_base_image_version" {
   }
 }
 
+variable "restore" {
+  description = "Snapshot to restore to the cluster."
+  type = object({
+    generation         = number
+    name               = string
+    restore_rke_config = string
+  })
+  default = null
+}
+
 variable "node_base_image" {
   description = "Configuration for node base images.  Providing these options allow for 'toggling' harvester images."
   type = object({

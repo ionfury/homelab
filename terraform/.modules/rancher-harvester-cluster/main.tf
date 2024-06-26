@@ -142,6 +142,16 @@ resource "rancher2_cluster_v2" "cluster" {
   default_pod_security_admission_configuration_template_name = "warn-rancher-restricted"
 
   rke_config {
+    dynamic "etcd_snapshot_restore" {
+      for_each = var.restore != null ? [var.restore] : []
+
+      content {
+        generation         = var.restore.generation
+        name               = var.restore.name
+        restore_rke_config = var.restore.restore_rke_config
+      }
+    }
+
     dynamic "machine_pools" {
       iterator = pool
       for_each = var.machine_pools

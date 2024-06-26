@@ -11,6 +11,8 @@ moved {
 module "this" {
   source = "../../.modules/rancher-harvester-cluster"
 
+  restore = var.restore
+
   name                   = var.cluster_name
   harvester_cluster_name = var.harvester.cluster_name
   network_name           = var.harvester.network_name

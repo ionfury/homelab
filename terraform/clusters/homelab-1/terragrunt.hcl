@@ -9,7 +9,7 @@ dependencies {
 inputs = {
   cluster_name = "${basename(get_terragrunt_dir())}"
   kubernetes_version = "v1.26.13+rke2r1"
-  node_base_image_version = "this"
+  node_base_image_version = "next"
   node_base_image = {
     this = {
       name = "${basename(get_terragrunt_dir())}-ubuntu-2004-latest"
@@ -23,6 +23,12 @@ inputs = {
       url = "https://cloud-images.ubuntu.com/releases/jammy/release-20240614/ubuntu-22.04-server-cloudimg-amd64.img"
       ssh_user = "ubuntu"
     }
+  }
+
+  restore = {
+    generation = 1
+    name = "homelab-1-etcd-snapshot-homelab-1-control-plane-a553dda9-faa5d6"
+    restore_rke_config = "all"
   }
 
   machine_pools = {

@@ -146,3 +146,13 @@ variable "node_base_image" {
     })
   })
 }
+
+variable "restore" {
+  description = "Snapshot to restore to the cluster."
+  type = object({
+    generation         = number
+    name               = string
+    restore_rke_config = string
+  })
+  default = null
+}
