@@ -7,7 +7,7 @@ resources:
   # - discord-alertmanager.yaml
   - grafana.yaml
   - ipmi-exporter-supermicro.yaml
-  - komodor.yaml
+  #- komodor.yaml
   - kube-prometheus-stack.yaml
   - kube-state-metrics.yaml
   - loki.yaml
