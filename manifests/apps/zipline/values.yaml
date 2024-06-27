@@ -83,12 +83,12 @@ controllers:
             valueFrom:
               secretKeyRef:
                 name: zipline-minio-bucket
-                key: access-key
+                key: access_key
           DATASOURCE_S3_SECRET_ACCESS_KEY:
             valueFrom:
               secretKeyRef:
                 name: zipline-minio-bucket
-                key: secret-key
+                key: secret_key
           DATASOURCE_TYPE: s3
           DATASOURCE_S3_BUCKET: zipline
           DATASOURCE_S3_ENDPOINT: ${CLUSTER_MINIO_HOST}
