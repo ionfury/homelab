@@ -1,12 +1,13 @@
 resource "harvester_storageclass" "storage" {
   for_each = var.harvester.storage
 
-  name       = each.value.name
-  is_default = each.value.is_default
+  name           = each.value.name
+  is_default     = each.value.is_default
+  reclaim_policy = each.value.reclaim_policy
 
   parameters = {
     "migratable"          = "true"
-    "numberOfReplicas"    = 1
+    "numberOfReplicas"    = each.value.replicas
     "staleReplicaTimeout" = "30"
     "dataLocality"        = "best-effort"
     "diskSelector"        = each.value.selector
@@ -16,12 +17,13 @@ resource "harvester_storageclass" "storage" {
 resource "harvester_storageclass" "storage_backup" {
   for_each = var.harvester.storage
 
-  name       = "${each.value.name}-backup"
-  is_default = false
+  name           = "${each.value.name}-backup"
+  is_default     = false
+  reclaim_policy = each.value.reclaim_policy
 
   parameters = {
     "migratable"          = "true"
-    "numberOfReplicas"    = 1
+    "numberOfReplicas"    = each.value.replicas
     "staleReplicaTimeout" = "30"
     "dataLocality"        = "best-effort"
     "diskSelector"        = each.value.selector

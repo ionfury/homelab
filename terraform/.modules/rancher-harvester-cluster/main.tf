@@ -1,3 +1,13 @@
+moved {
+  from = harvester_image.this
+  to   = harvester_image.cluster_images["ubuntu-2004-release"]
+}
+
+moved {
+  from = harvester_image.next
+  to   = harvester_image.cluster_images["ubuntu-2204-20240614"]
+}
+
 data "rancher2_cluster_v2" "harvester" {
   name = var.harvester_cluster_name
 }
@@ -64,21 +74,14 @@ type: Opaque
 YAML
 }
 
-resource "harvester_image" "this" {
-  name         = var.node_base_image.this.name
-  display_name = var.node_base_image.this.name
-  namespace    = var.node_base_image.this.namespace
-  source_type  = "download"
-  url          = var.node_base_image.this.url
-}
+resource "harvester_image" "cluster_images" {
+  for_each = var.node_base_image
 
-
-resource "harvester_image" "next" {
-  name         = var.node_base_image.next.name
-  display_name = var.node_base_image.next.name
-  namespace    = var.node_base_image.next.namespace
+  name         = each.value.name
+  display_name = each.value.name
+  namespace    = each.value.namespace
   source_type  = "download"
-  url          = var.node_base_image.next.url
+  url          = each.value.url
 }
 
 resource "rancher2_machine_config_v2" "machines" {
@@ -90,24 +93,21 @@ resource "rancher2_machine_config_v2" "machines" {
     vm_namespace = var.namespace
     cpu_count    = each.value.resources.cpu
     memory_size  = each.value.resources.memory
-    ssh_user     = var.node_base_image_version == "this" ? var.node_base_image.this.ssh_user : var.node_base_image.next.ssh_user
-    vm_affinity  = each.value.vm_affinity_b64
+    ssh_user     = var.node_base_image[each.value.image].ssh_user
+    #ssh_user     = var.node_base_image_version == "this" ? var.node_base_image.this.ssh_user : var.node_base_image.next.ssh_user
+    vm_affinity = each.value.vm_affinity_b64
 
     disk_info = <<EOF
     {
       "disks": [{
-        "imageName": "${
-    var.node_base_image_version == "this" ?
-    "${harvester_image.this.namespace}/${harvester_image.this.name}" :
-    "${harvester_image.next.namespace}/${harvester_image.next.name}"
-  }",
+        "imageName": "${harvester_image.cluster_images[each.value.image].namespace}/${harvester_image.cluster_images[each.value.image].name}",
         "size": ${each.value.resources.disk},
         "bootOrder": 1
       }]
     }
     EOF
 
-  network_info = <<EOF
+    network_info = <<EOF
     {
       "interfaces": [{
         "networkName": "default/${var.network_name}"
@@ -115,7 +115,7 @@ resource "rancher2_machine_config_v2" "machines" {
     }
     EOF
 
-  user_data = <<EOF
+    user_data = <<EOF
       package_update: true
       packages:
         - qemu-guest-agent
@@ -128,7 +128,7 @@ resource "rancher2_machine_config_v2" "machines" {
           - '--now'
           - qemu-guest-agent.service
     EOF
-}
+  }
 }
 
 resource "rancher2_cluster_v2" "cluster" {

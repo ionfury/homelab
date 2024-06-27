@@ -23,8 +23,7 @@ module "this" {
   rancher_admin_token = data.aws_ssm_parameter.rancher_admin_token.value
   rancher_admin_url   = data.aws_ssm_parameter.rancher_admin_url.value
 
-  node_base_image         = var.node_base_image
-  node_base_image_version = var.node_base_image_version
+  node_base_image = var.node_base_image
 
   providers = {
     rancher2  = rancher2

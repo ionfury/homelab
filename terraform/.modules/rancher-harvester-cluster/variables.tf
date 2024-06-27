@@ -34,17 +34,6 @@ variable "network_name" {
   type        = string
 }
 
-variable "node_base_image_version" {
-  description = "Specify which node base image version to use: 'this' or 'next'"
-  type        = string
-  default     = "this"
-
-  validation {
-    condition     = contains(["this", "next"], var.node_base_image_version)
-    error_message = "The node_base_image_version must be either 'this' or 'next'."
-  }
-}
-
 variable "restore" {
   description = "Snapshot to restore to the cluster."
   type = object({
@@ -55,23 +44,6 @@ variable "restore" {
   default = null
 }
 
-variable "node_base_image" {
-  description = "Configuration for node base images.  Providing these options allow for 'toggling' harvester images."
-  type = object({
-    this = object({
-      name      = string
-      namespace = string
-      url       = string
-      ssh_user  = string
-    })
-    next = object({
-      name      = string
-      namespace = string
-      url       = string
-      ssh_user  = string
-    })
-  })
-}
 
 variable "machine_pools" {
   type = map(object({
@@ -83,6 +55,7 @@ variable "machine_pools" {
     machine_labels                 = map(string)
     vm_affinity_b64                = string
     gpu_enabled                    = bool
+    image                          = string
     resources = object({
       cpu    = number
       memory = number
@@ -93,5 +66,15 @@ variable "machine_pools" {
       etcd          = bool
       worker        = bool
     })
+  }))
+}
+
+variable "node_base_image" {
+  description = "Configuration for node base images.  Providing these options allow for 'toggling' harvester images."
+  type = map(object({
+    name      = string
+    namespace = string
+    url       = string
+    ssh_user  = string
   }))
 }

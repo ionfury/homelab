@@ -15,15 +15,26 @@ locals {
     network_name = "citadel"
 
     storage = {
+      vm = {
+        name = "vm"
+        selector = "ssd"
+        replicas = 2
+        is_default = true
+        reclaim_policy = "Delete"
+      }
       fast = {
         name = "fast"
         selector = "ssd"
-        is_default = true
+        replicas = 1
+        is_default = false
+        reclaim_policy = "Delete"
       },
      slow = {
         name = "slow"
         selector = "hdd"
+        numberOfReplicas = 1
         is_default = false
+        reclaim_policy = "Delete"
       }
     }
 

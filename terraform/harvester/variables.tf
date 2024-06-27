@@ -18,9 +18,11 @@ variable "harvester" {
     network_name       = string
 
     storage = map(object({
-      name       = string
-      selector   = string
-      is_default = bool
+      name           = string
+      selector       = string
+      is_default     = bool
+      replicas       = number
+      reclaim_policy = string
     }))
 
     inventory = map(object({

@@ -105,6 +105,7 @@ variable "machine_pools" {
     machine_labels                 = map(string)
     vm_affinity_b64                = string
     gpu_enabled                    = bool
+    image                          = string
     resources = object({
       cpu    = number
       memory = number
@@ -118,33 +119,14 @@ variable "machine_pools" {
   }))
 }
 
-variable "node_base_image_version" {
-  description = "Specify which node base image version to use: 'this' or 'next'"
-  type        = string
-  default     = "this"
-
-  validation {
-    condition     = contains(["this", "next"], var.node_base_image_version)
-    error_message = "The node_base_image_version must be either 'this' or 'next'."
-  }
-}
-
 variable "node_base_image" {
   description = "Configuration for node base images.  Providing these options allow for 'toggling' harvester images."
-  type = object({
-    this = object({
-      name      = string
-      namespace = string
-      url       = string
-      ssh_user  = string
-    })
-    next = object({
-      name      = string
-      namespace = string
-      url       = string
-      ssh_user  = string
-    })
-  })
+  type = map(object({
+    name      = string
+    namespace = string
+    url       = string
+    ssh_user  = string
+  }))
 }
 
 variable "restore" {
