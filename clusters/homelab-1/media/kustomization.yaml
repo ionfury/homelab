@@ -21,3 +21,5 @@ resources:
   - readarr.yaml
   #- recyclarr.yaml
   - sonarr.yaml
+
+  - qbittorrent.yaml

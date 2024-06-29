@@ -1,122 +1,63 @@
-defaultPodOptions:
-  labels:
-    networking/allow-egress-to-internet-except-private: "true"
-    networking/allow-egress-to-kubedns: "true"
-    networking/allow-ingress-to-internal-nginx: "true"
-    networking/allow-ingress-to-gatus: "true"
-  automountServiceAccountToken: false
-  affinity:
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: required-volume
-                operator: In
-                values:
-                  - media
-          topologyKey: kubernetes.io/hostname
 controllers:
-  main:
+  app:
     annotations:
       reloader.stakater.com/auto: "true"
-    # pod:
-    #   securityContext:
-    #     fsGroup: 568
-    #     fsGroupChangePolicy: "OnRootMismatch"
     containers:
-      main:
+      app:
         env:
-          QBITTORRENT__PORT: 8080
-        resources:
-          requests:
-            cpu: 100m
-            memory: 1024Mi
-          limits:
-            memory: 8192Mi
-      #     securityContext:
-      #       runAsUser: 568
-      #       runAsGroup: 568
-      #capabilities:
-      #  drop:
-      #    - ALL
-      gluetun:
-        dependsOn: main
-        image:
-          repository: ${GLUETUN_IMAGE_REPOSITORY}
-          tag: ${GLUETUN_IMAGE_TAG}
-        env:
-          VPN_INTERFACE: wg0
-        envFrom:
-          - secretRef:
-              name: qbittorrent-vpn
-        securityContext:
-          capabilities:
-            add:
-              - NET_ADMIN
-          allowPrivilegeEscalation: false
-      port-forward:
-        dependsOn: gluetun
-        image:
-          repository: ${PORTSYNC_IMAGE_REPOSITORY}
-          tag: ${PORTSYNC_IMAGE_TAG}
-        env:
-          - name: QBITTORRENT_SERVER
-            value: localhost
-          - name: QBITTORRENT_PORT
-            value: "8080"
-          - name: PORT_FORWARDED
-            value: "/tmp/gluetun/forwarded_port"
+          TZ: "${TZ}"
+          QBITTORRENT__PORT: &port 8080
+          QBITTORRENT__BT_PORT: &bittorentPort 57683
+          QBT_PREFERENCES_WebUI__AlternativeUIEnabled: false
+          QBT_PREFERENCES_WebUI__AuthSubnetWhitelistEnabled: true
+          QBT_PREFERENCES_WebUI__AuthSubnetWhitelist: 192.168.0.0/16
+          QBT_PREFERENCES_WebUI__LocalHostAuth: false
+          QBT_BitTorrent__Session__Interface: vxlan0
+          QBT_BitTorrent__Session__InterfaceName: vxlan0
+
+    pod:
+      annotations:
+        setGateway: "true"
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: "OnRootMismatch"
+        supplementalGroups: [10000]
 service:
-  main:
+  app:
+    controller: app
     ports:
       http:
-        port: 8080
-
-ingress:
-  main:
-    enabled: true
-    className: "internal"
+        port: *port
+  bittorrent:
+    controller: app
+    type: LoadBalancer
     annotations:
-      cert-manager.io/cluster-issuer: "cloudflare"
-      gethomepage.dev/enabled: "true"
-      gethomepage.dev/group: Media
-      gethomepage.dev/icon: qbittorrent.png
-      gethomepage.dev/name: QBitTorrent
+      cloudprovider.harvesterhci.io/ipam: dhcp
+    externalTrafficPolicy: Local
+    ports:
+      bittorrent:
+        enabled: true
+        port: *bittorentPort
+        protocol: TCP
+ingress:
+  app:
+    enabled: true
+    className: internal
     hosts:
-      - host: torrent.${INTERNAL_DOMAIN}
+      - host: &host "${HOSTNAME:=qbittorrent}.${INTERNAL_DOMAIN}"
         paths:
           - path: /
             service:
-              name: main
+              identifier: app
               port: http
     tls:
       - hosts:
-          - torrent.${INTERNAL_DOMAIN}
-
+          - *host
 persistence:
   config:
     enabled: true
-    retain: true
-    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
-    size: 10Gi
-    accessMode: ReadWriteOnce
-    advancedMounts:
-      main:
-        main:
-          - path: /config
-  gluetun-data:
-    type: emptyDir
-    advancedMounts:
-      main:
-        gluetun:
-          - path: /tmp/gluetun
-        port-forward:
-          - path: /tmp/gluetun
-            readOnly: true
-  media:
-    enabled: true
-    existingClaim: jellyfin-app-media
-    advancedMounts:
-      main:
-        main:
-          - path: /data/media
+    existingClaim: qbittorrent-config
+#  media:
+#    existingClaim: downloaders
