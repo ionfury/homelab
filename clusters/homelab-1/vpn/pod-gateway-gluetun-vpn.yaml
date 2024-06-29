@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: pod-gateway-gluetun-vpn
+spec:
+  path: ./manifests/apps/pod-gateway-gluetun-vpn
+  postBuild:
+    substitute:
+      GATEWAY_IMAGE_REPOSITORY: ghcr.io/angelnu/pod-gateway
+      GATEWAY_IMAGE_TAG: v1.10.0
+      VPN_IMAGE_REPOSITORY: ghcr.io/qdm12/gluetun
+      VPN_IMAGE_TAG: v3.38.0
+      WEBHOOK_IMAGE_REPOSITORY:  ghcr.io/angelnu/gateway-admision-controller
+      WEBHOOK_IMAGE_TAG: v3.10.0

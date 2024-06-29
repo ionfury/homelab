@@ -21,6 +21,7 @@ resources:
   - storage
   - system
   - tools
+  - vpn
 configMapGenerator:
   - name: cluster-vars
     namespace: flux-system
