@@ -6,6 +6,9 @@ spec:
   path: ./manifests/apps/pod-gateway-gluetun-vpn
   postBuild:
     substitute:
+      HELM_CHART: pod-gateway
+      HELM_CHART_VERSION: 6.5.1
+      HELM_CHART_REPOSITORY: https://angelnu.github.io/helm-charts
       GATEWAY_IMAGE_REPOSITORY: ghcr.io/angelnu/pod-gateway
       GATEWAY_IMAGE_TAG: v1.10.0
       VPN_IMAGE_REPOSITORY: ghcr.io/qdm12/gluetun
