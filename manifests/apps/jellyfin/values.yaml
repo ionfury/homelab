@@ -91,20 +91,20 @@ ingress:
     tls:
       - hosts: [*internalhost]
         secretName: jellyfin-tls
-  external:
-    enabled: true
-    annotations:
-      cert-manager.io/cluster-issuer: "cloudflare"
-      external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
-      nginx.ingress.kubernetes.io/configuration-snippet: *configurationsnippit
-      nginx.ingress.kubernetes.io/server-snippet: *serversnippit
-    className: external
-    hosts:
-      - host: &externalhost ${HOSTNAME:=jellyfin}.${EXTERNAL_DOMAIN}
-        paths: *paths
-    tls:
-      - hosts: [*externalhost]
-        secretName: external-jellyfin-tls
+  #external:
+  #  enabled: true
+  #  annotations:
+  #    cert-manager.io/cluster-issuer: "cloudflare"
+  #    external-dns.alpha.kubernetes.io/target: "${CLUSTER_NAME}.${EXTERNAL_DOMAIN}"
+  #    nginx.ingress.kubernetes.io/configuration-snippet: *configurationsnippit
+  #    nginx.ingress.kubernetes.io/server-snippet: *serversnippit
+  #  className: external
+  #  hosts:
+  #    - host: &externalhost ${HOSTNAME:=jellyfin}.${EXTERNAL_DOMAIN}
+  #      paths: *paths
+  #  tls:
+  #    - hosts: [*externalhost]
+  #      secretName: external-jellyfin-tls
 persistence:
   config:
     enabled: true

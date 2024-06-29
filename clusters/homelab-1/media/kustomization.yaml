@@ -22,4 +22,4 @@ resources:
   #- recyclarr.yaml
   - sonarr.yaml
 
-  - qbittorrent.yaml
+  #- qbittorrent.yaml
