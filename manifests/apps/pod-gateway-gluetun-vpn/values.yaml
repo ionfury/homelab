@@ -53,7 +53,7 @@ routed_namespaces: ["media"]
 settings:
   VPN_INTERFACE: "wg0"
   VXLAN_ID: "43"
-  VXLAN_IP_NETWORK: "192.168.1"
+  VXLAN_IP_NETWORK: "172.16.1"
   VPN_BLOCK_OTHER_TRAFFIC: "true"
   VPN_TRAFFIC_PORT: "1337"
   DNS_LOCAL_CIDRS: "local"
