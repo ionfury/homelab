@@ -1,3 +1,10 @@
+defaultPodOptions:
+  labels:
+    networking/allow-allow-egress-to-kubedns: "true"
+    networking/allow-ingress-to-internal-nginx: "true"
+    networking/allow-ingress-to-prometheus: "true"
+    networking/allow-ingress-to-gatus: "true"
+
 controllers:
   main:
     annotations:
