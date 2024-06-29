@@ -26,7 +26,7 @@ addons:
         value: debug
     envFrom:
       - secretRef:
-          name: pod-gateway-secret
+          name: pod-gateway-gluetun-vpn
     securityContext:
       capabilities:
         add: ["NET_ADMIN"]
