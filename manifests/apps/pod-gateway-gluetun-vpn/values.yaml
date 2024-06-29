@@ -1,7 +1,7 @@
 image:
   repository: ${GATEWAY_IMAGE_REPOSITORY}
   tag: ${GATEWAY_IMAGE_TAG}
-DNS: 192.168.1.1
+DNS: 172.16.1.1
 addons:
   #netshoot:
   #  enabled: true
