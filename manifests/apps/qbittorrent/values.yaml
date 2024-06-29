@@ -58,6 +58,14 @@ ingress:
 persistence:
   config:
     enabled: true
-    existingClaim: qbittorrent-config
+    retain: true
+    storageClass: ${STORAGE_CLASS_FAST_BACKUP}
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+
 #  media:
 #    existingClaim: downloaders
