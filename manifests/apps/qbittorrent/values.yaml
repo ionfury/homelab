@@ -1,9 +1,9 @@
 controllers:
-  app:
+  main:
     annotations:
       reloader.stakater.com/auto: "true"
     containers:
-      app:
+      main:
         env:
           TZ: "${TZ}"
           QBITTORRENT__PORT: &port 8080
@@ -25,13 +25,13 @@ controllers:
         fsGroupChangePolicy: "OnRootMismatch"
         supplementalGroups: [10000]
 service:
-  app:
-    controller: app
+  main:
+    controller: main
     ports:
       http:
         port: *port
   bittorrent:
-    controller: app
+    controller: main
     type: LoadBalancer
     annotations:
       cloudprovider.harvesterhci.io/ipam: dhcp
@@ -42,7 +42,7 @@ service:
         port: *bittorentPort
         protocol: TCP
 ingress:
-  app:
+  main:
     enabled: true
     className: internal
     hosts:
@@ -50,7 +50,7 @@ ingress:
         paths:
           - path: /
             service:
-              identifier: app
+              identifier: main
               port: http
     tls:
       - hosts:
