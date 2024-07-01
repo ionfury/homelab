@@ -7,4 +7,4 @@ spec:
   postBuild:
     substitute:
       IMAGE_REPOSITORY: armsnyder/a2s-exporter
-      IMAGE_TAG: v0.3.0 # {"$imagepolicy": "games:valheim-exporter-automation:tag"}
+      IMAGE_TAG: v0.4.0 # {"$imagepolicy": "games:valheim-exporter-automation:tag"}
