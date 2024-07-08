@@ -8,4 +8,4 @@ spec:
     substitute:
       HOSTNAME: audiobooks
       IMAGE_REPOSITORY: ghcr.io/advplyr/audiobookshelf
-      IMAGE_TAG: 2.10.1 # {"$imagepolicy": "media:audiobookshelf-automation:tag"}
+      IMAGE_TAG: 2.11.0 # {"$imagepolicy": "media:audiobookshelf-automation:tag"}
