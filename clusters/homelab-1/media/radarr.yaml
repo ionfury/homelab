@@ -8,7 +8,7 @@ spec:
     substitute:
       HOSTNAME: movies
       IMAGE_REPOSITORY: ghcr.io/onedr0p/radarr-nightly
-      IMAGE_TAG: 5.8.2.8908 # {"$imagepolicy": "media:radarr-automation:tag"}
+      IMAGE_TAG: 5.8.2.8915 # {"$imagepolicy": "media:radarr-automation:tag"}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
