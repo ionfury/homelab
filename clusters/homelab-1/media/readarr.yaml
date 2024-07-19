@@ -8,7 +8,7 @@ spec:
     substitute:
       HOSTNAME: books
       IMAGE_REPOSITORY: ghcr.io/onedr0p/readarr-nightly
-      IMAGE_TAG: 0.3.32.2584 # {"$imagepolicy": "media:readarr-automation:tag"}
+      IMAGE_TAG: 0.3.32.2585 # {"$imagepolicy": "media:readarr-automation:tag"}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
