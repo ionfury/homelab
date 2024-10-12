@@ -29,7 +29,7 @@ This document outlines the steps to physically and logically set up a new Superm
 
 ### 1. Identify IP Address
 - **Task**: Access the Unifi console at `192.168.1.1`.
-- **IPMI Subnet**: Check for a new IP in the `192.168.11.*` subnet.
+- **IPMI Subnet**: Check for a new IP in the `192.168.10.*` subnet.
   - Example: If a new device appears, note the assigned IP address for the IPMI interface.
 
 ### 2. Log into IPMI
@@ -43,8 +43,8 @@ This document outlines the steps to physically and logically set up a new Superm
   - Navigate to `Configuration > Network > Hostname`
   - Set the hostname to `node##` (replace `##` with the node number).
     - Example: For node `01`, set the hostname to `node01`.
-  - **Access**: The IPMI interface will be available at `node##.ipmi.tomnowak.work`.
-  - Example: `node01.ipmi.tomnowak.work`
+  - **Access**: The IPMI interface will be available at `node##-ipmi.citadel.tomnowak.work`.
+  - Example: `node01-ipmi.citadel.tomnowak.work`
   - **Save the configuration** after making changes.
 
 ### 4. Change Default Password
