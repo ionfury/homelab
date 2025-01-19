@@ -16,5 +16,18 @@ tfplan
 .DS_Store
 **/rke_debug.log
 
+# Terraform
+.terraform
+*.tfstate
+*.tfstate.backup
+
+# Terragrunt
+.terragrunt-cache
+
 out.yaml
 krr.yaml
+
+.task
+
+
+**/credentials.yaml

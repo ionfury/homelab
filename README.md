@@ -1,3 +1,8 @@
+# 🚧🚧🚧🚧🚧🚧🚧🚧🚧 UNDER RENOVATIONS 🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+I accidentally 💥 my cluster and got frustrated with harvester.  WIP to rebuild everything on Talos to try it out.
+
+
 <div align="center">
 
 ![Kubernetes](https://github.com/ionfury/homelab/blob/main/docs/images/k8s-logo.png)

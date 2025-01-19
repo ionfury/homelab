@@ -1,0 +1,139 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  IPMI_DOMAIN_SUFFIX: '-ipmi.citadel.tomnowak.work'
+  INVENTORY_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/inventory/resources'
+  CREDENTIALS_FILE: '{{.INVENTORY_RESOURCES_DIR}}/credentials.yaml'
+  INVENTORY_FILE: "{{.ROOT_DIR}}/infrastructure/inventory.hcl"
+  VALID_HOSTS:
+    sh: "cat {{ .INVENTORY_FILE }} | yj -cj | jq -r '.locals[].hosts[] | keys[]'"
+
+tasks:
+  power-status:
+    desc: Lists the power status of all hosts.
+    silent: true
+    cmds:
+     - for: { var: VALID_HOSTS }
+       cmd: task inventory:status-{{ .ITEM }} | grep "System Power" | awk '{print "{{ .ITEM }} " $0}'
+
+  hosts:
+    desc: Lists all hosts.
+    silent: true
+    cmds:
+      - echo "{{ .VALID_HOSTS }}"
+
+  host-membership:
+    desc: Lists host sand their registered cluster membership.
+    silent: true
+    cmds:
+      - cat {{ .INVENTORY_FILE }} | yj -cj | jq -r '.locals[].hosts[] | to_entries[] | "{host=\"\(.key)\", member=\"\(.value[].cluster[].member)\"}"'
+    preconditions:
+      - test -f {{.INVENTORY_FILE}}
+
+  status-*:
+    desc: Gets the status of the host.
+    vars:
+      HOST: "{{ index .MATCH 0 }}"
+    cmds:
+      - task: ipmi-command
+        vars:
+          HOST: "{{ .HOST }}"
+          COMMAND: "chassis status"
+
+  power-on-*:
+    desc: Powers on the host.
+    vars:
+      HOST: "{{ index .MATCH 0 }}"
+    cmds:
+      - task: ipmi-command
+        vars:
+          HOST: "{{ .HOST }}"
+          COMMAND: "chassis power on"
+
+  power-off-*:
+    desc: Powers off the host.
+    vars:
+      HOST: "{{ index .MATCH 0 }}"
+    cmds:
+      - task: ipmi-command
+        vars:
+          HOST: "{{ .HOST }}"
+          COMMAND: "chassis power off"
+
+  power-cycle-*:
+    desc: Power cycles the host.
+    vars:
+      HOST: "{{ index .MATCH 0 }}"
+    cmds:
+      - task: ipmi-command
+        vars:
+          HOST: "{{ .HOST }}"
+          COMMAND: "chassis power cycle"
+
+  sol-activate-*:
+    desc: Activates SOL on the host. (Escape via ~.)
+    vars:
+      HOST: "{{ index .MATCH 0 }}"
+    cmds:
+      - task: ipmi-command
+        vars:
+          HOST: "{{ .HOST }}"
+          COMMAND: "sol activate"
+
+  bootdev_next-*-*:
+    desc: "Sets the next boot device for the host (format: bootdev_next-<device>-<host>)."
+    vars:
+      HOST: "{{ index .MATCH 1 }}"
+      DEVICE: "{{ index .MATCH 0 }}"
+      VALID_DEVICES: none pxe disk safe diag cdrom bios floppy
+      OPTIONS:
+    cmds:
+      - task: ipmi-command
+        vars:
+          HOST: "{{ .HOST }}"
+          COMMAND: "chassis bootdev {{ .DEVICE }} {{ .OPTIONS }}"
+    preconditions:
+      - sh: test "$(echo "{{ .VALID_DEVICES }}" | grep -c "{{ .DEVICE }}")" -gt 0
+        msg: "'{{ .DEVICE }}' is not a valid device.  Valid devices: \n{{ .VALID_DEVICES }}"
+
+  bootdev_persist-*-*:
+    desc: "Sets the persistent boot device for the host (format: bootdev_persist-<device>-<host>)."
+    vars:
+      HOST: "{{ index .MATCH 1 }}"
+      DEVICE: "{{ index .MATCH 0 }}"
+      VALID_DEVICES: none pxe disk safe diag cdrom bios floppy
+      OPTIONS: options=persistent
+    cmds:
+      - task: ipmi-command
+        vars:
+          HOST: "{{ .HOST }}"
+          COMMAND: "chassis bootdev {{ .DEVICE }} {{ .OPTIONS }}"
+    preconditions:
+      - sh: test "$(echo "{{ .VALID_DEVICES }}" | grep -c "{{ .DEVICE }}")" -gt 0
+        msg: "'{{ .DEVICE }}' is not a valid device.  Valid devices: \n{{ .VALID_DEVICES }}"
+
+  ipmi-command:
+    internal: true
+    silent: true
+    desc: Run ipmi command on a host.
+    requires:
+      vars: [HOST, USER, COMMAND, IPMI_DOMAIN_SUFFIX]
+    vars:
+      PASSWORD:
+        sh: "cat {{ .CREDENTIALS_FILE }} | yj -yj | jq -r '.hosts[\"{{ .HOST }}\"].password'"
+      USERNAME:
+        sh: "cat {{ .CREDENTIALS_FILE }} | yj -yj | jq -r '.hosts[\"{{ .HOST }}\"].username'"
+    cmds:
+      - "ipmitool -I lanplus -H {{ .HOST }}{{ .IPMI_DOMAIN_SUFFIX }} -U {{ .USERNAME }} -P '{{ .PASSWORD }}' {{ .COMMAND }}"
+    preconditions:
+      - sh: test "$(echo "{{ .VALID_HOSTS }}" | grep -c "^{{ .HOST }}$")" -gt 0
+        msg: "'{{.HOST}}' is not a valid host.  Valid Hosts: \n{{ .VALID_HOSTS }}"
+      - sh: test "{{ .USERNAME }}" != "null"
+        msg: "Username for host '{{ .HOST }}' is blank.  Please update '{{ .CREDENTIALS_FILE }}' for '{{ .HOST }}'."
+      - sh: test "{{ .PASSWORD }}" != "null"
+        msg: "Password for host '{{ .HOST }}' is blank.  Please update '{{ .CREDENTIALS_FILE }}' for '{{ .HOST }}'."
+      - test -f {{.CREDENTIALS_FILE}}
+      - which ipmitool
+

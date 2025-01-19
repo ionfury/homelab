@@ -1,22 +1,11 @@
+---
 version: "3"
 
-vars:
-  PROJECT_DIR:
-    sh: "git rev-parse --show-toplevel"
-  CLUSTERS_DIR: "{{.PROJECT_DIR}}/clusters"
-  MANIFESTS_DIR: "{{.PROJECT_DIR}}/manifests"
-  APPS_DIR: "{{.MANIFESTS_DIR}}/apps"
-  TERRAFORM_DIR: "{{.PROJECT_DIR}}/terraform"
-  KUBE_VERSION: "1.24.3"
-
 includes:
-  flux: .taskfiles/flux-tasks.yaml
-  terragrunt: .taskfiles/terragrunt-tasks.yaml
-  kubeconform: .taskfiles/kubeconform-tasks.yaml
-  render: .taskfiles/render-tasks.yaml
-  runbook: .taskfiles/runbook-tasks.yaml
-  optimization: .taskfiles/optimization-tasks.yaml
-  #network: .taskfiles/network-tasks.yaml
+  inventory: .taskfiles/inventory
+  workstation: .taskfiles/workstation
+  terragrunt: .taskfiles/terragrunt
+
 tasks:
   default:
     silent: true
