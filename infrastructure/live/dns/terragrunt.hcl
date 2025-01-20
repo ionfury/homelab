@@ -9,7 +9,7 @@ include "common" {
 
 
 terraform {
-  source = "${include.common.locals.base_source_url}?ref=v0.18.0"
+  source = "${include.common.locals.base_source_url}?ref=v0.19.0"
 
   extra_arguments "no_refresh" {
     commands  = ["plan", "apply"]
