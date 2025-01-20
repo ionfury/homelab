@@ -16,10 +16,11 @@ dependencies {
 }
 
 inputs = {
-  talos_version      = "v1.9.1"
-  kubernetes_version = "1.30.2"
+  talos_version      = "v1.9.2"
+  kubernetes_version = "1.32.0"
 
-  machine_kubelet_extraMounts = [ # Support Longhorn: https://longhorn.io/docs/1.7.2/advanced-resources/os-distro-specific/talos-linux-support/#data-path-mounts
+  machine_kubelet_extraMounts = [
+    # Support Longhorn: https://longhorn.io/docs/1.7.2/advanced-resources/os-distro-specific/talos-linux-support/#data-path-mounts
     {
       destination = "/var/lib/longhorn"
       type = "bind"
@@ -32,7 +33,8 @@ inputs = {
     }
   ]
 
-  machine_files = [ # Support Spegal: https://spegel.dev/docs/getting-started/#talos
+  machine_files = [
+    # Support Spegal: https://spegel.dev/docs/getting-started/#talos
     {
       path = "/etc/cri/conf.d/20-customization.part"
       op = "create"
@@ -45,6 +47,7 @@ inputs = {
   ]
 
   machine_extensions = [
+    # Support Longhorn: https://longhorn.io/docs/1.7.2/advanced-resources/os-distro-specific/talos-linux-support/#system-extensions
     "iscsi-tools",
     "util-linux-tools",
   ]
