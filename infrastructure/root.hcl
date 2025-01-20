@@ -10,7 +10,7 @@ inputs = merge(
 
 catalog {
   urls = [
-    "https://github.com/ionfury/homelab-terraform-modules"
+    "https://github.com/ionfury/homelab-modules"
   ]
 }
 
