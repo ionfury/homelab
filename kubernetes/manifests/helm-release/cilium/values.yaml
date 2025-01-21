@@ -1,15 +1,46 @@
 # https://docs.cilium.io/en/stable/helm-reference/
 # https://docs.cilium.io/en/stable/network/kubernetes/configuration/#configmap-options
 ---
+autoDirectNodeRoutes: true
+ipv4NativeRoutingCIDR: ${cluster_pod_subnet}
+bandwidthManager:
+  bbr: true
+  enabled: true
+bgpControlPlane:
+  enabled: false
 ipam:
   mode: kubernetes
-kubeProxyReplacement: true
 cgroup:
   autoMount:
     enabled: false
   hostRoot: /sys/fs/cgroup
+cni:
+  exclusive: false # to run multus
+cluster:
+  id: ${cluster_id}
+  name: ${cluster_name}
+kubeProxyReplacement: true
+enableIPv4BIGTCP: true
+endpointRoutes:
+  enabled: false
+envoy:
+  enabled: true
+externalIPs:
+  enabled: false
+hubble:
+  enabled: false
+l2announcements:
+  enabled: true
+loadBalancer:
+  acceleration: best-effort
+  algorithm: maglev
+  mode: dsr
+operator:
+  rollOutPods: true
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
+rollOutCiliumPods: true
+routingMode: native
 securityContext:
   capabilities:
     ciliumAgent:

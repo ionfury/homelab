@@ -1,0 +1,10 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: app
+spec:
+  values:
+    ipv4NativeRoutingCIDR: ${cluster_pod_subnet}
+    cluster:
+      id: ${cluster_id}
+      name: ${cluster_name}

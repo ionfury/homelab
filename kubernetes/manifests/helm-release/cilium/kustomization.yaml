@@ -11,9 +11,9 @@ configMapGenerator:
     files:
       - values.yaml
 patches:
+  - file: patch-values.yaml
   - target:
       kind: HelmRelease
-      name: app
     patch: |-
       - op: replace
         path: /spec/chart/spec/chart
