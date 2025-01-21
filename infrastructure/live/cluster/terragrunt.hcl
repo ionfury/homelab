@@ -18,6 +18,8 @@ dependencies {
 inputs = {
   talos_version      = "v1.9.2"
   kubernetes_version = "1.32.0"
+  cilium_version     = "1.16.5"
+  cilium_values      = file("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml")
 
   machine_kubelet_extraMounts = [
     # Support Longhorn: https://longhorn.io/docs/1.7.2/advanced-resources/os-distro-specific/talos-linux-support/#data-path-mounts
