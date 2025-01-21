@@ -22,12 +22,12 @@ resources:
   - system
   - tools
   - vpn
-configMapGenerator:
-  - name: cluster-vars
-    namespace: flux-system
-    behavior: replace
-    envs:
-      - cluster-vars.env
+#configMapGenerator:
+#  - name: cluster-vars
+#    namespace: flux-system
+#    behavior: replace
+#    envs:
+#      - cluster-vars.env
 patches:
   - target:
       kind: Kustomization

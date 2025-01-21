@@ -9,6 +9,13 @@ resources:
   - default
   - flux-system
   - kube-system
+patches:
+  - target:
+      kind: Kustomization
+    patch: |
+      - op: replace
+        path: /metadata/namespace
+        value: flux-system
 configMapGenerator:
   - name: cluster-vars
     options:
