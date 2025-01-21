@@ -11,6 +11,8 @@ resources:
   - kube-system
 configMapGenerator:
   - name: cluster-vars
+    options:
+      disableNameSuffixHash: true
     namespace: flux-system
     behavior: create
     envs:
