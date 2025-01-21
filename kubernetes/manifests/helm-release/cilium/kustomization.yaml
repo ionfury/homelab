@@ -11,7 +11,7 @@ configMapGenerator:
     files:
       - values.yaml
 patches:
-  - file: patch-values.yaml
+  - path: patch-values.yaml
   - target:
       kind: HelmRelease
     patch: |-
