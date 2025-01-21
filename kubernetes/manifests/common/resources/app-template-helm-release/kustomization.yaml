@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+components:
+  - ../../components/configurations/helm-release
+configurations:
+  - configuration.yaml
+resources:
+  - helm-release.yaml
+configMapGenerator:
+  - name: values
+    literals:
+      - values.yaml=
+secretGenerator:
+  - name: secret-values
+    literals:
+      - values.yaml=

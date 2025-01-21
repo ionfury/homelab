@@ -1,0 +1,13 @@
+commonLabels:
+  - path: spec/selector/matchLabels
+    create: true
+    kind: ServiceMonitor
+nameReference:
+  - kind: Secret
+    fieldSpecs:
+      - path: spec/endpoints/basicAuth/password/name
+        version: v1
+        kind: ServiceMonitor
+      - path: spec/endpoints/basicAuth/username/name
+        version: v1
+        kind: ServiceMonitor

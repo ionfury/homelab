@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: app
+spec:
+  maxHistory: 2
+  interval: 10m
+  install:
+    createNamespace: false
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  chart:
+    spec:
+      chart: ${HELM_CHART}
+      version: ${HELM_CHART_VERSION}
+      sourceRef:
+        kind: HelmRepository
+        name: app
+      interval: 10m
+  valuesFrom:
+    - kind: ConfigMap
+      name: values
+    - kind: Secret
+      name: secret-values
