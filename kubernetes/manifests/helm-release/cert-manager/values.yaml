@@ -9,4 +9,4 @@ prometheus:
     enabled: true
 webhook:
   networkPolicy:
-    enabled: true
+    enabled: false

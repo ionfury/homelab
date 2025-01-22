@@ -3,7 +3,7 @@
 namespace: cert-manager
 components:
   - ../../../manifests/common/resources/namespace
-  - ../.network-policies
+  #- ../.network-policies
 resources:
   - cert-manager.yaml
   #- issuers.yaml
