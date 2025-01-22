@@ -3,10 +3,10 @@
 spegel:
   appendMirrors: true
   containerdSock: /run/containerd/containerd.sock
-  containerdRegistryConfigPath: /etc/cri/conf.d/machines
+  containerdRegistryConfigPath: /etc/cri/conf.d/hosts
 service:
   registry:
-    machinePort: 29999
+    hostPort: 29999
 serviceMonitor:
   enabled: true
 grafanaDashboard:

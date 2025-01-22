@@ -21,6 +21,14 @@ inputs = {
   cilium_version     = "1.16.5"
   cilium_values      = file("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml")
 
+  cluster_extraManifests = [
+    # Prometheus manifests
+    "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-podmonitors.yaml",
+    "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-servicemonitors.yaml",
+    "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-probes.yaml",
+    "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-prometheusrules.yaml",
+  ]
+
   machine_kubelet_extraMounts = [
     # Support Longhorn: https://longhorn.io/docs/1.7.2/advanced-resources/os-distro-specific/talos-linux-support/#data-path-mounts
     {
