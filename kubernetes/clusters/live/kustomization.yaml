@@ -6,6 +6,7 @@ components:
   - ../../manifests/common/components/configurations/kustomization
   - ../../manifests/common/components/flux-kustomization-defaults
 resources:
+  - cert-manager
   - default
   - flux-system
   - kube-system
@@ -16,7 +17,6 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: flux-system
-
 configMapGenerator:
   - name: cluster-vars
     options:

@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namePrefix: cert-manager-
+resources:
+  - ../../common/resources/helm-release
+  - prometheus-rules.yaml
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |-
+      - op: replace
+        path: /spec/chart/spec/chart
+        value: cert-manager
+      - op: add
+        path: /spec/releaseName
+        value: cert-manager
+  - target:
+      kind: HelmRepository
+      name: app
+    patch: |-
+      - op: replace
+        path: /spec/url
+        value: https://charts.jetstack.io

@@ -1,0 +1,30 @@
+image:
+  repository: quay.io/jetstack/cert-manager-controller
+global:
+  leaderElection:
+    namespace: "${NAMESPACE:kube-system}"
+namespace: "${NAMESPACE:kube-system}"
+cert-manager:
+  deploymentAnnotations:
+    certmanager.k8s.io/disable-validation: "true"
+installCRDs: true
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+startupapicheck:
+  enabled: false
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
+webhook:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 100Mi
+cainjector:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 149Mi
