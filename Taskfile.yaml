@@ -5,6 +5,7 @@ includes:
   inventory: .taskfiles/inventory
   workstation: .taskfiles/workstation
   terragrunt: .taskfiles/terragrunt
+  kubernetes: .taskfiles/kubernetes
 
 tasks:
   default:

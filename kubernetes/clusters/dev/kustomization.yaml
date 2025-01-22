@@ -6,9 +6,7 @@ components:
   - ../../manifests/common/components/configurations/kustomization
   - ../../manifests/common/components/flux-kustomization-defaults
 resources:
-  - default
   - flux-system
-  - kube-system
 patches:
   - target:
       kind: Kustomization
@@ -16,7 +14,6 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: flux-system
-
 configMapGenerator:
   - name: cluster-vars
     options:
@@ -25,5 +22,3 @@ configMapGenerator:
     behavior: create
     envs:
       - cluster-vars.env
-
-

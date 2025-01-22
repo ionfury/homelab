@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  CLUSTER_DIR: '{{.ROOT_DIR}}/kubernetes/clusters'
+  MANIFESTS_DIR: '{{.ROOT_DIR}}/kubernetes/manifests'
+
+tasks:
+  validate-clusters:
+    desc: Validates all clusters.
+    silent: true
+    vars:
+      CLUSTERS:
+        sh: "ls -1 {{.CLUSTER_DIR}}"
+    cmds:
+      - for: { var: CLUSTERS }
+        task: validate-cluster-{{.ITEM}}
+
+  validate-cluster-*:
+    desc: Validates the cluster.
+    label: validate-cluster-{{.CLUSTER}}
+    vars:
+      CLUSTER: "{{ index .MATCH 0 }}"
+    cmds:
+      - task: kustomize-build
+        vars:
+          KUSTOMIZATION: "{{.CLUSTER_DIR}}/{{.CLUSTER}}"
+    sources:
+      - "{{.CLUSTER_DIR}}/{{.CLUSTER}}/**/*.yaml"
+      - "{{.MANIFESTS_DIR}}/**/*.yaml"
+    preconditions:
+      - which kustomize
+      - test -d "{{.CLUSTER_DIR}}/{{.CLUSTER}}"
+      - test -f "{{.CLUSTER_DIR}}/{{.CLUSTER}}/kustomization.yaml"
+
+  kustomize-build:
+    desc: Builds the kustomization.
+    internal: true
+    silent: true
+    requires:
+      vars: [KUSTOMIZATION]
+    cmds:
+      - kustomize build "{{.KUSTOMIZATION}}" > {{.ROOT_DIR}}/out.yaml 2> {{.ROOT_DIR}}/errors.log
+      - kubectl apply --dry-run=client -f {{.ROOT_DIR}}/out.yaml > /dev/null 2>> {{.ROOT_DIR}}/errors.log
+    generates:
+      - '{{.ROOT_DIR}}/out.yaml'
+      - '{{.ROOT_DIR}}/errors.log'

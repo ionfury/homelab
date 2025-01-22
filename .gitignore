@@ -25,6 +25,7 @@ tfplan
 .terragrunt-cache
 
 out.yaml
+errors.log
 krr.yaml
 
 .task
