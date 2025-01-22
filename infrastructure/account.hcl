@@ -15,7 +15,16 @@ locals {
   github_repository_path = "kubernetes/clusters"
   github_dev_token_path  = "/homelab/github/ionfury/homelab-flux-dev-token"
 
-  parameters = [local.unifi_username_store, local.unifi_password_store, local.github_dev_token_path]
+  external_secrets_id_store = "/homelab/kubernetes/live/external-secrets/id"
+  external_secrets_secret_store = "/homelab/kubernetes/live/external-secrets/secret"
+
+  parameters = [
+    local.unifi_username_store,
+    local.unifi_password_store,
+    local.github_dev_token_path,
+    local.external_secrets_id_store,
+    local.external_secrets_secret_store
+  ]
 
   unifi = {
     address        = "https://192.168.1.1"

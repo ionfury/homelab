@@ -10,6 +10,7 @@ resources:
   - default
   - flux-system
   - kube-system
+  - system
 patches:
   - target:
       kind: Kustomization
