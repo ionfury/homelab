@@ -2,6 +2,8 @@ global:
   leaderElection:
     namespace: "${NAMESPACE:kube-system}"
 namespace: "${NAMESPACE:kube-system}"
+networkPolicy:
+  enabled: true
 installCRDs: true
 prometheus:
   enabled: true
