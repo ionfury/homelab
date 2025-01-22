@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: spegel
+spec:
+  path: kubernetes/manifests/helm-release/spegel
+  dependsOn:
+    - name: cilium
+  postBuild:
+    substitute:
+      HELM_CHART_VERSION: v0.0.28
