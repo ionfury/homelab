@@ -1,4 +1,4 @@
-fullnameOverride: ingress-nginx-${INGRESS_CLASS:=internal}-
+fullnameOverride: ingress-nginx-${ingress_class:=internal}-
 controller:
   kind: Deployment
   replicaCount: 2
@@ -6,43 +6,59 @@ controller:
     rollingUpdate:
       maxUnavailable: 1
     type: RollingUpdate
+  service:
+    enable: true
+    appProtocol: false
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: &hostname ${domain}
+      lbipam.cilium.io/ips: ${ingress_ip}
+    enableHttp: false
+    enableHttps: true
   ingressClassResource:
-    name: ${INGRESS_CLASS:=internal}
-    default: true
-    controllerValue: k8s.io/${INGRESS_CLASS:=internal}
+    name: ${ingress_class:=internal}
+    default: ${default:=false}
+    controllerValue: k8s.io/${ingress_class:=internal}
   admissionWebhooks:
     enabled: true
     objectSelector:
       matchExpressions:
         - key: ingress-class
           operator: In
-          values: ["${INGRESS_CLASS:=internal}"]
+          values: ["${ingress_class:=internal}"]
   allowSnippetAnnotations: true
   config:
+    allow-snippet-annotations: true
+    annotations-risk-level: Critical
+    block-user-agents: "AdsBot-Google,Amazonbot,anthropic-ai,Applebot-Extended,Bytespider,CCBot,ChatGPT-User,ClaudeBot,Claude-Web,cohere-ai,Diffbot,FacebookBot,FriendlyCrawler,Google-Extended,GoogleOther,GPTBot,img2dataset,omgili,omgilibot,peer39_crawler,peer39_crawler/1.0,PerplexityBot,YouBot," # taken from https://github.com/ai-robots-txt/ai.robots.txt
     client-body-buffer-size: 100M
     client-body-timeout: 120
     client-header-timeout: 120
     enable-brotli: "true"
+    enable-ocsp: "true"
     enable-real-ip: "true"
+    force-ssl-redirect: "true"
+    hide-headers: Server,X-Powered-By
     hsts-max-age: 31449600
     keep-alive-requests: 10000
     keep-alive: 120
     log-format-escape-json: "true"
     log-format-upstream: >
-      {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x_forwarded_for": "$proxy_add_x_forwarded_for",
-      "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time,
-      "status": $status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args",
-      "request_length": $request_length, "duration": $request_time, "method": "$request_method", "http_referrer": "$http_referer",
+      {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr",
+      "x_forwarded_for": "$proxy_add_x_forwarded_for", "request_id": "$req_id",
+      "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time,
+      "status": $status, "vhost": "$host", "request_proto": "$server_protocol",
+      "path": "$uri", "request_query": "$args", "request_length": $request_length,
+      "duration": $request_time,"method": "$request_method", "http_referrer": "$http_referer",
       "http_user_agent": "$http_user_agent"}
     proxy-body-size: 0
     proxy-buffer-size: 16k
     ssl-protocols: TLSv1.3 TLSv1.2
-    use-geoip2: true
     use-forwarded-headers: "true"
   resources:
     requests:
       cpu: 100m
-      memory: 300Mi
+    limits:
+      memory: 500Mi
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -62,13 +78,6 @@ controller:
           - type: Pods
             value: 2
             periodSeconds: 60
-  service:
-    enable: true
-    appProtocol: false
-    annotations:
-      cloudprovider.harvesterhci.io/ipam: dhcp
-    enableHttp: false
-    enableHttps: true
   metrics:
     enabled: true
     serviceMonitor:
@@ -78,6 +87,7 @@ controller:
     prometheusRule:
       enabled: false # deployed in ingress-nginx-monitoring
   extraArgs:
-    default-ssl-certificate: network/default-tls
+    default-ssl-certificate: ${default_cert:=network/default-tls}
+    publish-status-address: *hostname
 defaultBackend:
   enabled: false
