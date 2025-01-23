@@ -30,3 +30,4 @@ patches:
       - op: add
         path: /spec/type
         value: oci
+

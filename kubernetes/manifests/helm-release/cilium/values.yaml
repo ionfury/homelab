@@ -2,7 +2,7 @@
 # https://docs.cilium.io/en/stable/network/kubernetes/configuration/#configmap-options
 ---
 autoDirectNodeRoutes: true
-ipv4NativeRoutingCIDR: ${cluster_pod_subnet}
+ipv4NativeRoutingCIDR: 172.16.0.0/16
 bandwidthManager:
   bbr: true
   enabled: true
@@ -17,8 +17,8 @@ cgroup:
 cni:
   exclusive: false # to run multus
 cluster:
-  id: ${cluster_id}
-  name: ${cluster_name}
+  id: 0
+  name: cluster
 kubeProxyReplacement: true
 enableIPv4BIGTCP: true
 endpointRoutes:

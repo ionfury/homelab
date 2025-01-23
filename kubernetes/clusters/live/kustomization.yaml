@@ -18,6 +18,7 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: flux-system
+
 configMapGenerator:
   - name: cluster-vars
     options:
@@ -26,5 +27,4 @@ configMapGenerator:
     behavior: create
     envs:
       - cluster-vars.env
-
 
