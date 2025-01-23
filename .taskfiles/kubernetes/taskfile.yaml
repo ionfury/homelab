@@ -8,6 +8,14 @@ vars:
   KUBERNETES_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/kubernetes/resources'
 
 tasks:
+  render:
+    desc: Renders all manifests.
+    silent: true
+    cmds:
+      - task: render-clusters
+      - task: render-helm-releases
+      - echo "✅ All manifests rendered."
+
   render-clusters:
     desc: Renders all clusters.
     silent: true
@@ -22,6 +30,7 @@ tasks:
   render-cluster-*:
     desc: Renders the cluster.
     label: render-cluster-{{.CLUSTER}}
+    silent: true
     vars:
       CLUSTER: "{{ index .MATCH 0 }}"
     cmds:
@@ -94,8 +103,8 @@ tasks:
 
   kustomize-render:
     desc: Validates the kustomization.
-    #internal: true
-    #silent: true
+    internal: true
+    silent: true
     label: kustomize-render-{{.KUSTOMIZATION}}
     requires:
       vars: [KUSTOMIZATION]

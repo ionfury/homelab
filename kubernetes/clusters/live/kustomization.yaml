@@ -10,6 +10,7 @@ resources:
   - default
   - flux-system
   - kube-system
+  - network
   - system
 patches:
   - target:

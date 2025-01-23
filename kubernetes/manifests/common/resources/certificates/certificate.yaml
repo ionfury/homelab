@@ -7,7 +7,7 @@ spec:
   issuerRef:
     name: cloudflare
     kind: ClusterIssuer
-  commonName: ${EXTERNAL_DOMAIN}
+  commonName: ${external_domain}
   dnsNames:
-    - ${EXTERNAL_DOMAIN}
-    - "*.${EXTERNAL_DOMAIN}"
+    - ${external_domain}
+    - "*.${external_domain}"
