@@ -25,7 +25,6 @@ controller:
         - key: ingress-class
           operator: In
           values: ["${ingress_class:=internal}"]
-  allowSnippetAnnotations: true
   config:
     allow-snippet-annotations: true
     annotations-risk-level: Critical
