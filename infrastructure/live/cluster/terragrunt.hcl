@@ -16,6 +16,7 @@ dependencies {
 }
 
 inputs = {
+  cluster_vip        = "192.168.10.69"
   talos_version      = "v1.9.2"
   kubernetes_version = "1.32.0"
   cilium_version     = "1.16.5"

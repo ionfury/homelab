@@ -6,5 +6,6 @@ namespace: kube-system
 components:
   - ../../../manifests/common/components/configurations/namespace
 resources:
+  - cilium-config.yaml
   - cilium.yaml
   - spegel.yaml
