@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namePrefix: ingress-nginx-${INGRESS_CLASS:=internal}-
+namePrefix: ingress-nginx-${ingress_class:=internal}-
 resources:
   - ../../common/resources/helm-release
 configMapGenerator:
@@ -19,7 +19,7 @@ patches:
         value: ingress-nginx
       - op: add
         path: /spec/releaseName
-        value: ingress-nginx-${INGRESS_CLASS:=internal}
+        value: ingress-nginx-${ingress_class:=internal}
   - target:
       kind: HelmRepository
       name: app
