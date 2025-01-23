@@ -10,7 +10,7 @@ controller:
     enable: true
     appProtocol: false
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: &hostname ${domain}
+      external-dns.alpha.kubernetes.io/hostname: ${domain}
       lbipam.cilium.io/ips: ${ingress_ip}
     enableHttp: false
     enableHttps: true
@@ -87,6 +87,5 @@ controller:
       enabled: false # deployed in ingress-nginx-monitoring
   extraArgs:
     default-ssl-certificate: ${default_cert:=network/default-tls}
-    publish-status-address: *hostname
 defaultBackend:
   enabled: false
