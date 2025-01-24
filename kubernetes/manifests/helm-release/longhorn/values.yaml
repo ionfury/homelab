@@ -1,0 +1,15 @@
+persistence:
+  defaultFsType: xfs
+  defaultClassReplicaCount: ${storage_replica_count:=1}
+defaultSettings:
+  defaultReplicaCount: ${storage_replica_count:=1}
+csi:
+  attacherReplicaCount: ${storage_replica_count:=1}
+  provisionerReplicaCount: ${storage_replica_count:=1}
+  resizerReplicaCount: ${storage_replica_count:=1}
+  snapshotterReplicaCount: ${storage_replica_count:=1}
+ingress:
+  enabled: true
+  ingressClassName: internal
+  tls: true
+  host: longhorn.${internal_domain}
