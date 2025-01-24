@@ -1,0 +1,9 @@
+originRequest:
+  originServerName: ${CLUSTER_NAME}.${EXTERNAL_DOMAIN}
+
+ingress:
+  - hostname: "${EXTERNAL_DOMAIN}"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+  - hostname: "*.${EXTERNAL_DOMAIN}"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+  - service: http_status:404

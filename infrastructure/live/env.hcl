@@ -3,6 +3,7 @@ locals {
 
   cluster_name     = "${basename(get_terragrunt_dir())}"
   cluster_endpoint = "${local.cluster_name}.k8s.${local.inventory_vars.locals.tld}"
+  tld = local.inventory_vars.locals.tld
 
   machines = tomap({
     for name, details in local.inventory_vars.locals.hosts :
