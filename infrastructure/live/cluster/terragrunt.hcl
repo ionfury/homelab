@@ -8,7 +8,7 @@ include "common" {
 }
 
 terraform {
-  source = "${include.common.locals.base_source_url}?ref=v0.23.0"
+  source = "${include.common.locals.base_source_url}?ref=v0.25.0"
 }
 
 dependencies {

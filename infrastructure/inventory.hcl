@@ -1,6 +1,21 @@
 locals {
   tld = "tomnowak.work"
 
+  createDefaultDiskLabel = {
+    key = "node.longhorn.io/create-default-disk"
+    value = "config"
+  }
+
+  defaultDiskConfigAnnotation = {
+    key = "node.longhorn.io/create-default-disk"
+    value = "'${jsonencode([{"path":"/var/lib/longhorn","allowScheduling":true,"tags":["fast","ssd","storage"]},{"name":"sdb","path":"/var/mnt/disk2","allowScheduling":true,"tags":["slow","hdd","storage"]}])}'"
+  }
+
+  defaultNodeTagsAnnotation = {
+    key = "node.longhorn.io/default-node-tags"
+    value = "'${jsonencode(["fast", "ssd", "storage"])}'"
+  }
+
   raspberry_pis = {
     pxeboot = {
       lan = {
@@ -18,11 +33,19 @@ locals {
     node2 = {
       cluster = "live"
       type   = "controlplane"
+      labels = [local.createDefaultDiskLabel]
+      annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
       install = {
         diskSelectors   = ["wwid: 'naa.600605b00bd543602f1ddabe07b64ec8'"] # RAID controller reports SSD as 'rotational'.  Reference this via wwid: talosctl --nodes 192.168.10.182 get disks --insecure sda -o yaml | yq '.spec.wwid'
         secureboot      = false
         wipe            = false
       }
+      disks = [{
+        device = "/dev/sdb"
+        partitions = [{
+          mountpoint = "/var/mnt/disk2"
+        }]
+      }]
       interfaces = [{
         hardwareAddr     = "0c:c4:7a:a4:f1:d2"
         addresses        = ["192.168.10.182"]
@@ -41,11 +64,14 @@ locals {
     node41 = {
       cluster = "live"
       type   = "controlplane"
+      labels = []
+      annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
         secureboot      = false
         wipe            = false
       }
+      disks = []
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:bf:ee"
         addresses        = ["192.168.10.253"]
@@ -64,11 +90,14 @@ locals {
     node42 = {
       cluster = "live"
       type   = "controlplane"
+      labels = []
+      annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
         secureboot      = false
         wipe            = false
       }
+      disks = []
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:bf:bc"
         addresses        = ["192.168.10.203"]
@@ -87,6 +116,8 @@ locals {
     node43 = {
       cluster = "none"
       type   = "controlplane"
+      labels = []
+      annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
         extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
@@ -94,6 +125,7 @@ locals {
         secureboot      = false
         wipe            = false
       }
+      disks = []
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:bb:c8"
         addresses        = ["192.168.10.201"]
@@ -112,6 +144,8 @@ locals {
     node44 = {
       cluster = "dev"
       type   = "controlplane"
+      labels = []
+      annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
         extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
@@ -119,6 +153,7 @@ locals {
         secureboot      = false
         wipe            = false
       }
+      disks = []
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:ba:1e"
         addresses        = ["192.168.10.218"]
@@ -137,6 +172,8 @@ locals {
     node45 = {
       cluster = "dev"
       type   = "controlplane"
+      labels = []
+      annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
         extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
@@ -144,6 +181,7 @@ locals {
         secureboot      = false
         wipe            = false
       }
+      disks = []
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:bf:ce"
         addresses        = ["192.168.10.222"]
@@ -162,6 +200,8 @@ locals {
     node46 = {
       cluster = "dev"
       type   = "controlplane"
+      labels = []
+      annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
         extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
@@ -169,6 +209,7 @@ locals {
         secureboot      = false
         wipe            = false
       }
+      disks = []
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:c0:22"
         addresses        = ["192.168.10.246"]
