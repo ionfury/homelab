@@ -10,7 +10,7 @@ resources:
   - default
   - flux-system
   - kube-system
-  - longhorn-system
+  #- longhorn-system
   - network
   - system
 patches:
