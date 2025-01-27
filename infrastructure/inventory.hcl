@@ -52,7 +52,7 @@ locals {
         dhcp_routeMetric = 50
         vlans = [{
           vlanId           = 10
-          addresses        = ["192.168.20.182"]
+          addresses        = ["192.168.20.182/24"]
           dhcp_routeMetric = 100
         }]
       }]
@@ -83,7 +83,7 @@ locals {
         dhcp_routeMetric = 50
         vlans = [{
           vlanId           = 10
-          addresses        = ["192.168.20.253"]
+          addresses        = ["192.168.20.253/24"]
           dhcp_routeMetric = 100
         }]
       }]
@@ -114,7 +114,7 @@ locals {
         dhcp_routeMetric = 50
         vlans = [{
           vlanId           = 10
-          addresses        = ["192.168.20.203"]
+          addresses        = ["192.168.20.203/24"]
           dhcp_routeMetric = 100
         }]
       }]
@@ -142,7 +142,7 @@ locals {
         dhcp_routeMetric = 50
         vlans = [{
           vlanId           = 10
-          addresses        = ["192.168.20.201"]
+          addresses        = ["192.168.20.201/24"]
           dhcp_routeMetric = 100
         }]
       }]
@@ -170,7 +170,7 @@ locals {
         dhcp_routeMetric = 50
         vlans = [{
           vlanId           = 10
-          addresses        = ["192.168.20.218"]
+          addresses        = ["192.168.20.218/24"]
           dhcp_routeMetric = 100
         }]
       }]
@@ -198,7 +198,7 @@ locals {
         dhcp_routeMetric = 50
         vlans = [{
           vlanId           = 10
-          addresses        = ["192.168.20.222"]
+          addresses        = ["192.168.20.222/24"]
           dhcp_routeMetric = 100
         }]
       }]
@@ -226,7 +226,7 @@ locals {
         dhcp_routeMetric = 50
         vlans = [{
           vlanId           = 10
-          addresses        = ["192.168.20.246"]
+          addresses        = ["192.168.20.246/24"]
           dhcp_routeMetric = 100
         }]
       }]
