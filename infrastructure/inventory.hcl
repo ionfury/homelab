@@ -8,12 +8,12 @@ locals {
 
   defaultDiskConfigAnnotation = {
     key = "node.longhorn.io/default-disks-config"
-    value = "'${jsonencode([{"path":"/var/lib/longhorn","allowScheduling":true,"tags":["fast","ssd","storage"]},{"name":"sdb","path":"/mnt/data/disk/02","allowScheduling":true,"tags":["slow","hdd","storage"]}])}'"
+    value = "'${jsonencode([{"name":"disk1","path":"/var/lib/longhorn","allowScheduling":true,"tags":["fast","ssd"]},{"name":"disk2","path":"/var/mnt/disk2","storageReserved":0,"allowScheduling":true,"tags":["slow","hdd"]}])}'"
   }
 
   defaultNodeTagsAnnotation = {
     key = "node.longhorn.io/default-node-tags"
-    value = "'${jsonencode(["fast", "ssd", "storage"])}'"
+    value = "'${jsonencode(["storage"])}'"
   }
 
   raspberry_pis = {
@@ -43,7 +43,7 @@ locals {
       disks = [{
         device = "/dev/sdb"
         partitions = [{
-          mountpoint = "/mnt/data/disk/02"
+          mountpoint = "/var/mnt/disk2"
         }]
       }]
       interfaces = [{
@@ -71,7 +71,12 @@ locals {
         secureboot      = false
         wipe            = false
       }
-      disks = []
+      disks = [{
+        device = "/dev/sdb"
+        partitions = [{
+          mountpoint = "/var/mnt/disk2"
+        }]
+      }]
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:bf:ee"
         addresses        = ["192.168.10.253"]
@@ -97,7 +102,12 @@ locals {
         secureboot      = false
         wipe            = false
       }
-      disks = []
+      disks = [{
+        device = "/dev/sdb"
+        partitions = [{
+          mountpoint = "/var/mnt/disk2"
+        }]
+      }]
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:bf:bc"
         addresses        = ["192.168.10.203"]

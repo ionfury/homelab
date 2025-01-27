@@ -41,6 +41,16 @@ inputs = {
         "rshared",
         "rw",
       ]
+    },
+    {
+      destination = "/var/mnt/disk2"
+      type = "bind"
+      source = "/var/mnt/disk2"
+      options = [
+        "bind",
+        "rshared",
+        "rw",
+      ]
     }
   ]
 
