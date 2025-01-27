@@ -3,6 +3,7 @@ persistence:
   defaultClassReplicaCount: ${storage_replica_count:=1}
 defaultSettings:
   defaultReplicaCount: ${storage_replica_count:=1}
+  createDefaultDiskLabeledNodes: true
 csi:
   attacherReplicaCount: ${storage_replica_count:=1}
   provisionerReplicaCount: ${storage_replica_count:=1}

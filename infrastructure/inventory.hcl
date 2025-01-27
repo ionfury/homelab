@@ -7,8 +7,8 @@ locals {
   }
 
   defaultDiskConfigAnnotation = {
-    key = "node.longhorn.io/create-default-disk"
-    value = "'${jsonencode([{"path":"/var/lib/longhorn","allowScheduling":true,"tags":["fast","ssd","storage"]},{"name":"sdb","path":"/var/mnt/disk2","allowScheduling":true,"tags":["slow","hdd","storage"]}])}'"
+    key = "node.longhorn.io/default-disks-config"
+    value = "'${jsonencode([{"path":"/var/lib/longhorn","allowScheduling":true,"tags":["fast","ssd","storage"]},{"name":"sdb","path":"/mnt/data/disk/02","allowScheduling":true,"tags":["slow","hdd","storage"]}])}'"
   }
 
   defaultNodeTagsAnnotation = {
@@ -36,14 +36,14 @@ locals {
       labels = [local.createDefaultDiskLabel]
       annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
       install = {
-        diskSelectors   = ["wwid: 'naa.600605b00bd543602f1ddabe07b64ec8'"] # RAID controller reports SSD as 'rotational'.  Reference this via wwid: talosctl --nodes 192.168.10.182 get disks --insecure sda -o yaml | yq '.spec.wwid'
+        diskSelectors   = [] # RAID controller reports SSD as 'rotational'.  Reference this via wwid: talosctl --nodes 192.168.10.182 get disks --insecure sda -o yaml | yq '.spec.wwid'
         secureboot      = false
         wipe            = false
       }
       disks = [{
         device = "/dev/sdb"
         partitions = [{
-          mountpoint = "/var/mnt/disk2"
+          mountpoint = "/mnt/data/disk/02"
         }]
       }]
       interfaces = [{
@@ -64,8 +64,8 @@ locals {
     node41 = {
       cluster = "live"
       type   = "controlplane"
-      labels = []
-      annotations = []
+      labels = [local.createDefaultDiskLabel]
+      annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
       install = {
         diskSelectors   = ["type: 'ssd'"]
         secureboot      = false
@@ -90,8 +90,8 @@ locals {
     node42 = {
       cluster = "live"
       type   = "controlplane"
-      labels = []
-      annotations = []
+      labels = [local.createDefaultDiskLabel]
+      annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
       install = {
         diskSelectors   = ["type: 'ssd'"]
         secureboot      = false
