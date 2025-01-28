@@ -6,8 +6,7 @@ metadata:
 spec:
   path: kubernetes/manifests/helm-release/grafana-minio-tenant
   dependsOn:
-    - name: minio-operator-app
-      namespace: system
+    - name: minio-operator
   postBuild:
     substitute:
       HELM_CHART_VERSION: 7.x
