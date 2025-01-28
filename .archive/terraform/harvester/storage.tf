@@ -40,7 +40,7 @@ resource "harvester_storageclass" "storage_backup" {
 
 resource "kubectl_manifest" "daily_longhorn_snapshot" {
   yaml_body = <<YAML
-apiVersion: longhorn.io/v1beta2
+"3"aapiVersion: longhorn.io/v1beta1
 kind: RecurringJob
 metadata:
   name: daily-snapshot
@@ -59,7 +59,7 @@ YAML
 
 resource "kubectl_manifest" "weekly_longhorn_backup" {
   yaml_body = <<YAML
-apiVersion: longhorn.io/v1beta2
+"3"aapiVersion: longhorn.io/v1beta1
 kind: RecurringJob
 metadata:
   name: weekly-backup

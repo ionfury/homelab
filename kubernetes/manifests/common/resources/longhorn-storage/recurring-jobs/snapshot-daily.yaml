@@ -1,10 +1,10 @@
 ---
-apiVersion: longhorn.io/v1beta2
+apiVersion: longhorn.io/v1beta1
 kind: RecurringJob
 metadata:
   name: &name snapshot-daily
 spec:
-  cron: "0 4 * * *"
+  cron: "@daily"
   task: snapshot
   groups:
     - *name
