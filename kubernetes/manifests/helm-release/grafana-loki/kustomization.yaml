@@ -25,14 +25,14 @@ patches:
         value:
           targetPath: loki.storage.s3.accessKeyId
           kind: Secret
-          name: grafana-minio-tenant-root
+          name: grafana-minio-tenant-root-generated
           valuesKey: accessKey
       - op: add
         path: /spec/valuesFrom/-
         value:
           targetPath: loki.storage.s3.secretAccessKey
           kind: Secret
-          name: grafana-minio-tenant-root
+          name: grafana-minio-tenant-root-generated
           valuesKey: secretKey
   - target:
       kind: HelmRepository
