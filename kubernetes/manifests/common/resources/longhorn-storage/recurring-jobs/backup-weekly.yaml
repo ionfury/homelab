@@ -1,5 +1,5 @@
 ---
-piVersion: longhorn.io/v1beta1
+apiVersion: longhorn.io/v1beta1
 kind: RecurringJob
 metadata:
   name: &name backup-weekly
@@ -7,7 +7,7 @@ spec:
   cron: "@weekly"
   task: snapshot
   groups:
-  - *name
+    - *name
   retain: 3
   concurrency: 5
   labels:
