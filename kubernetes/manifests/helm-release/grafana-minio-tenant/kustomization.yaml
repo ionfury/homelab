@@ -11,7 +11,7 @@ configMapGenerator:
     files:
       - values.yaml
 secretGenerator:
-  - name: root
+  - name: root-generated
     options:
       disableNameSuffixHash: true
       annotations:
