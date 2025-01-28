@@ -6,7 +6,10 @@ metadata:
 spec:
   path: kubernetes/manifests/helm-release/grafana-k8s-monitoring
   dependsOn:
+    - name: grafana-tempo
+    - name: grafana-pyroscope
     - name: grafana-mimir
+    - name: grafana-loki
   postBuild:
     substitute:
       HELM_CHART_VERSION: 2.x
