@@ -28,6 +28,20 @@ patches:
       - op: add
         path: /spec/releaseName
         value: grafana-minio-tenant
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: tenant.configSecret.accessKey
+          kind: Secret
+          name: root-generated
+          valuesKey: accessKey
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: tenant.configSecret.secretKey
+          kind: Secret
+          name: root-generated
+          valuesKey: secretKey
   - target:
       kind: HelmRepository
       name: app

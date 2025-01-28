@@ -2,7 +2,7 @@ tenant:
   name: grafana-minio
   configSecret:
     name: grafana-minio-tenant-root
-    existingSecret: true
+    #existingSecret: true
   pools:
     - name: grafana-pool
       servers: 2
