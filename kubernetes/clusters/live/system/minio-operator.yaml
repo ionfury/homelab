@@ -6,4 +6,4 @@ spec:
   path: kubernetes/manifests/helm-release/minio-operator
   postBuild:
     substitute:
-      HELM_CHART_VERSION: 4.3.7
+      HELM_CHART_VERSION: 7.0.0
