@@ -4,7 +4,7 @@ kind: RecurringJob
 metadata:
   name: &name backup-weekly
 spec:
-  cron: "@weekly"
+  cron: "0 0 * * Sun"
   task: snapshot
   groups:
     - *name

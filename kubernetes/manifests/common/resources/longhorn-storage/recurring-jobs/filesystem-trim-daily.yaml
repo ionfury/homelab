@@ -4,7 +4,7 @@ metadata:
   name: &name filesystem-trim-daily
 spec:
   name: trim
-  cron: '@daily'
+  cron: "0 4 * * *"
   task: filesystem-trim
   concurrency: 1
   groups:
