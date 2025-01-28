@@ -11,6 +11,7 @@ resources:
   - flux-system
   - kube-system
   - longhorn-system
+  - monitoring
   - network
   - system
 patches:

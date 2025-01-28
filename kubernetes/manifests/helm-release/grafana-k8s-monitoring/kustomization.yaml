@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namePrefix: external-secrets-
+namePrefix: grafana-k8s-monitoring-
 resources:
   - ../../common/resources/helm-release
 configMapGenerator:
@@ -16,14 +16,14 @@ patches:
     patch: |-
       - op: replace
         path: /spec/chart/spec/chart
-        value: external-secrets
+        value: k8s-monitoring
       - op: add
         path: /spec/releaseName
-        value: external-secrets
+        value: grafana-k8s-monitoring
   - target:
       kind: HelmRepository
       name: app
     patch: |-
       - op: replace
         path: /spec/url
-        value: https://charts.external-secrets.io
+        value: https://grafana.github.io/helm-charts

@@ -1,0 +1,50 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namePrefix: grafana-minio-tenant-
+resources:
+  - ../../common/resources/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+secretGenerator:
+  - name: root
+    options:
+      annotations:
+        secret-generator.v1.mittwald.de/autogenerate: accessKey,secretKey
+        secret-generator.v1.mittwald.de/encoding: base64url
+        secret-generator.v1.mittwald.de/length: "32"
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |-
+      - op: replace
+        path: /spec/chart/spec/chart
+        value: tenant
+      - op: add
+        path: /spec/releaseName
+        value: grafana-minio-tenant
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: tenant.configSecret.accessKey
+          kind: Secret
+          name: root
+          valuesKey: accessKey
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: tenant.configSecret.secretKey
+          kind: Secret
+          name: root
+          valuesKey: secretKey
+  - target:
+      kind: HelmRepository
+      name: app
+    patch: |-
+      - op: replace
+        path: /spec/url
+        value: https://operator.min.io/

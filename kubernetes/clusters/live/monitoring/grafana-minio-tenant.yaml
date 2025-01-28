@@ -1,0 +1,11 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: grafana-minio-tenant
+spec:
+  path: kubernetes/manifests/helm-release/grafana-minio-tenant
+  postBuild:
+    substitute:
+      HELM_CHART_VERSION: 7.0.0
+

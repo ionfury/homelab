@@ -1,0 +1,9 @@
+nameReference:
+  - kind: Secret
+    fieldSpecs:
+      - path: spec/configuration/name
+        kind: Tenant
+  - kind: Tenant
+    fieldSpecs:
+      - path: spec/configuration/name
+        kind: Secret

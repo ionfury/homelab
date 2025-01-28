@@ -1,0 +1,66 @@
+---
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: grafana-mimir
+  labels:
+    app: grafana-mimir-tenant
+  annotations:
+    prometheus.io/path: /minio/v2/metrics/cluster
+    prometheus.io/port: "9000"
+    prometheus.io/scrape: "true"
+    prometheus.io/scheme: "http"
+spec:
+  image: "quay.io/minio/minio:RELEASE.2024-11-07T00-52-20Z"
+  imagePullPolicy: IfNotPresent
+  configuration:
+    name: tenant-secret
+  pools:
+    - servers: 2
+      name: mimir-pool
+      volumesPerServer: 2
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          storageClassName: fast-unmanaged
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: ${size:=20Gi}
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+  mountPath: /export
+  subPath: /data
+  requestAutoCert: false
+  features:
+    bucketDNS: false
+    enableSFTP: false
+  buckets:
+    - name: mimir-ruler
+    - name: mimir-blocks
+    - name: mimir-alertmanager
+  podManagementPolicy: Parallel
+  prometheusOperator:
+    labels:
+      app: grafana-mimir-tenant
+  env:
+    - name: MINIO_STORAGE_CLASS_STANDARD
+      value: EC:1
+    - name: MINIO_STORAGE_CLASS_RRS
+      value: EC:0

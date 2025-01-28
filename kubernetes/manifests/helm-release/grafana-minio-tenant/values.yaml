@@ -1,0 +1,45 @@
+tenant:
+  name: grafana-minio
+  pools:
+    - name: grafana-pool
+      servers: 2
+      volumesPerServer: 2
+      size: ${size:=20Gi}
+      storageClassName: fast-unmanaged
+      runtimeClassName: ""
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        runAsNonRoot: true
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+  buckets:
+    - name: mimir-ruler
+    - name: mimir-blocks
+    - name: mimir-alertmanager
+    - name: loki-ruler
+    - name: loki-chunks
+    - name: loki-admin
+    - name: pyroscope-data
+    - name: tempo-traces
+  metrics:
+    enabled: true
+    port: 9000
+    protocol: http
+  certificate:
+    requestAutoCert: false
+  env:
+    - name: MINIO_STORAGE_CLASS_STANDARD
+      value: EC:1
+    - name: MINIO_STORAGE_CLASS_RRS
+      value: EC:0
