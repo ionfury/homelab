@@ -60,8 +60,8 @@ tasks:
 
   render-helm-release-*:
     desc: Renders the Helm release.
-    internal: true
-    silent: true
+    #internal: true
+    silent: false
     label: render-helm-release-{{.RELEASE}}
     vars:
       RELEASE: "{{ index .MATCH 0 }}"
@@ -75,7 +75,7 @@ tasks:
     dotenv: [ '{{.CLUSTER_DIR}}/{{.CLUSTER_CONTEXT}}/cluster-vars.env' ]
     env:
       HELM_CHART_VERSION:
-        sh: 'cat $(grep -rl "path: {{.RELATIVE_RELEASE_DIR}}" "{{.CLUSTER_DIR}}" | grep -v "kustomize.yaml") | yq ".spec.postBuild.substitute.HELM_CHART_VERSION"'
+        sh: 'cat $(grep -rl "path: {{.RELATIVE_RELEASE_DIR}}" "{{.CLUSTER_DIR}}" | grep -v "kustomize.yaml") | yq "select(.metadata.name == \"{{.RELEASE}}\") | .spec.postBuild.substitute.HELM_CHART_VERSION"'
     cmds:
       - defer: '[ ! -s {{.ERRORS}} ] && echo "✅ {{.RELEASE_DIR}} >> {{.OUTPUT_DIR}}" || echo "❌ {{.RELEASE_DIR}} >> {{.ERRORS}}"'
       - defer: sed -i '' '/Pulled:/d;/Digest:/d' "{{.ERRORS}}"
@@ -104,7 +104,7 @@ tasks:
   kustomize-render:
     desc: Validates the kustomization.
     internal: true
-    #silent: true
+    silent: true
     label: kustomize-render-{{.KUSTOMIZATION}}
     requires:
       vars: [KUSTOMIZATION]

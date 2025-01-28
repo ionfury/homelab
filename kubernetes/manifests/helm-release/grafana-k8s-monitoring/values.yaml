@@ -1,0 +1,55 @@
+cluster:
+  name: ${cluster_name:=default}
+destinations:
+  - name: local_mimir
+    type: prometheus
+    url: http://mimir-gateway.${NAMESPACE:=monitoring}.svc.cluster.local:9090/api/v1/push
+  - name: local_loki
+    type: loki
+    url: http://loki-gateway.${NAMESPACE:=monitoring}.svc.cluster.local:9090/api/v1/push
+  - name: local_pyroscope
+    type: pyroscope
+    url: http://pyroscope-distributor.${NAMESPACE:=monitoring}.svc.cluster.local:4040
+  - name: local_tempo
+    type: otlp
+    url: http://tempo-distributor.${NAMESPACE:=monitoring}.svc.cluster.local
+    metrics: { enabled: true }
+    logs:    { enabled: true }
+    traces:  { enabled: true }
+#profiles:
+#  enabled: true
+#traces:
+#  enabled: true
+#prometheus-operator-crds:
+#  enabled: true
+#metrics:
+#  apiserver:
+#    enabled: true
+#  kubeControllerManager:
+#    enabled: true
+#  kubeProxy:
+#    enabled: true
+#  kubeScheduler:
+#    enabled: true
+#autoDiscover:
+#  extraRelabelingRules: |
+#    rule {
+#      source_labels = [
+#        "__meta_kubernetes_pod_label_app",
+#        "__meta_kubernetes_pod_label_k8s_app",
+#        "__meta_kubernetes_service_label_app",
+#        "__meta_kubernetes_service_label_k8s_app",
+#        "__meta_kubernetes_endpoints_label_app",
+#        "__meta_kubernetes_endpoints_label_k8s_app",
+#      ]
+#      action = "replace"
+#      target_label = "app"
+#      separator = ""
+#    }
+#opencost:
+#  enabled: false
+#alloy:
+#  alloy:
+#    clustering:
+#      enabled: true
+#extraConfig:

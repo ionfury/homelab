@@ -13,6 +13,7 @@ configMapGenerator:
 secretGenerator:
   - name: root
     options:
+      disableNameSuffixHash: true
       annotations:
         secret-generator.v1.mittwald.de/autogenerate: accessKey,secretKey
         secret-generator.v1.mittwald.de/encoding: base64url

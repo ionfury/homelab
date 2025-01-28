@@ -1,0 +1,123 @@
+grafana.ini:
+  auth:
+    disable_login_form: true
+  auth.anonymous:
+    enabled: true
+    org_role: Admin
+  auth.basic:
+    enabled: false
+  analytics:
+    check_for_updates: false
+  panels:
+    disable_sanitize_html: true
+  log:
+    mode: console
+  log.console:
+    format: text
+    level: info
+  tracing.opentelemetry.otlp:
+    address: "tempo-distributor.${NAMESPACE:=monitoring}.svc.cluster.local:4317"
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Mimir
+        type: prometheus
+        uid: mimir
+        access: proxy
+        url: http://mimir-gateway.${NAMESPACE:=monitoring}.svc.cluster.local:80/prometheus
+        # Hassle: You should not define multiple `isDefault` data sources.
+        # This might be self-explanatory, but combined with automatic Flux deployments, it's not
+        # very easy to debug
+        isDefault: true
+        jsonData:
+          timeInterval: "60s"
+          manageAlerts: true
+          prometheusType: Mimir
+          exemplarTraceIdDestinations:
+            - datasourceUid: tempo
+              name: traceID
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        access: proxy
+        url: http://tempo-query-frontend.${NAMESPACE:=monitoring}.svc.cluster.local:3100
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: loki
+            spanStartTimeShift: '-2m'
+            spanEndTimeShift: '2m'
+            filterByTraceID: true
+          tracesToMetrics:
+            datasourceUid: mimir
+          tracesToProfiles:
+            datasourceUid: pyroscope
+            profileTypeId: 'process_cpu-cpu'
+          serviceMap:
+            datasourceUid: mimir
+          nodeGraph:
+            enabled: true
+      - name: Loki
+        type: loki
+        uid: loki
+        access: proxy
+        url: http://loki-gateway.${NAMESPACE:=monitoring}.svc.cluster.local:80
+        jsonData:
+          derivedFields:
+            - name: TraceID
+              # Hassle: This has to point to the data source UID of the tracing data source, which
+              # is not immediately clear from the documentation
+              datasourceUid: tempo
+              matcherRegex: "traceID=(\\w+)"
+              url: "$${__value.raw}"
+              urlDisplayLabel: "View Trace"
+      - name: Pyroscope
+        type: grafana-pyroscope-datasource
+        uid: pyroscope
+        url: http://pyroscope-query-frontend.${NAMESPACE:=monitoring}.svc.cluster.local:4040
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: "default"
+        orgId: 1
+        folder: ""
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+    # Modern k8s dashboards
+    global:
+      gnetId: 15757
+      revision: 37
+      datasource: mimir
+    pods:
+      gnetId: 15760
+      revision: 28
+      datasource: mimir
+    namespaces:
+      gnetId: 15758
+      revision: 35
+      datasource: mimir
+    coredns:
+      gnetId: 15762
+      revision: 18
+      datasource: mimir
+    apiserver:
+      gnetId: 15761
+      revision: 17
+      datasource: mimir
+    nodes:
+      gnetId: 15759
+      revision: 29
+      datasource: mimir
+    prometheus:
+      gnetId: 19105
+      revision: 3
+      datasource: mimir

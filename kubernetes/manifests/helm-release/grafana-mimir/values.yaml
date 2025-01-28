@@ -1,0 +1,24 @@
+nginx:
+  enabled: false
+minio:
+  enabled: false
+runtimeConfig:
+  ingester_limits:
+    max_series: 1000000
+mimir:
+  structuredConfig:
+    common:
+      storage:
+        backend: s3
+        s3:
+          endpoint: minio.${NAMESPACE:=monitoring}.svc
+          insecure: true
+    alertmanager_storage:
+      s3:
+        bucket_name: mimir-ruler
+    blocks_storage:
+      s3:
+        bucket_name: mimir-blocks
+    ruler_storage:
+      s3:
+        bucket_name: mimir-ruler

@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: grafana-mimir
+spec:
+  path: kubernetes/manifests/helm-release/grafana-mimir
+  dependsOn:
+    - name: grafana-minio-tenant
+  postBuild:
+    substitute:
+      HELM_CHART_VERSION: 5.x

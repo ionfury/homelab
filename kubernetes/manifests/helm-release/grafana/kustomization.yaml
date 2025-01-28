@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namePrefix: grafana-tempo-
+namePrefix: grafana-
 resources:
   - ../../common/resources/helm-release
 configMapGenerator:
@@ -16,24 +16,10 @@ patches:
     patch: |-
       - op: replace
         path: /spec/chart/spec/chart
-        value: tempo-distributed
+        value: grafana
       - op: add
         path: /spec/releaseName
-        value: grafana-tempo
-      - op: add
-        path: /spec/valuesFrom/-
-        value:
-          targetPath: storage.trace.s3.access_key
-          kind: Secret
-          name: grafana-minio-tenant-root
-          valuesKey: accessKey
-      - op: add
-        path: /spec/valuesFrom/-
-        value:
-          targetPath: storage.trace.s3.secret_key
-          kind: Secret
-          name: grafana-minio-tenant-root
-          valuesKey: secretKey
+        value: grafana
   - target:
       kind: HelmRepository
       name: app

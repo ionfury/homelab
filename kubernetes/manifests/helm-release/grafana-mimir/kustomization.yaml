@@ -7,19 +7,11 @@ components:
   - ../../common/components/configurations/minio-tenant
 resources:
   - ../../common/resources/helm-release
-  - minio-tenant.yaml
 configMapGenerator:
   - name: values
     behavior: replace
     files:
       - values.yaml
-secretGenerator:
-  - name: tenant-secret
-    options:
-      annotations:
-        secret-generator.v1.mittwald.de/autogenerate: MINIO_ROOT_USER,MINIO_ROOT_PASSWORD
-        secret-generator.v1.mittwald.de/encoding: base64url
-        secret-generator.v1.mittwald.de/length: "32"
 patches:
   - target:
       kind: HelmRelease
@@ -30,6 +22,20 @@ patches:
       - op: add
         path: /spec/releaseName
         value: grafana-mimir
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: mimir.structuredConfig.common.storage.s3.access_key_id
+          kind: Secret
+          name: grafana-minio-tenant-root
+          valuesKey: accessKey
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: mimir.structuredConfig.common.storage.s3.secret_access_key
+          kind: Secret
+          name: grafana-minio-tenant-root
+          valuesKey: secretKey
   - target:
       kind: HelmRepository
       name: app

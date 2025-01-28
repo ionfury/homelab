@@ -1,5 +1,0 @@
-nameReference:
-  - kind: Secret
-    fieldSpecs:
-      - path: spec/configuration/name
-        kind: Tenant

@@ -13,7 +13,10 @@ chart=$(echo "$kustomize" | yq 'select(.kind == "HelmRelease") | .spec.chart.spe
 version=$(echo "$kustomize" | yq 'select(.kind == "HelmRelease") | .spec.chart.spec.version')
 
 if [ $oci == "oci" ]; then
+  echo Building OCI...
   helm template $chart $url/$chart --version $version --values $values --output-dir $outdir
 else
+  echo Building Helm Chart...
+  echo helm template $chart --repo $url --version $version --values $values --output-dir $outdir
   helm template $chart --repo $url --version $version --values $values --output-dir $outdir
 fi
