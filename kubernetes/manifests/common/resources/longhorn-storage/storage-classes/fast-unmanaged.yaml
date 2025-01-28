@@ -1,0 +1,15 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: fast-unmanaged
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  numberOfReplicas: "1"
+  fsType: xfs
+  staleReplicaTimeout: "30"
+  dataLocality: disabled
+  diskSelector: fast

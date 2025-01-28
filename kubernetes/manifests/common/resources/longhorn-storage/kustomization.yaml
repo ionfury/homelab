@@ -9,5 +9,7 @@ resources:
   - recurring-jobs/filesystem-trim-daily.yaml
   - storage-classes/fast-critical.yaml
   - storage-classes/fast.yaml
+  - storage-classes/fast-unmanaged.yaml
   - storage-classes/slow-critical.yaml
   - storage-classes/slow.yaml
+  - storage-classes/slow-unmanaged.yaml
