@@ -7,4 +7,5 @@ namespace: longhorn-system
 #  - ../.network-policies
 resources:
   - ../../../manifests/common/resources/namespace
+  - longhorn-storage.yaml
   - longhorn.yaml
