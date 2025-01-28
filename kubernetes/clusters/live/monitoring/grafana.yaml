@@ -7,7 +7,6 @@ spec:
   path: kubernetes/manifests/helm-release/grafana
   dependsOn:
     - name: grafana-tempo
-    - name: grafana-pyroscope
     - name: grafana-mimir
     - name: grafana-loki
     - name: grafana-k8s-monitoring

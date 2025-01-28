@@ -7,9 +7,9 @@ destinations:
   - name: local_loki
     type: loki
     url: http://loki-gateway.${NAMESPACE:=monitoring}.svc.cluster.local:9090/api/v1/push
-  - name: local_pyroscope
-    type: pyroscope
-    url: http://pyroscope-distributor.${NAMESPACE:=monitoring}.svc.cluster.local:4040
+ # - name: local_pyroscope
+ #   type: pyroscope
+ #   url: http://pyroscope-distributor.${NAMESPACE:=monitoring}.svc.cluster.local:4040
   - name: local_tempo
     type: otlp
     url: http://tempo-distributor.${NAMESPACE:=monitoring}.svc.cluster.local
