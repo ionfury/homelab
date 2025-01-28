@@ -10,6 +10,6 @@ resources:
   - grafana-loki.yaml
   - grafana-mimir.yaml
   - grafana-minio-tenant.yaml
-  - grafana-pyroscope.yaml
+ #- grafana-pyroscope.yaml
   - grafana-tempo.yaml
   - grafana.yaml
