@@ -1,0 +1,39 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/alertmanagerconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: alertmanager
+spec:
+  route:
+    groupBy: ["alertname", "job"]
+    groupInterval: 10m
+    groupWait: 1m
+    receiver: pushover
+    repeatInterval: 12h
+    routes:
+      - receiver: "null"
+  inhibitRules:
+    - equal: ["alertname", "namespace"]
+      sourceMatch:
+        - name: severity
+          value: critical
+          matchType: =
+      targetMatch:
+        - name: severity
+          value: warning
+          matchType: =
+  receivers:
+    - name: "null"
+   # - name: heartbeat
+   #   webhookConfigs:
+   #     - urlSecret:
+   #         name: &secret alertmanager-secret
+   #         key: ALERTMANAGER_HEARTBEAT_URL
+   # - name: discord
+   #   discordConfigs:
+   #     - webhookURLSecret:
+   #         name: &secret alertmanager-secret
+   #         key: ALERTMANAGER_DISCORD_WEBHOOK
+   #         text: '{{ template "discord.text" . }}'
+   #         title: '{{ template "discord.title" . }}'

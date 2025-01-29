@@ -5,6 +5,7 @@ kind: Kustomization
 namePrefix: kube-prometheus-stack-
 resources:
   - ../../common/resources/helm-release
+  - alertmanager-config.yaml
 configMapGenerator:
   - name: values
     behavior: replace
