@@ -11,7 +11,7 @@ alertmanager:
   alertmanagerSpec:
     replicas: 1
     alertmanagerConfiguration:
-      name: alertmanager
+      name: kube-prometheus-stack-alertmanager
       global:
         resolveTimeout: 5m
     externalUrl: https://alertmanager.${external_domain}
