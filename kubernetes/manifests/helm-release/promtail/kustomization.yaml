@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namePrefix: promtail-
+resources:
+  - ../../common/resources/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |-
+      - op: replace
+        path: /spec/chart/spec/chart
+        value: promtail
+      - op: add
+        path: /spec/releaseName
+        value: promtail
+  - target:
+      kind: HelmRepository
+      name: app
+    patch: |-
+      - op: replace
+        path: /spec/url
+        value: https://grafana.github.io/helm-charts

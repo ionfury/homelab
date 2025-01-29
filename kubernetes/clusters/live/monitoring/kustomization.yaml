@@ -7,11 +7,12 @@ resources:
   - ../../../manifests/common/resources/namespace
 
   - grafana-loki-single-binary.yaml
+  - promtail.yaml
 
   #- grafana-k8s-monitoring.yaml
   #- grafana-loki.yaml
   #- grafana-mimir.yaml
   #- grafana-minio-tenant.yaml
- #- grafana-pyroscope.yaml
+  #- grafana-pyroscope.yaml
   #- grafana-tempo.yaml
- # - grafana.yaml
+  # - grafana.yaml
