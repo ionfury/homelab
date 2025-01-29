@@ -45,6 +45,8 @@ prometheus:
     hosts: ["prometheus.${internal_domain}"]
     pathType: Prefix
   prometheusSpec:
+    externalLabels:
+      prometheus_source: ${cluster_name}
     podMonitorSelectorNilUsesHelmValues: false
     probeSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
