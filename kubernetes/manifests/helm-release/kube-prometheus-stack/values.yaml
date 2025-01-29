@@ -6,7 +6,7 @@ alertmanager:
   ingress:
     enabled: true
     ingressClassName: internal
-    hosts: ["alertmanager${INTERNAL_DOMAIN}"]
+    hosts: ["alertmanager.${internal_domain}"]
     pathType: Prefix
   alertmanagerSpec:
     replicas: 1
