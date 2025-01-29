@@ -7,6 +7,8 @@ resources:
   - ../../../manifests/common/resources/namespace
 
   - grafana-loki-single-binary.yaml
+  - kube-prometheus-stack-crds.yaml
+  - kube-prometheus-stack.yaml
   - promtail.yaml
 
   #- grafana-k8s-monitoring.yaml

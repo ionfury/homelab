@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namePrefix: grafana-loki-
+namePrefix: grafana-loki-simple-scalable-
 resources:
   - ../../common/resources/helm-release
 configMapGenerator:
@@ -19,7 +19,7 @@ patches:
         value: loki
       - op: add
         path: /spec/releaseName
-        value: grafana-loki
+        value: grafana-loki-simple-scalable
       - op: add
         path: /spec/valuesFrom/-
         value:

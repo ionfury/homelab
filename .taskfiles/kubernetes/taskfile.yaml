@@ -61,7 +61,7 @@ tasks:
   render-helm-release-*:
     desc: Renders the Helm release.
     #internal: true
-    silent: false
+    silent: true
     label: render-helm-release-{{.RELEASE}}
     vars:
       RELEASE: "{{ index .MATCH 0 }}"
