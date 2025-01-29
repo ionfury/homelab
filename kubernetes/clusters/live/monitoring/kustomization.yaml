@@ -6,6 +6,8 @@ namespace: monitoring
 resources:
   - ../../../manifests/common/resources/namespace
 
+  - grafana-loki-single-binary.yaml
+
   #- grafana-k8s-monitoring.yaml
   #- grafana-loki.yaml
   #- grafana-mimir.yaml
