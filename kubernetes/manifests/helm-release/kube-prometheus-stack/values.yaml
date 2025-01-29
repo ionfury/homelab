@@ -14,7 +14,7 @@ alertmanager:
       name: alertmanager
       global:
         resolveTimeout: 5m
-    externalUrl: https://alertmanager.${EXTERNAL_DOMAIN}
+    externalUrl: https://alertmanager.${external_domain}
     storage:
       volumeClaimTemplate:
         spec:
@@ -42,7 +42,7 @@ prometheus:
   ingress:
     enabled: true
     ingressClassName: internal
-    hosts: ["prometheus.${INTERNAL_DOMAIN}"]
+    hosts: ["prometheus.${internal_domain}"]
     pathType: Prefix
   prometheusSpec:
     podMonitorSelectorNilUsesHelmValues: false
