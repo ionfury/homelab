@@ -6,6 +6,7 @@ namespace: monitoring
 resources:
   - ../../../manifests/common/resources/namespace
 
+  - grafana.yaml
   - grafana-loki-single-binary.yaml
   - kube-prometheus-stack-crds.yaml
   - kube-prometheus-stack.yaml
