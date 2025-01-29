@@ -1,5 +1,7 @@
 deploymentMode: SimpleScalable
 loki:
+  podAnnotations:
+    reloader.stakater.com/auto: "true"
   auth_enabled: false
   schemaConfig:
     configs:
