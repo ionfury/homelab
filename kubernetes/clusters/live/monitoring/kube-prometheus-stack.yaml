@@ -6,7 +6,7 @@ metadata:
 spec:
   path: kubernetes/manifests/helm-release/kube-prometheus-stack
   dependsOn:
-    - kube-prometheus-stack-crds
+    - name: kube-prometheus-stack-crds
   postBuild:
     substitute:
       HELM_CHART_VERSION: 68.3.3
