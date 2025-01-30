@@ -5,6 +5,8 @@ kind: Kustomization
 namePrefix: prometheus-ipmi-exporter-supermicro-${machine:=node}-
 resources:
   - ../../common/resources/helm-release
+  - external-secret.yaml
+  - service-monitor.yaml
 configMapGenerator:
   - name: values
     behavior: replace
