@@ -14,6 +14,7 @@ resources:
   - prometheus-ipmi-exporter-supermicro-node2.yaml
   - prometheus-ipmi-exporter-supermicro-node41.yaml
   - prometheus-ipmi-exporter-supermicro-node42.yaml
+  - prometheus-ipmi-exporter-supermicro-rules.yaml
   - promtail.yaml
 
   #- grafana-k8s-monitoring.yaml
