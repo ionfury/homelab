@@ -1,7 +1,3 @@
-resources:
-  requests:
-    cpu: 200m
-    memory: 256Mi
 additionalAnnotation:
   reloader.stakater.com/auto: "true"
 serviceMonitor:

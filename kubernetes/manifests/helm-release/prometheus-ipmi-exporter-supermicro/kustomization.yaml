@@ -27,3 +27,18 @@ patches:
       - op: replace
         path: /spec/url
         value: https://prometheus-community.github.io/helm-charts
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: modules.supermicro.user
+          kind: Secret
+          name: prometheus-ipmi-exporter-supermicro-${machine:=node}-monitoring
+          valuesKey: username
+      - op: add
+        path: /spec/valuesFrom/-
+        value:
+          targetPath: modules.supermicro.pass
+          kind: Secret
+          name: prometheus-ipmi-exporter-supermicro-${machine:=node}-monitoring
+          valuesKey: password
+
