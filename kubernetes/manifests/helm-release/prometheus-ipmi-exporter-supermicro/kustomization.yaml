@@ -21,7 +21,7 @@ patches:
         value: prometheus-ipmi-exporter
       - op: add
         path: /spec/releaseName
-        value: prometheus-ipmi-exporter-supermicro
+        value: prometheus-ipmi-exporter-supermicro-${machine:=node}
       - op: add
         path: /spec/valuesFrom/-
         value:
