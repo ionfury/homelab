@@ -9,5 +9,8 @@ modules:
       - bmc
       - ipmi
       - chassis
+      - dcmi
+      - sel
+      - sm-lan-mode
     driver: LAN_2_0
     timeout: 10000
