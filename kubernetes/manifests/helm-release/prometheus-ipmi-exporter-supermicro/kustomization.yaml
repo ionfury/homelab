@@ -20,13 +20,6 @@ patches:
       - op: add
         path: /spec/releaseName
         value: prometheus-ipmi-exporter-supermicro
-  - target:
-      kind: HelmRepository
-      name: app
-    patch: |-
-      - op: replace
-        path: /spec/url
-        value: https://prometheus-community.github.io/helm-charts
       - op: add
         path: /spec/valuesFrom/-
         value:
@@ -41,4 +34,11 @@ patches:
           kind: Secret
           name: prometheus-ipmi-exporter-supermicro-${machine:=node}-monitoring
           valuesKey: password
+  - target:
+      kind: HelmRepository
+      name: app
+    patch: |-
+      - op: replace
+        path: /spec/url
+        value: https://prometheus-community.github.io/helm-charts
 
