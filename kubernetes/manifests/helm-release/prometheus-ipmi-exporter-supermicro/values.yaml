@@ -1,0 +1,17 @@
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+additionalAnnotation:
+  reloader.stakater.com/auto: "true"
+serviceMonitor:
+  enabled: false
+modules:
+  supermicro:
+    privilege: user
+    collectors:
+      - bmc
+      - ipmi
+      - chassis
+    driver: LAN_2_0
+    timeout: 10000
