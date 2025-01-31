@@ -8,7 +8,7 @@ include "common" {
 }
 
 terraform {
-  source = "${include.common.locals.base_source_url}?ref=v0.25.0"
+  source = "${include.common.locals.base_source_url}?ref=v0.28.0"
 }
 
 dependencies {
@@ -17,8 +17,8 @@ dependencies {
 
 inputs = {
   cluster_vip        = "192.168.10.69"
-  talos_version      = "v1.9.2"
-  kubernetes_version = "1.32.0"
+  talos_version      = "v1.9.3"
+  kubernetes_version = "1.32.1"
   cilium_version     = "1.16.5"
   cilium_values      = file("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml")
 
@@ -28,6 +28,13 @@ inputs = {
     "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-servicemonitors.yaml",
     "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-probes.yaml",
     "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-prometheusrules.yaml",
+  ]
+
+  cluster_etcd_extraArgs = [
+    {
+      name  = "listen-metrics-urls"
+      value = "http://0.0.0.0:2381"
+    }
   ]
 
   machine_kubelet_extraMounts = [
