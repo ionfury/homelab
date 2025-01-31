@@ -30,12 +30,20 @@ inputs = {
     "https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/prometheus-operator-crds-17.0.2/charts/kube-prometheus-stack/charts/crds/crds/crd-prometheusrules.yaml",
   ]
 
-  cluster_etcd_extraArgs = [
-    {
-      name  = "listen-metrics-urls"
-      value = "http://0.0.0.0:2381"
-    }
-  ]
+  # The following are needed to scrape metrics for kube-prometheus-metrics
+  cluster_etcd_extraArgs = [{
+    name  = "listen-metrics-urls"
+    value = "http://0.0.0.0:2381"
+  }]
+  cluster_controllerManager_extraArgs = [{
+    name = "bind-address"
+    value = "0.0.0.0"
+  }]
+  cluster_scheduler_extraArgs = [{
+    name = "bind-address"
+    value = "0.0.0.0"
+  }]
+
 
   machine_kubelet_extraMounts = [
     # Support Longhorn: https://longhorn.io/docs/1.7.2/advanced-resources/os-distro-specific/talos-linux-support/#data-path-mounts
