@@ -9,7 +9,7 @@ deschedulerPolicy:
           args:
             evictFailedBarePods: true
             evictLocalStoragePods: true
-            evictSystemCriticalPods: true
+            evictSystemCriticalPods: false
             nodeFit: true
         - name: RemovePodsViolatingInterPodAntiAffinity
         - name: RemovePodsViolatingNodeAffinity
