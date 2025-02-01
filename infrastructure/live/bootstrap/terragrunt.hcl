@@ -8,7 +8,7 @@ include "common" {
 }
 
 terraform {
-  source = "${include.common.locals.base_source_url}?ref=v0.25.0"
+  source = "${include.common.locals.base_source_url}?ref=v0.30.0"
 }
 
 dependency "credentials" {
@@ -26,4 +26,5 @@ inputs = {
   external_secrets_access_key_id = dependency.credentials.outputs.values["/homelab/kubernetes/live/external-secrets/id"]
   external_secrets_access_key_secret = dependency.credentials.outputs.values["/homelab/kubernetes/live/external-secrets/secret"]
   cloudflare_api_key = dependency.credentials.outputs.values["/homelab/cloudflare/api-key"]
+  healthchecksio_api_key = dependency.credentials.outputs.values["/homelab/healthchecksio/api-key"]
 }

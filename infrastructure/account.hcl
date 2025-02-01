@@ -21,13 +21,16 @@ locals {
   external_secrets_id_store = "/homelab/kubernetes/live/external-secrets/id"
   external_secrets_secret_store = "/homelab/kubernetes/live/external-secrets/secret"
 
+  healthchecksio_api_key_store = "/homelab/healthchecksio/api-key"
+
   parameters = [
     local.unifi_username_store,
     local.unifi_password_store,
     local.github_dev_token_path,
     local.external_secrets_id_store,
     local.external_secrets_secret_store,
-    local.cloudflare_api_key_store
+    local.cloudflare_api_key_store,
+    local.healthchecksio_api_key_store
   ]
 
   unifi = {
@@ -36,8 +39,6 @@ locals {
     password_store = "/homelab/unifi/terraform/password"
     site           = "default"
   }
-
-
 
   cloudflare = {
     account_name  = "homelab"

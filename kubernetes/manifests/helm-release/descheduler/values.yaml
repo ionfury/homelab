@@ -22,14 +22,6 @@ deschedulerPolicy:
             constraints:
               - DoNotSchedule
               - ScheduleAnyway
-        - name: PodLifeTime
-          args:
-            maxPodLifeTimeSeconds: 3600
-            states:
-            - ContainerStatusUnknown
-            - Completed
-            - Error
-            - Evicted
         - name: RemoveFailedPods
           args:
             excludeOwnerKinds:
@@ -46,7 +38,6 @@ deschedulerPolicy:
             - RemovePodsViolatingNodeAffinity
             - RemovePodsViolatingNodeTaints
             - RemoveFailedPods
-            - PodLifeTime
 service:
   enabled: true
 serviceMonitor:
