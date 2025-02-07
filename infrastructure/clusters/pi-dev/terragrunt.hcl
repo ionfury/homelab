@@ -8,7 +8,7 @@ include "root" {
 }
 
 include "common" {
-  path   = "${dirname(find_in_parent_folders("root.hcl"))}/_common/cluster.hcl"
+  path   = "${dirname(find_in_parent_folders("root.hcl"))}/clusters/common.hcl"
   expose = true
 }
 
