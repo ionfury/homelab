@@ -36,21 +36,20 @@ inputs = {
     value = "http://0.0.0.0:2381"
   }]
   cluster_controllerManager_extraArgs = [{
-    name = "bind-address"
+    name  = "bind-address"
     value = "0.0.0.0"
   }]
   cluster_scheduler_extraArgs = [{
-    name = "bind-address"
+    name  = "bind-address"
     value = "0.0.0.0"
   }]
-
 
   machine_kubelet_extraMounts = [
     # Support Longhorn: https://longhorn.io/docs/1.7.2/advanced-resources/os-distro-specific/talos-linux-support/#data-path-mounts
     {
       destination = "/var/lib/longhorn"
-      type = "bind"
-      source = "/var/lib/longhorn"
+      type        = "bind"
+      source      = "/var/lib/longhorn"
       options = [
         "bind",
         "rshared",
@@ -59,8 +58,8 @@ inputs = {
     },
     {
       destination = "/var/mnt/disk2"
-      type = "bind"
-      source = "/var/mnt/disk2"
+      type        = "bind"
+      source      = "/var/mnt/disk2"
       options = [
         "bind",
         "rshared",
@@ -72,10 +71,10 @@ inputs = {
   machine_files = [
     # Support Spegal: https://spegel.dev/docs/getting-started/#talos
     {
-      path = "/etc/cri/conf.d/20-customization.part"
-      op = "create"
+      path        = "/etc/cri/conf.d/20-customization.part"
+      op          = "create"
       permissions = "0o666"
-      content = <<-EOT
+      content     = <<-EOT
         [plugins."io.containerd.cri.v1.images"]
           discard_unpacked_layers = false
       EOT
