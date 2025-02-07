@@ -1,21 +1,4 @@
 locals {
-  tld = "tomnowak.work"
-
-  createDefaultDiskLabel = {
-    key   = "node.longhorn.io/create-default-disk"
-    value = "config"
-  }
-
-  defaultDiskConfigAnnotation = {
-    key   = "node.longhorn.io/default-disks-config"
-    value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/lib/longhorn", "allowScheduling" : true, "tags" : ["fast", "ssd"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["slow", "hdd"] }])}'"
-  }
-
-  defaultNodeTagsAnnotation = {
-    key   = "node.longhorn.io/default-node-tags"
-    value = "'${jsonencode(["storage"])}'"
-  }
-
   raspberry_pis = {
     pxeboot = {
       lan = {
