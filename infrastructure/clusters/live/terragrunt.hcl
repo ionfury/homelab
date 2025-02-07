@@ -14,7 +14,7 @@ include "common" {
 }
 
 terraform {
-  source = "${include.common.locals.base_source_url}?ref=v0.34.0"
+  source = "${include.common.locals.base_source_url}?ref=v0.35.0"
 }
 
 inputs = {
@@ -22,10 +22,20 @@ inputs = {
   cluster_endpoint = local.cluster_endpoint
   tld              = local.tld
 
-  cluster_vip            = "192.168.10.9"
+  cluster_vip            = "192.168.10.70"
   cluster_node_subnet    = "192.168.10.0/24"
   cluster_pod_subnet     = "172.18.0.0/16"
   cluster_service_subnet = "172.19.0.0/16"
+
+  cluster_env_vars = {
+    cluster_ip_pool_start = "192.168.10.71"
+    cluster_ip_pool_stop  = "192.168.10.89"
+    cluster_l2_interfaces = "[\"enp1s0f0\", \"ens1f0\"]"
+    internal_domain       = local.tld
+    internal_ingress_ip   = "192.168.10.72"
+    external_domain       = local.tld
+    external_ingress_ip   = "192.168.10.73"
+  }
 
   prepare_longhorn     = true
   longhorn_mount_disk2 = true
