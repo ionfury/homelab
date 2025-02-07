@@ -8,7 +8,9 @@ components:
 resources:
   - flux-system
   - kube-system
+  - longhorn-system
   - network
+  - system
 patches:
   - target:
       kind: Kustomization

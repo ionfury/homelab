@@ -1,14 +1,14 @@
 persistence:
   defaultFsType: xfs
-  defaultClassReplicaCount: ${storage_replica_count:=1}
+  defaultClassReplicaCount: ${default_replica_count}
 defaultSettings:
-  defaultReplicaCount: ${storage_replica_count:=1}
+  defaultReplicaCount: ${default_replica_count}
   createDefaultDiskLabeledNodes: true
 csi:
-  attacherReplicaCount: ${storage_replica_count:=1}
-  provisionerReplicaCount: ${storage_replica_count:=1}
-  resizerReplicaCount: ${storage_replica_count:=1}
-  snapshotterReplicaCount: ${storage_replica_count:=1}
+  attacherReplicaCount: ${default_replica_count}
+  provisionerReplicaCount: ${default_replica_count}
+  resizerReplicaCount: ${default_replica_count}
+  snapshotterReplicaCount: ${default_replica_count}
 ingress:
   enabled: true
   ingressClassName: internal
