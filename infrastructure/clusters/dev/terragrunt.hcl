@@ -28,6 +28,7 @@ inputs = {
   cluster_service_subnet = "172.23.0.0/16"
 
   cluster_env_vars = {
+    cluster_id            = 2
     cluster_ip_pool_start = "192.168.10.61"
     cluster_ip_pool_stop  = "192.168.10.69"
     cluster_l2_interfaces = "[\"ens1f0\"]"

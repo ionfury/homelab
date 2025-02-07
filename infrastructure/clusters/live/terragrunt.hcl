@@ -17,6 +17,10 @@ terraform {
   source = "${include.common.locals.base_source_url}?ref=v0.36.0"
 }
 
+dependencies {
+  paths = ["../dev"]
+}
+
 inputs = {
   cluster_name     = local.cluster_name
   cluster_endpoint = local.cluster_endpoint
@@ -28,6 +32,7 @@ inputs = {
   cluster_service_subnet = "172.19.0.0/16"
 
   cluster_env_vars = {
+    cluster_id            = 1
     cluster_ip_pool_start = "192.168.10.71"
     cluster_ip_pool_stop  = "192.168.10.89"
     cluster_l2_interfaces = "[\"enp1s0f0\", \"ens1f0\"]"

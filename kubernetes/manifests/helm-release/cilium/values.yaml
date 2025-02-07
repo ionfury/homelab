@@ -17,7 +17,7 @@ cgroup:
 cni:
   exclusive: false # to run multus
 cluster:
-  id: 0
+  id: 1
   name: ${cluster_name}
 kubeProxyReplacement: true
 enableIPv4BIGTCP: true
