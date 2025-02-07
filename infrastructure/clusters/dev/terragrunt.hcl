@@ -13,7 +13,7 @@ include "common" {
 }
 
 terraform {
-  source = "${include.common.locals.base_source_url}?ref=v0.33.0"
+  source = "${include.common.locals.base_source_url}?ref=v0.34.0"
 }
 
 inputs = {
