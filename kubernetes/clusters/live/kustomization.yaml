@@ -6,14 +6,14 @@ components:
   - ../../manifests/common/components/configurations/kustomization
   - ../../manifests/common/components/flux-kustomization-defaults
 resources:
-  - cert-manager
-  - default
+#  - cert-manager
+#  - default
   - flux-system
-  - kube-system
-  - longhorn-system
-  - monitoring
-  - network
-  - system
+#  - kube-system
+#  - longhorn-system
+#  - monitoring
+#  - network
+#  - system
 patches:
   - target:
       kind: Kustomization
