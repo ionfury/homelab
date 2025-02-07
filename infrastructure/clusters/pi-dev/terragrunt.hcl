@@ -36,6 +36,7 @@ inputs = {
   flux_version       = "v2.4.0"
   prometheus_version = "17.0.2"
   cilium_version     = "1.17.0"
+  cilium_helm_values = file("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml")
 
   timeout = "20m" # pi is slow
 
@@ -55,36 +56,4 @@ inputs = {
       }]
     }
   }
-
-  cilium_helm_values = <<EOT
-ipam:
-  mode: kubernetes
-kubeProxyReplacement: true
-cgroup:
-  autoMount:
-    enabled: false
-  hostRoot: /sys/fs/cgroup
-k8sServiceHost: 127.0.0.1
-k8sServicePort: 7445
-securityContext:
-  capabilities:
-    ciliumAgent:
-      - CHOWN
-      - KILL
-      - NET_ADMIN
-      - NET_RAW
-      - IPC_LOCK
-      - SYS_ADMIN
-      - SYS_RESOURCE
-      - PERFMON
-      - BPF
-      - DAC_OVERRIDE
-      - FOWNER
-      - SETGID
-      - SETUID
-    cleanCiliumState:
-      - NET_ADMIN
-      - SYS_ADMIN
-      - SYS_RESOURCE
-EOT
 }
