@@ -5,3 +5,5 @@ metadata:
   name: issuers
 spec:
   path: kubernetes/manifests/common/resources/issuers
+  dependsOn:
+    - name: cert-manager
