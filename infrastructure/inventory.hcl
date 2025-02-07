@@ -2,17 +2,17 @@ locals {
   tld = "tomnowak.work"
 
   createDefaultDiskLabel = {
-    key = "node.longhorn.io/create-default-disk"
+    key   = "node.longhorn.io/create-default-disk"
     value = "config"
   }
 
   defaultDiskConfigAnnotation = {
-    key = "node.longhorn.io/default-disks-config"
-    value = "'${jsonencode([{"name":"disk1","path":"/var/lib/longhorn","allowScheduling":true,"tags":["fast","ssd"]},{"name":"disk2","path":"/var/mnt/disk2","storageReserved":0,"allowScheduling":true,"tags":["slow","hdd"]}])}'"
+    key   = "node.longhorn.io/default-disks-config"
+    value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/lib/longhorn", "allowScheduling" : true, "tags" : ["fast", "ssd"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["slow", "hdd"] }])}'"
   }
 
   defaultNodeTagsAnnotation = {
-    key = "node.longhorn.io/default-node-tags"
+    key   = "node.longhorn.io/default-node-tags"
     value = "'${jsonencode(["storage"])}'"
   }
 
@@ -30,15 +30,40 @@ locals {
   }
 
   hosts = {
+    rpi2 = {
+      cluster     = "pidev"
+      type        = "controlplane"
+      labels      = []
+      annotations = []
+      install = {
+        diskSelectors = ["serial: '0xb12d61b0'"]
+        secureboot    = false
+        wipe          = false
+        architecture  = "arm64"
+        platform      = ""
+        sbc           = "rpi_generic"
+      }
+      disks = []
+      interfaces = [{
+        hardwareAddr     = "dc:a6:32:00:ce:5c"
+        addresses        = ["192.168.10.168"]
+        dhcp_routeMetric = 50
+        vlans            = []
+      }]
+      ipmi = {
+        ip  = ""
+        mac = ""
+      }
+    }
     node2 = {
-      cluster = "live"
-      type   = "controlplane"
-      labels = [local.createDefaultDiskLabel]
+      cluster     = "live"
+      type        = "controlplane"
+      labels      = [local.createDefaultDiskLabel]
       annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
       install = {
-        diskSelectors   = [] # RAID controller reports SSD as 'rotational'.  Reference this via wwid: talosctl --nodes 192.168.10.182 get disks --insecure sda -o yaml | yq '.spec.wwid'
-        secureboot      = false
-        wipe            = false
+        diskSelectors = [] # RAID controller reports SSD as 'rotational'.  Reference this via wwid: talosctl --nodes 192.168.10.182 get disks --insecure sda -o yaml | yq '.spec.wwid'
+        secureboot    = false
+        wipe          = false
       }
       disks = [{
         device = "/dev/sdb"
@@ -62,14 +87,14 @@ locals {
       }
     }
     node41 = {
-      cluster = "live"
-      type   = "controlplane"
-      labels = [local.createDefaultDiskLabel]
+      cluster     = "live"
+      type        = "controlplane"
+      labels      = [local.createDefaultDiskLabel]
       annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
       install = {
-        diskSelectors   = ["type: 'ssd'"]
-        secureboot      = false
-        wipe            = false
+        diskSelectors = ["type: 'ssd'"]
+        secureboot    = false
+        wipe          = false
       }
       disks = [{
         device = "/dev/sdb"
@@ -93,14 +118,14 @@ locals {
       }
     }
     node42 = {
-      cluster = "live"
-      type   = "controlplane"
-      labels = [local.createDefaultDiskLabel]
+      cluster     = "live"
+      type        = "controlplane"
+      labels      = [local.createDefaultDiskLabel]
       annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
       install = {
-        diskSelectors   = ["type: 'ssd'"]
-        secureboot      = false
-        wipe            = false
+        diskSelectors = ["type: 'ssd'"]
+        secureboot    = false
+        wipe          = false
       }
       disks = [{
         device = "/dev/sdb"
@@ -124,9 +149,9 @@ locals {
       }
     }
     node43 = {
-      cluster = "none"
-      type   = "controlplane"
-      labels = []
+      cluster     = "none"
+      type        = "controlplane"
+      labels      = []
       annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
@@ -152,9 +177,9 @@ locals {
       }
     }
     node44 = {
-      cluster = "dev"
-      type   = "controlplane"
-      labels = []
+      cluster     = "dev"
+      type        = "controlplane"
+      labels      = []
       annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
@@ -180,9 +205,9 @@ locals {
       }
     }
     node45 = {
-      cluster = "dev"
-      type   = "controlplane"
-      labels = []
+      cluster     = "dev"
+      type        = "controlplane"
+      labels      = []
       annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]
@@ -208,9 +233,9 @@ locals {
       }
     }
     node46 = {
-      cluster = "dev"
-      type   = "controlplane"
-      labels = []
+      cluster     = "dev"
+      type        = "controlplane"
+      labels      = []
       annotations = []
       install = {
         diskSelectors   = ["type: 'ssd'"]

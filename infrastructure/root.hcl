@@ -1,11 +1,9 @@
 locals {
-  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  accounts_vars = read_terragrunt_config(find_in_parent_folders("accounts.hcl"))
 }
 
 inputs = merge(
-  local.environment_vars.locals,
-  local.account_vars.locals,
+  local.accounts_vars.locals,
 )
 
 catalog {

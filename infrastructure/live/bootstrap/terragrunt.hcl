@@ -20,11 +20,11 @@ dependency "cluster" {
 }
 
 inputs = {
-  flux_version = "v2.4.0"
-  github_token = dependency.credentials.outputs.values["/homelab/github/ionfury/homelab-flux-dev-token"]
-  kubernetes_config_path = dependency.cluster.outputs.kubeconfig_filename
-  external_secrets_access_key_id = dependency.credentials.outputs.values["/homelab/kubernetes/live/external-secrets/id"]
+  flux_version                       = "v2.4.0"
+  github_token                       = dependency.credentials.outputs.values["/homelab/github/ionfury/homelab-flux-dev-token"]
+  kubernetes_config_path             = dependency.cluster.outputs.kubeconfig_filename
+  external_secrets_access_key_id     = dependency.credentials.outputs.values["/homelab/kubernetes/live/external-secrets/id"]
   external_secrets_access_key_secret = dependency.credentials.outputs.values["/homelab/kubernetes/live/external-secrets/secret"]
-  cloudflare_api_key = dependency.credentials.outputs.values["/homelab/cloudflare/api-key"]
-  healthchecksio_api_key = dependency.credentials.outputs.values["/homelab/healthchecksio/api-key"]
+  cloudflare_api_key                 = dependency.credentials.outputs.values["/homelab/cloudflare/api-key"]
+  healthchecksio_api_key             = dependency.credentials.outputs.values["/homelab/healthchecksio/api-key"]
 }

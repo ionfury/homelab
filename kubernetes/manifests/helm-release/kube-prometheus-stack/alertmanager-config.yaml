@@ -25,6 +25,7 @@ spec:
           matchType: =
   receivers:
     - name: "null"
+    -
    # - name: heartbeat
    #   webhookConfigs:
    #     - urlSecret:
