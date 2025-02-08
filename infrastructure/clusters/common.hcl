@@ -1,5 +1,6 @@
 locals {
-  base_source_url = "git::git@github.com:ionfury/homelab-modules.git//modules/cluster"
+  version = "v0.39.0"
+  base_source_url = "git::git@github.com:ionfury/homelab-modules.git//modules/cluster?ref=${local.version}"
 }
 
 inputs = {
