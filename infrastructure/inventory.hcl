@@ -1,4 +1,5 @@
 locals {
+  # This file is for records only.  To be archived soon.
   raspberry_pis = {
     pxeboot = {
       lan = {
