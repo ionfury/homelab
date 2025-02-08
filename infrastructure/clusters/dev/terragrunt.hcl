@@ -1,7 +1,7 @@
 locals {
-  cluster_name = "${basename(get_terragrunt_dir())}"
+  cluster_name     = "${basename(get_terragrunt_dir())}"
   cluster_endpoint = "${local.cluster_name}.k8s.${local.tld}"
-  tld          = "tomnowak.work"
+  tld              = "tomnowak.work"
 }
 
 include "root" {

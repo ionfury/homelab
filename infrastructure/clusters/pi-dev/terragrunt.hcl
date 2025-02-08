@@ -13,7 +13,7 @@ include "common" {
 }
 
 terraform {
-  source = "${include.common.locals.base_source_url}?ref=v0.38.0"
+  source = "${include.common.locals.base_source_url}?ref=v0.39.0"
 }
 
 inputs = {
@@ -52,6 +52,19 @@ inputs = {
   timeout = "20m" # pi is slow
 
   machines = {
+    rpi1 = {
+      type = "worker"
+      install = {
+        diskSelectors = ["serial: '0xb1256111'"]
+        architecture  = "arm64"
+        platform      = ""
+        sbc           = "rpi_generic"
+      }
+      interfaces = [{
+        hardwareAddr = "dc:a6:32:00:cd:cc"
+        addresses    = ["192.168.10.213"]
+      }]
+    }
     rpi2 = {
       type = "controlplane"
       install = {
@@ -60,7 +73,6 @@ inputs = {
         platform      = ""
         sbc           = "rpi_generic"
       }
-      disks = []
       interfaces = [{
         hardwareAddr = "dc:a6:32:00:ce:5c"
         addresses    = ["192.168.10.168"]

@@ -59,7 +59,7 @@ inputs = {
   machines = {
     node2 = {
       type    = "controlplane"
-      install = {diskSelectors = []} # Default install disk set in raid controller.  Let jesus take the wheel.
+      install = { diskSelectors = [] } # Default install disk set in raid controller.  Let jesus take the wheel.
       disks = [{
         device = "/dev/sdb"
         partitions = [{
@@ -79,7 +79,7 @@ inputs = {
     }
     node41 = {
       type    = "controlplane"
-      install = {diskSelectors = ["type: 'ssd'"]}
+      install = { diskSelectors = ["type: 'ssd'"] }
       disks = [{
         device = "/dev/sdb"
         partitions = [{
@@ -98,8 +98,8 @@ inputs = {
       }]
     }
     node42 = {
-      type        = "controlplane"
-      install = {diskSelectors = ["type: 'ssd'"]}
+      type    = "controlplane"
+      install = { diskSelectors = ["type: 'ssd'"] }
       disks = [{
         device = "/dev/sdb"
         partitions = [{
