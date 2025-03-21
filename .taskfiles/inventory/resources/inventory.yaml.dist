@@ -1,0 +1,5 @@
+hosts:
+  host:
+    hostname: host-ipmi.local
+    username: user
+    password: pass

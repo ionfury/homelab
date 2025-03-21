@@ -31,5 +31,5 @@ krr.yaml
 .task
 
 
-**/credentials.yaml
+**/inventory.yaml
 **/.rendered

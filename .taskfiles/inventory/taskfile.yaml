@@ -5,10 +5,11 @@ version: "3"
 vars:
   IPMI_DOMAIN_SUFFIX: '-ipmi.citadel.tomnowak.work'
   INVENTORY_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/inventory/resources'
-  CREDENTIALS_FILE: '{{.INVENTORY_RESOURCES_DIR}}/credentials.yaml'
-  INVENTORY_FILE: "{{.ROOT_DIR}}/infrastructure/inventory.hcl"
+  #CREDENTIALS_FILE: '{{.INVENTORY_RESOURCES_DIR}}/credentials.yaml'
+  #INVENTORY_FILE: "{{.ROOT_DIR}}/infrastructure/inventory.hcl"
+  INVENTORY_FILE: "{{.ROOT_DIR}}/.taskfiles/inventory/resources/inventory.yaml"
   VALID_HOSTS:
-    sh: "cat {{ .INVENTORY_FILE }} | yj -cj | jq -r '.locals[].hosts[] | keys[]'"
+    sh: "cat {{.INVENTORY_FILE}} | yq -r '.hosts | keys[]'"
 
 tasks:
   power-status:
@@ -24,13 +25,13 @@ tasks:
     cmds:
       - echo "{{ .VALID_HOSTS }}"
 
-  host-membership:
-    desc: Lists host sand their registered cluster membership.
-    silent: true
-    cmds:
-      - cat {{ .INVENTORY_FILE }} | yj -cj | jq -r '.locals[].hosts[] | to_entries[] | "{host=\"\(.key)\", member=\"\(.value[].cluster[].member)\"}"'
-    preconditions:
-      - test -f {{.INVENTORY_FILE}}
+  #host-membership:
+  #  desc: Lists host sand their registered cluster membership.
+  #  silent: true
+  #  cmds:
+  #    - cat {{ .INVENTORY_FILE }} | yj -cj | jq -r '.locals[].hosts[] | to_entries[] | "{host=\"\(.key)\", member=\"\(.value[].cluster[].member)\"}"'
+  #  preconditions:
+  #    - test -f {{.INVENTORY_FILE}}
 
   status-*:
     desc: Gets the status of the host.
@@ -122,11 +123,13 @@ tasks:
       vars: [HOST, USER, COMMAND, IPMI_DOMAIN_SUFFIX]
     vars:
       PASSWORD:
-        sh: "cat {{ .CREDENTIALS_FILE }} | yj -yj | jq -r '.hosts[\"{{ .HOST }}\"].password'"
+        sh: "cat {{ .INVENTORY_FILE }} | yq -r '.hosts[\"{{ .HOST }}\"].password'"
       USERNAME:
-        sh: "cat {{ .CREDENTIALS_FILE }} | yj -yj | jq -r '.hosts[\"{{ .HOST }}\"].username'"
+        sh: "cat {{ .INVENTORY_FILE }} |yq -r '.hosts[\"{{ .HOST }}\"].username'"
+      HOSTNAME:
+        sh: "cat {{ .INVENTORY_FILE }} | yq -r '.hosts[\"{{ .HOST }}\"].hostname'"
     cmds:
-      - "ipmitool -I lanplus -H {{ .HOST }}{{ .IPMI_DOMAIN_SUFFIX }} -U {{ .USERNAME }} -P '{{ .PASSWORD }}' {{ .COMMAND }}"
+      - "ipmitool -I lanplus -H {{ .HOSTNAME }} -U {{ .USERNAME }} -P '{{ .PASSWORD }}' {{ .COMMAND }}"
     preconditions:
       - sh: test "$(echo "{{ .VALID_HOSTS }}" | grep -c "^{{ .HOST }}$")" -gt 0
         msg: "'{{.HOST}}' is not a valid host.  Valid Hosts: \n{{ .VALID_HOSTS }}"
