@@ -10,6 +10,7 @@ locals {
     address        = "https://192.168.1.1"
     username_store = "/homelab/infrastructure/accounts/unifi/username"
     password_store = "/homelab/infrastructure/accounts/unifi/password"
+    api_key_store  = "/homelab/infrastructure/accounts/unifi/api-key"
     site           = "default"
   }
 
