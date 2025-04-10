@@ -46,7 +46,7 @@ controllers:
             enabled: false
         envFrom:
           - secretRef:
-              name: valheim-envs
+              name: valheim-${instance}-envs
         resources:
           requests:
             cpu: 400m
