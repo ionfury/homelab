@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.2.1/charts/other/app-template/values.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.6.1/charts/other/app-template/values.schema.json
 
 service:
   main:
@@ -7,52 +7,58 @@ service:
     type: LoadBalancer
     externalTrafficPolicy: Cluster
     annotations:
-      lbipam.cilium.io/ips: ${ingress_ip}
+      io.cilium/lb-ipam-ips: "${ingress_ip}"
     ports:
-      steam:
+      http:
+        port: 80
+      gameplay:
+        enabled: true
         port: 2456
+        protocol: UDP
+      auth:
+        enabled: true
+        port: 2457
+        protocol: UDP
+      voip:
+        enabled: true
+        port: 2458
         protocol: UDP
 controllers:
   main:
     annotations:
       reloader.stakater.com/auto: "true"
+    pod:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
     containers:
       main:
-        resources:
-          requests:
-            memory: 8Gi
-            cpu: 2
+        image:
+          repository: docker.io/mbround18/valheim
+          tag: 3.1.0
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
         envFrom:
           - secretRef:
               name: valheim-envs
+        resources:
+          requests:
+            cpu: 400
+            memory: 2Gi
 persistence:
-  saves:
+  data:
     enabled: true
     retain: true
     accessMode: ReadWriteOnce
     storageClass: fast-critical
-    size: 20Gi
-    advancedMounts:
-      main:
-        main:
-          - path: /home/steam/.config/unity3d/IronGate/Valheim
-  backup:
-    enabled: true
-    retain: true
-    accessMode: ReadWriteOnce
-    storageClass: fast-critical
-    size: 20Gi
-    advancedMounts:
-      main:
-        main:
-          - path: /home/steam/backups
-  server:
-    enabled: true
-    retain: true
-    accessMode: ReadWriteOnce
-    storageClass: fast-critical
-    size: 20Gi
-    advancedMounts:
-      main:
-        main:
-          - path: /home/steam/valheim
+    size: 50Gi
+    globalMounts:
+      - path: /home/steam/.config/unity3d/IronGate/Valheim/
+      - path: /home/steam/valheim/
+      - path: /home/steam/backups/
