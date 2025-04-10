@@ -9,6 +9,6 @@ spec:
     substitute:
       instance: devheim
       ingress_ip: ${devheim_ingress_ip}
-      IMAGE_REPOSITORY: mbround18/valheim
-      IMAGE_TAG: latest
+      IMAGE_REPOSITORY: docker.io/mbround18/valheim
+      IMAGE_TAG: 3.1.0
 
