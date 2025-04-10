@@ -20,8 +20,8 @@ secretGenerator:
     literals:
       - PORT=2456
       - TZ="America/Chicago"
-      - NAME="${instance}"
-      - WORLD="${instance}"
+      - NAME="valheim"
+      - WORLD="valheim"
       - PUBLIC=0
       - AUTO_UPDATE_SCHEDULE="0 1 * * *"
       - AUTO_BACKUP=1
