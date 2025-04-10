@@ -1,8 +1,8 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 namePrefix: valheim-${instance}-
-components:
-  - ../../components/helm-release-app-template-oci-v3
+resources:
+  - ../../common/resources/helm-release-app-template
 #resources:
 #  - network-policy.yaml
 configMapGenerator:
