@@ -29,9 +29,9 @@ controllers:
       reloader.stakater.com/auto: "true"
     pod:
       securityContext:
-        runAsUser: 1000
+        runAsUser: 111
         runAsGroup: 1000
-        fsGroup: 1000
+        runAsNonRoot: true
     containers:
       main:
         image:
@@ -44,6 +44,11 @@ controllers:
             enabled: false
           startup:
             enabled: false
+        env:
+          - name: PUID
+            value: 111
+          - name: PGID
+            value: 1000
         envFrom:
           - secretRef:
               name: valheim-${instance}-envs
