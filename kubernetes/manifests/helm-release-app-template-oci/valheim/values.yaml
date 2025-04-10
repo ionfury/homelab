@@ -49,7 +49,7 @@ controllers:
               name: valheim-envs
         resources:
           requests:
-            cpu: 400
+            cpu: 400m
             memory: 2Gi
 persistence:
   data:
