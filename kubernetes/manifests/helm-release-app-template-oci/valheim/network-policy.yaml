@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: policy
+spec:
+  podSelector:
+    matchLabels:
+      network/allow-valheim-game: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: UDP
+          port: 2456 # Port range for Valheim game traffic
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 2456 # Port range for Valheim game traffic

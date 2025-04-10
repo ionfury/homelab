@@ -4,7 +4,7 @@ kind: Kustomization
 metadata:
   name: valheim-devheim
 spec:
-  path: kubernetes/manifests/helm-release-app-template-oci
+  path: kubernetes/manifests/helm-release-app-template-oci/valheim
   postBuild:
     substitute:
       instance: devheim

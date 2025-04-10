@@ -14,7 +14,7 @@ resources:
   - longhorn-system
 #  - monitoring
 #  - network
-#  - system
+  - system
 patches:
   - target:
       kind: Kustomization

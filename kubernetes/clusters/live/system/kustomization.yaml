@@ -10,4 +10,3 @@ resources:
   - reloader.yaml
   - replicator.yaml
   - secret-generator.yaml
-  - minio-operator.yaml

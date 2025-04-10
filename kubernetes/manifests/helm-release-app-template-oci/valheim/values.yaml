@@ -1,0 +1,58 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.2.1/charts/other/app-template/values.schema.json
+
+service:
+  main:
+    controller: main
+    type: LoadBalancer
+    externalTrafficPolicy: Cluster
+    annotations:
+      lbipam.cilium.io/ips: ${ingress_ip}
+    ports:
+      steam:
+        port: 2456
+        protocol: UDP
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        resources:
+          requests:
+            memory: 8Gi
+            cpu: 2
+        envFrom:
+          - secretRef:
+              name: valheim-envs
+persistence:
+  saves:
+    enabled: true
+    retain: true
+    accessMode: ReadWriteOnce
+    storageClass: fast-critical
+    size: 20Gi
+    advancedMounts:
+      main:
+        main:
+          - path: /home/steam/.config/unity3d/IronGate/Valheim
+  backup:
+    enabled: true
+    retain: true
+    accessMode: ReadWriteOnce
+    storageClass: fast-critical
+    size: 20Gi
+    advancedMounts:
+      main:
+        main:
+          - path: /home/steam/backups
+  server:
+    enabled: true
+    retain: true
+    accessMode: ReadWriteOnce
+    storageClass: fast-critical
+    size: 20Gi
+    advancedMounts:
+      main:
+        main:
+          - path: /home/steam/valheim
