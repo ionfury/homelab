@@ -9,8 +9,9 @@ resources:
 #  - cert-manager
 #  - default
   - flux-system
+  - games
 #  - kube-system
-#  - longhorn-system
+  - longhorn-system
 #  - monitoring
 #  - network
 #  - system
