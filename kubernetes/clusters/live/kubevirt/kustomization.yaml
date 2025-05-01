@@ -5,5 +5,6 @@ kind: Kustomization
 namespace: kubevirt
 resources:
   - ../../../manifests/common/resources/namespace
+  - containerized-data-importer.yaml
   - kubevirt-operator.yaml
   - kubevirt.yaml
