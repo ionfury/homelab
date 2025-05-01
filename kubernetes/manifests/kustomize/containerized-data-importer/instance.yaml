@@ -5,7 +5,7 @@ metadata:
   name: cdi
 spec:
   config:
-    scratchSpaceStorageClass: fast
+    scratchSpaceStorageClass: fast-unmanaged
     podResourceRequirements:
       requests:
         cpu: 100m
