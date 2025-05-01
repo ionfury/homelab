@@ -11,6 +11,7 @@ resources:
   - flux-system
   #- games
 #  - kube-system
+  -  kubevirt
   - longhorn-system
 #  - monitoring
 #  - network
