@@ -4,4 +4,4 @@ kind: Kustomization
 metadata:
   name: kubevirt-operator
 spec:
-  path: kubernetes/manifests/kustomization/kubevirt-operator
+  path: kubernetes/manifests/kustomize/kubevirt-operator
