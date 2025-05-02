@@ -7,6 +7,7 @@ spec:
   path: kubernetes/manifests/helm-release-oci/actions-runner-scale-set
   postBuild:
     substitute:
+      OCI_REPOSITORY_TAG: 0.11.0
       name: homelab-modules
       secret: k8s-github-app-homelab-modules-runner
       github_config_url: https://github.com/ionfury/homelab-modules
