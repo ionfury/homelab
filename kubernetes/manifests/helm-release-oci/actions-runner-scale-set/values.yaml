@@ -1,0 +1,37 @@
+githubConfigUrl: ${github_config_url}
+githubConfigSecret: ${name}-runner
+minRunners: 1
+maxRunners: 3
+containerMode:
+  type: kubernetes
+  kubernetesModeWorkVolumeClaim:
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: ${storage_class:=default}
+    resources:
+      requests:
+        storage: 25Gi
+controllerServiceAccount:
+  name:
+  namespace: actions-runner-system
+template:
+  spec:
+    containers:
+      - name: runner
+        image: ghcr.io/actions/actions-runner:2.332.0
+        command: ["/home/runner/run.sh"]
+        env:
+          - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
+            value: "false"
+          - name: NODE
+            valuesFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+            #volumeMounts:
+            #  - mountPath: /var/run/secrets/github
+            #    name: github
+            #    readOnly: true
+    serviceAccountName: ${name}-runner
+    #volumes:
+    #  - name: github
+    #    secret:
+    #      secretName: ${name}-runner

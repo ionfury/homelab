@@ -1,0 +1,13 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: actions-runner-homelab-modules
+spec:
+  path: kubernetes/manifests/helm-release-oci/actions-runner-scale-set
+  postBuild:
+    substitute:
+      name: homelab-modules
+      secret: k8s-github-app-homelab-modules-runner
+      github_config_url: https://github.com/ionfury/homelab-modules
+
