@@ -9,6 +9,6 @@ spec:
     substitute:
       OCI_REPOSITORY_TAG: 0.11.0
       name: homelab-modules
-      secret: k8s-github-app-homelab-modules-runner
+      secret: /homelab/kubernetes/homelab-modules-runner
       github_config_url: https://github.com/ionfury/homelab-modules
 
