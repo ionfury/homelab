@@ -11,7 +11,7 @@ containerMode:
       requests:
         storage: 25Gi
 controllerServiceAccount:
-  name:
+  name: actions-runner-controller
   namespace: actions-runner-system
 template:
   spec:
@@ -30,7 +30,7 @@ template:
             #  - mountPath: /var/run/secrets/github
             #    name: github
             #    readOnly: true
-    serviceAccountName: ${name}-runner
+    serviceAccountName: ${name}-runner-svc
     #volumes:
     #  - name: github
     #    secret:
