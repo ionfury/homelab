@@ -18,3 +18,8 @@ nameReference:
     fieldSpecs:
       - path: spec/targetNamespace
         kind: HelmRelease
+  - kind: OCIRepository
+    version: v1beta2
+    fieldSpecs:
+      - path: spec/chartRef/name
+        kind: HelmRelease

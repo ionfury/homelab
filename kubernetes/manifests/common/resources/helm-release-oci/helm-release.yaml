@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: app
+spec:
+  maxHistory: 2
+  interval: 10m
+  install:
+    createNamespace: false
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    crds: CreateReplace
+    remediation:
+      strategy: rollback
+      retries: 3
+  uninstall:
+    keepHistory: false
+  chartRef:
+    kind: OCIRepository
+    name: app
+  valuesFrom:
+    - kind: ConfigMap
+      name: values
+    - kind: Secret
+      name: secret-values

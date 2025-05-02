@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+components:
+  - ../../components/configurations/helm-release
+resources:
+  - helm-release.yaml
+  - helm-repository.yaml
+configMapGenerator:
+  - name: values
+    literals:
+      - values.yaml=
+secretGenerator:
+  - name: secret-values
+    literals:
+      - values.yaml=
