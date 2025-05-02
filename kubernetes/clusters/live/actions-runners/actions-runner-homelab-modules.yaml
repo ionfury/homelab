@@ -11,4 +11,5 @@ spec:
       name: homelab-modules
       secret: /homelab/kubernetes/homelab-modules-runner
       github_config_url: https://github.com/ionfury/homelab-modules
+      storage_class: fast-unmanaged
 
