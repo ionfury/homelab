@@ -7,7 +7,6 @@ spec:
   path: kubernetes/manifests/helm-release-oci/actions-runner-scale-set
   dependsOn:
     - name: nsinjector
-      namespace: system
     - name: actions-runner-rbac-injector
   postBuild:
     substitute:
@@ -26,7 +25,6 @@ spec:
   path: kubernetes/manifests/kustomization/nsinjector-namespace-rbac
   dependsOn:
     - name: nsinjector
-      namespace: system
   postBuild:
     substitute:
       service_account: homelab-modules-runner
