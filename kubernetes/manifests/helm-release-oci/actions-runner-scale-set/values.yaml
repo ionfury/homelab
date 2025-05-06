@@ -33,6 +33,7 @@ template:
             #    name: github
             #    readOnly: true
     serviceAccountName: ${service_account}
+    enableServiceLinks: true
     #volumes:
     #  - name: github
     #    secret:
