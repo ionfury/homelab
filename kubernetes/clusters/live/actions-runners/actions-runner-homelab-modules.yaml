@@ -6,7 +6,6 @@ metadata:
 spec:
   path: kubernetes/manifests/helm-release-oci/actions-runner-scale-set
   dependsOn:
-    - name: nsinjector
     - name: actions-runner-rbac-injector
   postBuild:
     substitute:
