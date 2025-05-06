@@ -22,7 +22,7 @@ kind: Kustomization
 metadata:
   name: actions-runner-rbac-injector
 spec:
-  path: kubernetes/manifests/kustomization/nsinjector-namespace-rbac
+  path: kubernetes/manifests/kustomize/nsinjector-namespace-rbac
   dependsOn:
     - name: nsinjector
   postBuild:
