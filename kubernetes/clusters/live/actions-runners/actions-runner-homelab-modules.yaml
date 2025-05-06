@@ -5,6 +5,10 @@ metadata:
   name: actions-runner-homelab-modules
 spec:
   path: kubernetes/manifests/helm-release-oci/actions-runner-scale-set
+  dependsOn:
+    - name: nsinjector
+      namespace: system
+    - name: actions-runner-rbac-injector
   postBuild:
     substitute:
       OCI_REPOSITORY_TAG: 0.11.0
@@ -12,4 +16,44 @@ spec:
       secret: /homelab/kubernetes/homelab-modules-runner
       github_config_url: https://github.com/ionfury/homelab-modules
       storage_class: fast-unmanaged
-
+      service_account: &account homelab-modules-runner
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: actions-runner-rbac-injector
+spec:
+  path: kubernetes/manifests/kustomization/nsinjector-namespace-rbac
+  dependsOn:
+    - name: nsinjector
+      namespace: system
+  postBuild:
+    substitute:
+      service_account: *account
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: *account
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: &role homelab-modules-namespace-creator
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: *role
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: *role
+subjects:
+  - kind: ServiceAccount
+    name: *account
+    namespace: actions-runners

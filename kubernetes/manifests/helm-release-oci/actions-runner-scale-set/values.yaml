@@ -32,7 +32,7 @@ template:
             #  - mountPath: /var/run/secrets/github
             #    name: github
             #    readOnly: true
-    serviceAccountName: ${name}-runner-svc
+    serviceAccountName: ${service_account}
     #volumes:
     #  - name: github
     #    secret:

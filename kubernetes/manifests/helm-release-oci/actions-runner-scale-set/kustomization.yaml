@@ -6,7 +6,7 @@ namePrefix: ${name}-runner-
 resources:
   - ../../common/resources/helm-release-oci
   - external-secret.yaml
-  - rbac.yaml
+  #- rbac.yaml
 configMapGenerator:
   - name: values
     behavior: replace

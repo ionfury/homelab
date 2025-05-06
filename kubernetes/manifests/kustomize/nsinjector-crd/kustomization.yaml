@@ -1,0 +1,6 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - https://raw.githubusercontent.com/blakelead/nsinjector/refs/heads/master/deploy/k8s/crd/namespaceresourcesinjector-crd.yaml
