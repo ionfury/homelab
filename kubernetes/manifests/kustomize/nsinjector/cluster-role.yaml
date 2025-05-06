@@ -13,10 +13,3 @@ rules:
 - apiGroups: ["rbac"]
   resources: ["*"]
   verbs: ["list", "get", "watch", "update"]
-- apiGroups: ["rbac.authorization.k8s.io"]
-  resources: ["rolebindings"]
-  verbs: ["list", "get", "watch", "create", "update", "patch", "delete"]
-- apiGroups: ["rbac.authorization.k8s.io"]
-  resources: ["roles"]
-  verbs: ["list", "get", "watch", "create", "update", "patch", "delete"]
-

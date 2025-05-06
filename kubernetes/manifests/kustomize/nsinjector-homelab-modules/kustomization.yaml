@@ -4,3 +4,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - injector.yaml
+  - cluster-role-binding.yaml
+  - cluster-role.yaml
