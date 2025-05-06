@@ -19,7 +19,7 @@ template:
       fsGroup: 123
     containers:
       - name: runner
-        image: ghcr.io/home-operations/actions-runner:2.323.0
+        image: ${image}:${tag}
         command: ["/home/runner/run.sh"]
         env:
           - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER

@@ -16,6 +16,8 @@ spec:
       github_config_url: https://github.com/ionfury/homelab-modules
       storage_class: fast-unmanaged
       service_account: homelab-modules-runner
+      image: ghcr.io/home-operations/opentofu-runner
+      tag: 1.9.1
 ---
 
 #apiVersion: kustomize.toolkit.fluxcd.io/v1
