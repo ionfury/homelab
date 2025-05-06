@@ -41,7 +41,7 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["namespaces"]
-    verbs: ["create"]
+    verbs: ["create", "get", "list"]
   - apiGroups: ["apiextensions.k8s.io"]
     resources: ["customresourcedefinitions"]
     verbs: ["get", "list"]
