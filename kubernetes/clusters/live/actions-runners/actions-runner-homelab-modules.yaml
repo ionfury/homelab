@@ -16,7 +16,7 @@ spec:
       secret: /homelab/kubernetes/homelab-modules-runner
       github_config_url: https://github.com/ionfury/homelab-modules
       storage_class: fast-unmanaged
-      service_account: &account homelab-modules-runner
+      service_account: homelab-modules-runner
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -29,17 +29,17 @@ spec:
       namespace: system
   postBuild:
     substitute:
-      service_account: *account
+      service_account: homelab-modules-runner
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: *account
+  name: homelab-modules-runner
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: &role homelab-modules-namespace-creator
+  name: homelab-modules-namespace-creator
 rules:
   - apiGroups: [""]
     resources: ["namespaces"]
@@ -48,12 +48,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: *role
+  name: homelab-modules-namespace-creator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: *role
+  name: homelab-modules-namespace-creator
 subjects:
   - kind: ServiceAccount
-    name: *account
+    name: homelab-modules-runner
     namespace: actions-runners
