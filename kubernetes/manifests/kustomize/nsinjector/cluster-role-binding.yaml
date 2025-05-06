@@ -6,7 +6,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: nsinjector-controller
-  namespace: nsinjector-controller
+  namespace: system
 roleRef:
   kind: ClusterRole
   name: nsinjector-controller
