@@ -1,5 +1,5 @@
 kind: NamespaceResourcesInjector
-apiVersion: blakelead.com/v1alpha1
+apiVersion: blakelead.com/v1
 metadata:
   name: nri-test
 spec:
