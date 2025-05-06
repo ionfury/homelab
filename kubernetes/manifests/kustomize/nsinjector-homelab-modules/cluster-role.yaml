@@ -11,6 +11,6 @@ rules:
   resources: ["roles"]
   verbs: ["list", "get", "watch", "create", "update", "patch", "delete"]
 # Delegate permissions
-- apiGroups: ["rbac.authorizations.k8s.io"]
-  resources: ["virtualmachines", "services"]
+- apiGroups: ["kubevirt.io"]
+  resources: ["virtualmachines"]
   verbs: ["list", "get", "watch", "create", "update", "patch", "delete"]
