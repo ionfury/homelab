@@ -17,17 +17,19 @@ spec:
       storage_class: fast-unmanaged
       service_account: homelab-modules-runner
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: actions-runner-rbac-injector
-spec:
-  path: kubernetes/manifests/kustomize/nsinjector-homelab-modules
-  dependsOn:
-    - name: nsinjector
-  postBuild:
-    substitute:
-      service_account: homelab-modules-runner
+
+#apiVersion: kustomize.toolkit.fluxcd.io/v1
+#kind: Kustomization
+#metadata:
+#  name: actions-runner-rbac-injector
+#spec:
+#  path: kubernetes/manifests/kustomize/nsinjector-homelab-modules
+#  dependsOn:
+#    - name: nsinjector
+#  postBuild:
+#    substitute:
+#      service_account: homelab-modules-runner
+
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -48,6 +50,12 @@ rules:
   - apiGroups: ["apiextensions.k8s.io"]
     resources: ["customresourcedefinitions"]
     verbs: ["get", "list"]
+  - apiGroups: ["kubevirt.io"]
+    resources: ["virtualmachines"]
+    verbs: ["list", "get", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["list", "get", "watch", "create", "update", "patch", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
