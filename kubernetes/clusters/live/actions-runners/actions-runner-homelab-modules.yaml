@@ -13,7 +13,7 @@ spec:
       github_config_url: https://github.com/ionfury/homelab-modules
       storage_class: fast-unmanaged
       service_account: homelab-modules-runner
-      image: ghcr.io/ionfury/opentofu-runner
+      image: ghcr.io/ionfury/homelab-modules-runner
       tag: latest
 ---
 
