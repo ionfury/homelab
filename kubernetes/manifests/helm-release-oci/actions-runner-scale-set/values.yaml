@@ -1,7 +1,7 @@
 githubConfigUrl: ${github_config_url}
 githubConfigSecret: ${name}-runner
 minRunners: 1
-maxRunners: 3
+maxRunners: 5
 containerMode:
   type: kubernetes
   kubernetesModeWorkVolumeClaim:
@@ -9,7 +9,7 @@ containerMode:
     storageClassName: ${storage_class:=default}
     resources:
       requests:
-        storage: 25Gi
+        storage: 10Gi
 controllerServiceAccount:
   name: actions-runner-controller
   namespace: actions-runner-system
