@@ -9,7 +9,7 @@ on:
 
 env:
   working_dir: infrastructure/clusters/dev
-  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+#  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 
 jobs:
   check:
@@ -49,16 +49,16 @@ jobs:
           echo "tf_version=$tf_version" | tee -a "$GITHUB_OUTPUT"
           echo "tg_version=$tg_version" | tee -a "$GITHUB_OUTPUT"
 
-      - name: Plugin Cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
+#      - name: Plugin Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+#          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
 
       - name: Terragrunt Plan
         uses: gruntwork-io/terragrunt-action@v2
-        env:
-          TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
+#        env:
+#          TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
         with:
           tofu_version: ${{ steps.get-versions.outputs.tf_version }}
           tg_version:   ${{ steps.get-versions.outputs.tg_version }}
