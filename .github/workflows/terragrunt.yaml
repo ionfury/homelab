@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.locl.hcl') }}
+          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
 
       - name: Terragrunt Plan
         uses: gruntwork-io/terragrunt-action@v2
