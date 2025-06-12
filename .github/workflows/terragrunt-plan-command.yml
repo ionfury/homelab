@@ -37,6 +37,12 @@ jobs:
         id: versions
         uses: ./.github/actions/get-versions
 
+      - name: Setup Terragrunt
+        run: tgenv install ${{ steps.versions.outputs.tg_version }} && tgenv use ${{ steps.versions.outputs.tg_version }}
+
+      - name: Setup OpenTofu
+        run: tofuenv install ${{ steps.versions.outputs.tf_version }} && tofuen use ${{ steps.versions.outputs.tf_version }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -45,12 +51,12 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Terragrunt Plan
-        uses: gruntwork-io/terragrunt-action@v2
         env:
-          TF_PLUGIN_CACHE_DIR: /github/workspace/.terraform.d/plugin-cache
-          TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE:  "true"
-        with:
-          tofu_version: ${{ steps.versions.outputs.tf-version }}
-          tg_version:   ${{ steps.versions.outputs.tg-version }}
-          tg_dir:       ${{ inputs.path }}
-          tg_command:   plan
+          TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
+          TERRAGRUNT_TFPATH: tofu
+          TERRAGRUNT_NON_INTERACTIVE: true
+          TF_INPUT: false
+          TF_IN_AUTOMATION: 1
+        run: |
+          cd ${{ env.working_dir }}
+          terragrunt plan
