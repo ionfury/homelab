@@ -47,7 +47,7 @@ jobs:
         run: |
           brew install tofuenv
           tofuenv install ${{ steps.versions.outputs.tf_version }}
-          tofuen use ${{ steps.versions.outputs.tf_version }}
+          tofuenv use ${{ steps.versions.outputs.tf_version }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
