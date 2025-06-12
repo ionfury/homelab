@@ -38,10 +38,16 @@ jobs:
         uses: ./.github/actions/get-versions
 
       - name: Setup Terragrunt
-        run: tgenv install ${{ steps.versions.outputs.tg_version }} && tgenv use ${{ steps.versions.outputs.tg_version }}
+        run: |
+          brew install tgenv
+          tgenv install ${{ steps.versions.outputs.tg_version }}
+          tgenv use ${{ steps.versions.outputs.tg_version }}
 
       - name: Setup OpenTofu
-        run: tofuenv install ${{ steps.versions.outputs.tf_version }} && tofuen use ${{ steps.versions.outputs.tf_version }}
+        run: |
+          brew install tofuenv
+          tofuenv install ${{ steps.versions.outputs.tf_version }}
+          tofuen use ${{ steps.versions.outputs.tf_version }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
