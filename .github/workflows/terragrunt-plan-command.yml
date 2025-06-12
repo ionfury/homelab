@@ -33,21 +33,17 @@ jobs:
           path: ${{ env.TF_PLUGIN_CACHE_DIR }}
           key: ${{ runner.os }}-terraform-plugin-cache-${{ hashFiles('**/providers.tf') }}
 
-      - name: Get versions
-        id: versions
-        uses: ./.github/actions/get-versions
-
       - name: Setup Terragrunt
         run: |
           brew install tgenv
-          tgenv install ${{ steps.versions.outputs.tg_version }}
-          tgenv use ${{ steps.versions.outputs.tg_version }}
+          tgenv install
+          tgenv use
 
       - name: Setup OpenTofu
         run: |
           brew install tofuenv
-          tofuenv install ${{ steps.versions.outputs.tf_version }}
-          tofuenv use ${{ steps.versions.outputs.tf_version }}
+          tofuenv install
+          tofuenv use
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -64,5 +60,5 @@ jobs:
           TF_INPUT: false
           TF_IN_AUTOMATION: 1
         run: |
-          cd ${{ env.working_dir }}
+          cd ${{ inputs.path }}
           terragrunt plan
