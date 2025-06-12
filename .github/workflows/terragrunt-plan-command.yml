@@ -24,6 +24,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create Terraform Plugin Cache Dir
+        run: mkdir --parents $TF_PLUGIN_CACHE_DIR
+
+      - name: Plugin Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-terraform-plugin-cache-${{ hashFiles('**/providers.tf') }}
+
+      - name: Get versions
+        id: versions
+        uses: ./.github/actions/get-versions
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -31,25 +44,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Get versions
-        id: versions
-        uses: ./.github/actions/get-versions
-
-      - name: Show versions
-        run: |
-          echo "TF Version: ${{ steps.versions.outputs.tf-version }}"
-          echo "TG Version: ${{ steps.versions.outputs.tg-version }}"
-
-      - name: Plugin Cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
-
       - name: Terragrunt Plan
         uses: gruntwork-io/terragrunt-action@v2
         env:
-          TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
+          TF_PLUGIN_CACHE_DIR: /github/workspace/.terraform.d/plugin-cache
+          TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE:  "true"
         with:
           tofu_version: ${{ steps.versions.outputs.tf-version }}
           tg_version:   ${{ steps.versions.outputs.tg-version }}
