@@ -15,10 +15,10 @@ inputs:
 outputs:
   tf-version:
     description: TF version to be used.
-    value: ${{ steps.get-versions.outputs.tf_version }}
+    value: ${{ steps.get-versions.outputs.tf-version }}
   tg-version:
     description: TG version to be used.
-    value: ${{ steps.get-versions.outputs.tg_version }}
+    value: ${{ steps.get-versions.outputs.tf-version }}
 
 runs:
   using: "composite"
@@ -36,8 +36,8 @@ runs:
           const tfVersion = fs.readFileSync(tfPath, 'utf8').trim();
           const tgVersion = fs.readFileSync(tgPath, 'utf8').trim();
 
-          core.info(`tf_version: ${tfVersion}`);
-          core.info(`tg_version: ${tgVersion}`);
+          core.info(`tf-version: ${tfVersion}`);
+          core.info(`tf-version: ${tgVersion}`);
 
-          core.setOutput('tf_version', tfVersion);
-          core.setOutput('tg_version', tgVersion);
+          core.setOutput('tf-version', tfVersion);
+          core.setOutput('tf-version', tgVersion);
