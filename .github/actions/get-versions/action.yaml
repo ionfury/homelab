@@ -18,7 +18,7 @@ outputs:
     value: ${{ steps.get-versions.outputs.tf-version }}
   tg-version:
     description: TG version to be used.
-    value: ${{ steps.get-versions.outputs.tf-version }}
+    value: ${{ steps.get-versions.outputs.tg-version }}
 
 runs:
   using: "composite"
@@ -37,7 +37,7 @@ runs:
           const tgVersion = fs.readFileSync(tgPath, 'utf8').trim();
 
           core.info(`tf-version: ${tfVersion}`);
-          core.info(`tf-version: ${tgVersion}`);
+          core.info(`tg-version: ${tgVersion}`);
 
           core.setOutput('tf-version', tfVersion);
-          core.setOutput('tf-version', tgVersion);
+          core.setOutput('tg-version', tgVersion);

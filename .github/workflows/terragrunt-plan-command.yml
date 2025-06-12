@@ -38,7 +38,7 @@ jobs:
       - name: Show versions
         run: |
           echo "TF Version: ${{ steps.versions.outputs.tf-version }}"
-          echo "TG Version: ${{ steps.versions.outputs.tf-version }}"
+          echo "TG Version: ${{ steps.versions.outputs.tg-version }}"
 
       - name: Plugin Cache
         uses: actions/cache@v4
@@ -52,6 +52,6 @@ jobs:
           TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
         with:
           tofu_version: ${{ steps.versions.outputs.tf-version }}
-          tg_version:   ${{ steps.versions.outputs.tf-version }}
+          tg_version:   ${{ steps.versions.outputs.tg-version }}
           tg_dir:       ${{ inputs.path }}
           tg_command:   plan
