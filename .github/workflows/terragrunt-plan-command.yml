@@ -46,7 +46,7 @@ jobs:
         env:
           TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
         with:
-          tofu_version: ${{ steps.versions.outputs.tf-version }}
-          tg_version:   ${{ steps.versions.outputs.tg-version }}
+          tofu_version: ${{ steps.versions.outputs.tf_version }}
+          tg_version:   ${{ steps.versions.outputs.tg_version }}
           tg_dir:       ${{ inputs.path }}
           tg_command:   plan

@@ -36,5 +36,8 @@ runs:
           const tfVersion = fs.readFileSync(tfPath, 'utf8').trim();
           const tgVersion = fs.readFileSync(tgPath, 'utf8').trim();
 
+          core.info(`tf_version: ${tfVersion}`);
+          core.info(`tg_version: ${tgVersion}`);
+
           core.setOutput('tf_version', tfVersion);
           core.setOutput('tg_version', tgVersion);
