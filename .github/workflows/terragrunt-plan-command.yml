@@ -35,11 +35,16 @@ jobs:
         id: versions
         uses: ./.github/actions/get-versions
 
+      - name: Show versions
+        run: |
+          echo "TF Version: ${{ steps.versions.outputs.tf_version }}"
+          echo "TG Version: ${{ steps.versions.outputs.tg_version }}"
+
       - name: Plugin Cache
         uses: actions/cache@v4
         with:
           path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.locl.hcl') }}
+          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
 
       - name: Terragrunt Plan
         uses: gruntwork-io/terragrunt-action@v2
