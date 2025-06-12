@@ -1,7 +1,7 @@
 githubConfigUrl: ${github_config_url}
 githubConfigSecret: ${name}-runner
 minRunners: 1
-maxRunners: 5
+maxRunners: ${max_runners:=1}
 containerMode:
   type: kubernetes
   kubernetesModeWorkVolumeClaim:

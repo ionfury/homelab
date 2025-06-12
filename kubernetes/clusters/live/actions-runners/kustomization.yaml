@@ -6,3 +6,4 @@ namespace: actions-runners
 resources:
   - ../../../manifests/common/resources/namespace
   - actions-runner-homelab-modules.yaml
+  - actions-runner-homelab.yaml

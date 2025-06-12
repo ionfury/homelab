@@ -9,26 +9,13 @@ spec:
     substitute:
       OCI_REPOSITORY_TAG: 0.11.0
       name: homelab-modules
-      secret: /homelab/kubernetes/homelab-modules-runner
+      secret: /homelab/kubernetes/live/homelab-modules-runner
       github_config_url: https://github.com/ionfury/homelab-modules
+      max_runners: 5
       storage_class: fast-unmanaged
       service_account: homelab-modules-runner
       image: ghcr.io/ionfury/homelab-modules-runner
       tag: latest
----
-
-#apiVersion: kustomize.toolkit.fluxcd.io/v1
-#kind: Kustomization
-#metadata:
-#  name: actions-runner-rbac-injector
-#spec:
-#  path: kubernetes/manifests/kustomize/nsinjector-homelab-modules
-#  dependsOn:
-#    - name: nsinjector
-#  postBuild:
-#    substitute:
-#      service_account: homelab-modules-runner
-
 ---
 apiVersion: v1
 kind: ServiceAccount
