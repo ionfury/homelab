@@ -47,13 +47,20 @@ jobs:
           path: ${{ env.TF_PLUGIN_CACHE_DIR }}
           key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.locl.hcl') }}
 
+      - name: Setup Terragrunt
+        run: tgenv install ${{ steps.versions.outputs.tg_version }} && tgenv use ${{ steps.versions.outputs.tg_version }}
+
+      - name: Setup OpenTofu
+        run: tofuenv install ${{ steps.versions.outputs.tf_version }} && tofuen use ${{ steps.versions.outputs.tf_version }}
+
       - name: Terragrunt Plan
-        uses: gruntwork-io/terragrunt-action@v2
         env:
           TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
-        with:
-          tofu_version: ${{ steps.versions.outputs.tf-version }}
-          tg_version:   ${{ steps.versions.outputs.tg_version }}
-          tg_dir:       ${{ env.working_dir }}
-          tg_command:   plan
+          TERRAGRUNT_TFPATH: tofu
+          TERRAGRUNT_NON_INTERACTIVE: true
+          TF_INPUT: false
+          TF_IN_AUTOMATION: 1
+        run: |
+          cd ${{ env.working_dir }}
+          terragrunt plan
 
