@@ -1,0 +1,67 @@
+name: Terragrunt Workflow
+
+on:
+  pull_request:
+    paths:
+      - infrastructure/clusters/dev/**
+      - .opentofu-version
+      - .terragrunt-version
+
+env:
+  working_dir: infrastructure/clusters/dev
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Versions
+        id: get-versions
+        run: |
+          tf_version=$(cat .opentofu-version)
+          tg_version=$(cat .terragrunt-version)
+          echo "tf_version=$tf_version" | tee -a "$GITHUB_OUTPUT"
+          echo "tg_version=$tg_version" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Check Terragrunt Format
+        uses: gruntwork-io/terragrunt-action@v2
+        with:
+          tofu_version: ${{ steps.get-versions.outputs.tf_version }}
+          tg_version:   ${{ steps.get-versions.outputs.tg_version }}
+          tg_dir:       ${{ env.working_dir }}
+          tg_command:   hcl fmt --check --diff
+
+  plan:
+    runs-on: ubuntu-latest
+    needs: [ check ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Versions
+        id: get-versions
+        run: |
+          tf_version=$(cat .opentofu-version)
+          tg_version=$(cat .terragrunt-version)
+          echo "tf_version=$tf_version" | tee -a "$GITHUB_OUTPUT"
+          echo "tg_version=$tg_version" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Plugin Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.locl.hcl') }}
+
+      - name: Terragrunt Plan
+        uses: gruntwork-io/terragrunt-action@v2
+        env:
+          TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
+        with:
+          tofu_version: ${{ steps.get-versions.outputs.tf_version }}
+          tg_version:   ${{ steps.get-versions.outputs.tg_version }}
+          tg_dir:       ${{ env.working_dir }}
+          tg_command:   plan
+
