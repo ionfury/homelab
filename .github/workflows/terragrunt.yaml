@@ -18,19 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get Versions
-        id: get-versions
-        run: |
-          tf_version=$(cat .opentofu-version)
-          tg_version=$(cat .terragrunt-version)
-          echo "tf_version=$tf_version" | tee -a "$GITHUB_OUTPUT"
-          echo "tg_version=$tg_version" | tee -a "$GITHUB_OUTPUT"
+      - name: Get versions
+        id: versions
+        uses: ./.github/actions/get-versions
 
       - name: Check Terragrunt Format
         uses: gruntwork-io/terragrunt-action@v2
         with:
-          tofu_version: ${{ steps.get-versions.outputs.tf_version }}
-          tg_version:   ${{ steps.get-versions.outputs.tg_version }}
+          tofu_version: ${{ steps.versions.outputs.tf_version }}
+          tg_version:   ${{ steps.versions.outputs.tg_version }}
           tg_dir:       ${{ env.working_dir }}
           tg_command:   hcl fmt --check --diff
 
@@ -41,13 +37,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get Versions
-        id: get-versions
-        run: |
-          tf_version=$(cat .opentofu-version)
-          tg_version=$(cat .terragrunt-version)
-          echo "tf_version=$tf_version" | tee -a "$GITHUB_OUTPUT"
-          echo "tg_version=$tg_version" | tee -a "$GITHUB_OUTPUT"
+      - name: Get versions
+        id: versions
+        uses: ./.github/actions/get-versions
 
       - name: Plugin Cache
         uses: actions/cache@v4
@@ -60,8 +52,8 @@ jobs:
         env:
           TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
         with:
-          tofu_version: ${{ steps.get-versions.outputs.tf_version }}
-          tg_version:   ${{ steps.get-versions.outputs.tg_version }}
+          tofu_version: ${{ steps.versions.outputs.tf-version }}
+          tg_version:   ${{ steps.versions.outputs.tg_version }}
           tg_dir:       ${{ env.working_dir }}
           tg_command:   plan
 
