@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Terragrunt Plan
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: Path to run Terragrunt Plan against
+        type: string
+        required: true
+      runner:
+        description: Runner to host run of Terragrunt Plan
+        type: string
+        required: true
+
+env:
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+
+jobs:
+  plan:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Get versions
+        id: versions
+        uses: ./.github/actions/get-versions
+
+      - name: Plugin Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.locl.hcl') }}
+
+      - name: Terragrunt Plan
+        uses: gruntwork-io/terragrunt-action@v2
+        env:
+          TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
+        with:
+          tofu_version: ${{ steps.versions.outputs.tf-version }}
+          tg_version:   ${{ steps.versions.outputs.tg_version }}
+          tg_dir:       ${{ inputs.path }}
+          tg_command:   plan

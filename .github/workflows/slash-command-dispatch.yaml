@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Slash Command Dispatch
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  slashCommandDispatch:
+    runs-on: ubuntu-latest
+    permissions:
+      actions:       write # Allow create workflow dispatch events
+      pull-requests: write # For doing the emoji reaction on a PR comment
+      issues:        write # For doing the emoji reaction on an issue comment
+      contents:      write # For executing the repository_dispatch event
+    steps:
+      - uses: xt0rted/pull-request-comment-branch@v3
+        id: comment-branch
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v4
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Slash Command Dispatch
+        id: scd
+        uses: peter-evans/slash-command-dispatch@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # https://github.com/peter-evans/slash-command-dispatch/issues/147
+          permission: admin
+          commands: |
+            plan
+          dispatch-type: workflow
+          static-args: |
+            path="infrastructure/clusters/dev"
+            runner="ubuntu-latest"
+
+      - name: Edit comment with error message
+        if: steps.scd.outputs.error-message
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            > ${{ steps.scd.outputs.error-message }}
