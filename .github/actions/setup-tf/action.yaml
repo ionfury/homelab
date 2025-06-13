@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Setup Terragrunt and OpenTofu
+description: Setup Terragrunt and OpenTofu versions for use in workflows.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install
+      shell: bash
+      run: |
+        brew install tgenv
+        brew install tofuenv
+
+    - name: Setup Terragrunt
+      shell: bash
+      run: |
+        tgenv install
+        tgenv use
+
+    - name: Setup OpenTofu
+      shell: bash
+      run: |
+        tofuenv install
+        tofuenv use

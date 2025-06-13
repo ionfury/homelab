@@ -7,5 +7,9 @@
   "yaml.customTags": [
     "!secret scalar",
     "!env_var scalar"
-  ]
+  ],
+  "gitlens.blame.line.enabled": false,// was working in previous versions
+  "gitlens.currentLine.enabled": false,// in modern version
+  "gitlens.codeLens.authors.enabled": false,
+  "gitlens.codeLens.recentChange.enabled": false,
 }

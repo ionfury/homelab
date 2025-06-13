@@ -14,36 +14,65 @@ on:
         type: string
         required: true
 
-env:
-  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
-
 jobs:
-  plan:
-    runs-on: ${{ inputs.runner }}
+  init:
+    runs-on: ubuntu-latest
+    env:
+      TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create Terraform Plugin Cache Dir
-        run: mkdir --parents $TF_PLUGIN_CACHE_DIR
+      - name: Ensure plugin cache directory exists
+        run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
 
-#      - name: Plugin Cache
-#        uses: actions/cache@v4
-#        with:
-#          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-#          key: ${{ runner.os }}-terraform-plugin-cache-${{ hashFiles('**/providers.tf') }}
+      - name: Cache Terraform Plugins
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-tf-plugin-cache-
 
-      - name: Setup Terragrunt
+      - name: Setup Terragrunt and OpenTofu
+        uses: ./.github/actions/setup-tf
+
+      - name: Run Terragrunt Init
+        env:
+          TERRAGRUNT_TFPATH: tofu
+          TERRAGRUNT_NON_INTERACTIVE: true
+          TF_INPUT: false
+          TF_IN_AUTOMATION: 1
         run: |
-          brew install tgenv
-          tgenv install
-          tgenv use
+          cd ${{ github.workspace }}
+          terragrunt init -upgrade
 
-      - name: Setup OpenTofu
-        run: |
-          brew install tofuenv
-          tofuenv install
-          tofuenv use
+      - name: Commit & Push .terraform.lock.hcl
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: ${{ inputs.path }}/.terraform.lock.hcl
+
+  plan:
+    runs-on: ${{ inputs.runner }}
+    env:
+      TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure plugin cache directory exists
+        run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
+
+      - name: Cache Terraform Plugins
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-tf-plugin-cache-
+
+      - name: Setup Terragrunt and OpenTofu
+        uses: ./.github/actions/setup-tf
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -54,7 +83,6 @@ jobs:
 
       - name: Terragrunt Plan
         env:
-#          TF_PLUGIN_CACHE_DIR: /github/workspaces/.terraform.d/plugin-cache
           TERRAGRUNT_TFPATH: tofu
           TERRAGRUNT_NON_INTERACTIVE: true
           TF_INPUT: false
