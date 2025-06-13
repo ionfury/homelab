@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: Terragrunt Plan
+name: Terragrunt Init
 
 on:
   workflow_dispatch:
@@ -13,15 +13,17 @@ on:
         description: Name of the check to update.
         type: string
         required: false
-        default: terragrunt-plan
+        default: terragrunt-init
       commit_sha:
         description: SHA of the head commit to run against.
         type: string
         required: true
 
 jobs:
-  plan:
-    runs-on: homelab-runner-staging-runner-app
+  start-check:
+    runs-on: macos-latest
+    outputs:
+      check_id: ${{ steps.lookup.outputs.check_id }}
     steps:
       - name: Start Check
         id: start-check
@@ -54,7 +56,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Terragrunt Plan
+      - name: Terragrunt Init
         id: terragrunt
         env:
           TG_TF_PATH: tofu
@@ -63,8 +65,13 @@ jobs:
           TF_IN_AUTOMATION: 1
         run: |
           cd ${{ inputs.path }}
-          terragrunt plan
+          terragrunt init
         continue-on-error: true
+
+      - name: Commit & Push .terraform.lock.hcl
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: ${{ inputs.path }}/.terraform.lock.hcl
 
       - name: Stop Check
         if: always()
@@ -78,7 +85,7 @@ jobs:
           conclusion: ${{ steps.terragrunt.outcome }}
           output: |
             {
-              "title":   "Terragrunt Plan",
-              "summary": "Terragrunt Plan was: ${{ steps.terragrunt.outcome }}",
-              "text_description": "This check will report the result of the Terragrunt plan."
+              "title":   "Terragrunt Init",
+              "summary": "Terragrunt Init was: ${{ steps.terragrunt.outcome }}",
+              "text_description": "This check will report the result of the Terragrunt Init."
             }

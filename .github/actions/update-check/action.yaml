@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Update Check
+description: Updates a check run with the given commit SHA and check name.
+
+inputs:
+  commit_sha:
+    description: SHA of the head commit to run against.
+    required: true
+  check_name:
+    description: Name of the check to lookup.
+    required: true
+  status:
+    description: Status of the check run.
+    required: true
+  details_url:
+    description: URL to the details of the check run.
+    required: false
+    default: ''
+  output:
+    description: Output of the check run in JSON format.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Get GitHub App Token
+      id: get-token
+      uses: peter-murray/workflow-application-token-action@v4
+      with:
+        application_id: ${{ secrets.APPLICATION_ID }}
+        application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+    - name: Lookup Check ID
+      if: ${{ inputs.commit_sha != '' }}
+      id: lookup-check
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const checks = await github.rest.checks.listForRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: '${{ inputs.commit_sha }}',
+            check_name: '${{ inputs.check_name}}',
+          });
+          if (checks.data.check_runs.length === 0) {
+            core.setOutput('check_id', '');
+          }
+          else {
+            const checkId = checks.data.check_runs[0].id;
+            core.setOutput('check_id', checkId);
+          }
+
+    - name: Update Check
+      if: ${{ steps.lookup-check.outputs.check_id != '' }}
+      id: update-check
+      uses: LouisBrunner/checks-action@v2
+      with:
+        token: ${{ steps.get-token.outputs.token }}
+        check_id: ${{ steps.lookup-check.outputs.check_id }}
+        sha: ${{ inputs.commit_sha }}
+        status: ${{ inputs.status}}
+        details_url: ${{ inputs.details_url}}
+        output: ${{ inputs.output}}
