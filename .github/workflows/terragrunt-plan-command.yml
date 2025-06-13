@@ -17,7 +17,7 @@ on:
 
 jobs:
   plan:
-    runs-on: ubuntu-latest #homelab-runner-staging-runner-app
+    runs-on: homelab-runner-staging-runner-app
 
     steps:
       - name: Checkout
@@ -36,7 +36,7 @@ jobs:
       - name: Lookup Check ID
         if: ${{ inputs.commit_sha != '' }}
         id: lookup
-        uses: actions/github-script@v7
+        uses: actions/github-script@v5
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           script: |
