@@ -37,18 +37,19 @@ jobs:
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           script: |
-            const resp = await github.request(
-              'GET /repos/{owner}/{repo}/commits/{ref}/check-runs',
-              {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref:   '${{ inputs.commit_sha }}',
-                check_name: 'Terragrunt Plan'
-              }
-            );
-            const runs = resp.data.check_runs;
-            if (runs.length === 0) throw new Error('No check run found.');
-            core.setOutput('check_id', runs[0].id);
+            const { data } = await github.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ inputs.commit_sha }}',
+              check_name: 'Terragrunt Plan'
+            });
+            if (!data.check_runs.length) {
+              core.setOutput('', checkId);
+            }
+            else {
+              const checkId = data.check_runs[0].id;
+              core.setOutput('check_id', checkId);
+            }
 
       - name: Mark Check in_progress
         if: ${{ steps.lookup.outputs.check_id != '' }}
