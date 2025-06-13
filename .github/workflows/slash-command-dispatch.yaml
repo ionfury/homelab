@@ -35,8 +35,8 @@ jobs:
             terragrunt-plan
           dispatch-type: workflow
           static-args: |
-            path="infrastructure/clusters/dev"
-            runner="ubuntu-latest"
+            path="infrastructure/clusters/staging"
+            commit_sha="${{ steps.comment-branch.outputs.head_sha }}"
 
       - name: Edit comment with error message
         if: steps.scd.outputs.error-message
