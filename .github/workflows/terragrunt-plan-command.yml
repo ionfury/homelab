@@ -108,7 +108,7 @@ jobs:
           check_id: ${{ steps.lookup.outputs.check_id }}
           sha: ${{ inputs.commit_sha }}
           status: completed
-          conclusion: ${{ job.status == 'success' }}
+          conclusion: ${{ job.status }}
           output: |
             {
               "title":   "Terragrunt Plan Result",
