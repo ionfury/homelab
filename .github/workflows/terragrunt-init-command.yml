@@ -30,6 +30,8 @@ jobs:
         id: start-check
         uses: ./.github/actions/update-check
         with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           commit_sha: ${{ inputs.commit_sha }}
           check_name: ${{ inputs.check_name }}
           status: in_progress
@@ -90,6 +92,8 @@ jobs:
         id: stop-check
         uses: ./.github/actions/update-check
         with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           commit_sha: ${{ inputs.commit_sha }}
           check_name: ${{ inputs.check_name }}
           status: completed

@@ -20,6 +20,12 @@ inputs:
     description: Output of the check run in JSON format.
     required: false
     default: ''
+  application_id:
+    description: GitHub App ID (pass in from your workflows secrets)
+    required: true
+  application_private_key:
+    description: GitHub App private key (pass in from your workflows secrets)
+    required: true
 
 runs:
   using: composite
@@ -28,8 +34,8 @@ runs:
       id: get-token
       uses: peter-murray/workflow-application-token-action@v4
       with:
-        application_id: ${{ secrets.APPLICATION_ID }}
-        application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+        application_id: ${{ inputs.application_id }}
+        application_private_key: ${{ inputs.application_private_key }}
 
     - name: Lookup Check ID
       if: ${{ inputs.commit_sha != '' }}
