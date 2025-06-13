@@ -6,71 +6,71 @@ on:
   workflow_dispatch:
     inputs:
       path:
-        description: Path to run Terragrunt Plan against
+        description: Path to run Terragrunt Plan against.
         type: string
         required: true
-      runner:
-        description: Runner to host run of Terragrunt Plan
+      commit_sha:
+        description: SHA of the head commit to run against.
         type: string
-        default: homelab-runner-staging-runner-app
-        required: false
+        required: true
 
 jobs:
-  init:
-    runs-on: ${{ inputs.runner }}
-    #env:
-    #  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+  lookup-check:
+    if: ${{ inputs.commit_sha != '' }}
+    runs-on: ubuntu-latest
+    outputs:
+      check_id: ${{ steps.lookup.outputs.check_id }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      #- name: Ensure plugin cache directory exists
-      #  run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
-
-      #- name: Cache Terraform Plugins
-      #  uses: actions/cache@v4
-      #  with:
-      #    path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-      #    key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
-      #    restore-keys: |
-      #      ${{ runner.os }}-tf-plugin-cache-
-
-      - name: Setup Terragrunt and OpenTofu
-        uses: ./.github/actions/setup-tf
-
-      - name: Run Terragrunt Init
-        env:
-          TG_TF_PATH: tofu
-          TERRAGRUNT_NON_INTERACTIVE: true
-          TF_INPUT: false
-          TF_IN_AUTOMATION: 1
-        run: |
-          cd ${{ inputs.path }}
-          terragrunt init -upgrade
-
-      - name: Commit & Push .terraform.lock.hcl
-        uses: EndBug/add-and-commit@v9
+      - name: Lookup Check ID
+        id: lookup
+        uses: actions/github-script@v7
         with:
-          add: ${{ inputs.path }}/.terraform.lock.hcl
+          script: |
+            const { data } = await github.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ inputs.commit_sha }}',
+              check_name: 'Terragrunt Plan'
+            });
+            if (!data.check_runs.length) {
+              throw new Error('No check found for the specified commit SHA.');
+            }
+            const checkId = data.check_runs[0].id;
+            core.setOutput('check_id', checkId);
+
+  start-check:
+    if: ${{ needs.lookup-check.result == 'success' }}
+    needs: [lookup-check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v4
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Lookup Check
+        id: lookup-check
+        uses: LouisBrunner/checks-action@v2
+        with:
+          token: ${{ steps.get_workflow_token.outputs.token }}
+          sha: ${{ inputs.commit_sha }}
+          status: in_progress
+          details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          output: |
+            {
+              "title": "Terragrunt Plan",
+              "summary": "Running Terragrunt Plan",
+              "text_description": "This workflow is running a Terragrunt plan."
+            }
 
   plan:
-    runs-on: ${{ inputs.runner }}
-    #env:
-    #  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+    needs: [start-check]
+    runs-on: homelab-runner-staging-runner-app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      #- name: Ensure plugin cache directory exists
-      #  run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
-
-      #- name: Cache Terraform Plugins
-      #  uses: actions/cache@v4
-      #  with:
-      #    path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-      #    key: ${{ runner.os }}-tf-plugin-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
-      #    restore-keys: |
-      #      ${{ runner.os }}-tf-plugin-cache-
 
       - name: Setup Terragrunt and OpenTofu
         uses: ./.github/actions/setup-tf
@@ -91,3 +91,36 @@ jobs:
         run: |
           cd ${{ inputs.path }}
           terragrunt plan
+
+      - name: Commit & Push .terraform.lock.hcl
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: ${{ inputs.path }}/.terraform.lock.hcl
+
+  report-check:
+    needs: [lookup-check, start-check, plan]
+    if: ${{ needs['lookup-check'].result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v4
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Report Check
+        id: report-check
+        uses: LouisBrunner/checks-action@v2
+        with:
+          token: ${{ steps.get_workflow_token.outputs.token }}
+          check-id: ${{ needs['lookup-check'].outputs.check_id }}
+          sha: ${{ inputs.commit_sha }}
+          status: completed
+          conclusion: ${{ needs['plan'].result == 'success' }}
+          output: |
+            {
+              "title": "Terragrunt Plan Result",
+              "summary": "The Terragrunt plan was successful.",
+              "text_description": "The Terragrunt plan completed successfully.\nNo changes were detected."
+            }
