@@ -50,8 +50,6 @@ jobs:
   terragrunt:
     needs: [start-check]
     runs-on: homelab-runner-staging-runner-app
-    outputs:
-      terragrunt_output: ${{ steps.terragrunt.outputs.terragrunt_output }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,5 +100,5 @@ jobs:
             {
               "title":   "Terragrunt ${{ inputs.command}}",
               "summary": "Terragrunt ${{ inputs.command}} was: ${{ needs.terragrunt.result }}",
-              "text_description": "${{ needs.terragrunt.outputs.terragrunt_output }}"
+              "text_description": "TBD"
             }

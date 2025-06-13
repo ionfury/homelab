@@ -10,14 +10,6 @@ inputs:
     description: Command to run with Terragrunt.
     required: true
 
-outputs:
-  terragrunt_output:
-    description: The output of the Terragrunt command.
-    value: ${{ steps.terragrunt.outputs.terragrunt_output }}
-  terragrunt_exit_code:
-    description: The exit code of the Terragrunt command.
-    value: ${{ steps.terragrunt.outputs.terragrunt_exit_code }}
-
 runs:
   using: composite
   steps:
@@ -48,11 +40,5 @@ runs:
         TF_INPUT: false
         TF_IN_AUTOMATION: 1
       run: |
-        terragrunt_output=$(mktemp)
         cd "${{ inputs.path }}"
-        terragrunt "${{ inputs.command }}" 2>&1 | tee "${terragrunt_output}"
-        exit_code=${PIPESTATUS[0]}
-        output=$(cat "${terragrunt_output}")
-
-        echo "terragrunt_ouput=${output}" >> $GITHUB_OUTPUT
-        echo "terragrunt_exit_code=${exit_code}" >> $GITHUB_OUTPUT
+        terragrunt "${{ inputs.command }}"
