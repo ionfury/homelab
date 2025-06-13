@@ -12,6 +12,10 @@ inputs:
   status:
     description: Status of the check run.
     required: true
+  conclusion:
+    description: Conclusion of the check run.
+    required: false
+    default: ''
   details_url:
     description: URL to the details of the check run.
     required: false
@@ -67,5 +71,6 @@ runs:
         check_id: ${{ steps.lookup-check.outputs.check_id }}
         sha: ${{ inputs.commit_sha }}
         status: ${{ inputs.status}}
+        conclusion: ${{ inputs.conclusion }}
         details_url: ${{ inputs.details_url}}
         output: ${{ inputs.output}}
