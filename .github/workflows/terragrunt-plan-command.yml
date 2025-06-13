@@ -12,7 +12,8 @@ on:
       runner:
         description: Runner to host run of Terragrunt Plan
         type: string
-        required: true
+        default: homelab-runner-staging-runner-app
+        required: false
 
 jobs:
   init:
