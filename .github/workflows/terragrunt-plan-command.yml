@@ -16,7 +16,7 @@ on:
 
 jobs:
   init:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner }}
     env:
       TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
     steps:
