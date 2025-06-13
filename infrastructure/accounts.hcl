@@ -1,17 +1,8 @@
 locals {
-  tld = "tomnowak.work"
-
-  aws = {
-    region  = "us-east-2"
-    profile = "terragrunt"
-  }
-
   unifi = {
-    address        = "https://192.168.1.1"
-    username_store = "/homelab/infrastructure/accounts/unifi/username"
-    password_store = "/homelab/infrastructure/accounts/unifi/password"
-    api_key_store  = "/homelab/infrastructure/accounts/unifi/api-key"
-    site           = "default"
+    address       = "https://192.168.1.1"
+    site          = "default"
+    api_key_store = "/homelab/infrastructure/accounts/unifi/api-key"
   }
 
   github = {
@@ -22,9 +13,10 @@ locals {
   }
 
   cloudflare = {
-    account       = "homelab"
-    email         = "ionfury@gmail.com"
-    api_key_store = "/homelab/infrastructure/accounts/cloudflare/api-key"
+    account         = "homelab"
+    email           = "ionfury@gmail.com"
+    api_token_store = "/homelab/infrastructure/accounts/cloudflare/token"
+    zone_id         = "799905ff93d585a9a0633949275cbf98"
   }
 
   external_secrets = {
