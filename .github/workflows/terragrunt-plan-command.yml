@@ -9,6 +9,11 @@ on:
         description: Path to run Terragrunt Plan against.
         type: string
         required: true
+      check_name:
+        description: Name of the check to update.
+        type: string
+        required: false
+        default: "Terragrunt Plan"
       commit_sha:
         description: SHA of the head commit to run against.
         type: string
@@ -44,7 +49,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: '${{ inputs.commit_sha }}',
-              check_name: 'dummy',
+              check_name: '${{ inputs.check_name}}',
             });
             if (checks.data.check_runs.length === 0) {
               core.setOutput('check_id', '');
