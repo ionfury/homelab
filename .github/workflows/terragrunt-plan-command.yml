@@ -36,11 +36,10 @@ jobs:
       - name: Lookup Check ID
         if: ${{ inputs.commit_sha != '' }}
         id: lookup
-        uses: actions/github-script@v5
+        uses: actions/github-script@v7
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           script: |
-            console.log('github.checks methods:', Object.keys(github.checks));
             console.log('github.rest.checks methods:', Object.keys(github.rest.checks));
             const checks = await github.rest.checks.listForRef({
               owner: context.repo.owner,
