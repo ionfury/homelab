@@ -40,17 +40,16 @@ jobs:
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           script: |
-            const { data } = await github.checks.listForRef({
+            const checks = await github.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: '${{ inputs.commit_sha }}',
-              check_name: 'Terragrunt Plan'
             });
-            if (!data.check_runs.length) {
+            if (!checks.data.check_runs.length) {
               core.setOutput('', checkId);
             }
             else {
-              const checkId = data.check_runs[0].id;
+              const checkId = checks.data.check_runs[0].id;
               core.setOutput('check_id', checkId);
             }
 
