@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Run Terragrunt
+description: Runs Terragrunt commands in a specified path.
+
+inputs:
+  path:
+    description: Path to run against.
+    required: true
+  command:
+    description: Command to run with Terragrunt.
+    required: true
+
+outputs:
+  terragrunt_output:
+    description: The output of the Terragrunt command.
+    value: ${{ steps.terragrunt.outputs.stdout }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install
+      shell: bash
+      run: |
+        brew install tgenv
+        brew install tofuenv
+
+    - name: Setup Terragrunt
+      shell: bash
+      run: |
+        tgenv install
+        tgenv use
+
+    - name: Setup OpenTofu
+      shell: bash
+      run: |
+        tofuenv install
+        tofuenv use
+
+    - name: Run Terragrunt
+      id: terragrunt
+      shell: bash
+      env:
+        TG_TF_PATH: tofu
+        TERRAGRUNT_NON_INTERACTIVE: true
+        TF_INPUT: false
+        TF_IN_AUTOMATION: 1
+      run: |
+        cd "${{ inputs.path }}"
+        output=$(terragrunt ${{ inputs.command }}-input=false -compact-warnings -concise)
+
+        echo "$output"
+
+        echo "terragrunt_output<<EOF" >> "$GITHUB_OUTPUT"
+        echo "$output" >> "$GITHUB_OUTPUT"
+        echo "EOF" >> "$GITHUB_OUTPUT"
+

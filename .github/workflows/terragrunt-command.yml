@@ -1,19 +1,23 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: Terragrunt Init
+name: Terragrunt Command
 
 on:
   workflow_dispatch:
     inputs:
+      command:
+        description: The Terragrunt command to run (e.g., init, plan).
+        required: true
+        type: choice
+        options:
+          - init
+          - plan
+          #- apply
+          #- destroy
       path:
         description: Path to run against.
         type: string
         required: true
-      check_name:
-        description: Name of the check to update.
-        type: string
-        required: false
-        default: terragrunt-init
       commit_sha:
         description: SHA of the head commit to run against.
         type: string
@@ -33,28 +37,27 @@ jobs:
           application_id: ${{ secrets.APPLICATION_ID }}
           application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           commit_sha: ${{ inputs.commit_sha }}
-          check_name: ${{ inputs.check_name }}
+          check_name: "terragrunt_${{ inputs.command}}"
           status: in_progress
           details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           output: |
             {
-              "title":   "Terragrunt Plan",
-              "summary": "Running Terragrunt plan…",
-              "text_description": "This check will report the result of the Terragrunt plan."
+              "title": "Terragrunt ${{ inputs.command }}",
+              "summary": "Running Terragrunt ${{ inputs.command }}",
+              "text_description": "This check will report the result of the Terragrunt ${{ inputs }} command."
             }
 
   terragrunt:
     needs: [start-check]
     runs-on: homelab-runner-staging-runner-app
+    outputs:
+      terragrunt_output: ${{ steps.terragrunt.outputs.terragrunt_output }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.commit_sha }}
           fetch-depth: 0
-
-      - name: Setup Terragrunt and OpenTofu
-        uses: ./.github/actions/setup-tf
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -63,19 +66,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Terragrunt Init
+      - name: Run Terragrunt
         id: terragrunt
-        env:
-          TG_TF_PATH: tofu
-          TERRAGRUNT_NON_INTERACTIVE: true
-          TF_INPUT: false
-          TF_IN_AUTOMATION: 1
-        run: |
-          cd ${{ inputs.path }}
-          terragrunt init
-        continue-on-error: true
+        uses: ./.github/actions/terragrunt
+        with:
+          path: ${{ inputs.path }}
+          command: ${{ inputs.command}}
 
       - name: Commit & Push .terraform.lock.hcl
+        if: ${{ inputs.command == 'init'}}
         uses: EndBug/add-and-commit@v9
         with:
           add: ${{ inputs.path }}/.terraform.lock.hcl
@@ -95,13 +94,13 @@ jobs:
           application_id: ${{ secrets.APPLICATION_ID }}
           application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           commit_sha: ${{ inputs.commit_sha }}
-          check_name: ${{ inputs.check_name }}
+          check_name: "terragrunt_${{ inputs.command }}"
           status: completed
           details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           conclusion: ${{ needs.terragrunt.result }}
           output: |
             {
-              "title":   "Terragrunt Init",
-              "summary": "Terragrunt Init was: ${{ needs.terragrunt.result }}",
-              "text_description": "This check will report the result of the Terragrunt Init."
+              "title":   "Terragrunt ${{ inputs.command}}",
+              "summary": "Terragrunt ${{ inputs.command}} was: ${{ needs.terragrunt.result }}",
+              "text_description": "${{ needs.terragrunt.outputs.terragrunt_output }}"
             }

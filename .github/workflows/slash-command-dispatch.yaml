@@ -31,8 +31,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }} # https://github.com/peter-evans/slash-command-dispatch/issues/147
           permission: admin
           commands: |
-            terragrunt-init
-            terragrunt-plan
+            terragrunt
           dispatch-type: workflow
           static-args: |
             path="infrastructure/clusters/staging"
