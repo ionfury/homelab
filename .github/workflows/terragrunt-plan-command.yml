@@ -105,7 +105,7 @@ jobs:
         uses: LouisBrunner/checks-action@v2
         with:
           token: ${{ steps.get_workflow_token.outputs.token }}
-          check-id: ${{ steps.lookup.outputs.check_id }}
+          check_id: ${{ steps.lookup.outputs.check_id }}
           sha: ${{ inputs.commit_sha }}
           status: completed
           conclusion: ${{ job.status == 'success' }}
