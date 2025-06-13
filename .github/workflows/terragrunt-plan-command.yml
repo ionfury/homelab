@@ -16,62 +16,55 @@ on:
         default: ""
 
 jobs:
-  lookup-check:
-    if: ${{ inputs.commit_sha != '' }}
-    runs-on: ubuntu-latest
-    outputs:
-      check_id: ${{ steps.lookup.outputs.check_id }}
-    steps:
-      - name: Lookup Check ID
-        id: lookup
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data } = await github.checks.listForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: '${{ inputs.commit_sha }}',
-              check_name: 'Terragrunt Plan'
-            });
-            if (!data.check_runs.length) {
-              throw new Error('No check found for the specified commit SHA.');
-            }
-            const checkId = data.check_runs[0].id;
-            core.setOutput('check_id', checkId);
+  plan:
+    runs-on: homelab-runner-staging-runner-app
 
-  start-check:
-    if: ${{ needs.lookup-check.result == 'success' }}
-    needs: [lookup-check]
-    runs-on: ubuntu-latest
     steps:
-      - name: Get Token
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get GitHub App Token
         id: get_workflow_token
         uses: peter-murray/workflow-application-token-action@v4
         with:
           application_id: ${{ secrets.APPLICATION_ID }}
           application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
 
-      - name: Lookup Check
-        id: lookup-check
+      - name: Lookup Check ID
+        if: ${{ inputs.commit_sha != '' }}
+        id: lookup
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.get_workflow_token.outputs.token }}
+          script: |
+            const resp = await github.request(
+              'GET /repos/{owner}/{repo}/commits/{ref}/check-runs',
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref:   '${{ inputs.commit_sha }}',
+                check_name: 'Terragrunt Plan'
+              }
+            );
+            const runs = resp.data.check_runs;
+            if (runs.length === 0) throw new Error('No check run found.');
+            core.setOutput('check_id', runs[0].id);
+
+      - name: Mark Check in_progress
+        if: ${{ steps.lookup.outputs.check_id != '' }}
         uses: LouisBrunner/checks-action@v2
         with:
           token: ${{ steps.get_workflow_token.outputs.token }}
+          check_id: ${{ steps.lookup.outputs.check_id }}
           sha: ${{ inputs.commit_sha }}
           status: in_progress
           details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           output: |
             {
-              "title": "Terragrunt Plan",
-              "summary": "Running Terragrunt Plan",
-              "text_description": "This workflow is running a Terragrunt plan."
+              "title":   "Terragrunt Plan",
+              "summary": "Running Terragrunt plan…",
+              "text_description": "This check will report the result of the Terragrunt plan."
             }
-
-  plan:
-    needs: [start-check]
-    runs-on: homelab-runner-staging-runner-app
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Setup Terragrunt and OpenTofu
         uses: ./.github/actions/setup-tf
@@ -98,30 +91,18 @@ jobs:
         with:
           add: ${{ inputs.path }}/.terraform.lock.hcl
 
-  report-check:
-    needs: [lookup-check, start-check, plan]
-    if: ${{ needs['lookup-check'].result == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@v4
-        with:
-          application_id: ${{ secrets.APPLICATION_ID }}
-          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-
       - name: Report Check
-        id: report-check
+        if: ${{ steps.lookup.outputs.check_id  != '' }}
         uses: LouisBrunner/checks-action@v2
         with:
           token: ${{ steps.get_workflow_token.outputs.token }}
-          check-id: ${{ needs['lookup-check'].outputs.check_id }}
+          check-id: ${{ steps.lookup.outputs.check_id }}
           sha: ${{ inputs.commit_sha }}
           status: completed
-          conclusion: ${{ needs['plan'].result == 'success' }}
+          conclusion: ${{ job.status == 'success' }}
           output: |
             {
-              "title": "Terragrunt Plan Result",
-              "summary": "The Terragrunt plan was successful.",
-              "text_description": "The Terragrunt plan completed successfully.\nNo changes were detected."
+              "title":   "Terragrunt Plan Result",
+              "summary": "Plan done",
+              "text_description": "See the logs for details."
             }
