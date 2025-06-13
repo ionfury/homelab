@@ -40,12 +40,12 @@ jobs:
 
       - name: Run Terragrunt Init
         env:
-          TERRAGRUNT_TFPATH: tofu
+          TG_TF_PATH: tofu
           TERRAGRUNT_NON_INTERACTIVE: true
           TF_INPUT: false
           TF_IN_AUTOMATION: 1
         run: |
-          cd ${{ github.workspace }}
+          cd ${{ inputs.path }}
           terragrunt init -upgrade
 
       - name: Commit & Push .terraform.lock.hcl
@@ -84,7 +84,7 @@ jobs:
 
       - name: Terragrunt Plan
         env:
-          TERRAGRUNT_TFPATH: tofu
+          TG_TF_PATH: tofu
           TERRAGRUNT_NON_INTERACTIVE: true
           TF_INPUT: false
           TF_IN_AUTOMATION: 1
