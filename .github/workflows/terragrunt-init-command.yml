@@ -43,7 +43,7 @@ jobs:
               "text_description": "This check will report the result of the Terragrunt plan."
             }
 
-  init:
+  terragrunt:
     needs: [start-check]
     runs-on: homelab-runner-staging-runner-app
     steps:
@@ -81,7 +81,7 @@ jobs:
           add: ${{ inputs.path }}/.terraform.lock.hcl
 
   stop-check:
-    needs: [start-check, init]
+    needs: [start-check, terragrunt]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -98,10 +98,10 @@ jobs:
           check_name: ${{ inputs.check_name }}
           status: completed
           details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          conclusion: ${{ steps.terragrunt.outcome }}
+          conclusion: ${{ needs.terragrunt.result }}
           output: |
             {
               "title":   "Terragrunt Init",
-              "summary": "Terragrunt Init was: ${{ steps.terragrunt.outcome }}",
+              "summary": "Terragrunt Init was: ${{ needs.terragrunt.result }}",
               "text_description": "This check will report the result of the Terragrunt Init."
             }
