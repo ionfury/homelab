@@ -46,7 +46,7 @@ runs:
         TF_IN_AUTOMATION: 1
       run: |
         cd "${{ inputs.path }}"
-        output=$(terragrunt ${{ inputs.command }}-input=false -compact-warnings -concise)
+        output=$(terragrunt ${{ inputs.command }} -input=false)
 
         echo "$output"
 
