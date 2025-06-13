@@ -12,7 +12,8 @@ on:
       commit_sha:
         description: SHA of the head commit to run against.
         type: string
-        required: true
+        required: false
+        default: ""
 
 jobs:
   lookup-check:
