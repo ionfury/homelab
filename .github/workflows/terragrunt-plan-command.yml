@@ -46,8 +46,8 @@ jobs:
               ref: '${{ inputs.commit_sha }}',
               check_name: 'dummy',
             });
-            if (!checks.data.check_runs.length) {
-              core.setOutput('', checkId);
+            if (checks.data.check_runs.length === 0) {
+              core.setOutput('check_id', '');
             }
             else {
               const checkId = checks.data.check_runs[0].id;
