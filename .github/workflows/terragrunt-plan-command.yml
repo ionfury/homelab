@@ -40,7 +40,9 @@ jobs:
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           script: |
-            const checks = await github.checks.listForRef({
+            console.log('github.checks methods:', Object.keys(github.checks));
+            console.log('github.rest.checks methods:', Object.keys(github.rest.checks));
+            const checks = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: '${{ inputs.commit_sha }}',
