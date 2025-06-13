@@ -21,9 +21,7 @@ remote_state {
   config = {
     bucket         = "homelab-terragrunt-remote-state"
     key            = "${path_relative_to_include()}/terraform.tfstate"
-    region         = "us-east-2"
     encrypt        = true
     dynamodb_table = "terragrunt"
-    profile        = "terragrunt"
   }
 }
