@@ -9,10 +9,10 @@ jobs:
   slashCommandDispatch:
     runs-on: ubuntu-latest
     permissions:
-      actions:       write # Allow create workflow dispatch events
+      actions: write # Allow create workflow dispatch events
       pull-requests: write # For doing the emoji reaction on a PR comment
-      issues:        write # For doing the emoji reaction on an issue comment
-      contents:      write # For executing the repository_dispatch event
+      issues: write # For doing the emoji reaction on an issue comment
+      contents: write # For executing the repository_dispatch event
     steps:
       - uses: xt0rted/pull-request-comment-branch@v3
         id: comment-branch
@@ -31,6 +31,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }} # https://github.com/peter-evans/slash-command-dispatch/issues/147
           permission: admin
           commands: |
+            terragrunt-init
             terragrunt-plan
           dispatch-type: workflow
           static-args: |
