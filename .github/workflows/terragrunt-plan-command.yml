@@ -17,7 +17,7 @@ on:
 
 jobs:
   plan:
-    runs-on: homelab-runner-staging-runner-app
+    runs-on: ubuntu-latest #homelab-runner-staging-runner-app
 
     steps:
       - name: Checkout
