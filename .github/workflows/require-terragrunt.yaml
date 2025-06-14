@@ -26,7 +26,7 @@ jobs:
         id: create-terragrunt-plan-check
         uses: LouisBrunner/checks-action@v2
         with:
-          name: terragrunt_plan
+          name: Terragrunt plan
           token: ${{ steps.get_workflow_token.outputs.token }}
           status: queued
 
@@ -34,6 +34,6 @@ jobs:
         id: create-terragrunt-apply-check
         uses: LouisBrunner/checks-action@v2
         with:
-          name: terragrunt_apply
+          name: Terragrunt apply
           token: ${{ steps.get_workflow_token.outputs.token }}
           status: queued
