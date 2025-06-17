@@ -12,7 +12,7 @@ on:
         options:
           - init
           - plan
-          #- apply
+          - apply
           #- destroy
       path:
         description: Path to run against.
