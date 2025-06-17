@@ -78,6 +78,7 @@ jobs:
           add: ${{ inputs.path }}/.terraform.lock.hcl
 
   stop-check:
+    if: always()
     needs: [start-check, terragrunt]
     runs-on: ubuntu-latest
     steps:
