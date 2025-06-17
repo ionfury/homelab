@@ -31,6 +31,30 @@ runs:
         tofuenv install
         tofuenv use
 
+    - name: Determine additional Terragrunt args
+      id: args
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        declare -r cmd="${{ inputs.command }}"
+        declare extra_args=""
+
+        case "$cmd" in
+          apply)  extra_args="-auto-approve" ;;
+          plan)   extra_args="-lock=false" ;;
+          init)   extra_args="" ;;
+          destroy) extra_args="" ;;
+          *)
+            echo "::error::Unsupported Terragrunt command: '$cmd'"
+            exit 1
+            ;;
+        esac
+
+        echo "TERRAGRUNT_COMMAND=$cmd" >> "$GITHUB_ENV"
+        echo "TERRAGRUNT_EXTRA_ARGS=$extra_args" >> "$GITHUB_ENV"
+        echo "TERRAGRUNT_PATH=${{ inputs.path }}" >> "$GITHUB_ENV"
+
     - name: Run Terragrunt
       id: terragrunt
       shell: bash
@@ -40,5 +64,10 @@ runs:
         TF_INPUT: false
         TF_IN_AUTOMATION: 1
       run: |
-        cd "${{ inputs.path }}"
-        terragrunt "${{ inputs.command }}"
+        set -euo pipefail
+
+        echo "> Running terragrunt in: $TERRAGRUNT_PATH"
+        cd "$TERRAGRUNT_PATH"
+
+        echo "+ terragrunt $TERRAGRUNT_COMMAND $TERRAGRUNT_EXTRA_ARGS"
+        terragrunt $TERRAGRUNT_COMMAND $TERRAGRUNT_EXTRA_ARGS
