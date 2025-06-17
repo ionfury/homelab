@@ -9,7 +9,7 @@ inputs = {
   nameservers            = ["192.168.10.1"]
   timeservers            = ["0.pool.ntp.org", "1.pool.ntp.org"]
   cluster_node_subnet    = "192.168.10.0/24"
-  ssm_output_path        = "homelab/infrastructure/clusters"
+  ssm_output_path        = "/homelab/infrastructure/clusters"
 
   cluster_on_destroy = {
     graceful = false
