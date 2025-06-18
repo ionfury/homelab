@@ -24,16 +24,16 @@ inputs = {
   cluster_service_subnet = "172.25.0.0/16"
   cluster_vip            = "192.168.10.40"
 
-  cluster_env_vars = {
-    cluster_id            = 4
-    cluster_ip_pool_start = "192.168.10.41"
-    cluster_ip_pool_stop  = "192.168.10.49"
-    cluster_l2_interfaces = "[\"ens1f0\"]"
-    internal_domain       = local.cluster_tld
-    internal_ingress_ip   = "192.168.10.42"
-    external_domain       = local.cluster_tld
-    external_ingress_ip   = "192.168.10.43"
-  }
+  cluster_env_vars = [
+    {"name": "cluster_id",            "value": 4},
+    {"name": "cluster_ip_pool_start", "value": "192.168.10.41"},
+    {"name": "cluster_ip_pool_stop",  "value": "192.168.10.49"},
+    {"name": "cluster_l2_interfaces", "value": "[\"ens1f0\"]"},
+    {"name": "internal_domain",       "value": local.cluster_tld},
+    {"name": "internal_ingress_ip",   "value": "192.168.10.42"},
+    {"name": "external_domain",       "value": local.cluster_tld},
+    {"name": "external_ingress_ip",   "value": "192.168.10.43"},
+  ]
 
   cilium_version = "1.17.4"
   cilium_helm_values = templatefile("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml",
