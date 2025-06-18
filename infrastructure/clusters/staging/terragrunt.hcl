@@ -24,6 +24,10 @@ inputs = {
   cluster_service_subnet = "172.25.0.0/16"
   cluster_vip            = "192.168.10.40"
 
+  cluster_etcd_extraArgs              = include.common.locals.cluster_etcd_extraArgs
+  cluster_scheduler_extraArgs         = include.common.locals.cluster_scheduler_extraArgs
+  cluster_controllerManager_extraArgs = include.common.locals.cluster_controllerManager_extraArgs
+
   cluster_env_vars = [
     {"name": "cluster_id",            "value": 4},
     {"name": "cluster_ip_pool_start", "value": "192.168.10.41"},
@@ -49,7 +53,14 @@ inputs = {
   machines = {
     node45 = {
       type    = "controlplane"
-      install = { disk = "/dev/sda" }
+      install = { 
+        disk              = "/dev/sda"
+        extensions        = include.common.locals.longhorn_machine_extensions
+        extra_kernel_args = include.common.locals.fast_kernel_args
+      }
+      files = [
+        include.common.locals.spegel_machine_files
+      ]
       interfaces = [{
         hardwareAddr = "ac:1f:6b:2d:bf:ce"
         addresses    = [{ ip = "192.168.10.222" }]
