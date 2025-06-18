@@ -68,7 +68,7 @@ inputs = {
   ssm_output_path        = "/homelab/infrastructure/clusters"
 
   cluster_etcd_extraArgs = [
-    { name = "listen-metrics-urls", value = "http:/0.0.0.0:2381" },
+    { name = "listen-metrics-urls", value = "http://0.0.0.0:2381" },
   ]
   cluster_scheduler_extaArgs = [
     { name = "bind-address", value = "0.0.0.0" }
