@@ -70,7 +70,7 @@ inputs = {
   cluster_etcd_extraArgs = [
     { name = "listen-metrics-urls", value = "http://0.0.0.0:2381" },
   ]
-  cluster_scheduler_extaArgs = [
+  cluster_scheduler_extraArgs = [
     { name = "bind-address", value = "0.0.0.0" }
   ]
   cluster_controllerManager_extraArgs = [
