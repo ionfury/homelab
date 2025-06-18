@@ -49,7 +49,14 @@ inputs = {
   machines = {
     node45 = {
       type    = "controlplane"
-      install = { disk = "/dev/sda" }
+      install = { 
+        disk              = "/dev/sda"
+        extensions        = include.common.locals.longhorn_machine_extensions
+        extra_kernel_args = include.common.locals.fast_kernel_args
+      }
+      files = [
+        include.common.locals.spegel_machine_files
+      ]
       interfaces = [{
         hardwareAddr = "ac:1f:6b:2d:bf:ce"
         addresses    = [{ ip = "192.168.10.222" }]
