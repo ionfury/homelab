@@ -2,6 +2,61 @@ locals {
   version         = "v0.67.0"
   base_source_url = "git::https://github.com/ionfury/homelab-modules.git//modules/cluster?ref=${local.version}"
 
+  spegel_machine_files = {
+    path        = "/etc/cri/conf.d/20-customization.part"
+    op          = "create"
+    permissions = "0o666"
+    content     = <<-EOT
+        [plugins."io.containerd.cri.v1.images"]
+          discard_unpacked_layers = false
+      EOT
+  }
+
+  fast_kernel_args = [
+    "apparmor=0",
+    "init_on_alloc=0",
+    "init_on_free=0",
+    "mitigations=off",
+    "security=none"
+  ]
+
+  longhorn_machine_extensions = [
+    "iscsi-tools",
+    "util-linux-tools"
+  ]
+
+  longhorn_rootdisk_machine_kubelet_extraMount = {
+    destination = "/var/lib/longhorn"
+    type        = "bind"
+    source      = "/var/lib/longhorn"
+    options = [
+      "bind",
+      "rshared",
+      "rw",
+    ]
+  }
+
+  longhorn_disk2_machine_kubelet_extraMount = {
+    destination = "/var/mnt/disk2"
+    type        = "bind"
+    source      = "/var/mnt/disk2"
+    options = [
+      "bind",
+      "rshared",
+      "rw",
+    ]
+  }
+
+  longhorn_disk3_machine_kubelet_extraMount = {
+    destination = "/var/mnt/disk3"
+    type        = "bind"
+    source      = "/var/mnt/disk3"
+    options = [
+      "bind",
+      "rshared",
+      "rw",
+    ]
+  }
 }
 
 inputs = {
