@@ -1,5 +1,5 @@
 locals {
-  version         = "v0.65.0"
+  version         = "v0.67.0"
   base_source_url = "git::https://github.com/ionfury/homelab-modules.git//modules/cluster?ref=${local.version}"
 }
 
