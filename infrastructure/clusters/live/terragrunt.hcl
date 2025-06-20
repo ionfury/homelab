@@ -1,7 +1,5 @@
 locals {
-  cluster_name     = "${basename(get_terragrunt_dir())}"
-  cluster_endpoint = "${local.cluster_name}.k8s.${local.tld}"
-  tld              = "tomnowak.work"
+  cluster_name = "${basename(get_terragrunt_dir())}"
 }
 
 include "root" {
@@ -13,108 +11,94 @@ include "common" {
   expose = true
 }
 
+include "inventory" {
+  path   = "${dirname(find_in_parent_folders("root.hcl"))}/inventory.hcl"
+  expose = true
+}
+
 terraform {
   source = "${include.common.locals.base_source_url}"
 }
 
 dependencies {
-  paths = ["../dev"]
+  paths = ["../staging"]
 }
 
 inputs = {
-  cluster_name     = local.cluster_name
-  cluster_endpoint = local.cluster_endpoint
-  tld              = local.tld
+  cluster_name = local.cluster_name
+  cluster_tld  = include.common.locals.addresses.live.internal_tld
 
-  cluster_vip            = "192.168.10.70"
-  cluster_node_subnet    = "192.168.10.0/24"
-  cluster_pod_subnet     = "172.18.0.0/16"
-  cluster_service_subnet = "172.19.0.0/16"
+  cluster_node_subnet    = include.common.locals.addresses.live.node_subnet
+  cluster_pod_subnet     = include.common.locals.addresses.live.pod_subnet
+  cluster_service_subnet = include.common.locals.addresses.live.service_subnet
+  cluster_vip            = include.common.locals.addresses.live.vip
 
-  cluster_env_vars = {
-    cluster_id            = 1
-    cluster_ip_pool_start = "192.168.10.71"
-    cluster_ip_pool_stop  = "192.168.10.89"
-    cluster_l2_interfaces = "[\"enp1s0f0\", \"ens1f0\"]"
-    internal_domain       = local.tld
-    internal_ingress_ip   = "192.168.10.72"
-    external_domain       = local.tld
-    external_ingress_ip   = "192.168.10.73"
-  }
+  cluster_env_vars = [
+    { "name" : "cluster_id", "value" : include.common.locals.addresses.live.id },
+    { "name" : "cluster_ip_pool_start", "value" : include.common.locals.addresses.live.ip_pool_start },
+    { "name" : "cluster_ip_pool_stop", "value" : include.common.locals.addresses.live.ip_pool_stop },
+    { "name" : "internal_ingress_ip", "value" : include.common.locals.addresses.live.internal_ingress_ip },
+    { "name" : "external_ingress_ip", "value" : include.common.locals.addresses.live.external_ingress_ip },
+    { "name" : "internal_domain", "value" : include.common.locals.addresses.live.internal_tld },
+    { "name" : "external_domain", "value" : include.common.locals.addresses.live.external_tld },
+    { "name" : "cluster_l2_interfaces", "value" : "[\"ens1f0\"]" },
+  ]
 
-  prepare_longhorn     = true
-  longhorn_mount_disk2 = true
-  prepare_spegel       = true
-  speedy_kernel_args   = true
+  cilium_helm_values = templatefile("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml", {
+    cluster_name       = local.cluster_name
+    cluster_pod_subnet = include.common.locals.addresses.live.pod_subnet
+  })
 
-  kubernetes_version = "1.32.1"
-  talos_version      = "v1.9.3"
-  flux_version       = "v2.4.0"
-  prometheus_version = "17.0.2"
-  cilium_version     = "1.17.0"
-  cilium_helm_values = file("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml")
-
-  timeout = "10m"
+  cilium_version     = include.common.locals.versions.cilium
+  kubernetes_version = include.common.locals.versions.kubernetes
+  talos_version      = include.common.locals.versions.talos
+  flux_version       = include.common.locals.versions.flux
+  prometheus_version = include.common.locals.versions.prometheus
 
   machines = {
-    node2 = {
-      type    = "controlplane"
-      install = { diskSelectors = [] } # Default install disk set in raid controller.  Let jesus take the wheel.
-      disks = [{
-        device = "/dev/sdb"
-        partitions = [{
-          mountpoint = "/var/mnt/disk2"
-        }]
-      }]
-      interfaces = [{
-        hardwareAddr     = "0c:c4:7a:a4:f1:d2"
-        addresses        = ["192.168.10.182"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.182/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-    }
     node41 = {
-      type    = "controlplane"
-      install = { diskSelectors = ["type: 'ssd'"] }
-      disks = [{
-        device = "/dev/sdb"
-        partitions = [{
-          mountpoint = "/var/mnt/disk2"
-        }]
-      }]
+      type = "controlplane"
+      install = {
+        disk              = include.inventory.locals.hosts.node41.install_disk
+        extensions        = include.common.locals.longhorn.machine_extensions
+        extra_kernel_args = include.common.locals.kernel_args.fast
+      }
+      files = [
+        include.common.locals.spegel.machine_files
+      ]
       interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:bf:ee"
-        addresses        = ["192.168.10.253"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.253/24"]
-          dhcp_routeMetric = 100
-        }]
+        hardwareAddr = include.inventory.locals.hosts.node41.endpoint.mac
+        addresses    = [{ ip = include.inventory.locals.hosts.node41.endpoint.ip }]
       }]
     }
     node42 = {
-      type    = "controlplane"
-      install = { diskSelectors = ["type: 'ssd'"] }
-      disks = [{
-        device = "/dev/sdb"
-        partitions = [{
-          mountpoint = "/var/mnt/disk2"
-        }]
-      }]
+      type = "controlplane"
+      install = {
+        disk              = include.inventory.locals.hosts.node42.install_disk
+        extensions        = include.common.locals.longhorn.machine_extensions
+        extra_kernel_args = include.common.locals.kernel_args.fast
+      }
+      files = [
+        include.common.locals.spegel.machine_files
+      ]
       interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:bf:bc"
-        addresses        = ["192.168.10.203"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.203/24"]
-          dhcp_routeMetric = 100
-        }]
+        hardwareAddr = include.inventory.locals.hosts.node42.endpoint.mac
+        addresses    = [{ ip = include.inventory.locals.hosts.node42.endpoint.ip }]
+      }]
+    }
+    node43 = {
+      type = "controlplane"
+      install = {
+        disk              = include.inventory.locals.hosts.node43.install_disk
+        extensions        = include.common.locals.longhorn.machine_extensions
+        extra_kernel_args = include.common.locals.kernel_args.fast
+      }
+      files = [
+        include.common.locals.spegel.machine_files
+      ]
+      interfaces = [{
+        hardwareAddr = include.inventory.locals.hosts.node43.endpoint.mac
+        addresses    = [{ ip = include.inventory.locals.hosts.node43.endpoint.ip }]
       }]
     }
   }
