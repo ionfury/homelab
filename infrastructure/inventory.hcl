@@ -2,7 +2,7 @@ locals {
   hosts = {
     rpi1 = { // Dev Cluster Control Plane
       // Pi4 2Gi
-      install_disk = "/dev/sda"
+      install_disk = "/dev/mmcblk0"
       endpoint = {
         mac = "dc:a6:32:00:cd:cc"
         ip  = "192.168.10.213"
@@ -10,7 +10,7 @@ locals {
     }
     rpi2 = { // Dev Cluster Worker
       // Pi4 2Gi
-      install_disk = "/dev/sda"
+      install_disk = "/dev/mmcblk0"
       endpoint = {
         mac = "dc:a6:32:00:ce:5c"
         ip  = "192.168.10.168"
@@ -18,7 +18,7 @@ locals {
     }
     rpi3 = { // Ubuntu PXE Boot Server
       // Pi3 B+
-      install_disk = "/dev/sda"
+      install_disk = "/dev/mmcblk0"
       endpoint = {
         mac = "b8:27:eb:68:d4:92"
         ip  = "192.168.10.210"
