@@ -1,247 +1,123 @@
 locals {
-  # This file is for records only.  To be archived soon.
-  raspberry_pis = {
-    pxeboot = {
-      lan = {
-        ip  = "192.168.10.213"
-        mac = "dc:a6:32:00:cd:cc"
-      }
-      ssh = {
-        user_store = "/homelab/raspberry_pi/pxeboot/ssh/user"
-        pass_store = "/homelab/raspberry_pi/pxeboot/ssh/password"
-      }
-    }
-  }
-
   hosts = {
-    rpi2 = {
-      cluster     = "pidev"
-      type        = "controlplane"
-      labels      = []
-      annotations = []
-      install = {
-        diskSelectors = ["serial: '0xb12d61b0'"]
-        secureboot    = false
-        wipe          = false
-        architecture  = "arm64"
-        platform      = ""
-        sbc           = "rpi_generic"
+    rpi1 = { // Dev Cluster Control Plane
+      // Pi4 2Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "dc:a6:32:00:cd:cc"
+        ip  = "192.168.10.213"
       }
-      disks = []
-      interfaces = [{
-        hardwareAddr     = "dc:a6:32:00:ce:5c"
-        addresses        = ["192.168.10.168"]
-        dhcp_routeMetric = 50
-        vlans            = []
-      }]
-      ipmi = {
-        ip  = ""
+    }
+    rpi2 = { // Dev Cluster Worker
+      // Pi4 2Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "dc:a6:32:00:ce:5c"
+        ip  = "192.168.10.168"
+      }
+    }
+    rpi3 = { // Ubuntu PXE Boot Server
+      // Pi3 B+
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "b8:27:eb:68:d4:92"
+        ip  = "192.168.10.210"
+      }
+    }
+    rpi4 = { // Unassigned
+      // Pi4 8Gi
+      install_disk = "/dev/sda"
+      endpoint = {
         mac = ""
+        ip  = ""
       }
     }
-    node2 = {
-      cluster     = "live"
-      type        = "controlplane"
-      labels      = [local.createDefaultDiskLabel]
-      annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
-      install = {
-        diskSelectors = [] # RAID controller reports SSD as 'rotational'.  Reference this via wwid: talosctl --nodes 192.168.10.182 get disks --insecure sda -o yaml | yq '.spec.wwid'
-        secureboot    = false
-        wipe          = false
-      }
-      disks = [{
-        device = "/dev/sdb"
-        partitions = [{
-          mountpoint = "/var/mnt/disk2"
-        }]
-      }]
-      interfaces = [{
-        hardwareAddr     = "0c:c4:7a:a4:f1:d2"
-        addresses        = ["192.168.10.182"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.182/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-      ipmi = {
-        ip  = "192.168.10.249"
-        mac = " 0c:c4:7a:22:41:d7"
+    node1 = { // Unassigned
+      // Supermicro 20C@2.4GHz 64Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = ""
+        ip  = ""
       }
     }
-    node41 = {
-      cluster     = "live"
-      type        = "controlplane"
-      labels      = [local.createDefaultDiskLabel]
-      annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
-      install = {
-        diskSelectors = ["type: 'ssd'"]
-        secureboot    = false
-        wipe          = false
-      }
-      disks = [{
-        device = "/dev/sdb"
-        partitions = [{
-          mountpoint = "/var/mnt/disk2"
-        }]
-      }]
-      interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:bf:ee"
-        addresses        = ["192.168.10.253"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.253/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-      ipmi = {
-        ip  = "192.168.10.221"
-        mac = "ac:1f:6b:68:2a:9b"
+    node2 = { // Unassigned
+      // Supermicro 20C@2.2GHz 128Gi
+      install_disk = "/dev/sdb"
+      endpoint = {
+        mac = "0c:c4:7a:a4:f1:d2"
+        ip  = "192.168.10.182"
       }
     }
-    node42 = {
-      cluster     = "live"
-      type        = "controlplane"
-      labels      = [local.createDefaultDiskLabel]
-      annotations = [local.defaultDiskConfigAnnotation, local.defaultNodeTagsAnnotation]
-      install = {
-        diskSelectors = ["type: 'ssd'"]
-        secureboot    = false
-        wipe          = false
-      }
-      disks = [{
-        device = "/dev/sdb"
-        partitions = [{
-          mountpoint = "/var/mnt/disk2"
-        }]
-      }]
-      interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:bf:bc"
-        addresses        = ["192.168.10.203"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.203/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-      ipmi = {
-        ip  = "192.168.10.245"
-        mac = "ac:1f:6b:68:2a:b3"
+    node3 = { // Unassigned
+      // Supermicro 20C@2.2GHz 128Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = ""
+        ip  = ""
       }
     }
-    node43 = {
-      cluster     = "none"
-      type        = "controlplane"
-      labels      = []
-      annotations = []
-      install = {
-        diskSelectors   = ["type: 'ssd'"]
-        extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
-        extensions      = ["iscsi-tools", "util-linux-tools"]
-        secureboot      = false
-        wipe            = false
-      }
-      disks = []
-      interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:bb:c8"
-        addresses        = ["192.168.10.201"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.201/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-      ipmi = {
-        ip  = "192.168.10.223"
-        mac = "ac:1f:6b:68:2a:9d"
+    node41 = { // Live Cluster Control Plane
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "ac:1f:6b:2d:bf:ee"
+        ip  = "192.168.10.253"
       }
     }
-    node44 = {
-      cluster     = "dev"
-      type        = "controlplane"
-      labels      = []
-      annotations = []
-      install = {
-        diskSelectors   = ["type: 'ssd'"]
-        extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
-        extensions      = ["iscsi-tools", "util-linux-tools"]
-        secureboot      = false
-        wipe            = false
-      }
-      disks = []
-      interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:ba:1e"
-        addresses        = ["192.168.10.218"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.218/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-      ipmi = {
-        ip  = "192.168.10.176"
-        mac = "ac:1f:6b:68:2b:aa"
+    node42 = { // Live Cluster Control Plane
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "ac:1f:6b:2d:bf:bc"
+        ip  = "192.168.10.203"
       }
     }
-    node45 = {
-      cluster     = "dev"
-      type        = "controlplane"
-      labels      = []
-      annotations = []
-      install = {
-        diskSelectors   = ["type: 'ssd'"]
-        extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
-        extensions      = ["iscsi-tools", "util-linux-tools"]
-        secureboot      = false
-        wipe            = false
-      }
-      disks = []
-      interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:bf:ce"
-        addresses        = ["192.168.10.222"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.222/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-      ipmi = {
-        ip  = "192.168.10.141"
-        mac = "ac:1f:6b:68:2a:4b"
+    node43 = { // Live Cluster Control Plane
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "ac:1f:6b:2d:bb:c8"
+        ip  = "192.168.10.201"
       }
     }
-    node46 = {
-      cluster     = "dev"
-      type        = "controlplane"
-      labels      = []
-      annotations = []
-      install = {
-        diskSelectors   = ["type: 'ssd'"]
-        extraKernelArgs = ["apparmor=0", "init_on_alloc=0", "init_on_free=0", "mitigations=off", "security=none"]
-        extensions      = ["iscsi-tools", "util-linux-tools"]
-        secureboot      = false
-        wipe            = false
+    node44 = { // Integration Cluster Control Plane
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "ac:1f:6b:2d:ba:1e"
+        ip  = "192.168.10.218"
       }
-      disks = []
-      interfaces = [{
-        hardwareAddr     = "ac:1f:6b:2d:c0:22"
-        addresses        = ["192.168.10.246"]
-        dhcp_routeMetric = 50
-        vlans = [{
-          vlanId           = 10
-          addresses        = ["192.168.20.246/24"]
-          dhcp_routeMetric = 100
-        }]
-      }]
-      ipmi = {
-        ip  = "192.168.10.231"
-        mac = "ac:1f:6b:68:2b:e1"
+    }
+    node45 = { // Staging Cluster Control Plane
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = "ac:1f:6b:2d:bf:ce"
+        ip  = "192.168.10.222"
+      }
+    }
+    node46 = { // Unassigned
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = ""
+        ip  = ""
+      }
+    }
+    node47 = { // Unassigned
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = ""
+        ip  = ""
+      }
+    }
+    node48 = { // Unassigned
+      // Supermicro 8C@2.1GHz 32Gi
+      install_disk = "/dev/sda"
+      endpoint = {
+        mac = ""
+        ip  = ""
       }
     }
   }

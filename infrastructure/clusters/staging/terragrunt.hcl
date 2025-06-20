@@ -1,7 +1,5 @@
 locals {
-  cluster_name       = "${basename(get_terragrunt_dir())}"
-  cluster_pod_subnet = "172.24.0.0/16"
-  cluster_tld        = "tomnowak.work"
+  cluster_name = "${basename(get_terragrunt_dir())}"
 }
 
 include "root" {
@@ -13,53 +11,60 @@ include "common" {
   expose = true
 }
 
+include "inventory" {
+  path   = "${dirname(find_in_parent_folders("root.hcl"))}/inventory.hcl"
+  expose = true
+}
+
 terraform {
   source = "${include.common.locals.base_source_url}"
 }
 
 inputs = {
-  cluster_name           = local.cluster_name
-  cluster_tld            = local.cluster_tld
-  cluster_pod_subnet     = local.cluster_pod_subnet
-  cluster_service_subnet = "172.25.0.0/16"
-  cluster_vip            = "192.168.10.40"
+  cluster_name = local.cluster_name
+  cluster_tld  = include.common.locals.addresses.staging.internal_tld
+
+  cluster_node_subnet    = include.common.locals.addresses.staging.node_subnet
+  cluster_pod_subnet     = include.common.locals.addresses.staging.pod_subnet
+  cluster_service_subnet = include.common.locals.addresses.staging.service_subnet
+  cluster_vip            = include.common.locals.addresses.staging.vip
 
   cluster_env_vars = [
-    {"name": "cluster_id",            "value": 4},
-    {"name": "cluster_ip_pool_start", "value": "192.168.10.41"},
-    {"name": "cluster_ip_pool_stop",  "value": "192.168.10.49"},
-    {"name": "cluster_l2_interfaces", "value": "[\"ens1f0\"]"},
-    {"name": "internal_domain",       "value": local.cluster_tld},
-    {"name": "internal_ingress_ip",   "value": "192.168.10.42"},
-    {"name": "external_domain",       "value": local.cluster_tld},
-    {"name": "external_ingress_ip",   "value": "192.168.10.43"},
+    { "name" : "cluster_id", "value" : include.common.locals.addresses.staging.id },
+    { "name" : "cluster_ip_pool_start", "value" : include.common.locals.addresses.staging.ip_pool_start },
+    { "name" : "cluster_ip_pool_stop", "value" : include.common.locals.addresses.staging.ip_pool_stop },
+    { "name" : "internal_ingress_ip", "value" : include.common.locals.addresses.staging.internal_ingress_ip },
+    { "name" : "external_ingress_ip", "value" : include.common.locals.addresses.staging.external_ingress_ip },
+    { "name" : "internal_domain", "value" : include.common.locals.addresses.staging.internal_tld },
+    { "name" : "external_domain", "value" : include.common.locals.addresses.staging.external_tld },
+    { "name" : "cluster_l2_interfaces", "value" : "[\"ens1f0\"]" },
   ]
 
-  cilium_version = "1.17.4"
-  cilium_helm_values = templatefile("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml",
-    {
-      cluster_name       = local.cluster_name
-      cluster_pod_subnet = local.cluster_pod_subnet
+  cilium_helm_values = templatefile("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml", {
+    cluster_name       = local.cluster_name
+    cluster_pod_subnet = include.common.locals.addresses.staging.pod_subnet
   })
-  kubernetes_version = "1.33.0"
-  talos_version      = "v1.10.4"
-  flux_version       = "v2.6.1"
-  prometheus_version = "17.0.2"
+
+  cilium_version     = include.common.locals.versions.cilium
+  kubernetes_version = include.common.locals.versions.kubernetes
+  talos_version      = include.common.locals.versions.talos
+  flux_version       = include.common.locals.versions.flux
+  prometheus_version = include.common.locals.versions.prometheus
 
   machines = {
     node45 = {
-      type    = "controlplane"
-      install = { 
-        disk              = "/dev/sda"
-        extensions        = include.common.locals.longhorn_machine_extensions
-        extra_kernel_args = include.common.locals.fast_kernel_args
+      type = "controlplane"
+      install = {
+        disk              = include.inventory.locals.hosts.node45.install_disk
+        extensions        = include.common.locals.longhorn.machine_extensions
+        extra_kernel_args = include.common.locals.kernel_args.fast
       }
       files = [
-        include.common.locals.spegel_machine_files
+        include.common.locals.spegel.machine_files
       ]
       interfaces = [{
-        hardwareAddr = "ac:1f:6b:2d:bf:ce"
-        addresses    = [{ ip = "192.168.10.222" }]
+        hardwareAddr = include.inventory.locals.hosts.node45.endpoint.mac
+        addresses    = [{ ip = include.inventory.locals.hosts.node45.endpoint.ip }]
       }]
     }
   }
