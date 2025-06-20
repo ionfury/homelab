@@ -2,6 +2,7 @@ locals {
   version         = "v0.67.0"
   base_source_url = "git::https://github.com/ionfury/homelab-modules.git//modules/cluster?ref=${local.version}"
 
+
   domains = {
     internal = "tomnowak.work"
     external = "tomnowak.work"
@@ -15,13 +16,16 @@ locals {
     cilium     = "1.17.4"
   }
 
+
   addresses = {
+    citadel_subnet = "192.168.10.0/24"
+    
     live = {
       id           = 1
       internal_tld = local.domains.internal
       external_tld = local.domains.external
 
-      node_subnet         = "192.168.10.0/24"
+      node_subnet         = local.addresses.citadel_subnet
       pod_subnet          = "172.18.0.0/16"
       service_subnet      = "172.19.0.0/16"
       vip                 = "192.168.10.20"
@@ -35,7 +39,7 @@ locals {
       internal_tld = local.domains.internal
       external_tld = local.domains.external
 
-      node_subnet         = "192.168.10.0/24"
+      node_subnet         = local.addresses.citadel_subnet
       pod_subnet          = "172.20.0.0/16"
       service_subnet      = "172.21.0.0/16"
       vip                 = "192.168.10.30"
@@ -49,7 +53,7 @@ locals {
       internal_tld = local.domains.internal
       external_tld = local.domains.external
 
-      node_subnet         = "192.168.10.0/24"
+      node_subnet         = local.addresses.citadel_subnet
       pod_subnet          = "172.22.0.0/16"
       service_subnet      = "172.23.0.0/16"
       vip                 = "192.168.10.40"
@@ -63,7 +67,7 @@ locals {
       internal_tld = local.domains.internal
       external_tld = local.domains.external
 
-      node_subnet         = "192.168.10.0/24"
+      node_subnet         = local.addresses.citadel_subnet
       pod_subnet          = "172.24.0.0/16"
       service_subnet      = "172.25.0.0/16"
       vip                 = "192.168.10.50"
