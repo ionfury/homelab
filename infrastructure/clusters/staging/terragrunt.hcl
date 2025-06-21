@@ -52,10 +52,10 @@ inputs = {
   prometheus_version = include.common.locals.versions.prometheus
 
   machines = {
-    node45 = {
+    node44 = {
       type = "controlplane"
       install = {
-        disk_filters      = { model = include.inventory.locals.hosts.node45.os_disk }
+        disk_filters      = { model = include.inventory.locals.hosts.node44.os_disk }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
@@ -63,8 +63,8 @@ inputs = {
         include.common.locals.spegel.machine_files
       ]
       interfaces = [{
-        hardwareAddr = include.inventory.locals.hosts.node45.endpoint.mac
-        addresses    = [{ ip = include.inventory.locals.hosts.node45.endpoint.ip }]
+        hardwareAddr = include.inventory.locals.hosts.node44.endpoint.mac
+        addresses    = [{ ip = include.inventory.locals.hosts.node44.endpoint.ip }]
       }]
     }
   }
