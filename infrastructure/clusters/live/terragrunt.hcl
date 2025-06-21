@@ -20,9 +20,9 @@ terraform {
   source = "${include.common.locals.base_source_url}"
 }
 
-dependencies {
-  paths = ["../staging"]
-}
+#dependencies {
+#  paths = ["../staging"]
+#}
 
 inputs = {
   cluster_name = local.cluster_name
@@ -59,7 +59,7 @@ inputs = {
     node41 = {
       type = "controlplane"
       install = {
-        disk              = include.inventory.locals.hosts.node41.install_disk
+        disk_filters      = { size = "< 250GB" }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
@@ -74,7 +74,7 @@ inputs = {
     node42 = {
       type = "controlplane"
       install = {
-        disk              = include.inventory.locals.hosts.node42.install_disk
+        disk_filters      = { size = "< 250GB" }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
@@ -89,7 +89,7 @@ inputs = {
     node43 = {
       type = "controlplane"
       install = {
-        disk              = include.inventory.locals.hosts.node43.install_disk
+        disk_filters      = { size = "< 250GB" }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }

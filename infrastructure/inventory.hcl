@@ -34,7 +34,6 @@ locals {
     }
     node1 = { // Unassigned
       // Supermicro 20C@2.4GHz 64Gi
-      install_disk = "/dev/sda"
       endpoint = {
         mac = ""
         ip  = ""
@@ -42,7 +41,6 @@ locals {
     }
     node2 = { // Unassigned
       // Supermicro 20C@2.2GHz 128Gi
-      install_disk = "/dev/sdb"
       endpoint = {
         mac = "0c:c4:7a:a4:f1:d2"
         ip  = "192.168.10.182"
@@ -50,7 +48,6 @@ locals {
     }
     node3 = { // Unassigned
       // Supermicro 20C@2.2GHz 128Gi
-      install_disk = "/dev/sda"
       endpoint = {
         mac = ""
         ip  = ""

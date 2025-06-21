@@ -55,7 +55,7 @@ inputs = {
     node45 = {
       type = "controlplane"
       install = {
-        disk              = include.inventory.locals.hosts.node45.install_disk
+        disk_filters      = { size = "< 250GB" }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
