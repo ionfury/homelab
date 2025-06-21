@@ -105,35 +105,45 @@ locals {
       "iscsi-tools",
       "util-linux-tools"
     ]
-    rootdisk_machine_kubelet_extraMount = {
-      destination = "/var/lib/longhorn"
-      type        = "bind"
-      source      = "/var/lib/longhorn"
-      options = [
-        "bind",
-        "rshared",
-        "rw",
-      ]
+
+    labels = {
+      create_default_disk = {
+        key   = "longhorn.io/create-default-disk"
+        value = "true"
+      }
     }
-    disk2_machine_kubelet_extraMount = {
-      destination = "/var/mnt/disk2"
-      type        = "bind"
-      source      = "/var/mnt/disk2"
-      options = [
-        "bind",
-        "rshared",
-        "rw",
-      ]
-    }
-    disk3_machine_kubelet_extraMount = {
-      destination = "/var/mnt/disk3"
-      type        = "bind"
-      source      = "/var/mnt/disk3"
-      options = [
-        "bind",
-        "rshared",
-        "rw",
-      ]
+
+    kubelet_extraMounts = {
+      rootdisk = {
+        destination = "/var/lib/longhorn"
+        type        = "bind"
+        source      = "/var/lib/longhorn"
+        options = [
+          "bind",
+          "rshared",
+          "rw",
+        ]
+      }
+      disk2 = {
+        destination = "/var/mnt/disk2"
+        type        = "bind"
+        source      = "/var/mnt/disk2"
+        options = [
+          "bind",
+          "rshared",
+          "rw",
+        ]
+      }
+      disk3 = {
+        destination = "/var/mnt/disk3"
+        type        = "bind"
+        source      = "/var/mnt/disk3"
+        options = [
+          "bind",
+          "rshared",
+          "rw",
+        ]
+      }
     }
   }
 }

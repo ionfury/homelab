@@ -111,7 +111,7 @@ locals {
     }
     node48 = { // Unassigned
       // Supermicro 8C@2.1GHz 32Gi
-      os_disk ="Micron_5100_MTFD"
+      os_disk = "Micron_5100_MTFD"
       endpoint = {
         mac = ""
         ip  = ""
