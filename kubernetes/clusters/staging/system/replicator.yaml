@@ -1,0 +1,9 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: replicator
+spec:
+  path: kubernetes/manifests/helm-release/replicator
+  postBuild:
+    substitute:
+      HELM_CHART_VERSION: 2.11.0
