@@ -77,7 +77,7 @@ locals {
         ip  = "192.168.10.201"
       }
     }
-    node44 = { // Integration Cluster Control Plane
+    node44 = { // Staging Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
       endpoint = {
@@ -85,7 +85,7 @@ locals {
         ip  = "192.168.10.218"
       }
     }
-    node45 = { // Staging Cluster Control Plane
+    node45 = { // Integration Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
       endpoint = {
