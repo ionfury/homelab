@@ -59,7 +59,7 @@ inputs = {
     node41 = {
       type = "controlplane"
       install = {
-        disk_filters      = { size = "< 250GB" }
+        disk_filters      = { model = include.inventory.locals.hosts.node41.os_disk }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
@@ -74,7 +74,7 @@ inputs = {
     node42 = {
       type = "controlplane"
       install = {
-        disk_filters      = { size = "< 250GB" }
+        disk_filters      = { model = include.inventory.locals.hosts.node42.os_disk }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
@@ -89,7 +89,7 @@ inputs = {
     node43 = {
       type = "controlplane"
       install = {
-        disk_filters      = { size = "< 250GB" }
+        disk_filters      = { model = include.inventory.locals.hosts.node43.os_disk }
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
