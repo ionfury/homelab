@@ -70,6 +70,7 @@ inputs = {
         value = "'${jsonencode([{ "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }, { "name" : "disk3", "path" : "/var/mnt/disk3", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }])}'"
       }]
       kubelet_extraMounts = [
+        include.common.locals.longhorn.kubelet_extraMounts.rootDisk,
         include.common.locals.longhorn.kubelet_extraMounts.disk2,
         include.common.locals.longhorn.kubelet_extraMounts.disk3,
       ]

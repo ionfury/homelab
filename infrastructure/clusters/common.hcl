@@ -108,13 +108,13 @@ locals {
 
     labels = {
       create_default_disk = {
-        key   = "longhorn.io/create-default-disk"
-        value = "true"
+        key   = "node.longhorn.io/create-default-disk"
+        value = "config"
       }
     }
 
     kubelet_extraMounts = {
-      rootdisk = {
+      rootDisk = {
         destination = "/var/lib/longhorn"
         type        = "bind"
         source      = "/var/lib/longhorn"
