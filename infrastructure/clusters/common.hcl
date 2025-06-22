@@ -124,20 +124,20 @@ locals {
           "rw",
         ]
       }
-      disk2 = {
-        destination = "/var/mnt/disk2"
+      disk1 = {
+        destination = "/var/mnt/disk1"
         type        = "bind"
-        source      = "/var/mnt/disk2"
+        source      = "/var/mnt/disk1"
         options = [
           "bind",
           "rshared",
           "rw",
         ]
       }
-      disk3 = {
-        destination = "/var/mnt/disk3"
+      disk2 = {
+        destination = "/var/mnt/disk2"
         type        = "bind"
-        source      = "/var/mnt/disk3"
+        source      = "/var/mnt/disk2"
         options = [
           "bind",
           "rshared",

@@ -67,12 +67,12 @@ inputs = {
       ]
       annotations = [{
         key   = "node.longhorn.io/default-disks-config"
-        value = "'${jsonencode([{ "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }, { "name" : "disk3", "path" : "/var/mnt/disk3", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }])}'"
+        value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/mnt/disk1", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }])}'"
       }]
       kubelet_extraMounts = [
         include.common.locals.longhorn.kubelet_extraMounts.rootDisk,
-        include.common.locals.longhorn.kubelet_extraMounts.disk2,
-        include.common.locals.longhorn.kubelet_extraMounts.disk3,
+        include.common.locals.longhorn.kubelet_extraMounts.disk1,
+        include.common.locals.longhorn.kubelet_extraMounts.disk1,
       ]
       interfaces = [{
         hardwareAddr = include.inventory.locals.hosts.node44.endpoint.mac
