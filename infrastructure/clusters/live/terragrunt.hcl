@@ -63,8 +63,21 @@ inputs = {
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
+      disks = include.inventory.locals.hosts.node41.disks
       files = [
         include.common.locals.spegel.machine_files
+      ]
+      labels = [
+        include.common.locals.longhorn.labels.create_default_disk
+      ]
+      annotations = [{
+        key   = "node.longhorn.io/default-disks-config"
+        value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/mnt/disk1", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["slow"] }])}'"
+      }]
+      kubelet_extraMounts = [
+        include.common.locals.longhorn.kubelet_extraMounts.rootDisk,
+        include.common.locals.longhorn.kubelet_extraMounts.disk1,
+        include.common.locals.longhorn.kubelet_extraMounts.disk2,
       ]
       interfaces = [{
         hardwareAddr = include.inventory.locals.hosts.node41.endpoint.mac
@@ -78,8 +91,21 @@ inputs = {
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
+      disks = include.inventory.locals.hosts.node42.disks
       files = [
         include.common.locals.spegel.machine_files
+      ]
+      labels = [
+        include.common.locals.longhorn.labels.create_default_disk
+      ]
+      annotations = [{
+        key   = "node.longhorn.io/default-disks-config"
+        value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/mnt/disk1", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["slow"] }])}'"
+      }]
+      kubelet_extraMounts = [
+        include.common.locals.longhorn.kubelet_extraMounts.rootDisk,
+        include.common.locals.longhorn.kubelet_extraMounts.disk1,
+        include.common.locals.longhorn.kubelet_extraMounts.disk2,
       ]
       interfaces = [{
         hardwareAddr = include.inventory.locals.hosts.node42.endpoint.mac
@@ -93,8 +119,21 @@ inputs = {
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
+      disks = include.inventory.locals.hosts.node43.disks
       files = [
         include.common.locals.spegel.machine_files
+      ]
+      labels = [
+        include.common.locals.longhorn.labels.create_default_disk
+      ]
+      annotations = [{
+        key   = "node.longhorn.io/default-disks-config"
+        value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/mnt/disk1", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast"] }])}'"
+      }]
+      kubelet_extraMounts = [
+        include.common.locals.longhorn.kubelet_extraMounts.rootDisk,
+        include.common.locals.longhorn.kubelet_extraMounts.disk1,
+        include.common.locals.longhorn.kubelet_extraMounts.disk2,
       ]
       interfaces = [{
         hardwareAddr = include.inventory.locals.hosts.node43.endpoint.mac
