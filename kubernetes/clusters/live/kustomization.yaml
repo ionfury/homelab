@@ -33,5 +33,5 @@ configMapGenerator:
     namespace: flux-system
     behavior: create
     envs:
-      - cluster-vars.env
+      - generated-cluster-vars.env
 
