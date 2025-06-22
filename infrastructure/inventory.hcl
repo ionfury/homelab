@@ -80,6 +80,16 @@ locals {
     node44 = { // Staging Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = [
+        { # 480GB Kingston SSD
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+        },
+        { # 480GB Kingston SSD
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+        }
+      ]
       endpoint = {
         mac = "ac:1f:6b:2d:ba:1e"
         ip  = "192.168.10.218"

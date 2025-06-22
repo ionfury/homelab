@@ -59,6 +59,7 @@ inputs = {
         extensions        = include.common.locals.longhorn.machine_extensions
         extra_kernel_args = include.common.locals.kernel_args.fast
       }
+      disks = include.inventory.locals.hosts.node44.disks
       files = [
         include.common.locals.spegel.machine_files
       ]
@@ -72,7 +73,7 @@ inputs = {
       kubelet_extraMounts = [
         include.common.locals.longhorn.kubelet_extraMounts.rootDisk,
         include.common.locals.longhorn.kubelet_extraMounts.disk1,
-        include.common.locals.longhorn.kubelet_extraMounts.disk1,
+        include.common.locals.longhorn.kubelet_extraMounts.disk2,
       ]
       interfaces = [{
         hardwareAddr = include.inventory.locals.hosts.node44.endpoint.mac
