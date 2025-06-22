@@ -56,6 +56,16 @@ locals {
     node41 = { // Live Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = [
+        { # 1920GB Kingston SSD
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+        },
+        { # 20TB Seagate HDD
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+        }
+      ]
       endpoint = {
         mac = "ac:1f:6b:2d:bf:ee"
         ip  = "192.168.10.253"
@@ -64,6 +74,16 @@ locals {
     node42 = { // Live Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = [
+        { # 1920GB Kingston SSD
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+        },
+        { # 20TB Seagate HDD
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+        }
+      ]
       endpoint = {
         mac = "ac:1f:6b:2d:bf:bc"
         ip  = "192.168.10.203"
@@ -72,6 +92,16 @@ locals {
     node43 = { // Live Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = [
+        { # 1TB Crucial SSD
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+        },
+        { # 1TB Crucial SSD
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+        }
+      ]
       endpoint = {
         mac = "ac:1f:6b:2d:bb:c8"
         ip  = "192.168.10.201"
@@ -98,6 +128,7 @@ locals {
     node45 = { // Integration Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = []
       endpoint = {
         mac = "ac:1f:6b:2d:bf:ce"
         ip  = "192.168.10.222"
@@ -106,6 +137,7 @@ locals {
     node46 = { // Unassigned
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = []
       endpoint = {
         mac = ""
         ip  = ""
@@ -114,6 +146,7 @@ locals {
     node47 = { // Unassigned
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = []
       endpoint = {
         mac = ""
         ip  = ""
@@ -122,6 +155,7 @@ locals {
     node48 = { // Unassigned
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
+      disks = []
       endpoint = {
         mac = ""
         ip  = ""
