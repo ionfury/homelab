@@ -1,7 +1,0 @@
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-namePrefix: cloudnative-pg-cluster-
-components:
-  - ../../../components/image-automation
-patches:
-  - path: image-policy.yaml

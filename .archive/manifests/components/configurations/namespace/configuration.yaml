@@ -1,7 +1,0 @@
-namespace:
-  - kind: Kustomization
-    path: spec/postBuild/substitute/NAMESPACE
-    create: true
-  - kind: Kustomization
-    path: spec/targetNamespace
-    create: true

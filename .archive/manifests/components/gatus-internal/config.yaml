@@ -1,9 +1,0 @@
-endpoints:
-  - name: "${HOSTNAME:=app}"
-    group: internal
-    url: "https://${HOSTNAME:=app}.${INTERNAL_DOMAIN}/${PATH:=}"
-    interval: 1m
-    client:
-      dns-resolver: "udp://${DNS_IP}:53"
-    conditions:
-      - "[STATUS] == 200"

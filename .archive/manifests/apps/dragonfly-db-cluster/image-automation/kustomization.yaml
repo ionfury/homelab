@@ -1,5 +1,0 @@
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-namePrefix: dragonfly-db-
-components:
-  - ../../../components/image-automation

@@ -1,5 +1,0 @@
-fullnameOverride: gha-runner-scale-set-controller
-resources:
-  requests:
-    cpu: 10m
-    memory: 100Mi

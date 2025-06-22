@@ -1,8 +1,0 @@
-crds:
-  create: true
-data:
-  INHERITED_ANNOTATIONS: kyverno.io/ignore
-resources:
-  requests:
-    cpu: 22m
-    memory: 100Mi

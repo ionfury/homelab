@@ -1,8 +1,0 @@
-reloader:
-  podMonitor:
-    enabled: true
-  reloadStrategy: annotations
-resources:
-  requests:
-    cpu: 10m
-    memory: 100Mi

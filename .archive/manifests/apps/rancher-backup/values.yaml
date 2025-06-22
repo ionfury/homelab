@@ -1,7 +1,0 @@
-s3:
-  enabled: true
-  credentialSecretName: rancher-backup-s3-bucket
-  credentialSecretNamespace: ${NAMESPACE}
-  region: us-east-2
-  bucketName: rancher-backup-8d53
-  endpoint: s3.us-east-2.amazonaws.com

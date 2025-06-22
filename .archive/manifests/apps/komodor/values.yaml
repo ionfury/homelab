@@ -1,7 +1,0 @@
-createNamespace: false
-namespace: ${NAMESPACE}
-
-existingSecret: komodor-api
-
-watcher:
-  clusterName: ${CLUSTER_NAME}

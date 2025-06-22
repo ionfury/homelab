@@ -1,8 +1,0 @@
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-namespace: policy
-components:
-  - ../../../manifests/components/namespace
-resources:
-  - kyverno.yaml
-  - kyverno-policies.yaml

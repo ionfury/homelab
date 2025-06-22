@@ -1,6 +1,0 @@
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: dashboards
-spec:
-  path: ./manifests/apps/media-dashboards
