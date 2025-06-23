@@ -1,24 +1,8 @@
-# 🚧🚧🚧🚧🚧🚧🚧🚧🚧 UNDER RENOVATIONS 🚧🚧🚧🚧🚧🚧🚧🚧🚧
+# 🏠 ionfury-homelab
 
-I accidentally 💥 my cluster and got frustrated with harvester.  WIP to rebuild everything on Talos to try it out.
+This repo documents my homelab infrastructure and GitOps configuration. I've recently rebuilt the whole stack on Talos, moving away from Rancher and Harvester. This setup is fully declarative, modular, and automated from PXE to production workloads.
 
-
-<div align="center">
-
-![Kubernetes](https://github.com/ionfury/homelab/blob/main/docs/images/k8s-logo.png)
-
-### My homelab repository
-
-#### _Built on Kubernetes, Harvester, and Rancher_
-
-</div>
-
-<div align="center">
-
-[![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label&logo=discord&logoColor=white&color=blue)](https://discord.gg/home-operations)&nbsp;&nbsp;
-[![Kubernetes](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dkubernetes_version&style=for-the-badge&logo=kubernetes&logoColor=white&color=blue&label=%20)](https://docs.rke2.io/)
-
-</div>
+---
 
 <div align="center">
 
@@ -34,11 +18,22 @@ I accidentally 💥 my cluster and got frustrated with harvester.  WIP to rebuil
 
 ---
 
+<div align="center">
+
+![Talos](https://img.shields.io/badge/Talos-1.10.4-blue?logo=kubernetes&style=for-the-badge)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33.0-blue?logo=kubernetes&style=for-the-badge)
+![Terragrunt](https://img.shields.io/badge/Terragrunt-0.81.5-blue?logo=terraform&style=for-the-badge)
+![OpenTofu](https://img.shields.io/badge/OpenTofu-1.8.9-blue?logo=terraform&style=for-the-badge)
+
+</div>
+
+---
+
 ## Overview
 
-This repository contains the infrastructure and deployment code for my Home Lab software and infrastructure.  The goal here is to experiment with, understand, and adopt GitOps and IaC best practices for Kubernetes.  Furthermore, this allows me to dabble all the way up the hardware stack to see where the rubber actually hits the road, so to speak.
+This repository contains the infrastructure and GitOps configuration for my homelab. The current iteration is based on Talos Linux and Kubernetes, with everything deployed and reconciled through Flux. Provisioning is handled via PXE boot and Terragrunt modules for Talos-based clusters.
 
-The path I've chosen is through [Harvester](https://harvesterhci.io/), [Rancher](https://www.rancher.com), and [Kubernetes](https://kubernetes.io/) and attempts to adhere to the principle of [Hyperconverged Infrastructure](https://www.suse.com/products/harvester/) (HCI).  To do this I'm leveraging older rackmounted hardware.  It's not the most power efficent, but it's also not the worst.
+The entire stack is declarative, built to be reproducible, and optimized for hands-off operation. My goal here is to push the boundaries of what "infrastructure as code" actually means—starting from the BIOS and ending at an SLO dashboard.
 
 ---
 
@@ -59,33 +54,23 @@ The path I've chosen is through [Harvester](https://harvesterhci.io/), [Rancher]
 
 ## Directories
 
-```sh
+```
 📁
-├─📁 .taskfiles     # Commonly performed actions executable via taskfile.dev cli.
-├─📁 .vscode        # Portable configuration for this repo.
-├─📁 clusters       # Kubernetes clusters defined via gitops.
-├─📁 docs           # Documentation, duh.
-├─📁 manifests      # Realm of the .yaml files.
-│ ├─📁 apps         # Kustomizations defining a single application to be deployed to a cluster.
-│ ├─📁 components   # Re-usable kustomize components for use across applications.
-│ └─📁 harvester    # Manifests used for harvester configuration.
-└─📁 terraform      # Infrastructure provisioned via terraform.
-  └─📁 .modules     # Re-usable terraform modules.
+├─ .github/          # GitHub workflows and actions
+├─ .taskfiles/       # Reusable task automation with taskfile.dev
+├─ docs/             # Runbooks and notes
+├─ infrastructure/   # PXE + cluster provisioning via Terragrunt
+├─ kubernetes/       # Flux-based GitOps manifests per cluster
+├─ Taskfile.yaml     # Root taskfile entry
 ```
 
 ---
 
 ## Architecture
 
-My homelab architecture has gone through a number of revamps over the years but there has emerged a few key considerations:
+This setup has grown to support multiple environments and workload isolation via dedicated physical clusters. It's designed to withstand full cluster outages without taking down the rest of the network.
 
-- Enterprise gear is cooler than consumer stuff.  This rules out NUCs.
-- Downtime is not fun when the wife is asking why the internet doesn't work.
-- I enjoy overengineering things.
-
-Through the confluence of the above factors I've arrived on the current iteration of my setup, which is split into two physically distinct parts: the `home` and the `lab`.  The `home` portion is a standard Unifi setup, managed out of my UDM Pro.  The `lab` portion is managed and described here, and is arranged such that any outage or maintenance of the lab will not impact the `home` portion.
-
-The linkage between the two is done physically by a single 10Gb link, and by assigning the `client` vlan in the diagram below a primary dns server from the `lab` portion.  If, heaven forbid, the lab should suffer an outage, the `client` vlan is also given a second dns server to use.
+The network is segmented using VLANs, with one segment (`citadel`) allocated for Kubernetes infrastructure. PXE, DNS, and initial bootstrapping all happen within this VLAN.
 
 <details>
   <summary>Click to see vlan diagram</summary>
@@ -96,121 +81,103 @@ The linkage between the two is done physically by a single 10Gb link, and by ass
 
 ### Hardware
 
-#### Network
-
-The network side of things is a straightforward Unifi setup.  The shelf up top houses some MoCA adapters for locations for convenience, and my modem tucked somewhere in the back.  My patch panels use a blue key for POE and gray for a non-POE jack.
-
-<details>
-  <summary>Click to see my network rack!</summary>
-  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/network-1.jpg" align="center" alt="firewall"/>
-</details>
-
-#### Lab
-
-|Device|OS Disk|Data Disk|CPU|Memory|Purpose|
-|------|-------|---------|---|------|-------|
-|[Supermicro 1U](https://www.supermicro.com/en/products/system/1U/6018/SYS-6018U-TRTP_.cfm)|[2x 480Gb (RAID1)](https://www.amazon.com/gp/product/B07NRP3TVN)|[2x 480Gb (RAID1)](https://www.amazon.com/gp/product/B07NRP3TVN)|[E5-2630v4 2.20GHZ](https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2630+v4+%40+2.20GHz&id=2758&cpuCount=2)|8x 16GB DDR-4 (128GB)|HCI Node 1|
-|[Supermicro 1U](https://www.supermicro.com/en/products/system/1U/6018/SYS-6018U-TRTP_.cfm)|[2x 1TB (RAID1)](https://www.amazon.com/dp/B078211KBB/ref=pe_386300_440135490_TE_simp_item_image)|[2x 20TB (RAID1)](https://www.amazon.com/Seagate-Exos-20TB-SATA-ST20000NM007D/dp/B09MWKXR2T)|[E5-2630v4 2.20GHZ](https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2630+v4+%40+2.20GHz&id=2758&cpuCount=2)|8x 16GB DDR-4 (128GB)|HCI Node 2|
-|[Supermicro 4U](https://www.supermicro.com/products/system/4U/6048/SSG-6048R-E1CR36N.cfm)|[2x 1TB (RAID1)](https://www.amazon.com/dp/B078211KBB/ref=pe_386300_440135490_TE_simp_item_image)|[12x 4Tb (RAID50)](https://www.amazon.com/gp/product/B00A45JFJS/?th=1)|[E5-2630v4 2.20GHZ](https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2630+v4+%40+2.20GHz&id=2758&cpuCount=2)|8x 16GB DDR-4 (128GB)|HCI Node 3|
-|[Unifi Aggregation](https://store.ui.com/us/en/pro/category/switching-aggregation/products/usw-aggregation)|-|-|-|-|10G SFP+ Switch|
-|[CyberPower 1500VA UPS](https://www.cyberpowersystems.com/product/ups/smart-app-lcd/or1500lcdrt2u/)|-|-|-|-|Battery Backup|
+| Device | CPU | RAM | Disks | Purpose |
+|--------|-----|-----|-------|---------|
+| Supermicro Nodes | Xeon E5 / D / 8C | 32-128GB | SSDs + HDDs | Talos cluster nodes |
+| Pi 4 | ARM | 2-8GB | microSD | PXE, PXE DHCP, or test clusters |
+| Unifi Aggregation | - | - | - | 10G switch |
+| CyberPower UPS | - | - | - | Battery backup and monitoring |
 
 <details>
-  <summary>Click to see the front of my lab rack!</summary>
-  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-1.jpg" align="center" alt="firewall"/>
+  <summary>Front of rack</summary>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-1.jpg" align="center" alt="rack-front"/>
 </details>
 
 <details>
-  <summary>Click to see the back of my lab rack!</summary>
-  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-2.jpg" align="center" alt="firewall"/>
+  <summary>Back of rack</summary>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-2.jpg" align="center" alt="rack-back"/>
 </details>
 
 ---
 
 ### Cloud Dependencies
 
-I'm leveraging some cloud dependencies to really make things easier and dodge the harder questions.
+| Tool       | Purpose                     | Cost        |
+|------------|-----------------------------|-------------|
+| GitHub     | GitOps, CI/CD, tokens       | Free        |
+| Cloudflare | DNS + public exposure       | ~$10/year   |
+| AWS S3     | Terraform state, secrets    | ~$10/year   |
+| Healthchecks.io | Heartbeats, Uptime    | Free        |
 
-|tool|purpose|cost|
-|----|-------|----|
-|<img src="https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/f8baa56a7a29dec4603fa37651459234b2c693c9/assets/github-octocat.svg" width="24"> [github](https://www.github.com/)|IaC, CI/CD, & SSO.| free |
-|<img src="https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/f8baa56a7a29dec4603fa37651459234b2c693c9/assets/cloudflare.svg" width="24"> [cloudflare](https://www.cloudflare.com/)|DNS & Proxy management.| ~$10/yr |
-|<img src="https://healthchecks.io/static/img/logo.png" width="24"> [healthchecks.io](https://healthchecks.io/) | Cluster heartbeats. | free |
-|<img src="https://github.com/loganmarchione/homelab-svg-assets/raw/main/assets/amazonwebservices.svg" width="24"> [amazon](https://s3.console.aws.amazon.com/) | Backups, terraform state, secrets. | ~$10/yr |
-|||Total: ~$20/yr|
+Total: ~$20/year
 
 ---
 
+
 ## Networking
 
-Networking
+Networking is handled via Unifi. The Talos cluster nodes reside in the `192.168.10.0/24` subnet, statically assigned by MAC. Talos is configured to use this subnet for the control plane VIP, service IPs, and ingress routing.
 
-Networking is provided by my [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro) and the lab portion is managed via [terraform](./terraform/network/).  The `citadel` vlan on `192.168.10.*` is allocated for the lab.
+All cluster networks are Cilium-native and pods are assigned from separate /16 subnets per environment.
 
-`192.168.10.2` is reserved as a gateway IP for the harvester cluster.  All other IPs are assigned via DHCP.  Initial local dns to access rancher is configured via terraform to make `rancher.tomnowak.work` available.
-
-Downstream kubernetes clusteres can create services of type `Loadbalancer` via the harvester cloud provider, and are assigned an IP address in the same `citadel` vlan.  Internal cluster ingress is handled by a single ip requested by the internal [`nginx-ingress`](./clusters/homelab-1/network/ingress-nginx.yaml) controller.
-
-Once an ip has been assigned, the [`cluster-vars.env`](./clusters/homelab-1/cluster-vars.env) is updated to reflect that ip, and [`blocky`](./clusters/homelab-1/network/blocky.yaml) consumes that to provide dns for the cluster to other networks.
-
-Finally, the default vlan network is updated to provide the `blocky` loadbalancer ip for dns to all clients on the network, providing access to internal services and ad blocking.
+Ingress is exposed via NGINX with dedicated internal and external IPs. Blocky provides local DNS resolution and filtering.
 
 ---
 
 ## Bare Metal
 
-Currently running [Harvester v1.1.2](https://github.com/harvester/harvester/releases/tag/v1.1.2).
+Nodes are installed via PXE boot into Talos Linux. The PXE boot environment is managed declaratively through Terragrunt and includes MAC address mapping and static IP assignments.
 
-For provisioning a new harvester node, follow the installation instructions [here](https://docs.harvesterhci.io/v1.1/install/iso-install) via [USB](https://docs.harvesterhci.io/v1.1/install/usb-install).  The USB stick is sitting on top of the rack :).
-
-Once the node has joined the cluster, manually log in to the web UI and configure the [host storage disk tags](https://docs.harvesterhci.io/v1.1/host/#multi-disk-management) through the [management interface](https://rancher.tomnowak.work/) with `hdd` and `ssd` tags.  Unfortunately the [terraform provider](https://github.com/harvester/terraform-provider-harvester) does not have functionality to facilitate host management.
-
-I'm running [seeder](https://docs.harvesterhci.io/v1.2/advanced/addons/seeder/) to manage basic BMC functionality on the nodes.  In the future I hope to manage provisioning for the cluster via this tool.
+Supermicro hardware is configured through IPMI with automation for NTP, naming, and password rotation documented in `docs/runbooks`.
 
 ---
 
 ## Provisioning
 
-After the hosts are manually provisioned, [terraform](https://www.terraform.io/) is used to provision infrastructure via [terragrunt](https://terragrunt.gruntwork.io/).  Currently, all the terraform code is tightly coupled, but I hope to generalize it in the future.
+Talos clusters are provisioned via `terragrunt apply` from the `infrastructure/clusters` directory. Each cluster environment has its own set of HCL configurations that map hosts, IPs, and versions.
 
-The infrastructure consists roughly of three parts:
+Clusters boot directly into Talos, join the cluster, and install Flux which begins reconciling workloads from the `kubernetes/` folder.
 
-- [Network](./terraform/network/) configures my local unifi network infrastructure with a VNET and maps the ports allocated to current and future use for this homelab to be dedicated to those ports.
-- [Harvester](.terraform/harvester/) configuration of harvester, such as storage and virtual networks.  You must download the harvester kubeconfig from [this](https://192.168.10.2/dashboard/harvester/c/local/support) link to run this module.
-- [Rancher](./terraform/rancher-cluster/), which acts as the UI as the whole operation.  Currently provisioned manually as a single node due to harvester lacking [load balancing on vms](https://github.com/harvester/load-balancer-harvester/pull/13) or [built-in rancher integration](https://github.com/harvester/harvester/issues/2679).  Maybe in Harvester [`v1.2.0`](https://github.com/harvester/harvester/milestone/13).
-- [Downstream Clusters](./terraform/clusters), which finally run the useful stuff.  The [cluster module](./terraform/.modules/rancher-harvester-cluster) provisions a cluster with [RKE2](https://docs.rke2.io/) through Rancher and bootstraps [flux](https://fluxcd.io/) onto the cluster, creating a deploy directory in [clusters/](./clusters/) which we can leverage to deploy workloads.
-
-Simply run the following command to provision the infrastructure:
+Example provisioning command:
 
 ```sh
-terragrunt run-all apply
+cd infrastructure/clusters/live
+terragrunt apply
 ```
 
 ---
 
 ## Deployment
 
-[Flux](https://fluxcd.io/) handles deploying and managing workloads on the downstream clusters.  Flux is installed on the cluster and watches the directory in this repository in the previous step, syncing the cluster with any manifests found there.
+Flux watches the cluster folder and automatically applies all manifests from the corresponding `kubernetes/clusters/<env>` directory.
+
+Components are organized by namespace and include:
+
+- Cert Manager
+- Longhorn
+- Monitoring Stack (Prometheus, Grafana, Loki, etc.)
+- Ingress (NGINX)
+- Cilium
+- External Secrets
+- Custom workloads
+
+Changes are committed to Git and picked up automatically via GitOps.
 
 ---
 
 ## Network Policy
 
-Internal cluster policy is handled entirely via vanilla kubernetes `NetworkPolicy`.  The approach described here is to enable netpol to be implemented post deployment in a low-impact rollout.
+Network security is enforced using `NetworkPolicy` objects. Policies are structured as reusable components inside `.network-policies/`.
 
-  The policy is implemented at the cluster and namespace level.  Cluster network policy is described in the `clusters/<cluster>/.network-policies` directory.
+Each policy defines a `source/` and `destination/` and is bound to namespaces via Kustomize components and pod labels like `networking/allow-egress-to-postgres`.
 
-Each subdirectory of `.network-policies` represents a specific policy.  These polices are generic to the point that they should be applicable to every namespace and bound to specific pods via labels.  Each policy should have a `source` and `destination` subdirectory, which contains the specific policy to be applied in a namespace. The policy is then included into namespaces as a kustomize component.  Policies are connected to pods via labels like `networking/<policy>`.
-
-For a specific example, lets look at `.network-policies/allow-egress-to-postgres`.  Including the `source` subdirectory component in a namespace adds the policy, which matches the `networking/allow-egress-to-postgres: "true"` label.  Apps should include this label to use postgres.
-
-The `allow-same-namespace` policy can be included in a namespace as an 'on' switch for netpol in a namespace.
+A namespace can "opt-in" to default deny behavior by applying `allow-same-namespace`.
 
 ---
 
 ## Acknowledgements
 
-_Heavily_ inspired by the [Kubernetes @Home Discord](https://discord.gg/k8s-at-home) community.  Make sure to explore the [kubernetes @ home search](https://nanne.dev/k8s-at-home-search/)!
+Thanks to the Kubernetes@Home Discord community for all the shared patterns and tools. If you're building something similar, start there.
 
 ---
 
