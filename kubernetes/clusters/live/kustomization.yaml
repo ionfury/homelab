@@ -15,7 +15,7 @@ resources:
 #  - kube-system
   -  kubevirt
   - longhorn-system
-#  - monitoring
+  - monitoring
 #  - network
   - system
 patches:
