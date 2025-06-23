@@ -95,7 +95,7 @@ The network is segmented using VLANs, with one segment (`citadel`) allocated for
 
 <details>
   <summary>Back of rack</summary>
-  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-front.jpg" align="center" alt="rack-back"/>
+  <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-back.jpg" align="center" alt="rack-back"/>
 </details>
 
 ---
