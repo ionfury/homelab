@@ -1,32 +1,32 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: [
+ "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
     "config:recommended",
     ":dependencyDashboard",
-    ":timezone(America/New_York)",
+    ":timezone(America/New_York)"
   ],
-  dependencyDashboardTitle: "Dependency Dashboard",
-  terraform: {
-    fileMatch: ["(^|/)infrastructure/.+\\.tf$"],
-    registryUrls: ["https://registry.opentofu.org"]
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "terraform": {
+    "managerFilePatterns": ["/(^|/)infrastructure/.+\\.tf$/"],
+    "registryUrls": ["https://registry.opentofu.org"]
   },
-  "kubernetes": {
-    "fileMatch": ["^kubernetes/.*\\.ya?ml$"]
-  },
-  "regexManagers": [
+  "kubernetes": {"managerFilePatterns": ["/^kubernetes/.*\\.ya?ml$/"]},
+  "customManagers": [
     {
-      "fileMatch": ["^\\.opentofu-version$"],
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.opentofu-version$/"],
       "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
       "depNameTemplate": "opentofu",
       "datasourceTemplate": "github-releases",
-      "lookupNameTemplate": "opentofu/opentofu"
+      "packageNameTemplate": "opentofu/opentofu"
     },
     {
-      "fileMatch": ["^\\.terragrunt-version$"],
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.terragrunt-version$/"],
       "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
       "depNameTemplate": "terragrunt",
       "datasourceTemplate": "github-releases",
-      "lookupNameTemplate": "gruntwork-io/terragrunt"
+      "packageNameTemplate": "gruntwork-io/terragrunt"
     }
   ]
 }
