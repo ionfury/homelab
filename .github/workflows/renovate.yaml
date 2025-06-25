@@ -53,4 +53,3 @@ jobs:
         with:
           token: ${{ steps.token.outputs.token }}
           renovate-version: ${{ inputs.version }}
-          configurationFile: .renovate/config.json5
