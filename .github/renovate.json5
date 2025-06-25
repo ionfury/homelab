@@ -28,5 +28,9 @@
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "gruntwork-io/terragrunt"
     }
+  ],
+  "ignorePaths": [
+    "kubernetes/clusters/*/flux-system/**",
+    "kubernetes/clusters/generated-cluster-vars.env"
   ]
 }
