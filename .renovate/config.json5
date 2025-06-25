@@ -1,0 +1,32 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":timezone(America/New_York)",
+  ],
+  dependencyDashboardTitle: "Dependency Dashboard",
+  terraform: {
+    fileMatch: ["(^|/)infrastructure/.+\\.tf$"],
+    registryUrls: ["https://registry.opentofu.org"]
+  },
+  "kubernetes": {
+    "fileMatch": ["^kubernetes/.*\\.ya?ml$"]
+  },
+  "regexManagers": [
+    {
+      "fileMatch": ["^\\.opentofu-version$"],
+      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
+      "depNameTemplate": "opentofu",
+      "datasourceTemplate": "github-releases",
+      "lookupNameTemplate": "opentofu/opentofu"
+    },
+    {
+      "fileMatch": ["^\\.terragrunt-version$"],
+      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
+      "depNameTemplate": "terragrunt",
+      "datasourceTemplate": "github-releases",
+      "lookupNameTemplate": "gruntwork-io/terragrunt"
+    }
+  ]
+}

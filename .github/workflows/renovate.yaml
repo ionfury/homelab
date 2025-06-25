@@ -1,0 +1,56 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Renovate
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: Run Renovate in dry run mode
+        type: boolean
+        required: false
+        default: false
+      logLevel:
+        description: Log level for Renovate
+        type: choice
+        default: info
+        options:
+          - debug
+          - info
+        required: false
+      version:
+        description: Renovate version to use
+        type: string
+        default: latest
+        required: false
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Token
+        uses: actions/create-github-app-token@v2.0.6
+        id: token
+        with:
+          app-id: ${{ secrets.RENOVATE_APP_ID }}
+          private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: homelab
+
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Run Renovate
+        uses: renovatebot/github-action@v42.0.6
+        env:
+          LOG_LEVEL: ${{ inputs.logLevel }}
+          RENOVATE_AUTODISCOVER: true
+          RENOVATE_AUTODISCOVER_FILTER: ${{ github.repository }}
+          RENOVATE_DRY_RUN: ${{ inputs.dryRun }}
+          RENOVATE_PLATFORM: github
+        with:
+          token: ${{ steps.token.outputs.token }}
+          renovate-version: ${{ inputs.version }}
+          configurationFile: .renovate/config.json5
