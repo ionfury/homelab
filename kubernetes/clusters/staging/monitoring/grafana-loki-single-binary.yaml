@@ -1,0 +1,10 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: grafana-loki-single-binary
+spec:
+  path: kubernetes/manifests/helm-release/grafana-loki-single-binary
+  postBuild:
+    substitute:
+      HELM_CHART_VERSION: 6.25.0
