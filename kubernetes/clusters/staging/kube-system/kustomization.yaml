@@ -8,3 +8,4 @@ components:
 resources:
   - cilium-config.yaml
   - cilium.yaml
+  - descheduler.yaml
