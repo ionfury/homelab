@@ -27,7 +27,7 @@ deschedulerPolicy:
             excludeOwnerKinds:
               - Job
             includingInitContainers: true
-            minPodLifetimeSeconds: 86400
+            minPodLifetimeSeconds: 3600
       plugins:
         balance:
           enabled:
