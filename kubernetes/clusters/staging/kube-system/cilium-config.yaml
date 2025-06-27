@@ -4,4 +4,6 @@ kind: Kustomization
 metadata:
   name: cilium-config
 spec:
+  dependsOn:
+    - name: cilium
   path: kubernetes/manifests/common/resources/cilium-config
