@@ -7,4 +7,4 @@ spec:
   path: kubernetes/manifests/helm-release/cert-manager
   postBuild:
     substitute:
-      HELM_CHART_VERSION: 1.16.3
+      HELM_CHART_VERSION: 1.17.1
