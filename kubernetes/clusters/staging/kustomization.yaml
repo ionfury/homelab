@@ -8,6 +8,7 @@ components:
 resources:
   - cert-manager
   - flux-system
+  - kube-system
   - longhorn-system
   - monitoring
   - network
