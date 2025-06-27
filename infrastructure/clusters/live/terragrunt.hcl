@@ -16,6 +16,11 @@ include "inventory" {
   expose = true
 }
 
+include "networking" {
+  path   = "${dirname(find_in_parent_folders("root.hcl"))}/networking.hcl"
+  expose = true
+}
+
 terraform {
   source = "${include.common.locals.base_source_url}"
 }
@@ -26,27 +31,27 @@ terraform {
 
 inputs = {
   cluster_name = local.cluster_name
-  cluster_tld  = include.common.locals.domains.internal
+  cluster_tld  = include.networking.locals.domains.internal
 
-  cluster_node_subnet    = include.common.locals.addresses.live.node_subnet
-  cluster_pod_subnet     = include.common.locals.addresses.live.pod_subnet
-  cluster_service_subnet = include.common.locals.addresses.live.service_subnet
-  cluster_vip            = include.common.locals.addresses.live.vip
+  cluster_node_subnet    = include.networking.locals.addresses.live.node_subnet
+  cluster_pod_subnet     = include.networking.locals.addresses.live.pod_subnet
+  cluster_service_subnet = include.networking.locals.addresses.live.service_subnet
+  cluster_vip            = include.networking.locals.addresses.live.vip
 
   cluster_env_vars = [
-    { "name" : "cluster_id", "value" : include.common.locals.addresses.live.id },
-    { "name" : "cluster_ip_pool_start", "value" : include.common.locals.addresses.live.ip_pool_start },
-    { "name" : "cluster_ip_pool_stop", "value" : include.common.locals.addresses.live.ip_pool_stop },
-    { "name" : "internal_ingress_ip", "value" : include.common.locals.addresses.live.internal_ingress_ip },
-    { "name" : "external_ingress_ip", "value" : include.common.locals.addresses.live.external_ingress_ip },
-    { "name" : "internal_domain", "value" : include.common.locals.addresses.live.internal_tld },
-    { "name" : "external_domain", "value" : include.common.locals.addresses.live.external_tld },
+    { "name" : "cluster_id", "value" : include.networking.locals.addresses.live.id },
+    { "name" : "cluster_ip_pool_start", "value" : include.networking.locals.addresses.live.ip_pool_start },
+    { "name" : "cluster_ip_pool_stop", "value" : include.networking.locals.addresses.live.ip_pool_stop },
+    { "name" : "internal_ingress_ip", "value" : include.networking.locals.addresses.live.internal_ingress_ip },
+    { "name" : "external_ingress_ip", "value" : include.networking.locals.addresses.live.external_ingress_ip },
+    { "name" : "internal_domain", "value" : include.networking.locals.addresses.live.internal_tld },
+    { "name" : "external_domain", "value" : include.networking.locals.addresses.live.external_tld },
     { "name" : "cluster_l2_interfaces", "value" : "[\"ens1f0\"]" },
   ]
 
   cilium_helm_values = templatefile("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml", {
     cluster_name       = local.cluster_name
-    cluster_pod_subnet = include.common.locals.addresses.live.pod_subnet
+    cluster_pod_subnet = include.networking.locals.addresses.live.pod_subnet
   })
 
   cilium_version     = include.common.locals.versions.cilium

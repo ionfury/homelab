@@ -1,9 +1,9 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: default
+  name: external
 spec:
-  secretName: default-tls
+  secretName: external-tls
   issuerRef:
     name: cloudflare
     kind: ClusterIssuer
