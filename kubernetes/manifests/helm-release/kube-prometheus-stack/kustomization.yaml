@@ -5,6 +5,7 @@ kind: Kustomization
 namePrefix: kube-prometheus-stack-
 resources:
   - ../../common/resources/helm-release
+  - external-secret.yaml
   - alertmanager-config.yaml
 configMapGenerator:
   - name: values
@@ -35,4 +36,3 @@ patches:
       - op: replace
         path: /spec/url
         value: https://prometheus-community.github.io/helm-charts
-
