@@ -52,6 +52,7 @@ inputs = {
   cilium_helm_values = templatefile("${get_terragrunt_dir()}/../../../kubernetes/manifests/helm-release/cilium/values.yaml", {
     cluster_name       = local.cluster_name
     cluster_pod_subnet = include.networking.locals.addresses.live.pod_subnet
+    operator_replicas  = 2
   })
 
   cilium_version     = include.common.locals.versions.cilium
