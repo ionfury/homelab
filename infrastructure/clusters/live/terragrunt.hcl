@@ -141,4 +141,9 @@ inputs = {
       }]
     }
   }
+
+  external_secrets = {
+    id_store     = "/homelab/infrastructure/accounts/live/external-secrets/id"
+    secret_store = "/homelab/infrastructure/accounts/live/external-secrets/secret"
+  }
 }

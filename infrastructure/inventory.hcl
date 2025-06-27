@@ -128,7 +128,7 @@ locals {
     node45 = { // Integration Cluster Control Plane
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
-      disks = []
+      disks   = []
       endpoint = {
         mac = "ac:1f:6b:2d:bf:ce"
         ip  = "192.168.10.222"
@@ -137,7 +137,7 @@ locals {
     node46 = { // Unassigned
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
-      disks = []
+      disks   = []
       endpoint = {
         mac = ""
         ip  = ""
@@ -146,7 +146,7 @@ locals {
     node47 = { // Unassigned
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
-      disks = []
+      disks   = []
       endpoint = {
         mac = ""
         ip  = ""
@@ -155,7 +155,7 @@ locals {
     node48 = { // Unassigned
       // Supermicro 8C@2.1GHz 32Gi
       os_disk = "Micron_5100_MTFD"
-      disks = []
+      disks   = []
       endpoint = {
         mac = ""
         ip  = ""

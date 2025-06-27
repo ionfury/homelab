@@ -19,10 +19,10 @@ locals {
     zone_id         = "799905ff93d585a9a0633949275cbf98"
   }
 
-  external_secrets = {
-    id_store     = "/homelab/infrastructure/accounts/external-secrets/id"
-    secret_store = "/homelab/infrastructure/accounts/external-secrets/secret"
-  }
+  #external_secrets = {
+  #  id_store     = "/homelab/infrastructure/accounts/external-secrets/id"
+  #  secret_store = "/homelab/infrastructure/accounts/external-secrets/secret"
+  #}
 
   healthchecksio = {
     api_key_store = "/homelab/infrastructure/accounts/healthchecksio/api-key"
