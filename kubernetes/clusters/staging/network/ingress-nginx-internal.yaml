@@ -3,6 +3,8 @@ kind: Kustomization
 metadata:
   name: ingress-nginx-internal
 spec:
+  dependsOn:
+    - name: issuers
   path: kubernetes/manifests/helm-release/ingress-nginx
   postBuild:
     substitute:
