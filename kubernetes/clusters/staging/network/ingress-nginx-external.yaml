@@ -5,6 +5,7 @@ metadata:
 spec:
   dependsOn:
     - name: issuers
+    - name: cilium-config
   path: kubernetes/manifests/helm-release/ingress-nginx
   postBuild:
     substitute:
