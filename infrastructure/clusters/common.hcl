@@ -22,8 +22,8 @@ locals {
 
     live = {
       id           = 1
-      internal_tld = local.domains.internal
-      external_tld = local.domains.external
+      internal_tld = "${local.domains.internal}"
+      external_tld = "${local.domains.external}"
 
       node_subnet         = local.citadel_subnet
       pod_subnet          = "172.18.0.0/16"
@@ -36,8 +36,8 @@ locals {
     }
     integration = {
       id           = 2
-      internal_tld = local.domains.internal
-      external_tld = local.domains.external
+      internal_tld = "integration.${local.domains.internal}"
+      external_tld = "integration.${local.domains.external}"
 
       node_subnet         = local.citadel_subnet
       pod_subnet          = "172.20.0.0/16"
@@ -50,8 +50,8 @@ locals {
     }
     staging = {
       id           = 3
-      internal_tld = local.domains.internal
-      external_tld = local.domains.external
+      internal_tld = "staging.${local.domains.internal}"
+      external_tld = "staging.${local.domains.external}"
 
       node_subnet         = local.citadel_subnet
       pod_subnet          = "172.22.0.0/16"
@@ -64,8 +64,8 @@ locals {
     }
     dev = {
       id           = 4
-      internal_tld = local.domains.internal
-      external_tld = local.domains.external
+      internal_tld = "dev.${local.domains.internal}"
+      external_tld = "dev.${local.domains.external}"
 
       node_subnet         = local.citadel_subnet
       pod_subnet          = "172.24.0.0/16"

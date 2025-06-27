@@ -26,7 +26,7 @@ terraform {
 
 inputs = {
   cluster_name = local.cluster_name
-  cluster_tld  = include.common.locals.addresses.live.internal_tld
+  cluster_tld  = include.common.locals.domains.internal
 
   cluster_node_subnet    = include.common.locals.addresses.live.node_subnet
   cluster_pod_subnet     = include.common.locals.addresses.live.pod_subnet
