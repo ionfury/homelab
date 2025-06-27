@@ -37,7 +37,7 @@ loadBalancer:
   mode: dsr
 operator:
   rollOutPods: true
-  replicas: ${default_replica_count}
+  replicas: 1
   prometheus:
     enabled: true
     serviceMonitor:
