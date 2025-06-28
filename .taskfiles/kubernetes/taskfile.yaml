@@ -8,6 +8,13 @@ vars:
   KUBERNETES_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/kubernetes/resources'
 
 tasks:
+  delete-terminated-pods:
+    desc: Deleted all Error and Completed status pods
+    cmds:
+      - |
+        kubectl get pods --all-namespaces -o json | \
+        jq -r '.items[] | select(.status.phase=="Succeeded" or .status.containerStatuses[]?.state.terminated?.reason=="Error") | "\(.metadata.namespace) \(.metadata.name)"' | \
+        xargs -n2 sh -c 'kubectl delete pod -n "$0" "$1"'
   render:
     desc: Renders all manifests.
     silent: true
