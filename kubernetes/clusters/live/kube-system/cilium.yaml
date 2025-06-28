@@ -7,4 +7,4 @@ spec:
   path: kubernetes/manifests/helm-release/cilium
   postBuild:
     substitute:
-      HELM_CHART_VERSION: 1.16.5
+      HELM_CHART_VERSION: ${cilium_version}

@@ -8,15 +8,13 @@ components:
 resources:
   - actions-runner-system
   - actions-runners
-#  - cert-manager
-#  - default
+  - cert-manager
   - flux-system
-  #- games
-#  - kube-system
-  -  kubevirt
+  - kube-system
+  - kubevirt
   - longhorn-system
   - monitoring
-#  - network
+  - network
   - system
 patches:
   - target:

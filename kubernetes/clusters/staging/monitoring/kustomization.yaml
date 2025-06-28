@@ -11,5 +11,5 @@ resources:
   - kube-prometheus-stack-crds.yaml
   - kube-prometheus-stack.yaml
   #- prometheus-ipmi-exporter-supermicro-node44.yaml
-  - prometheus-ipmi-exporter-supermicro-rules.yaml
+  #- prometheus-ipmi-exporter-supermicro-rules.yaml
   - promtail.yaml

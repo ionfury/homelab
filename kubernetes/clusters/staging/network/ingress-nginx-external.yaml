@@ -14,4 +14,3 @@ spec:
       domain: ${external_domain}
       ingress_ip: ${external_ingress_ip}
       default_cert: network/external-tls
-
