@@ -5,3 +5,6 @@ metadata:
   name: certificates
 spec:
   path: kubernetes/manifests/common/resources/certificates
+  dependsOn:
+    - name: cert-manager
+    - name: issuers
