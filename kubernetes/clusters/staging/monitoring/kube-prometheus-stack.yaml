@@ -9,4 +9,4 @@ spec:
     - name: kube-prometheus-stack-crds
   postBuild:
     substitute:
-      HELM_CHART_VERSION: 68.3.3
+      HELM_CHART_VERSION: 72.3.1
