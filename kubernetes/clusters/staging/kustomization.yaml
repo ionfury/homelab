@@ -6,14 +6,9 @@ components:
   - ../../manifests/common/components/configurations/kustomization
   - ../../manifests/common/components/flux-kustomization-defaults
 resources:
+  - ../base
   - actions-runner-system
-  - cert-manager
   - flux-system
-  - kube-system
-  - longhorn-system
-  - monitoring
-  - network
-  - system
 patches:
   - target:
       kind: Kustomization

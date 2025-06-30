@@ -8,5 +8,5 @@ spec:
   postBuild:
     substitute:
       HELM_CHART_VERSION: 1.8.0
-      storage_replica_count: "1"
+      storage_replica_count: ${default_replica_count}
 

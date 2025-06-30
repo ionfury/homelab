@@ -9,5 +9,5 @@ spec:
     - name: longhorn
   postBuild:
     substitute:
-      replica_count: "1"
+      replica_count: ${default_replica_count}
 
