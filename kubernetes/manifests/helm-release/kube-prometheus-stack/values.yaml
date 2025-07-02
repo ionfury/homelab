@@ -1,6 +1,12 @@
+# https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
 crds:
   enabled: false
 cleanPrometheusOperatorObjectNames: true
+defaultRules:
+  create: true
+  disabled:
+    KubeClientCertificateExpiration: true
+
 alertmanager:
   enabled: true
   ingress:
