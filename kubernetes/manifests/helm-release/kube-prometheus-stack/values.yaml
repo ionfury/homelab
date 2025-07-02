@@ -7,36 +7,36 @@ defaultRules:
   disabled:
     KubeClientCertificateExpiration: true
   additionalPrometheusRulesMap:
-   custom-apiserver:
-    groups:
-      - name: kubernetes-system-apiserver
-        rules:
-        - alert: KubeClientCertificateExpiration
-          annotations:
-            description: A client certificate used to authenticate to kubernetes apiserver
-              is expiring in less than 7.0 days on cluster {{ $labels.cluster }}.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
-            summary: Client certificate is about to expire.
-          expr: |-
-            histogram_quantile(0.01, sum without (namespace, service, endpoint) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 604800
-            and
-            on (job, cluster, instance) apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0
-          for: 1h
-          labels:
-            severity: warning
-        - alert: KubeClientCertificateExpiration
-          annotations:
-            description: A client certificate used to authenticate to kubernetes apiserver
-              is expiring in less than 24.0 hours on cluster {{ $labels.cluster }}.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
-            summary: Client certificate is about to expire.
-          expr: |-
-            histogram_quantile(0.01, sum without (namespace, service, endpoint) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 86400
-            and
-            on (job, cluster, instance) apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0
-          for: 1h
-          labels:
-            severity: critical
+    custom-apiserver:
+      groups:
+        - name: kubernetes-system-apiserver
+          rules:
+          - alert: KubeClientCertificateExpiration
+            annotations:
+              description: A client certificate used to authenticate to kubernetes apiserver
+                is expiring in less than 7.0 days on cluster {{ $labels.cluster }}.
+              runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
+              summary: Client certificate is about to expire.
+            expr: |-
+              histogram_quantile(0.01, sum without (namespace, service, endpoint) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 604800
+              and
+              on (job, cluster, instance) apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0
+            for: 1h
+            labels:
+              severity: warning
+          - alert: KubeClientCertificateExpiration
+            annotations:
+              description: A client certificate used to authenticate to kubernetes apiserver
+                is expiring in less than 24.0 hours on cluster {{ $labels.cluster }}.
+              runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
+              summary: Client certificate is about to expire.
+            expr: |-
+              histogram_quantile(0.01, sum without (namespace, service, endpoint) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 86400
+              and
+              on (job, cluster, instance) apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0
+            for: 1h
+            labels:
+              severity: critical
 alertmanager:
   enabled: true
   ingress:
