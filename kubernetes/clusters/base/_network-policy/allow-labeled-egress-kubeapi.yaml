@@ -19,5 +19,5 @@ metadata:
 spec:
   description: "Policy for allowing traffic to ingress to the kube api server."
   ingress:
-    - toEntities:
+    - fromEntities:
         - kube-apiserver
