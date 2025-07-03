@@ -1,6 +1,10 @@
+# https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
 global:
   leaderElection:
     namespace: "${NAMESPACE:kube-system}"
+  commonLabels:
+
+
 namespace: "${NAMESPACE:kube-system}"
 installCRDs: true
 prometheus:

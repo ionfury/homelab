@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - allow-all-kube-system.yaml
+  #- allow-cluster-kubedns.yaml
+  #- allow-cluster-monitoring.yaml
+  #- allow-egress-internet.yaml
+  #- allow-egress-private.yaml
+  #- allow-egress-kubeapi.yaml
+  #- allow-ingress-external.yaml
+  #- allow-ingress-internal.yaml
+  #- allow-ingress-private.yaml
