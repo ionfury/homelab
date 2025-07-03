@@ -16,8 +16,8 @@ apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: allow-labeled-ingress-kubeapi
-  description: "Policy for allowing traffic to ingress to the kube api server."
 spec:
+  description: "Policy for allowing traffic to ingress to the kube api server."
   ingress:
     - toEntities:
         - kube-apiserver
