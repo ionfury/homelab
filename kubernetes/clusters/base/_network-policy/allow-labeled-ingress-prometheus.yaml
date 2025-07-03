@@ -3,9 +3,11 @@
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
 metadata:
-  name: allow-labeled-egress-prometheus
+  name: allow-labeled-ingress-prometheus
 spec:
-  endpointSelector: {}
+  endpointSelector:
+    matchLabels:
+      networking/allow-prometheus: "true"
   ingress:
     - fromEndpoints:
       - matchLabels:
@@ -21,7 +23,7 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
 metadata:
-  name: allow-labeled-prometheus-ingress
+  name: allow-labeled-egress
 spec:
   endpointSelector:
     matchLabels:
@@ -29,7 +31,8 @@ spec:
       k8s:io.kubernetes.pod.namespace: monitoring
   egress:
     - toEndpoints:
-        - {}
+        - matchLabels:
+            networking/allow-prometheus: "true"
       toPorts:
         - rules:
             http:
