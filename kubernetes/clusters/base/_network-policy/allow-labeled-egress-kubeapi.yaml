@@ -11,13 +11,14 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
----
-apiVersion: cilium.io/v2
-kind: CiliumClusterwideNetworkPolicy
-metadata:
-  name: allow-labeled-ingress-kubeapi
-spec:
-  description: "Policy for allowing traffic to ingress to the kube api server."
-  ingress:
-    - fromEntities:
-        - kube-apiserver
+#---
+#apiVersion: cilium.io/v2
+#kind: CiliumClusterwideNetworkPolicy
+#metadata:
+#  name: allow-labeled-ingress-kubeapi
+#spec:
+#  description: "Policy for allowing traffic to ingress to the kube api server."
+#  endpointSelector:
+#  ingress:
+#    - fromEntities:
+#        - kube-apiserver
