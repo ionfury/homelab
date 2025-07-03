@@ -5,7 +5,6 @@ namespace: system
 resources:
   - ../../../manifests/common/resources/namespace
 
-  - canary-checker.yaml
   - external-secrets-stores.yaml
   - external-secrets.yaml
   - reloader.yaml

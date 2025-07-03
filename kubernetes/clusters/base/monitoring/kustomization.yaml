@@ -6,6 +6,7 @@ namespace: monitoring
 resources:
   - ../../../manifests/common/resources/namespace
 
+  - canary-checker.yaml
   - grafana.yaml
   - grafana-loki-single-binary.yaml
   - kube-prometheus-stack-crds.yaml

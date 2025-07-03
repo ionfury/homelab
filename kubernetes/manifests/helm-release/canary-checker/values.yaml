@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/flanksource/canary-checker/refs/heads/master/chart/values.schema.json
+serviceMonitor: true
+grafanaDashboards: true
+db:
+  embedded:
+    persist: true
+    storageClass: fast
+flanksource-ui:
+  ingress:
+    host: &host "canary-checker.${internal_domain}"
+    tls:
+      - secretName: canary-checker-tls
+        hosts:
+          - *host
