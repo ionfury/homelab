@@ -6,7 +6,7 @@ kind: Kustomization
 #  - ../../manifests/common/components/configurations/kustomization
 #  - ../../manifests/common/components/flux-kustomization-defaults
 resources:
-  - _network-policy
+  #- _network-policy
   - cert-manager
   - kube-system
   - longhorn-system
