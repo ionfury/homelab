@@ -3,7 +3,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  #- allow-all-kube-system.yaml
+  - allow-all-kube-system.yaml
   #- allow-cluster-kubedns.yaml
   - allow-labeled-egress-internet.yaml
   #- allow-labeled-egress-kubeapi.yaml
