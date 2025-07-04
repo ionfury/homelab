@@ -130,8 +130,8 @@ locals {
       os_disk = "Micron_5100_MTFD"
       disks   = []
       endpoint = {
-        mac = "ac:1f:6b:2d:bf:ce"
-        ip  = "192.168.10.222"
+        mac = "ac:1f:6b:83:d3:2c"
+        ip  = "192.168.10.252"
       }
     }
     node46 = { // Unassigned
@@ -139,8 +139,8 @@ locals {
       os_disk = "Micron_5100_MTFD"
       disks   = []
       endpoint = {
-        mac = ""
-        ip  = ""
+        mac = "ac:1f:6b:83:d3:1a"
+        ip  = "192.168.10.233"
       }
     }
     node47 = { // Unassigned
@@ -148,8 +148,8 @@ locals {
       os_disk = "Micron_5100_MTFD"
       disks   = []
       endpoint = {
-        mac = ""
-        ip  = ""
+        mac = "ac:1f:6b:83:d3:24"
+        ip  = "192.168.10.247"
       }
     }
     node48 = { // Unassigned
@@ -157,8 +157,8 @@ locals {
       os_disk = "Micron_5100_MTFD"
       disks   = []
       endpoint = {
-        mac = ""
-        ip  = ""
+        mac = "0c:c4:7a:54:9e:6b"
+        ip  = "192.168.10.151"
       }
     }
   }
