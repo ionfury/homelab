@@ -2,18 +2,18 @@
 crds:
   enabled: false
 cleanPrometheusOperatorObjectNames: true
-commonLabels:
-  networking/allow-egress-internet: "true"
 alertmanager:
   enabled: true
   additionalLabels:
-    networking/allow-egress-internet: "true"
   ingress:
     enabled: true
     ingressClassName: internal
     hosts: ["alertmanager.${internal_domain}"]
     pathType: Prefix
   alertmanagerSpec:
+    podMetadata:
+      labels:
+        networking/allow-egress-internet: "true"
     replicas: 1
     alertmanagerConfiguration:
       name: kube-prometheus-stack-alertmanager
