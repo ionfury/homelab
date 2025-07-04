@@ -5,9 +5,9 @@ kind: Kustomization
 resources:
   - allow-all-kube-system.yaml
   #- allow-cluster-kubedns.yaml
-  - allow-labeled-egress-internet.yaml
+  #- allow-labeled-egress-internet.yaml
   #- allow-labeled-egress-kubeapi.yaml
   #- allow-labeled-egress-private.yaml
   #- allow-labeled-ingress-internal.yaml
   #- allow-labeled-ingress-private.yaml
-  - allow-labeled-ingress-prometheus.yaml
+  #- allow-labeled-ingress-prometheus.yaml
