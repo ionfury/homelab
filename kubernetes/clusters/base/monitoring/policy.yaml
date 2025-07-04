@@ -9,8 +9,8 @@ spec:
   ingress:
     - fromEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: your-namespace
+            k8s:io.kubernetes.pod.namespace: monitoring
   egress:
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: your-namespace
+            k8s:io.kubernetes.pod.namespace: monitoring
