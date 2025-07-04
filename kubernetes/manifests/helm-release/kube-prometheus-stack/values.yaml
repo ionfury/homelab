@@ -2,10 +2,10 @@
 crds:
   enabled: false
 cleanPrometheusOperatorObjectNames: true
+commonLabels:
+  networking/allow-egress-internet: "true"
 alertmanager:
   enabled: true
-  additionalLabels:
-    networking/allow-egress-internet: "true"
   ingress:
     enabled: true
     ingressClassName: internal
