@@ -28,7 +28,11 @@ envoy:
 externalIPs:
   enabled: false
 hubble:
-  enabled: false
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
 l2announcements:
   enabled: true
 loadBalancer:
