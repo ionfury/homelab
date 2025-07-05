@@ -30,8 +30,10 @@ spec:
       app.kubernetes.io/name: prometheus
       k8s:io.kubernetes.pod.namespace: monitoring
   egress:
+    - toEndpoints:
+        - matchLabels: {}
     - toPorts:
         - rules:
             http:
-              - method: "GET"
-                path: "/metrics"
+              - method: GET
+                path: /metrics
