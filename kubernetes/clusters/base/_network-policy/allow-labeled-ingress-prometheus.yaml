@@ -35,5 +35,4 @@ spec:
     - toPorts:
         - rules:
             http:
-              - method: GET
-                path: /metrics
+              - path: /metrics
