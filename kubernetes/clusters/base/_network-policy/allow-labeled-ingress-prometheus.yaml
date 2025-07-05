@@ -32,11 +32,11 @@ spec:
   egress:
     - toEndpoints:
         - matchLabels: {}  # allow to all pods
-      toPorts:
-        - ports:
-            - port: "8080"
-              protocol: TCP
-          rules:
-            http:
-              - method: "GET"
-                path: "/metrics"
+      #toPorts:
+      #  - ports:
+      #      - port: "8080"
+      #        protocol: TCP
+      #    rules:
+      #      http:
+      #        - method: "GET"
+      #          path: "/metrics"
