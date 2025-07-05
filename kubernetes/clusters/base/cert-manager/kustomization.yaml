@@ -7,4 +7,4 @@ resources:
   - ../../../manifests/common/resources/namespace
   - cert-manager.yaml
   - issuers.yaml
-  #- policy.yaml
+  - policy.yaml
