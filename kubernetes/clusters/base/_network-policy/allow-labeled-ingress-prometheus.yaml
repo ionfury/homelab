@@ -31,4 +31,12 @@ spec:
       k8s:io.kubernetes.pod.namespace: monitoring
   egress:
     - toEndpoints:
-        - matchLabels: {}
+        - matchLabels: {}  # allow all destinations
+    - toPorts:
+        - ports:
+            - port: "0"
+              protocol: TCP
+          rules:
+            http:
+              - method: "GET"
+                path: "/metrics"
