@@ -32,7 +32,3 @@ spec:
   egress:
     - toEndpoints:
         - matchLabels: {}
-    - toPorts:
-        - rules:
-            http:
-              - path: /metrics
