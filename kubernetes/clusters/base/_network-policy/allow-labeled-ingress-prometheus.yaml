@@ -34,9 +34,9 @@ spec:
         - matchLabels: {}  # allow all destinations
     - toPorts:
         - ports:
-            - port: "0"
+            - port: "0" # Any Port
               protocol: TCP
           rules:
             http:
               - method: "GET"
-                path: "/metrics"
+                path: "/measdftrics"
