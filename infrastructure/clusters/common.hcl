@@ -1,6 +1,6 @@
 locals {
   # renovate: datasource=github-tags depName=ionfury/homelab-modules
-  version         = "v0.70.0"
+  version         = "v0.72.0"
   base_source_url = "git::https://github.com/ionfury/homelab-modules.git//modules/cluster?ref=${local.version}"
 
   versions = {
