@@ -9,7 +9,7 @@ resources:
   - _network-policy
   - cert-manager
   - kube-system
-  - longhorn-system
+  #- longhorn-system
   - monitoring
   - network
   - system
