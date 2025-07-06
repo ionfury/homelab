@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rook-ceph-${cluster_name}-cluster
+spec:
+  dependsOn:
+    - name: rook-ceph
+  path: kubernetes/clusters/${cluster_name}/rook-ceph/resources
+  postBuild:
+    substitute:
+      #OCI_REPOSITORY_TAG: 0.11.0

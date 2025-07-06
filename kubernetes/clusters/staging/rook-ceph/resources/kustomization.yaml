@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namePrefix: ${cluster_name}-
+resources:
+  - ../../../../manifests/common/resources/helm-release
+configMapGenerator:
+  - name: values
+    behavior: replace
+    files:
+      - values.yaml
+patches:
+  - target:
+      kind: HelmRelease
+    patch: |-
+      - op: replace
+        path: /spec/chart/spec/chart
+        value: rook-ceph-cluster
+      - op: add
+        path: /spec/releaseName
+        value: ${cluster_name}
+  - target:
+      kind: HelmRepository
+      name: app
+    patch: |-
+      - op: replace
+        path: /spec/url
+        value:  https://charts.rook.io/release
