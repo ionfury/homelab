@@ -10,6 +10,6 @@ resources:
   - cert-manager
   - kube-system
   #- longhorn-system
-  - monitoring
+  #- monitoring
   - network
   - system
