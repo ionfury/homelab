@@ -50,6 +50,9 @@ prometheus:
     hosts: ["prometheus.${internal_domain}"]
     pathType: Prefix
   prometheusSpec:
+    podMetadata:
+      labels:
+        networking/allow-ingress-internal: "true"
     externalLabels:
       prometheus_source: ${cluster_name}
     podMonitorSelectorNilUsesHelmValues: false
