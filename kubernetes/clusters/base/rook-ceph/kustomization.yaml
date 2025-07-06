@@ -6,3 +6,4 @@ resources:
   - ../../../manifests/common/resources/namespace
 
   - operator.yaml
+  - cluster.yaml

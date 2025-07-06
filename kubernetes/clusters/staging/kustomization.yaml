@@ -9,7 +9,6 @@ resources:
   - ../base
   - actions-runner-system
   - flux-system
-  - rook-ceph
 patches:
   - target:
       kind: Kustomization
