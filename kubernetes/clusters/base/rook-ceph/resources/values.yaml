@@ -29,8 +29,8 @@ cephClusterSpec:
     #deviceFilter:
     #config:
     #  deviceClass: testclass
-  #monitoring:
-  #  enabled: false
+  monitoring:
+    enabled: false
   healthCheck:
     daemonHealth:
       mon:
