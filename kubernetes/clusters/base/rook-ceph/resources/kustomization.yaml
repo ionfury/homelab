@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namePrefix: ${cluster_name}-
+namePrefix: staging-
 resources:
   - ../../../../manifests/common/resources/helm-release
 configMapGenerator:
@@ -19,7 +19,7 @@ patches:
         value: rook-ceph-cluster
       - op: add
         path: /spec/releaseName
-        value: ${cluster_name}
+        value: staging
   - target:
       kind: HelmRepository
       name: app
