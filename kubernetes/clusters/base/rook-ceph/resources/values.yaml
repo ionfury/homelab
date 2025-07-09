@@ -33,15 +33,11 @@ cephClusterSpec:
   crashCollector:
     disable: true
   storage:
-    useAllNodes: true
-    useAllDevices: true
-    allowDeviceClassUpdate: true
-    allowOsdCrushWeightUpdate: false
-    #deviceFilter:
-    #config:
-    #  deviceClass: testclass
-  #monitoring:
-  #  enabled: false
+    useAllNodes: false
+    useAllDevices: false
+    nodes:
+      - name: "node44"
+        devicePathFilter: "^/dev/disk/by-id/ata-KINGSTON_SEDC500M480G.*"
   healthCheck:
     daemonHealth:
       mon:
