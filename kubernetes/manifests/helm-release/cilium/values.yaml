@@ -33,6 +33,13 @@ hubble:
     enabled: true
   ui:
     enabled: true
+    ingress:
+      enabled: true
+      className: internal
+      hosts:
+        - hubble.${internal_domain}
+      tls:
+        - secretName: hubble-tls
 l2announcements:
   enabled: true
 loadBalancer:
