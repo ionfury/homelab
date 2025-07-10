@@ -7,9 +7,4 @@ db:
   embedded:
     persist: false
 flanksource-ui:
-  ingress:
-    host: &host "canary-checker.${internal_domain}"
-    tls:
-      - secretName: canary-checker-tls
-        hosts:
-          - *host
+  enabled: fase
