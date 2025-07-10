@@ -5,4 +5,5 @@ metadata:
 spec:
   dependsOn:
     - name: cert-manager
+    - name: external-secrets
   path: kubernetes/manifests/common/resources/issuers
