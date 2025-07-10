@@ -3,8 +3,8 @@ global:
   leaderElection:
     namespace: "${NAMESPACE:kube-system}"
   commonLabels:
-
-
+podLabels:
+  networking/allow-egress-internet: "true"
 namespace: "${NAMESPACE:kube-system}"
 installCRDs: true
 prometheus:

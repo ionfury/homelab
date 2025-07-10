@@ -12,4 +12,4 @@ resources:
   - kube-prometheus-stack-crds.yaml
   - kube-prometheus-stack.yaml
   - promtail.yaml
-  #- policy.yaml
+  - policy.yaml

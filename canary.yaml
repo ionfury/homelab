@@ -1,9 +1,0 @@
-apiVersion: canaries.flanksource.com/v1
-kind: Canary
-metadata:
-  name: http-check
-spec:
-  interval: 30
-  http:
-    - name: basic-check
-      url: https://httpbin.flanksource.com/status/200
