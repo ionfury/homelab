@@ -9,8 +9,8 @@ resources:
   - _network-policy
   - cert-manager
   - kube-system
-  - rook-ceph
-  #- longhorn-system
-  #- monitoring
+  #- rook-ceph
+  - longhorn-system
+  - monitoring
   - network
   - system

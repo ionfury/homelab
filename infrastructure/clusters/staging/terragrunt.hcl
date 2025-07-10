@@ -69,13 +69,13 @@ inputs = {
       files = [
         include.common.locals.spegel.machine_files
       ]
-      #labels = [
-      #  include.common.locals.longhorn.labels.create_default_disk
-      #]
-      #annotations = [{
-      #  key   = "node.longhorn.io/default-disks-config"
-      #  value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/mnt/disk1", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }])}'"
-      #}]
+      labels = [
+        include.common.locals.longhorn.labels.create_default_disk
+      ]
+      annotations = [{
+        key   = "node.longhorn.io/default-disks-config"
+        value = "'${jsonencode([{ "name" : "disk1", "path" : "/var/mnt/disk1", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }, { "name" : "disk2", "path" : "/var/mnt/disk2", "storageReserved" : 0, "allowScheduling" : true, "tags" : ["fast", "slow"] }])}'"
+      }]
       kubelet_extraMounts = [
       #  include.common.locals.longhorn.kubelet_extraMounts.rootDisk,
         include.common.locals.longhorn.kubelet_extraMounts.disk1,
