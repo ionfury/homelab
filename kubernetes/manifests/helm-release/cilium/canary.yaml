@@ -6,6 +6,6 @@ spec:
   schedule: "@every 1m"
   http:
     - name: http pass response 200 status code
-      url: https://longhorn.${internal_domain}
+      url: https://hubble.${internal_domain}
       responseCodes: [200]
       maxSSLExpiry: 7
