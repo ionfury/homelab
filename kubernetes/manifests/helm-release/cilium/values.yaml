@@ -39,7 +39,9 @@ hubble:
       hosts:
         - hubble.${internal_domain}
       tls:
-        - secretName: hubble-tls
+        - hosts:
+            - hubble.${internal_domain}
+          secretName: hubble-tls
 l2announcements:
   enabled: true
 loadBalancer:
