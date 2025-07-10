@@ -1,0 +1,23 @@
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-alertmanager
+spec:
+  schedule: "@every 1m"
+  http:
+    - name: http pass response 200 status code
+      url: https://alertmanager.${internal_domain}
+      responseCodes: [200]
+      maxSSLExpiry: 7
+---
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-prometheus
+spec:
+  schedule: "@every 1m"
+  http:
+    - name: http pass response 200 status code
+      url: https://prometheus.${internal_domain}
+      responseCodes: [200]
+      maxSSLExpiry: 7
