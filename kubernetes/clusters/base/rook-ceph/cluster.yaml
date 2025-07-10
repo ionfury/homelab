@@ -6,7 +6,7 @@ metadata:
 spec:
   dependsOn:
     - name: rook-ceph
-  path: kubernetes/clusters/staging/rook-ceph/resources
+  path: kubernetes/clusters/base/rook-ceph/resources
   postBuild:
     substitute:
       #OCI_REPOSITORY_TAG: 0.11.0
