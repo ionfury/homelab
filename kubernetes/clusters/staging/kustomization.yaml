@@ -8,6 +8,7 @@ components:
 resources:
   - ../base
   - actions-runner-system
+  - actions-runners
   - flux-system
 patches:
   - target:

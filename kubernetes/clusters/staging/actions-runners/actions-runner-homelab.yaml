@@ -2,16 +2,16 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: actions-runner-homelab-staging
+  name: actions-runner-homelab-live
 spec:
   path: kubernetes/manifests/helm-release-oci/actions-runner-scale-set
   postBuild:
     substitute:
-      name: homelab-runner-staging
+      name: homelab-runner-live
       secret: /homelab/kubernetes/live/homelab-runner
       storage_class: fast-unmanaged
       github_config_url: https://github.com/ionfury/homelab
-      service_account: homelab-runner-staging
+      service_account: homelab-runner-live
       image: ghcr.io/ionfury/homelab-modules-runner
       tag: latest
       OCI_REPOSITORY_TAG: 0.11.0
@@ -19,12 +19,12 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: homelab-runner-staging
+  name: homelab-runner-live
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: homelab-runner-staging
+  name: homelab-runner-live
 rules:
   - apiGroups: [""]
     resources: ["pods"]
@@ -45,12 +45,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: homelab-runner-staging
+  name: homelab-runner-live
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: homelab-runner-staging
+  name: homelab-runner-live
 subjects:
   - kind: ServiceAccount
-    name: homelab-runner-staging
+    name: homelab-runner-live
     namespace: actions-runners
