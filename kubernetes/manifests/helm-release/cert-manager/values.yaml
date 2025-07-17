@@ -5,6 +5,7 @@ global:
   commonLabels:
 podLabels:
   networking/allow-egress-internet: "true"
+  networking/allow-ingress-prometheus: "true"
 namespace: "${NAMESPACE:kube-system}"
 installCRDs: true
 prometheus:
