@@ -6,6 +6,7 @@ namePrefix: longhorn-
 resources:
   - ../../common/resources/helm-release
   - canary.yaml
+  - alerts.yaml
 configMapGenerator:
   - name: values
     behavior: replace
