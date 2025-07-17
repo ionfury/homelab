@@ -29,6 +29,8 @@ externalIPs:
   enabled: false
 hubble:
   enabled: true
+  dropEventEmitter:
+    enabled: true
   relay:
     enabled: true
   ui:

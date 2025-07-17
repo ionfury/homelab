@@ -31,7 +31,9 @@ spec:
       k8s:io.kubernetes.pod.namespace: monitoring
   egress:
     - toEndpoints:
-        - matchLabels: {}  # allow to all pods
+        - matchLabels:
+            networking/allow-ingress-prometheus: "true"
+
       #toPorts:
       #  - ports:
       #      - port: "8080"
