@@ -13,5 +13,10 @@ prometheus:
   servicemonitor:
     enabled: true
 webhook:
+  podLabels:
+    networking/allow-ingress-prometheus: "true"
   networkPolicy:
     enabled: false
+cainjector:
+  podLabels:
+    networking/allow-ingress-prometheus: "true"
