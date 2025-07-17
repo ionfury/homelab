@@ -6,6 +6,7 @@ global:
 podLabels:
   networking/allow-egress-internet: "true"
   networking/allow-ingress-prometheus: "true"
+  networking/allow-cluster-egress: "true"
 namespace: "${NAMESPACE:kube-system}"
 installCRDs: true
 prometheus:
@@ -15,8 +16,10 @@ prometheus:
 webhook:
   podLabels:
     networking/allow-ingress-prometheus: "true"
+    networking/allow-cluster-egress: "true"
   networkPolicy:
     enabled: false
 cainjector:
   podLabels:
     networking/allow-ingress-prometheus: "true"
+    networking/allow-cluster-egress: "true"

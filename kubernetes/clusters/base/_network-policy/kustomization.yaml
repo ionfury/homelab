@@ -11,3 +11,4 @@ resources:
   #- allow-labeled-ingress-internal.yaml
   #- allow-labeled-ingress-private.yaml
   - allow-labeled-ingress-prometheus.yaml
+  - allow-labeled-to-cluster.yaml
