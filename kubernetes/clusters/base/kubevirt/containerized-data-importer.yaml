@@ -4,4 +4,6 @@ kind: Kustomization
 metadata:
   name: containerized-data-importer
 spec:
+  dependsOn:
+    - name: containerized-data-importer-operator
   path: kubernetes/manifests/kustomize/containerized-data-importer

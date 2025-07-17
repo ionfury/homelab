@@ -4,4 +4,6 @@ kind: Kustomization
 metadata:
   name: kubevirt
 spec:
+  dependsOn:
+    - name: kubevirt-operator
   path: kubernetes/manifests/kustomize/kubevirt
