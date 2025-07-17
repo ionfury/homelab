@@ -7,7 +7,6 @@ components:
   - ../../manifests/common/components/flux-kustomization-defaults
 resources:
   - ../base
-  - actions-runner-system
   - actions-runners
   - flux-system
 patches:
