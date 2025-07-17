@@ -1,3 +1,4 @@
+# https://github.com/longhorn/charts/blob/v1.9.x/charts/longhorn/values.yaml
 persistence:
   defaultFsType: xfs
   defaultClassReplicaCount: ${default_replica_count}
@@ -14,3 +15,6 @@ ingress:
   ingressClassName: internal
   tls: true
   host: longhorn.${internal_domain}
+metrics:
+  serviceMonitor:
+    enabled: true
