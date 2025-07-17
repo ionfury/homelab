@@ -1,23 +1,18 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
-#apiVersion: cilium.io/v2
-#kind: CiliumClusterwideNetworkPolicy
-#metadata:
-#  name: allow-labeled-ingress-prometheus
-#spec:
-#  endpointSelector:
-#    matchLabels:
-#      networking/allow-prometheus: "true"
-#  ingress:
-#    - fromEndpoints:
-#      - matchLabels:
-#          app.kubernetes.io/name: prometheus
-#          k8s:io.kubernetes.pod.namespace: monitoring
-#      toPorts:
-#        - rules:
-#            http:
-#              - method: "GET"
-#                path: "/metrics"
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-labeled-ingress-prometheus
+spec:
+  endpointSelector:
+    matchLabels:
+      networking/allow-ingress-prometheus: "true"
+  ingress:
+    - fromEndpoints:
+      - matchLabels:
+          app.kubernetes.io/name: prometheus
+          k8s:io.kubernetes.pod.namespace: monitoring
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
 apiVersion: cilium.io/v2
@@ -33,12 +28,3 @@ spec:
     - toEndpoints:
         - matchLabels:
             networking/allow-ingress-prometheus: "true"
-
-      #toPorts:
-      #  - ports:
-      #      - port: "8080"
-      #        protocol: TCP
-      #    rules:
-      #      http:
-      #        - method: "GET"
-      #          path: "/metrics"
