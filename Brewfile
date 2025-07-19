@@ -1,3 +1,6 @@
+# Inventory
+brew "ipmitool"
+
 # Kubernetes
 brew "kubectl"
 

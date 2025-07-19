@@ -3,10 +3,6 @@
 version: "3"
 
 vars:
-  IPMI_DOMAIN_SUFFIX: '-ipmi.citadel.tomnowak.work'
-  INVENTORY_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/inventory/resources'
-  #CREDENTIALS_FILE: '{{.INVENTORY_RESOURCES_DIR}}/credentials.yaml'
-  #INVENTORY_FILE: "{{.ROOT_DIR}}/infrastructure/inventory.hcl"
   INVENTORY_FILE: "{{.ROOT_DIR}}/.taskfiles/inventory/resources/inventory.yaml"
   VALID_HOSTS:
     sh: "cat {{.INVENTORY_FILE}} | yq -r '.hosts | keys[]'"
@@ -16,22 +12,14 @@ tasks:
     desc: Lists the power status of all hosts.
     silent: true
     cmds:
-     - for: { var: VALID_HOSTS }
-       cmd: task inventory:status-{{ .ITEM }} | grep "System Power" | awk '{print "{{ .ITEM }} " $0}'
+      - for: { var: VALID_HOSTS }
+        cmd: task inventory:status-{{ .ITEM }} | grep "System Power" | awk '{print "{{ .ITEM }} " $0}'
 
   hosts:
     desc: Lists all hosts.
     silent: true
     cmds:
       - echo "{{ .VALID_HOSTS }}"
-
-  #host-membership:
-  #  desc: Lists host sand their registered cluster membership.
-  #  silent: true
-  #  cmds:
-  #    - cat {{ .INVENTORY_FILE }} | yj -cj | jq -r '.locals[].hosts[] | to_entries[] | "{host=\"\(.key)\", member=\"\(.value[].cluster[].member)\"}"'
-  #  preconditions:
-  #    - test -f {{.INVENTORY_FILE}}
 
   status-*:
     desc: Gets the status of the host.
@@ -120,14 +108,14 @@ tasks:
     silent: true
     desc: Run ipmi command on a host.
     requires:
-      vars: [HOST, USER, COMMAND, IPMI_DOMAIN_SUFFIX]
+      vars: [HOST, USER, COMMAND]
     vars:
       PASSWORD:
-        sh: "cat {{ .INVENTORY_FILE }} | yq -r '.hosts[\"{{ .HOST }}\"].password'"
+        sh: 'cat {{ .INVENTORY_FILE }} | yq -r ''.hosts["{{ .HOST }}"].password'''
       USERNAME:
-        sh: "cat {{ .INVENTORY_FILE }} |yq -r '.hosts[\"{{ .HOST }}\"].username'"
+        sh: 'cat {{ .INVENTORY_FILE }} |yq -r ''.hosts["{{ .HOST }}"].username'''
       HOSTNAME:
-        sh: "cat {{ .INVENTORY_FILE }} | yq -r '.hosts[\"{{ .HOST }}\"].hostname'"
+        sh: 'cat {{ .INVENTORY_FILE }} | yq -r ''.hosts["{{ .HOST }}"].hostname'''
     cmds:
       - "ipmitool -I lanplus -H {{ .HOSTNAME }} -U {{ .USERNAME }} -P '{{ .PASSWORD }}' {{ .COMMAND }}"
     preconditions:
@@ -139,4 +127,3 @@ tasks:
         msg: "Password for host '{{ .HOST }}' is blank.  Please update '{{ .CREDENTIALS_FILE }}' for '{{ .HOST }}'."
       - test -f {{.CREDENTIALS_FILE}}
       - which ipmitool
-
