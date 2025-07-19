@@ -15,3 +15,4 @@ resources:
   - monitoring
   - network
   - system
+  - tailscale
