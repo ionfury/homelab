@@ -9,6 +9,7 @@ resources:
   - ../base
   - actions-runners
   - flux-system
+  - tailscale
 patches:
   - target:
       kind: Kustomization
