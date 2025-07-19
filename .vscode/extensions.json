@@ -2,6 +2,7 @@
   "recommendations": [
     "EditorConfig.EditorConfig",
     "hashicorp.terraform",
-    "redhat.vscode-yaml"
+    "redhat.vscode-yaml",
+    "BahramJoharshamshiri.hcl-lsp"
   ]
 }
