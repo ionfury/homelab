@@ -28,3 +28,4 @@ locals {
     api_key_store = "/homelab/infrastructure/accounts/healthchecksio/api-key"
   }
 }
+
