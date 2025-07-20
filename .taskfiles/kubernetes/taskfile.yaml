@@ -3,11 +3,22 @@
 version: "3"
 
 vars:
-  CLUSTER_DIR: '{{.ROOT_DIR}}/kubernetes/clusters'
-  MANIFESTS_DIR: '{{.ROOT_DIR}}/kubernetes/manifests'
-  KUBERNETES_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/kubernetes/resources'
+  CLUSTER_DIR: "{{.ROOT_DIR}}/kubernetes/clusters"
+  MANIFESTS_DIR: "{{.ROOT_DIR}}/kubernetes/manifests"
+  KUBERNETES_RESOURCES_DIR: "{{.ROOT_DIR}}/.taskfiles/kubernetes/resources"
 
 tasks:
+  get-kubeconfig-*:
+    desc: Get Kubeconfig from AWS
+    vars:
+      NAME: "{{ index .MATCH 0 }}"
+    cmds:
+      - mkdir -p tmpdir/
+      - defer: rm -rf tmpdir/
+      - aws ssm get-parameter --name /homelab/infrastructure/clusters/{{.NAME}}/kubeconfig --with-decryption --query "Parameter.Value" --output text > tmpdir/config
+      - KUBECONFIG="tmpdir/config:$HOME/.kube/config" kubectl config view --flatten --merge > tmpdir/merged
+      - mv tmpdir/merged ~/.kube/config
+
   delete-terminated-pods:
     desc: Deleted all Error and Completed status pods
     cmds:
@@ -72,14 +83,14 @@ tasks:
     label: render-helm-release-{{.RELEASE}}
     vars:
       RELEASE: "{{ index .MATCH 0 }}"
-      RELEASE_DIR: '{{.MANIFESTS_DIR}}/helm-release/{{.RELEASE}}'
+      RELEASE_DIR: "{{.MANIFESTS_DIR}}/helm-release/{{.RELEASE}}"
       RELATIVE_RELEASE_DIR: kubernetes/manifests/helm-release/{{.RELEASE}}
-      VALUES_FILE: '{{.RELEASE_DIR}}/values.yaml'
+      VALUES_FILE: "{{.RELEASE_DIR}}/values.yaml"
       CLUSTER_CONTEXT: '{{.CLUSTER_CONTEXT| default "live"}}'
-      CLUSTER_DIR: '{{.CLUSTER_DIR}}/{{.CLUSTER_CONTEXT}}'
-      OUTPUT_DIR: '{{.RELEASE_DIR}}/.rendered'
-      ERRORS: '{{.OUTPUT_DIR}}/helm_errors.log'
-    dotenv: [ '{{.CLUSTER_DIR}}/{{.CLUSTER_CONTEXT}}/cluster-vars.env' ]
+      CLUSTER_DIR: "{{.CLUSTER_DIR}}/{{.CLUSTER_CONTEXT}}"
+      OUTPUT_DIR: "{{.RELEASE_DIR}}/.rendered"
+      ERRORS: "{{.OUTPUT_DIR}}/helm_errors.log"
+    dotenv: ["{{.CLUSTER_DIR}}/{{.CLUSTER_CONTEXT}}/cluster-vars.env"]
     env:
       HELM_CHART_VERSION:
         sh: 'cat $(grep -rl "path: {{.RELATIVE_RELEASE_DIR}}" "{{.CLUSTER_DIR}}" | grep -v "kustomize.yaml") | yq "select(.metadata.name == \"{{.RELEASE}}\") | .spec.postBuild.substitute.HELM_CHART_VERSION"'
@@ -116,9 +127,9 @@ tasks:
     requires:
       vars: [KUSTOMIZATION]
     vars:
-      OUTPUT_DIR: '{{.KUSTOMIZATION}}/.rendered'
-      RENDERED: '{{.OUTPUT_DIR}}/kustomize.yaml'
-      ERRORS: '{{.OUTPUT_DIR}}/kustomize_errors.log'
+      OUTPUT_DIR: "{{.KUSTOMIZATION}}/.rendered"
+      RENDERED: "{{.OUTPUT_DIR}}/kustomize.yaml"
+      ERRORS: "{{.OUTPUT_DIR}}/kustomize_errors.log"
     cmds:
       - defer: '[ ! -s {{.ERRORS}} ] && echo "✅ {{.KUSTOMIZATION}} >> {{.RENDERED}}" || echo "❌ {{.KUSTOMIZATION}} >> {{.ERRORS}}"'
       - cmd: rm "{{.RENDERED}}" "{{.ERRORS}}"
@@ -135,6 +146,5 @@ tasks:
       - "{{.KUSTOMIZATION}}/**/*.yaml"
       - "{{.MANIFESTS_DIR}}/**/*.yaml"
     generates:
-      - '{{.RENDERED}}'
-      - '{{.ERRORS}}'
-
+      - "{{.RENDERED}}"
+      - "{{.ERRORS}}"

@@ -1,6 +1,9 @@
 # Inventory
 brew "ipmitool"
 
+# Cloud Dependencies
+brew "awscli"
+
 # Kubernetes
 brew "kubectl"
 

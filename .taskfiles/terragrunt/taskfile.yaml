@@ -3,20 +3,18 @@
 version: "3"
 
 vars:
-  INFRASTRUCTURE_DIR: '{{.ROOT_DIR}}/infrastructure'
+  INFRASTRUCTURE_DIR: "{{.ROOT_DIR}}/infrastructure"
 
 tasks:
   format:
     desc: Formats Open Tofu & Terragrunt files.
     cmds:
       - terragrunt hclfmt
-     #- terragrunt hclvalidate
       - tofu fmt -recursive
     preconditions:
       - which tofu terragrunt
     sources:
-      - '{{.INFRASTRUCTURE_DIR}}/**/*.tf'
-
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.tf"
 
   apply:
     desc: Applies terraform changes.
@@ -27,6 +25,3 @@ tasks:
     desc: Shows terraform changes.
     cmds:
       - terragrunt plan -compact-warnings -concise
-
-  # remove all state: terragrunt state list | sed 's/\[/\\[/g; s/\]/\\]/g; s/"/\\"/g' | xargs -I{} terragrunt state rm {}
-
