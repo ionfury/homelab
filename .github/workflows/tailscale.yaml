@@ -19,6 +19,10 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:k8s
 
+      - name: use named exit node in tailscale
+        run: |
+          timeout 5m sudo -E tailscale set --exit-node=test --exit-node-allow-lan-access=true
+
       - name: Test Access
         run: |
           curl -v https://prometheus.internal.staging.tomnowak.work
