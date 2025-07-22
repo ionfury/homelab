@@ -17,7 +17,7 @@ jobs:
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: k8s
+          tags: tag:k8s
 
       - name: Test Access
         run: |
