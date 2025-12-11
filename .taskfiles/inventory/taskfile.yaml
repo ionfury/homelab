@@ -119,6 +119,8 @@ tasks:
     cmds:
       - "ipmitool -I lanplus -H {{ .HOSTNAME }} -U {{ .USERNAME }} -P '{{ .PASSWORD }}' {{ .COMMAND }}"
     preconditions:
+      - sh: ping -c1 -W1 {{ .HOSTNAME }} >/dev/null 2>&1
+        msg: "Host '{{ .HOST }}' ({{ .HOSTNAME }}) is not reachable via ICMP (ping)."
       - sh: test "$(echo "{{ .VALID_HOSTS }}" | grep -c "^{{ .HOST }}$")" -gt 0
         msg: "'{{.HOST}}' is not a valid host.  Valid Hosts: \n{{ .VALID_HOSTS }}"
       - sh: test "{{ .USERNAME }}" != "null"
