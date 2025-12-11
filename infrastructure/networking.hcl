@@ -5,7 +5,7 @@ locals {
   }
 
   subnets = {
-    citadel =  "192.168.10.0/24"
+    citadel = "192.168.10.0/24"
   }
 
   addresses = {
