@@ -5,7 +5,7 @@ kind: Kustomization
 namePrefix: longhorn-
 resources:
   - ../../common/resources/helm-release
-  - canary.yaml
+  #  - canary.yaml
   - alerts.yaml
 configMapGenerator:
   - name: values

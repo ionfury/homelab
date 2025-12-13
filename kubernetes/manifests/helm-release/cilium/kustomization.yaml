@@ -5,7 +5,7 @@ kind: Kustomization
 namePrefix: cilium-
 resources:
   - ../../common/resources/helm-release
-  - canary.yaml
+#  - canary.yaml
 configMapGenerator:
   - name: values
     behavior: replace
