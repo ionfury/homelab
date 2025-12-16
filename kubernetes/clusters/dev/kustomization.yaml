@@ -10,7 +10,7 @@ resources:
   - cert-manager
   - flux-system
   - kube-system
-  - games
+  # - games
   - longhorn-system
   - network
   - system
