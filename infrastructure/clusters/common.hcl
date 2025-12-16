@@ -1,6 +1,6 @@
 locals {
   # renovate: datasource=github-tags depName=ionfury/homelab-modules
-  version         = "v0.73.0"
+  version         = "v0.75.0"
   base_source_url = "git::https://github.com/ionfury/homelab-modules.git//modules/cluster?ref=${local.version}"
 
   networking_vars = read_terragrunt_config(find_in_parent_folders("networking.hcl"))
@@ -134,12 +134,6 @@ locals {
 }
 
 inputs = {
-  kubernetes_version = "1.33.6"
-  talos_version      = "v1.11.5"
-  flux_version       = "v2.7.5"
-  prometheus_version = "17.0.2"
-  cilium_version     = "1.18.4"
-
   cluster_name = local.cluster_name
   cluster_tld  = local.internal_tld
 
