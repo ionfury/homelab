@@ -7,5 +7,5 @@ resources:
   - ../../../manifests/common/resources/namespace
   - istio-base.yaml
   - istiod.yaml
-  #- istio-cni.yaml
+  - istio-cni.yaml
   #- istio-ztunnel.yaml

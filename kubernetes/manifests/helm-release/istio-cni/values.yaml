@@ -7,6 +7,3 @@ gobal:
       requests:
         cpu: 50m
         memory: 64Mi
-  multiCluster:
-    enabled: true
-    clusterName: "${cluster_name}"
