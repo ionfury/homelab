@@ -8,3 +8,5 @@ spec:
   postBuild:
     substitute:
       HELM_CHART_VERSION: 1.28.1
+  dependsOn:
+    - name: istio-base
