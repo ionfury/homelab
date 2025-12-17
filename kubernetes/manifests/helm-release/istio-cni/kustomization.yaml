@@ -16,7 +16,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/chart/spec/chart
-        value: istio-cni
+        value: cni
       - op: add
         path: /spec/releaseName
         value: istio-cni
