@@ -8,4 +8,4 @@ resources:
   - istio-base.yaml
   - istiod.yaml
   - istio-cni.yaml
-  #- istio-ztunnel.yaml
+  - istio-ztunnel.yaml
