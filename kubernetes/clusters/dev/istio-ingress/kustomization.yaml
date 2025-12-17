@@ -2,11 +2,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: network
-#components:
-#  - ../.network-policies
+namespace: istio-system
 resources:
   - ../../../manifests/common/resources/namespace
-  - certificates.yaml
-  # - ingress-nginx-external.yaml
-  # - ingress-nginx-internal.yaml
+  - istio-base.yaml
+  - istiod.yaml
+  - istio-cni.yaml
+  - istio-ztunnel.yaml
