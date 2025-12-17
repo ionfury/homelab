@@ -1,0 +1,10 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: istio-base
+spec:
+  path: kubernetes/manifests/common/resources/istio-base
+  postBuild:
+    substitute:
+      HELM_CHART_VERSION: 1.28.1
