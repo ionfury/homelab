@@ -3,6 +3,7 @@ kind: Namespace
 metadata:
   name: default
   labels:
+    istio.io/dataplane-mode: ambient
     pod-security.kubernetes.io/enforce: privileged
     pod-security.kubernetes.io/audit: baseline
     pod-security.kubernetes.io/warn: baseline
