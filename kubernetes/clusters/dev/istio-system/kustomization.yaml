@@ -6,6 +6,6 @@ namespace: istio-system
 resources:
   - ../../../manifests/common/resources/namespace
   - istio-base.yaml
-  #- istiod.yaml
+  - istiod.yaml
   #- istio-cni.yaml
   #- istio-ztunnel.yaml

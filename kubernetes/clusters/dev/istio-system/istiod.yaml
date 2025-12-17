@@ -1,0 +1,10 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: istiod
+spec:
+  path: kubernetes/manifests/helm-release/istiod
+  postBuild:
+    substitute:
+      HELM_CHART_VERSION: 1.28.1
