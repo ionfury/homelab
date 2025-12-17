@@ -9,6 +9,7 @@ resources:
   - default
   - cert-manager
   - flux-system
+  - istio-ingress
   - istio-system
   - kube-system
   # - games

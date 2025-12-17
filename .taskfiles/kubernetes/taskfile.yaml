@@ -80,18 +80,18 @@ tasks:
   render-helm-release-*:
     desc: Renders the Helm release.
     #internal: true
-    silent: true
+    #silent: true
     label: render-helm-release-{{.RELEASE}}
     vars:
       RELEASE: "{{ index .MATCH 0 }}"
       RELEASE_DIR: "{{.MANIFESTS_DIR}}/helm-release/{{.RELEASE}}"
       RELATIVE_RELEASE_DIR: kubernetes/manifests/helm-release/{{.RELEASE}}
       VALUES_FILE: "{{.RELEASE_DIR}}/values.yaml"
-      CLUSTER_CONTEXT: '{{.CLUSTER_CONTEXT| default "live"}}'
+      CLUSTER_CONTEXT: '{{.CLUSTER_CONTEXT| default "dev"}}'
       CLUSTER_DIR: "{{.CLUSTER_DIR}}/{{.CLUSTER_CONTEXT}}"
       OUTPUT_DIR: "{{.RELEASE_DIR}}/.rendered"
       ERRORS: "{{.OUTPUT_DIR}}/helm_errors.log"
-    dotenv: ["{{.CLUSTER_DIR}}/{{.CLUSTER_CONTEXT}}/cluster-vars.env"]
+    dotenv: ["{{.CLUSTER_DIR}}/generated-cluster-vars.env"]
     env:
       HELM_CHART_VERSION:
         sh: 'cat $(grep -rl "path: {{.RELATIVE_RELEASE_DIR}}" "{{.CLUSTER_DIR}}" | grep -v "kustomize.yaml") | yq "select(.metadata.name == \"{{.RELEASE}}\") | .spec.postBuild.substitute.HELM_CHART_VERSION"'
@@ -109,7 +109,7 @@ tasks:
       - test -d "{{.MANIFESTS_DIR}}/helm-release/{{.RELEASE}}"
       - test -f "{{.MANIFESTS_DIR}}/helm-release/{{.RELEASE}}/kustomization.yaml"
       - test -d "{{.CLUSTER_DIR}}"
-      - test -f "{{.CLUSTER_DIR}}/cluster-vars.env"
+      - test -f "{{.CLUSTER_DIR}}/generated-cluster-vars.env"
       - test -f "{{.VALUES_FILE}}"
       - mkdir -p {{.OUTPUT_DIR}}
       - touch {{.ERRORS}}
