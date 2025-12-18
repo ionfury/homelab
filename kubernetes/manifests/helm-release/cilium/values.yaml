@@ -27,6 +27,8 @@ envoy:
   enabled: true
 externalIPs:
   enabled: false
+gatewayAPI:
+  enabled: true
 hubble:
   enabled: true
   dropEventEmitter:
