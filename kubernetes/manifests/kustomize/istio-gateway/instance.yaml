@@ -2,9 +2,20 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: internal-gateway
+  annotations:
+    networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: internal
   listeners:
     - name: http
       protocol: HTTP
       port: 80
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumGatewayClassConfig
+metadata:
+  name: nodeport-gateway-config
+  namespace: default
+spec:
+  service:
+    type: NodePort
