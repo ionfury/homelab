@@ -9,5 +9,6 @@ spec:
     - longhorn.internal.dev.tomnowak.work
   rules:
     - backendRefs:
-        - name: longhorn-frontend.longhorn.svc
+        - name: longhorn-frontend
+          namespace: longhorn
           port: 80
