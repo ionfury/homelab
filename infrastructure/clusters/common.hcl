@@ -1,6 +1,6 @@
 locals {
   # renovate: datasource=github-tags depName=ionfury/homelab-modules
-  version         = "v0.78.0"
+  version         = "v0.80.0"
   base_source_url = "git::https://github.com/ionfury/homelab-modules.git//modules/cluster?ref=${local.version}"
 
   networking_vars = read_terragrunt_config(find_in_parent_folders("networking.hcl"))

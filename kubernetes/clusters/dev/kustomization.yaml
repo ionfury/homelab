@@ -6,27 +6,11 @@ components:
   - ../../manifests/common/components/configurations/kustomization
   - ../../manifests/common/components/flux-kustomization-defaults
 resources:
-  - default
-  - cert-manager
-  #- istio-ingress
-  #- istio-system
-  - kube-system
-  # - games
-  - longhorn-system
-  - network
-  - system
-patches:
-  - target:
-      kind: Kustomization
-    patch: |
-      - op: replace
-        path: /metadata/namespace
-        value: flux-system
+  - root.yaml
 configMapGenerator:
   - name: cluster-vars
     options:
       disableNameSuffixHash: true
-    namespace: flux-system
     behavior: create
     envs:
       - generated-cluster-vars.env

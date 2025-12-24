@@ -4,7 +4,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: kube-system
 components:
-  - ../../../manifests/common/components/configurations/namespace
+  - ../../../../manifests/common/components/configurations/namespace
 resources:
   - cilium-config.yaml
   - cilium.yaml

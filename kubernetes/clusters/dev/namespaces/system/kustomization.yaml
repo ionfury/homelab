@@ -6,7 +6,7 @@ namespace: system
 #components:
 #  - ../.network-policies
 resources:
-  - ../../../manifests/common/resources/namespace
+  - ../../../../manifests/common/resources/namespace
   - external-secrets-stores.yaml
   - external-secrets.yaml
   - reloader.yaml

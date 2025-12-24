@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+components:
+  - ../../../manifests/common/components/configurations/kustomization
+  - ../../../manifests/common/components/flux-kustomization-defaults
+resources:
+  - default
+  - cert-manager
+  #  #- istio-ingress
+  #  #- istio-system
+  - kube-system
+  #  # - games
+  - longhorn-system
+  - network
+  - system
