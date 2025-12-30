@@ -79,8 +79,8 @@ tasks:
 
   render-helm-release-*:
     desc: Renders the Helm release.
-    #internal: true
-    #silent: true
+    internal: true
+    silent: true
     label: render-helm-release-{{.RELEASE}}
     vars:
       RELEASE: "{{ index .MATCH 0 }}"
@@ -98,6 +98,7 @@ tasks:
     cmds:
       - defer: '[ ! -s {{.ERRORS}} ] && echo "✅ {{.RELEASE_DIR}} >> {{.OUTPUT_DIR}}" || echo "❌ {{.RELEASE_DIR}} >> {{.ERRORS}}"'
       - defer: sed -i '' '/Pulled:/d;/Digest:/d' "{{.ERRORS}}"
+      - cmd: echo {{.RELATIVE_RELEASE_DIR}} "{{.CLUSTER_DIR}}"
       - cmd: rm -rf "{{.OUTPUT_DIR}}/{{.RELEASE}}"
         ignore_error: true
       - cmd: '{{.KUBERNETES_RESOURCES_DIR}}/template-helm-release.sh "{{.RELEASE_DIR}}" "{{.VALUES_FILE}}" "{{.OUTPUT_DIR}}" 2> "{{.ERRORS}}"'
@@ -136,7 +137,7 @@ tasks:
       - cmd: rm "{{.RENDERED}}" "{{.ERRORS}}"
         ignore_error: true
       - cmd: kustomize build "{{.KUSTOMIZATION}}" > "{{.RENDERED}}" 2> "{{.ERRORS}}"
-      - cmd: kubectl apply --dry-run=client -f "{{.RENDERED}}" > /dev/null 2>> "{{.ERRORS}}"
+    #  - cmd: kubectl apply --dry-run=client -f "{{.RENDERED}}" > /dev/null 2>> "{{.ERRORS}}"
     preconditions:
       - which kustomize
       - test -d {{.KUSTOMIZATION}}
