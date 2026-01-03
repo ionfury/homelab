@@ -3,10 +3,6 @@ locals {
     rpi1 = { // Pi4 2Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "slow"
-      }]
       install = {
         disk_filters = { id = "/dev/mmcblk0" }
         architecture = "arm64"
@@ -21,10 +17,6 @@ locals {
     rpi2 = { // Pi4 2Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "slow"
-      }]
       install = {
         disk_filters = { id = "/dev/mmcblk0" }
         architecture = "arm64"
@@ -39,10 +31,6 @@ locals {
     rpi3 = { // Pi3 B+
       cluster = "none"
       type    = "pxe"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "slow"
-      }]
       install = {
         disk_filters = { id = "/dev/mmcblk0" }
         architecture = "arm64"
@@ -57,10 +45,6 @@ locals {
     rpi4 = { // Pi CM4 8Gi
       cluster = "dev"
       type    = "controlplane"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "slow"
-      }]
       install = {
         selector     = "disk.size < 1u * TiB && disk.size > 100u * GiB"
         architecture = "arm64"
@@ -81,10 +65,7 @@ locals {
     node1 = { // Supermicro 20C@2.4GHz 64Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         disk_filters = {}
       }
@@ -96,10 +77,7 @@ locals {
     node2 = { // Supermicro 20C@2.2GHz 128Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         disk_filters = {}
       }
@@ -111,10 +89,7 @@ locals {
     node3 = { // Supermicro 20C@2.2GHz 128Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         disk_filters = {}
       }
@@ -126,10 +101,7 @@ locals {
     node41 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         selector     = "disk.model = 'Micron_5100_MTFD'"
         data         = {
@@ -158,27 +130,24 @@ locals {
     node42 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data     = {
           enabled = true
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = [
         { # 1920GB Kingston SSD
           device        = "/dev/sda"
           mountpoint    = "/var/mnt/disk1"
-          tags = ["fast", "ssd", "any"]
+          tags          = ["fast", "ssd", "any"]
         },
         { # 20TB Seagate HDD
           device        = "/dev/sdb"
           mountpoint    = "/var/mnt/disk2"
-          tags = ["slow", "hdd", "any"]
+          tags          = ["slow", "hdd", "any"]
         }
       ]
       interfaces = [{
@@ -190,10 +159,7 @@ locals {
     node43 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         selector     = "disk.model = 'Micron_5100_MTFD'"
         data         = {
@@ -222,10 +188,7 @@ locals {
     node44 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "staging"
       type    = "controlplane"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         selector     = "disk.model = 'Micron_5100_MTFD'"
         data         = {
@@ -254,10 +217,7 @@ locals {
     node45 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "integration"
       type    = "controlplane"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         selector     = "disk.model = 'Micron_5100_MTFD'"
         data         = {
@@ -275,10 +235,7 @@ locals {
     node46 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         selector     = "disk.model = 'Micron_5100_MTFD'"
         data         = {
@@ -296,10 +253,7 @@ locals {
     node47 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         selector     = "disk.model = 'Micron_5100_MTFD'"
         data         = {
@@ -317,10 +271,7 @@ locals {
     node48 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "none"
       type    = "none"
-      labels = [{
-        key   = "perf.homelab.io/class"
-        value = "standard"
-      }]
+
       install = {
         selector     = "disk.model = 'Micron_5100_MTFD'"
         data         = {

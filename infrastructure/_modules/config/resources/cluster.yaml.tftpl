@@ -1,0 +1,6 @@
+# https://www.talos.dev/v1.10/reference/configuration/v1alpha1/config/#Config.cluster
+---
+%{ if type == "controlplane" ~}
+cluster:
+  ${indent(2,cluster_config)}
+%{ endif ~}

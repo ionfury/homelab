@@ -1,0 +1,40 @@
+locals {
+  cluster_config   = yamldecode(var.talos_machines[0].config).cluster
+  cluster_name     = try(local.cluster_config.clusterName, "talos.local")
+  cluster_endpoint = local.cluster_config.controlPlane.endpoint
+
+  machines          = { for v in var.talos_machines : yamldecode(v.config).machine.network.hostname => v }
+  addresses         = { for k, v in local.machines : k => split("/", yamldecode(v.config).machine.network.interfaces[0].addresses[0])[0] }
+  machine_ips       = [for k, v in local.machines : local.addresses[k]]
+  control_plane_ips = [for k, v in local.machines : local.addresses[k] if yamldecode(v.config).machine.type == "controlplane"]
+  bootstrap_ip      = local.control_plane_ips[0]
+}
+
+resource "talos_machine_secrets" "this" {
+  talos_version = var.talos_version
+}
+
+data "talos_machine_configuration" "this" {
+  for_each = local.machines
+
+  cluster_name       = local.cluster_name
+  cluster_endpoint   = local.cluster_endpoint
+  machine_type       = yamldecode(each.value.config).machine.type
+  machine_secrets    = talos_machine_secrets.this.machine_secrets
+  kubernetes_version = var.kubernetes_version
+  talos_version      = var.talos_version
+
+  config_patches = [
+    each.value.config,
+    templatefile("${path.module}/resources/talos-patches/machine_install.yaml.tftpl", {
+      machine_install_disk_image = each.value.image.secureboot ? local.machine_installer_secureboot[each.key] : local.machine_installer[each.key]
+    })
+  ]
+}
+
+data "talos_client_configuration" "this" {
+  cluster_name         = local.cluster_name
+  client_configuration = talos_machine_secrets.this.client_configuration
+  endpoints            = local.control_plane_ips
+  nodes                = local.machine_ips
+}
