@@ -50,14 +50,14 @@ locals {
         architecture = "arm64"
         platform     = ""
         sbc          = "rpi_generic"
-        data         = {
+        data = {
           enabled = true
-          tags = ["fast", "nvme", "any"]
+          tags    = ["fast", "nvme", "any"]
         }
       }
       disks = []
       interfaces = [{
-        id = "end0"
+        id           = "end0"
         hardwareAddr = "d8:3a:dd:bb:1d:7f"
         addresses    = [{ ip = "192.168.10.191" }]
       }]
@@ -103,26 +103,26 @@ locals {
       type    = "controlplane"
 
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data = {
           enabled = false
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = [
         { # 1920GB Kingston SSD
-          device        = "/dev/sda"
-          mountpoint    = "/var/mnt/disk1"
-          tags = ["fast", "ssd", "any"]
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+          tags       = ["fast", "ssd", "any"]
         },
         { # 20TB Seagate HDD
-          device        = "/dev/sdb"
-          mountpoint    = "/var/mnt/disk2"
-          tags = ["slow", "hdd", "any"]
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+          tags       = ["slow", "hdd", "any"]
         }
       ]
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:2d:bf:ee"
         addresses    = [{ ip = "192.168.10.253" }]
       }]
@@ -133,25 +133,25 @@ locals {
 
       install = {
         selector = "disk.model = 'Micron_5100_MTFD'"
-        data     = {
+        data = {
           enabled = true
           tags    = ["fast", "ssd", "any"]
         }
       }
       disks = [
         { # 1920GB Kingston SSD
-          device        = "/dev/sda"
-          mountpoint    = "/var/mnt/disk1"
-          tags          = ["fast", "ssd", "any"]
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+          tags       = ["fast", "ssd", "any"]
         },
         { # 20TB Seagate HDD
-          device        = "/dev/sdb"
-          mountpoint    = "/var/mnt/disk2"
-          tags          = ["slow", "hdd", "any"]
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+          tags       = ["slow", "hdd", "any"]
         }
       ]
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:2d:bf:bc"
         addresses    = [{ ip = "192.168.10.203" }]
       }]
@@ -161,26 +161,26 @@ locals {
       type    = "controlplane"
 
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data = {
           enabled = false
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = [
         { # 1TB Crucial SSD
-          device        = "/dev/sda"
-          mountpoint    = "/var/mnt/disk1"
-          tags = ["fast", "ssd", "any"]
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+          tags       = ["fast", "ssd", "any"]
         },
         { # 1TB Crucial SSD
-          device        = "/dev/sdb"
-          mountpoint    = "/var/mnt/disk2"
-          tags = ["fast", "ssd", "any"]
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+          tags       = ["fast", "ssd", "any"]
         }
       ]
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:2d:bb:c8"
         addresses    = [{ ip = "192.168.10.201" }]
       }]
@@ -190,26 +190,26 @@ locals {
       type    = "controlplane"
 
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data = {
           enabled = false
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = [
         { # 480GB Kingston SSD
-          device        = "/dev/sda"
-          mountpoint    = "/var/mnt/disk1"
-          tags = ["fast", "ssd", "any"]
+          device     = "/dev/sda"
+          mountpoint = "/var/mnt/disk1"
+          tags       = ["fast", "ssd", "any"]
         },
         { # 480GB Kingston SSD
-          device        = "/dev/sdb"
-          mountpoint    = "/var/mnt/disk2"
-          tags = ["fast", "ssd", "any"]
+          device     = "/dev/sdb"
+          mountpoint = "/var/mnt/disk2"
+          tags       = ["fast", "ssd", "any"]
         }
       ]
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:2d:ba:1e"
         addresses    = [{ ip = "192.168.10.218" }]
       }]
@@ -219,15 +219,15 @@ locals {
       type    = "controlplane"
 
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data = {
           enabled = false
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = []
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:83:d3:2c"
         addresses    = [{ ip = "192.168.10.252" }]
       }]
@@ -237,15 +237,15 @@ locals {
       type    = "none"
 
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data = {
           enabled = false
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = []
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:83:d3:1a"
         addresses    = [{ ip = "192.168.10.233" }]
       }]
@@ -255,15 +255,15 @@ locals {
       type    = "none"
 
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data = {
           enabled = false
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = []
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:83:d3:24"
         addresses    = [{ ip = "192.168.10.247" }]
       }]
@@ -273,15 +273,15 @@ locals {
       type    = "none"
 
       install = {
-        selector     = "disk.model = 'Micron_5100_MTFD'"
-        data         = {
+        selector = "disk.model = 'Micron_5100_MTFD'"
+        data = {
           enabled = false
-          tags = ["fast", "ssd", "any"]
+          tags    = ["fast", "ssd", "any"]
         }
       }
       disks = []
       interfaces = [{
-        id = "ens1f0"
+        id           = "ens1f0"
         hardwareAddr = "0c:c4:7a:54:9e:6b"
         addresses    = [{ ip = "192.168.10.151" }]
       }]

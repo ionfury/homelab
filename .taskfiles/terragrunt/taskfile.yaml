@@ -6,22 +6,68 @@ vars:
   INFRASTRUCTURE_DIR: "{{.ROOT_DIR}}/infrastructure"
 
 tasks:
-  format:
+  run:
+    desc: Runs terragrunt stacks.
+    cmds:
+      - task: clean
+      - task: fmt
+      - task: gen
+      - task: validate
+  fmt:
     desc: Formats Open Tofu & Terragrunt files.
     cmds:
-      - terragrunt hclfmt
+      - task: tofu-fmt
+      - task: tg-fmt
+
+  tofu-fmt:
+    desc: Formats Open Tofu files.
+    internal: true
+    cmds:
       - tofu fmt -recursive
+    preconditions:
+      - which tofu
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.tf"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.tf"
+
+  tg-fmt:
+    desc: Formats Open Tofu & Terragrunt files.
+    internal: true
+    cmds:
+      - terragrunt hcl fmt
     preconditions:
       - which tofu terragrunt
     sources:
-      - "{{.INFRASTRUCTURE_DIR}}/**/*.tf"
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.hcl"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.hcl"
 
-  apply:
-    desc: Applies terraform changes.
+  gen:
+    desc: Generates terragrunt stacks.
     cmds:
-      - terragrunt apply -compact-warnings -concise
+      - terragrunt stack generate
+    preconditions:
+      - which terragrunt
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.hcl"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/**/.terragrunt-stack/**"
 
-  plan:
-    desc: Shows terraform changes.
+  clean:
+    desc: Cleans generated terragrunt stacks.
     cmds:
-      - terragrunt plan -compact-warnings -concise
+      - terragrunt stack clean
+    preconditions:
+      - which terragrunt
+
+  validate:
+    desc: Validates terragrunt stacks.
+    cmds:
+      - terragrunt stack run validate
+    preconditions:
+      - which terragrunt
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/**/.terragrunt-stack/**"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/**/.terragrunt-stack/**"

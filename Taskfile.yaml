@@ -2,9 +2,9 @@
 version: "3"
 
 includes:
-  inventory: .taskfiles/inventory
-  terragrunt: .taskfiles/terragrunt
-  kubernetes: .taskfiles/kubernetes
+  inv: .taskfiles/inventory
+  tg: .taskfiles/terragrunt
+  k8s: .taskfiles/kubernetes
 
 tasks:
   default:

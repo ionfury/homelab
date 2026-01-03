@@ -23,6 +23,7 @@ tfplan
 
 # Terragrunt
 .terragrunt-cache
+.terragrunt-stack
 
 out.yaml
 errors.log

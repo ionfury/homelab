@@ -1,0 +1,150 @@
+cluster:
+  controlPlane:
+    endpoint: ${cluster_endpoint}
+  allowSchedulingOnControlPlanes: true
+  clusterName: ${cluster_name}
+  network:
+    cni:
+      name: none
+    podSubnets:
+      - ${cluster_pod_subnet}
+    serviceSubnets:
+      - ${cluster_service_subnet}
+  apiServer:
+    disablePodSecurityPolicy: true
+%{ if length(cluster_controllerManager_extraArgs) > 0 ~}
+  controllerManager:
+    extraArgs:
+%{ for arg in cluster_controllerManager_extraArgs ~}
+      "${arg.name}": "${arg.value}"
+%{ endfor ~}
+%{ endif ~}
+%{ if length(cluster_scheduler_extraArgs) > 0 ~}
+  scheduler:
+    extraArgs:
+%{ for arg in cluster_scheduler_extraArgs ~}
+      "${arg.name}": "${arg.value}"
+%{ endfor ~}
+%{ endif ~}
+%{ if length(cluster_etcd_extraArgs) > 0 ~}
+  etcd:
+    extraArgs:
+%{ for arg in cluster_etcd_extraArgs ~}
+      "${arg.name}": "${arg.value}"
+%{ endfor ~}
+%{ endif ~}
+  proxy:
+    disabled: true
+  coreDNS:
+    disabled: false
+%{ if length(cluster_extraManifests) > 0 ~}
+  extraManifests:
+%{ for manifest in cluster_extraManifests ~}
+    - ${manifest}
+%{ endfor ~}
+%{ endif ~}
+machine:
+  type: ${machine_type}
+  kubelet:
+    nodeIP:
+      validSubnets:
+        - ${cluster_node_subnet}
+%{ if length(machine_kubelet_extraMounts) > 0 ~}
+    extraMounts:
+%{ for mount in machine_kubelet_extraMounts ~}
+      - destination: ${mount.destination}
+        type: ${mount.type}
+        source: ${mount.source}
+        options:
+%{ for option in mount.options ~}
+          - ${option}
+%{ endfor ~}
+%{ endfor ~}
+%{ endif ~}
+  network:
+    hostname: ${machine_hostname}
+    interfaces:
+%{ for interface in machine_interfaces ~}
+      - deviceSelector:
+          physical: true
+%{ if lookup(interface, "hardwareAddr", "") != "" ~}
+          hardwareAddr: "${interface.hardwareAddr}"
+%{ endif ~}
+        addresses:
+%{ for address in interface.addresses ~}
+          - ${address.ip}/${lookup(address, "cidr", "24")}
+%{ endfor ~}
+        mtu: 1500
+        dhcp: true
+        dhcpOptions:
+          routeMetric: ${lookup(interface, "dhcp_routeMetric", 100)}
+%{ if cluster_vip != "" && machine_type == "controlplane" ~}
+        vip:
+          ip: ${cluster_vip}
+%{ endif ~}
+%{ if length(lookup(interface, "vlans", [])) > 0 ~}
+        vlans:
+%{ for vlan in interface.vlans ~}
+          - vlanId: ${vlan.vlanId}
+            addresses:
+%{ for address in vlan.addresses ~}
+              - ${address.ip}/${lookup(address, "cidr", "24")}
+%{ endfor ~}
+            dhcp: true
+            dhcpOptions:
+              routeMetric: ${lookup(vlan, "dhcp_routeMetric", 100)}
+%{ endfor ~}
+%{ endif ~}
+%{ endfor ~}
+    nameservers:
+%{ for nameserver in machine_nameservers ~}
+      - ${nameserver}
+%{ endfor ~}
+  time:
+    servers:
+%{ for timeserver in machine_timeservers ~}
+      - ${timeserver}
+%{ endfor ~}
+%{ if length(machine_disks) > 0 ~}
+  disks:
+%{ for disk in machine_disks ~}
+    - device: ${disk.device}
+      partitions:
+        - mountpoint: ${disk.mountpoint}
+%{ endfor ~}
+%{ endif ~}
+  install:
+%{ if length(lookup(machine_install, "extra_kernel_args", [])) > 0 ~}
+    extraKernelArgs:
+%{ for arg in machine_install.extra_kernel_args ~}
+      - ${arg}
+%{ endfor ~}
+%{ endif ~}
+    wipe: ${lookup(machine_install, "wipe", true)}
+  features:
+    hostDNS:
+      enabled: true
+      forwardKubeDNSToHost: true
+      resolveMemberNames: true
+%{ if length(machine_labels) > 0 ~}
+  nodeLabels:
+%{ for item in machine_labels ~}
+    ${item.key}: ${item.value}
+%{ endfor ~}
+%{ endif ~}
+%{ if length(machine_annotations) > 0 ~}
+  nodeAnnotations:
+%{ for item in machine_annotations ~}
+    ${item.key}: ${item.value}
+%{ endfor ~}
+%{ endif ~}
+%{ if length(machine_files) > 0 ~}
+  files:
+%{ for file in machine_files ~}
+    - content: |-
+        ${indent(8, file.content)}
+      permissions: ${file.permissions}
+      path: ${file.path}
+      op: ${file.op}
+%{ endfor ~}
+%{ endif ~}
