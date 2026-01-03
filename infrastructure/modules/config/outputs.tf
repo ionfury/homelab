@@ -10,7 +10,7 @@ output "unifi" {
     dhcp_reservations = local.dhcp_reservations
     address           = var.accounts.unifi.address
     site              = var.accounts.unifi.site
-    api_key           = try(var.values[var.accounts.unifi.api_key_store], "")
+    api_key           = try(var.account_values[var.accounts.unifi.api_key_store], "")
   }
   sensitive = true
 }
@@ -39,14 +39,14 @@ output "bootstrap" {
       org             = var.accounts.github.org
       repository      = var.accounts.github.repository
       repository_path = var.accounts.github.repository_path
-      token           = try(var.values[var.accounts.github.token_store], "")
+      token           = try(var.account_values[var.accounts.github.token_store], "")
     }
     external_secrets = {
-      id     = try(var.values[var.accounts.external_secrets.id_store], "")
-      secret = try(var.values[var.accounts.external_secrets.secret_store], "")
+      id     = try(var.account_values[var.accounts.external_secrets.id_store], "")
+      secret = try(var.account_values[var.accounts.external_secrets.secret_store], "")
     }
     healthchecksio = {
-      api_key = try(var.values[var.accounts.healthchecksio.api_key_store], "")
+      api_key = try(var.account_values[var.accounts.healthchecksio.api_key_store], "")
     }
   }
   sensitive = true

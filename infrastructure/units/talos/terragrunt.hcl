@@ -7,7 +7,7 @@ terraform {
 }
 
 dependency "config" {
-  config_path = values.config_path
+  config_path = "../config"
 
   mock_outputs = {
     talos = {

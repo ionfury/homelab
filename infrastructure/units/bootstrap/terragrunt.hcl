@@ -7,7 +7,7 @@ terraform {
 }
 
 dependency "config" {
-  config_path = values.config_path
+  config_path = "../config"
 
   mock_outputs = {
     bootstrap = {
@@ -33,7 +33,7 @@ dependency "config" {
 }
 
 dependency "talos" {
-  config_path = values.talos_path
+  config_path = "../talos"
 
   mock_outputs = {
     kubeconfig_host                   = "https://localhost:6443"

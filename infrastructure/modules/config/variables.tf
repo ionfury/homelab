@@ -130,8 +130,8 @@ variable "local_paths" {
   }
 }
 
-variable "values" {
-  description = "SSM parameter values from aws-get-params."
+variable "account_values" {
+  description = "Secret values to bind to accounts."
   type        = map(string)
   sensitive   = true
   default     = {}
