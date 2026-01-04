@@ -1,5 +1,5 @@
 locals {
-  name = "${basename(get_terragrunt_dir())}"
+  name     = "${basename(get_terragrunt_dir())}"
   features = ["gateway-api", "longhorn", "prometheus", "spegel"]
 }
 
@@ -13,7 +13,7 @@ unit "config" {
   path   = "config"
 
   values = {
-    name = local.name
+    name     = local.name
     features = local.features
   }
 }

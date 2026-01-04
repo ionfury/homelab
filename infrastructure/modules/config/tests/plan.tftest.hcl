@@ -1,3 +1,5 @@
+# Base tests for config module - validates core output structure and transformations
+
 variables {
   name     = "test-cluster"
   features = ["gateway-api", "longhorn", "prometheus", "spegel"]
@@ -23,7 +25,6 @@ variables {
       cluster = "test-cluster"
       type    = "controlplane"
       install = {
-        selector     = "disk.size > 100u * GiB"
         architecture = "amd64"
         platform     = "metal"
         data = {
@@ -42,7 +43,6 @@ variables {
       cluster = "test-cluster"
       type    = "controlplane"
       install = {
-        selector     = "disk.size > 100u * GiB"
         architecture = "amd64"
         platform     = "metal"
         data = {
@@ -66,9 +66,7 @@ variables {
     node3 = {
       cluster = "other-cluster"
       type    = "controlplane"
-      install = {
-        selector = "disk.size > 100u * GiB"
-      }
+      install = {}
       interfaces = [{
         hardwareAddr = "aa:bb:cc:dd:ee:03"
         addresses    = [{ ip = "192.168.10.103" }]
@@ -90,7 +88,7 @@ variables {
     kubernetes = "~/.kube"
   }
 
-  values = {
+  account_values = {
     "/homelab/infrastructure/accounts/unifi/api-key"           = "test-unifi-key"
     "/homelab/infrastructure/accounts/github/token"            = "test-github-token"
     "/homelab/infrastructure/accounts/external-secrets/id"     = "test-es-id"
@@ -120,6 +118,7 @@ variables {
   }
 }
 
+# Machine filtering - only machines matching cluster name should be included
 run "machine_filtering" {
   command = plan
 
@@ -134,133 +133,231 @@ run "machine_filtering" {
   }
 
   assert {
+    condition     = contains(keys(output.machines), "node2")
+    error_message = "Expected node2 in filtered machines"
+  }
+
+  assert {
     condition     = !contains(keys(output.machines), "node3")
-    error_message = "node3 should be filtered out"
+    error_message = "node3 should be filtered out (different cluster)"
   }
 }
 
+# Cluster endpoint derived from internal TLD
 run "cluster_endpoint" {
   command = plan
 
   assert {
     condition     = output.cluster_endpoint == "k8s.internal.test.local"
-    error_message = "Incorrect cluster endpoint"
+    error_message = "Cluster endpoint should be k8s.{internal_tld}"
+  }
+
+  assert {
+    condition     = output.cluster_name == "test-cluster"
+    error_message = "Cluster name should match input"
   }
 }
 
-run "unifi_output" {
+# Unifi output structure - DNS and DHCP for network configuration
+run "unifi_output_structure" {
   command = plan
 
   assert {
     condition     = length(output.unifi.dns_records) == 2
-    error_message = "Expected 2 DNS records for control plane nodes"
+    error_message = "Expected 2 DNS records (one per controlplane node)"
   }
 
   assert {
     condition     = length(output.unifi.dhcp_reservations) == 2
-    error_message = "Expected 2 DHCP reservations"
+    error_message = "Expected 2 DHCP reservations (one per machine)"
+  }
+
+  assert {
+    condition     = output.unifi.address == "https://192.168.1.1"
+    error_message = "Unifi address should be passed through"
+  }
+
+  assert {
+    condition     = output.unifi.site == "default"
+    error_message = "Unifi site should be passed through"
+  }
+
+  assert {
+    condition     = output.unifi.api_key == "test-unifi-key"
+    error_message = "Unifi API key should be resolved from account_values"
   }
 }
 
-run "talos_output" {
+# Talos output structure - versions and machine count
+run "talos_output_structure" {
   command = plan
 
   assert {
     condition     = output.talos.talos_version == "v1.9.0"
-    error_message = "Incorrect talos version"
+    error_message = "Talos version should match input"
+  }
+
+  assert {
+    condition     = output.talos.kubernetes_version == "1.32.0"
+    error_message = "Kubernetes version should match input"
   }
 
   assert {
     condition     = length(output.talos.talos_machines) == 2
     error_message = "Expected 2 talos machines"
   }
+
+  assert {
+    condition     = output.talos.talos_config_path == "~/.talos"
+    error_message = "Talos config path should match local_paths input"
+  }
+
+  assert {
+    condition     = output.talos.kubernetes_config_path == "~/.kube"
+    error_message = "Kubernetes config path should match local_paths input"
+  }
+
+  assert {
+    condition     = output.talos.talos_timeout == "10m"
+    error_message = "Talos timeout should be set"
+  }
 }
 
-run "bootstrap_output" {
+# Bootstrap output structure - flux and account bindings
+run "bootstrap_output_structure" {
   command = plan
 
   assert {
     condition     = output.bootstrap.cluster_name == "test-cluster"
-    error_message = "Incorrect cluster name"
+    error_message = "Bootstrap cluster name should match input"
   }
 
   assert {
     condition     = output.bootstrap.flux_version == "v2.4.0"
-    error_message = "Incorrect flux version"
+    error_message = "Flux version should match input"
   }
-}
-
-run "cluster_env_vars" {
-  command = plan
 
   assert {
-    condition     = length(output.cluster_env_vars) > 10
-    error_message = "Expected more than 10 cluster env vars"
+    condition     = output.bootstrap.github.org == "testorg"
+    error_message = "GitHub org should be passed through"
+  }
+
+  assert {
+    condition     = output.bootstrap.github.repository == "testrepo"
+    error_message = "GitHub repository should be passed through"
+  }
+
+  assert {
+    condition     = output.bootstrap.github.token == "test-github-token"
+    error_message = "GitHub token should be resolved from account_values"
+  }
+
+  assert {
+    condition     = output.bootstrap.external_secrets.id == "test-es-id"
+    error_message = "External secrets ID should be resolved from account_values"
+  }
+
+  assert {
+    condition     = output.bootstrap.external_secrets.secret == "test-es-secret"
+    error_message = "External secrets secret should be resolved from account_values"
+  }
+
+  assert {
+    condition     = output.bootstrap.healthchecksio.api_key == "test-hc-key"
+    error_message = "Healthchecks.io API key should be resolved from account_values"
   }
 }
 
+# AWS SSM output paths
 run "aws_set_params_output" {
   command = plan
 
   assert {
     condition     = output.aws_set_params.kubeconfig_path == "/homelab/infrastructure/clusters/test-cluster/kubeconfig"
-    error_message = "Incorrect kubeconfig path"
+    error_message = "Kubeconfig SSM path should include cluster name"
+  }
+
+  assert {
+    condition     = output.aws_set_params.talosconfig_path == "/homelab/infrastructure/clusters/test-cluster/talosconfig"
+    error_message = "Talosconfig SSM path should include cluster name"
   }
 }
 
-run "longhorn_extensions" {
+# Cluster environment variables for flux post-build substitution
+run "cluster_env_vars_content" {
   command = plan
 
   assert {
-    condition = alltrue([
-      for m in output.talos.talos_machines :
-      contains(m.image.extensions, "iscsi-tools") && contains(m.image.extensions, "util-linux-tools")
-    ])
-    error_message = "Longhorn extensions not in machine image specs"
+    condition     = length(output.cluster_env_vars) >= 15
+    error_message = "Expected at least 15 cluster env vars"
   }
-}
-
-run "longhorn_labels" {
-  command = plan
 
   assert {
-    condition = alltrue([
-      for m in output.machines :
-      anytrue([for l in m.labels : l.key == "node.longhorn.io/create-default-disk"])
+    condition = anytrue([
+      for v in output.cluster_env_vars : v.name == "cluster_name" && v.value == "test-cluster"
     ])
-    error_message = "Longhorn labels not in machines"
+    error_message = "cluster_name env var should be set"
   }
-}
-
-run "spegel_files" {
-  command = plan
 
   assert {
-    condition = alltrue([
-      for m in output.machines :
-      anytrue([for f in m.files : f.path == "/etc/cri/conf.d/20-customization.part"])
+    condition = anytrue([
+      for v in output.cluster_env_vars : v.name == "cluster_tld" && v.value == "internal.test.local"
     ])
-    error_message = "Spegel files not in machines"
+    error_message = "cluster_tld env var should match internal_tld"
   }
-}
-
-run "prometheus_extraargs_in_config" {
-  command = plan
 
   assert {
-    condition = alltrue([
-      for m in output.talos.talos_machines :
-      strcontains(m.config, "listen-metrics-urls")
+    condition = anytrue([
+      for v in output.cluster_env_vars : v.name == "cluster_vip" && v.value == "192.168.10.20"
     ])
-    error_message = "Prometheus etcd extraArgs not in machine config"
+    error_message = "cluster_vip env var should match networking.vip"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_env_vars : v.name == "cluster_pod_subnet" && v.value == "172.18.0.0/16"
+    ])
+    error_message = "cluster_pod_subnet env var should match networking.pod_subnet"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_env_vars : v.name == "talos_version" && v.value == "v1.9.0"
+    ])
+    error_message = "talos_version env var should match versions.talos"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_env_vars : v.name == "kubernetes_version" && v.value == "1.32.0"
+    ])
+    error_message = "kubernetes_version env var should match versions.kubernetes"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_env_vars : v.name == "cluster_id" && v.value == "1"
+    ])
+    error_message = "cluster_id env var should match networking.id"
   }
 }
 
-run "params_get" {
+# SSM parameters to fetch
+run "params_get_list" {
   command = plan
 
   assert {
     condition     = length(output.params_get) == 5
     error_message = "Expected 5 SSM parameters to fetch"
+  }
+
+  assert {
+    condition     = contains(output.params_get, "/homelab/infrastructure/accounts/unifi/api-key")
+    error_message = "params_get should include unifi api key path"
+  }
+
+  assert {
+    condition     = contains(output.params_get, "/homelab/infrastructure/accounts/github/token")
+    error_message = "params_get should include github token path"
   }
 }

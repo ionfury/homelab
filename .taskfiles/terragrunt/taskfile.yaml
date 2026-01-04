@@ -7,12 +7,13 @@ vars:
 
 tasks:
   run:
-    desc: Runs terragrunt stacks.
+    desc: Runs all terragrunt stacks.
     cmds:
       - task: clean
       - task: fmt
       - task: gen
       - task: validate
+
   fmt:
     desc: Formats Open Tofu & Terragrunt files.
     cmds:
@@ -45,29 +46,59 @@ tasks:
 
   gen:
     desc: Generates terragrunt stacks.
+    vars:
+      STACKS:
+        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
     cmds:
-      - terragrunt stack generate
+      - for: { var: STACKS }
+        task: gen-{{.ITEM}}
+
+  gen-*:
+    desc: Generates a specific terragrunt stack.
+    label: gen-{{.STACK}}
+    cmds:
+      - terragrunt stack generate --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
     sources:
-      - "{{.INFRASTRUCTURE_DIR}}/**/*.hcl"
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
     generates:
-      - "{{.INFRASTRUCTURE_DIR}}/**/.terragrunt-stack/**"
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
 
   clean:
     desc: Cleans generated terragrunt stacks.
+    vars:
+      STACKS:
+        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
     cmds:
-      - terragrunt stack clean
-    preconditions:
-      - which terragrunt
+      - for: { var: STACKS }
+        task: clean-{{.ITEM}}
 
-  validate:
-    desc: Validates terragrunt stacks.
+  clean-*:
+    desc: Cleans a specific terragrunt stack.
+    label: clean-{{.STACK}}
     cmds:
-      - terragrunt stack run validate
+      - terragrunt stack clean --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
     sources:
-      - "{{.INFRASTRUCTURE_DIR}}/**/.terragrunt-stack/**"
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
     generates:
-      - "{{.INFRASTRUCTURE_DIR}}/**/.terragrunt-stack/**"
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
+
+  validate:
+    desc: Validates terragrunt stacks.
+    vars:
+      STACKS:
+        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
+    cmds:
+      - for: { var: STACKS }
+        task: validate-{{.ITEM}}
+
+  validate-*:
+    desc: Validates a specific terragrunt stack.
+    label: validate-{{.STACK}}
+    cmds:
+      - terragrunt stack run validate --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
