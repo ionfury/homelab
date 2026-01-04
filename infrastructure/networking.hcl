@@ -8,7 +8,10 @@ locals {
     citadel = "192.168.10.0/24"
   }
 
-  addresses = {
+  nameservers = ["192.168.10.1"]
+  timeservers = ["0.pool.ntp.org", "1.pool.ntp.org"]
+
+  clusters = {
     live = {
       id           = 1
       internal_tld = "internal.${local.domains.internal}"
@@ -22,6 +25,9 @@ locals {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
+
+      nameservers = local.nameservers
+      timeservers = local.timeservers
     }
     integration = {
       id           = 2
@@ -36,6 +42,9 @@ locals {
       internal_ingress_ip = "192.168.10.32"
       external_ingress_ip = "192.168.10.33"
       ip_pool_stop        = "192.168.10.39"
+
+      nameservers = local.nameservers
+      timeservers = local.timeservers
     }
     staging = {
       id           = 3
@@ -50,6 +59,9 @@ locals {
       internal_ingress_ip = "192.168.10.42"
       external_ingress_ip = "192.168.10.43"
       ip_pool_stop        = "192.168.10.49"
+
+      nameservers = local.nameservers
+      timeservers = local.timeservers
     }
     dev = {
       id           = 4
@@ -64,6 +76,9 @@ locals {
       internal_ingress_ip = "192.168.10.52"
       external_ingress_ip = "192.168.10.53"
       ip_pool_stop        = "192.168.10.59"
+
+      nameservers = local.nameservers
+      timeservers = local.timeservers
     }
   }
 }

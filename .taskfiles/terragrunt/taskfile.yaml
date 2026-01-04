@@ -5,23 +5,115 @@ version: "3"
 vars:
   INFRASTRUCTURE_DIR: "{{.ROOT_DIR}}/infrastructure"
 
+env:
+  AWS_REGION: us-east-2
+  AWS_PROFILE: terragrunt
+
 tasks:
-  format:
+  run:
+    desc: Runs all terragrunt stacks.
+    cmds:
+      - task: clean
+      - task: fmt
+      - task: gen
+      - task: validate
+
+  fmt:
     desc: Formats Open Tofu & Terragrunt files.
     cmds:
-      - terragrunt hclfmt
+      - task: tofu-fmt
+      - task: tg-fmt
+
+  tofu-fmt:
+    desc: Formats Open Tofu files.
+    internal: true
+    cmds:
       - tofu fmt -recursive
+    preconditions:
+      - which tofu
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.tf"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.tf"
+
+  tg-fmt:
+    desc: Formats Open Tofu & Terragrunt files.
+    internal: true
+    cmds:
+      - terragrunt hcl fmt
     preconditions:
       - which tofu terragrunt
     sources:
-      - "{{.INFRASTRUCTURE_DIR}}/**/*.tf"
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.hcl"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/**/*.hcl"
 
-  apply:
-    desc: Applies terraform changes.
+  gen:
+    desc: Generates terragrunt stacks.
+    vars:
+      STACKS:
+        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
     cmds:
-      - terragrunt apply -compact-warnings -concise
+      - for: { var: STACKS }
+        task: gen-{{.ITEM}}
 
-  plan:
-    desc: Shows terraform changes.
+  gen-*:
+    desc: Generates a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
+    label: gen-{{.STACK}}
     cmds:
-      - terragrunt plan -compact-warnings -concise
+      - terragrunt stack generate --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
+    preconditions:
+      - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
+
+  clean:
+    desc: Cleans generated terragrunt stacks.
+    vars:
+      STACKS:
+        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
+    cmds:
+      - for: { var: STACKS }
+        task: clean-{{.ITEM}}
+
+  clean-*:
+    desc: Cleans a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
+    label: clean-{{.STACK}}
+    cmds:
+      - terragrunt stack clean --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
+    preconditions:
+      - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
+
+  validate:
+    desc: Validates terragrunt stacks.
+    vars:
+      STACKS:
+        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
+    cmds:
+      - for: { var: STACKS }
+        task: validate-{{.ITEM}}
+
+  validate-*:
+    desc: Validates a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
+    label: validate-{{.STACK}}
+    cmds:
+      - terragrunt stack run validate --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
+    preconditions:
+      - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+    sources:
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"

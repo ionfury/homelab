@@ -1,0 +1,22 @@
+instance:
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+    - image-reflector-controller
+    - image-automation-controller
+  distribution:
+    version: ${flux_version}
+  cluster:
+    size: small
+  sync:
+    kind: GitRepository
+    url: https://github.com/${github_org}/${github_repository}
+    path: ${github_repository_path}/${cluster_name}
+    ref: refs/heads/main
+    provider: generic
+    pullSecret: flux-system
+healthcheck:
+  enabled: true
+
