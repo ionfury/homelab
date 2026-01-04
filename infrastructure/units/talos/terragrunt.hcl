@@ -24,13 +24,4 @@ dependency "config" {
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
 }
 
-inputs = {
-  talos_version          = dependency.config.outputs.talos.talos_version
-  kubernetes_version     = dependency.config.outputs.talos.kubernetes_version
-  talos_machines         = dependency.config.outputs.talos.talos_machines
-  on_destroy             = dependency.config.outputs.talos.on_destroy
-  talos_config_path      = dependency.config.outputs.talos.talos_config_path
-  kubernetes_config_path = dependency.config.outputs.talos.kubernetes_config_path
-  talos_timeout          = dependency.config.outputs.talos.talos_timeout
-  bootstrap_charts       = dependency.config.outputs.talos.bootstrap_charts
-}
+inputs = dependency.config.outputs.talos

@@ -5,6 +5,10 @@ version: "3"
 vars:
   INFRASTRUCTURE_DIR: "{{.ROOT_DIR}}/infrastructure"
 
+env:
+  AWS_REGION: us-east-2
+  AWS_PROFILE: terragrunt
+
 tasks:
   run:
     desc: Runs all terragrunt stacks.

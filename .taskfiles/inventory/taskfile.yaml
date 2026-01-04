@@ -13,7 +13,7 @@ tasks:
     silent: true
     cmds:
       - for: { var: VALID_HOSTS }
-        cmd: task inventory:status-{{ .ITEM }} | grep "System Power" | awk '{print "{{ .ITEM }} " $0}'
+        cmd: task inv:status-{{ .ITEM }} | grep "System Power" | awk '{print "{{ .ITEM }} " $0}'
 
   hosts:
     desc: Lists all hosts.
