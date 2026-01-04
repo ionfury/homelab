@@ -221,6 +221,31 @@ run "talos_output_structure" {
     condition     = output.talos.talos_timeout == "10m"
     error_message = "Talos timeout should be set"
   }
+
+  assert {
+    condition     = length(output.talos.bootstrap_charts) == 1
+    error_message = "Expected 1 bootstrap chart (cilium)"
+  }
+
+  assert {
+    condition     = output.talos.bootstrap_charts[0].name == "cilium"
+    error_message = "Bootstrap chart should be cilium"
+  }
+
+  assert {
+    condition     = output.talos.bootstrap_charts[0].repository == "https://helm.cilium.io/"
+    error_message = "Cilium repository should be https://helm.cilium.io/"
+  }
+
+  assert {
+    condition     = output.talos.bootstrap_charts[0].version == "1.16.0"
+    error_message = "Cilium version should match versions.cilium"
+  }
+
+  assert {
+    condition     = output.talos.bootstrap_charts[0].namespace == "kube-system"
+    error_message = "Cilium namespace should be kube-system"
+  }
 }
 
 # Bootstrap output structure - flux and account bindings

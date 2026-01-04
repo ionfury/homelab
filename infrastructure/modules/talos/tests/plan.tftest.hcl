@@ -4,6 +4,7 @@ run "plan" {
   variables {
     talos_version      = "v1.9.0"
     kubernetes_version = "1.32.0"
+    bootstrap_charts   = []
 
     talos_machines = [
       {

@@ -76,3 +76,16 @@ variable "talos_timeout" {
   type        = string
   default     = "10m"
 }
+
+variable "bootstrap_charts" {
+  description = "Helm charts to bootstrap into Talos via inline_manifests (controlplane only)."
+  type = list(object({
+    repository = string
+    chart      = string
+    name       = string
+    version    = string
+    namespace  = string
+    values     = string
+  }))
+  default = []
+}

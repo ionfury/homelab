@@ -10,6 +10,18 @@ locals {
   bootstrap_ip      = local.control_plane_ips[0]
 }
 
+data "helm_template" "bootstrap_charts" {
+  for_each = { for chart in var.bootstrap_charts : chart.name => chart }
+
+  repository   = each.value.repository
+  chart        = each.value.chart
+  name         = each.value.name
+  version      = each.value.version
+  namespace    = each.value.namespace
+  kube_version = var.kubernetes_version
+  values       = [each.value.values]
+}
+
 resource "talos_machine_secrets" "this" {
   talos_version = var.talos_version
 }
@@ -28,6 +40,10 @@ data "talos_machine_configuration" "this" {
     each.value.config,
     templatefile("${path.module}/resources/talos-patches/machine_install.yaml.tftpl", {
       machine_install_disk_image = each.value.image.secureboot ? local.machine_installer_secureboot[each.key] : local.machine_installer[each.key]
+    }),
+    templatefile("${path.module}/resources/talos-patches/inline_manifests.yaml.tftpl", {
+      machine_type = yamldecode(each.value.config).machine.type
+      manifests    = data.helm_template.bootstrap_charts
     })
   ]
 }

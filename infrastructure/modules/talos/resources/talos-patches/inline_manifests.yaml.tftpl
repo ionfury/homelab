@@ -1,0 +1,13 @@
+# Injects Helm-rendered manifests into Talos inline_manifests (controlplane only)
+# https://www.talos.dev/v1.10/reference/configuration/v1alpha1/config/#Config.cluster.inlineManifests
+---
+%{ if machine_type == "controlplane" && length(manifests) > 0 ~}
+cluster:
+  inlineManifests:
+%{ for name, content in manifests ~}
+    - name: ${name}
+      contents: |-
+        ${indent(8, content.manifest)}
+%{ endfor ~}
+%{ endif ~}
+

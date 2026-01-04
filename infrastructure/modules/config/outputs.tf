@@ -25,6 +25,14 @@ output "talos" {
     talos_config_path      = var.local_paths.talos
     kubernetes_config_path = var.local_paths.kubernetes
     talos_timeout          = "10m"
+    bootstrap_charts = [{
+      repository = "https://helm.cilium.io/"
+      chart      = "cilium"
+      name       = "cilium"
+      version    = var.versions.cilium
+      namespace  = "kube-system"
+      values     = local.cilium_values
+    }]
   }
   sensitive = true
 }

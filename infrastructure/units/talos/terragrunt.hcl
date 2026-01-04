@@ -18,6 +18,7 @@ dependency "config" {
       talos_config_path      = "~/.talos"
       kubernetes_config_path = "~/.kube"
       talos_timeout          = "10m"
+      bootstrap_charts       = []
     }
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
@@ -31,4 +32,5 @@ inputs = {
   talos_config_path      = dependency.config.outputs.talos.talos_config_path
   kubernetes_config_path = dependency.config.outputs.talos.kubernetes_config_path
   talos_timeout          = dependency.config.outputs.talos.talos_timeout
+  bootstrap_charts       = dependency.config.outputs.talos.bootstrap_charts
 }
