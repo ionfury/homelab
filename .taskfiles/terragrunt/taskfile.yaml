@@ -55,11 +55,14 @@ tasks:
 
   gen-*:
     desc: Generates a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
     label: gen-{{.STACK}}
     cmds:
       - terragrunt stack generate --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
     sources:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
     generates:
@@ -76,11 +79,14 @@ tasks:
 
   clean-*:
     desc: Cleans a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
     label: clean-{{.STACK}}
     cmds:
       - terragrunt stack clean --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
     sources:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
     generates:
@@ -97,8 +103,13 @@ tasks:
 
   validate-*:
     desc: Validates a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
     label: validate-{{.STACK}}
     cmds:
       - terragrunt stack run validate --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
+    preconditions:
+      - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
     sources:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
