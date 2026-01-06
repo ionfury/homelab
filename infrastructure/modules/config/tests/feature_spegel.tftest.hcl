@@ -33,8 +33,6 @@ variables {
     kubernetes = "~/.kube"
   }
 
-  account_values = {}
-
   accounts = {
     unifi = {
       address       = "https://192.168.1.1"
@@ -67,8 +65,9 @@ run "spegel_file_created" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -103,8 +102,9 @@ run "spegel_file_content" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -139,8 +139,9 @@ run "spegel_file_permissions" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -175,8 +176,9 @@ run "spegel_in_talos_config" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -219,8 +221,9 @@ run "spegel_all_machines" {
       cp1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -228,8 +231,9 @@ run "spegel_all_machines" {
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:02"
           addresses    = [{ ip = "192.168.10.102" }]
         }]
@@ -261,8 +265,9 @@ run "no_spegel_no_files" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -289,8 +294,9 @@ run "no_spegel_no_files_in_config" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -317,8 +323,9 @@ run "spegel_with_longhorn" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -340,7 +347,7 @@ run "spegel_with_longhorn" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      contains(m.image.extensions, "iscsi-tools")
+      contains(m.install.extensions, "iscsi-tools")
     ])
     error_message = "Longhorn extensions should be present alongside spegel"
   }

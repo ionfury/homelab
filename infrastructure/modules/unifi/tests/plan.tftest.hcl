@@ -10,9 +10,9 @@ run "plan" {
 
   variables {
     unifi = {
-      address = "https://10.10.10.10"
-      site    = "site"
-      api_key = "/fake/api-key"
+      address       = "https://10.10.10.10"
+      site          = "site"
+      api_key_store = "/homelab/infrastructure/accounts/unifi/api-key"
     }
 
     cluster_endpoint = "endpoint.example.com"
@@ -69,4 +69,3 @@ run "plan" {
     error_message = "Unifi user[a] is not as expected!"
   }
 }
-

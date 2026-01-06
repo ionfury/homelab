@@ -1,16 +1,8 @@
-output "params_get" {
-  description = "SSM parameter names to fetch."
-  value       = local.params_get
-}
-
 output "unifi" {
   description = "Unifi module configuration."
   value = {
     dns_records       = local.dns_records
     dhcp_reservations = local.dhcp_reservations
-    address           = var.accounts.unifi.address
-    site              = var.accounts.unifi.site
-    api_key           = try(var.account_values[var.accounts.unifi.api_key_store], "")
   }
   sensitive = true
 }
@@ -43,19 +35,6 @@ output "bootstrap" {
     cluster_name     = var.name
     flux_version     = var.versions.flux
     cluster_env_vars = local.cluster_env_vars
-    github = {
-      org             = var.accounts.github.org
-      repository      = var.accounts.github.repository
-      repository_path = var.accounts.github.repository_path
-      token           = try(var.account_values[var.accounts.github.token_store], "")
-    }
-    external_secrets = {
-      id     = try(var.account_values[var.accounts.external_secrets.id_store], "")
-      secret = try(var.account_values[var.accounts.external_secrets.secret_store], "")
-    }
-    healthchecksio = {
-      api_key = try(var.account_values[var.accounts.healthchecksio.api_key_store], "")
-    }
   }
   sensitive = true
 }

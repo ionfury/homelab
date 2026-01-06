@@ -1,3 +1,7 @@
+locals {
+  accounts_vars = read_terragrunt_config(find_in_parent_folders("accounts.hcl"))
+}
+
 include "root" {
   path = find_in_parent_folders("root.hcl")
 }
@@ -13,9 +17,6 @@ dependency "config" {
     unifi = {
       dns_records       = {}
       dhcp_reservations = {}
-      address           = "https://localhost"
-      site              = "default"
-      api_key           = "mock"
     }
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
@@ -24,9 +25,5 @@ dependency "config" {
 inputs = {
   dns_records       = dependency.config.outputs.unifi.dns_records
   dhcp_reservations = dependency.config.outputs.unifi.dhcp_reservations
-  unifi = {
-    address = dependency.config.outputs.unifi.address
-    site    = dependency.config.outputs.unifi.site
-    api_key = dependency.config.outputs.unifi.api_key
-  }
+  unifi             = local.accounts_vars.locals.accounts.unifi
 }

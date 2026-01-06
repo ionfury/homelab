@@ -17,8 +17,8 @@ variable "dhcp_reservations" {
 variable "unifi" {
   description = "The Unifi controller to use."
   type = object({
-    address = string
-    site    = string
-    api_key = string
+    address       = string
+    site          = string
+    api_key_store = string
   })
 }

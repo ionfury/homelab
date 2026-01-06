@@ -35,7 +35,7 @@ resource "kubernetes_secret" "git_auth" {
 
   data = {
     username = "git"
-    password = var.github.token
+    password = data.aws_ssm_parameter.github_token.value
   }
 
   type = "Opaque"

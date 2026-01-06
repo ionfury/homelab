@@ -33,8 +33,6 @@ variables {
     kubernetes = "~/.kube"
   }
 
-  account_values = {}
-
   accounts = {
     unifi = {
       address       = "https://192.168.1.1"
@@ -67,8 +65,9 @@ run "gateway_api_manifest_present" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -103,8 +102,9 @@ run "gateway_api_version_in_url" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -147,8 +147,9 @@ run "gateway_api_custom_version" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -175,8 +176,9 @@ run "gateway_api_full_url" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -203,8 +205,9 @@ run "no_gateway_api_no_manifest" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -239,8 +242,9 @@ run "gateway_api_creates_extra_manifests_section" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -267,8 +271,9 @@ run "gateway_api_all_machines" {
       cp1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -276,8 +281,9 @@ run "gateway_api_all_machines" {
       cp2 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:02"
           addresses    = [{ ip = "192.168.10.102" }]
         }]
@@ -285,8 +291,9 @@ run "gateway_api_all_machines" {
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:03"
           addresses    = [{ ip = "192.168.10.103" }]
         }]
@@ -318,8 +325,9 @@ run "gateway_api_with_all_features" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -349,7 +357,7 @@ run "gateway_api_with_all_features" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      contains(m.image.extensions, "iscsi-tools")
+      contains(m.install.extensions, "iscsi-tools")
     ])
     error_message = "Longhorn extensions should be present alongside gateway-api"
   }

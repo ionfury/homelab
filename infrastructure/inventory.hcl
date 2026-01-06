@@ -4,12 +4,13 @@ locals {
       cluster = "none"
       type    = "none"
       install = {
-        disk_filters = { id = "/dev/mmcblk0" }
+        selector     = "id == /dev/mmcblk0"
         architecture = "arm64"
         platform     = ""
         sbc          = "rpi_generic"
       }
       interfaces = [{
+        id           = "end0"
         hardwareAddr = "dc:a6:32:00:cd:cc"
         addresses    = [{ ip = "192.168.10.213" }]
       }]
@@ -18,12 +19,13 @@ locals {
       cluster = "none"
       type    = "none"
       install = {
-        disk_filters = { id = "/dev/mmcblk0" }
+        selector     = "id == /dev/mmcblk0"
         architecture = "arm64"
         platform     = ""
         sbc          = "rpi_generic"
       }
       interfaces = [{
+        id           = "end0"
         hardwareAddr = "dc:a6:32:00:ce:5c"
         addresses    = [{ ip = "192.168.10.168" }]
       }]
@@ -32,12 +34,13 @@ locals {
       cluster = "none"
       type    = "pxe"
       install = {
-        disk_filters = { id = "/dev/mmcblk0" }
+        selector     = "id == /dev/mmcblk0"
         architecture = "arm64"
         platform     = ""
         sbc          = "rpi_generic"
       }
       interfaces = [{
+        id           = "end0"
         hardwareAddr = "b8:27:eb:68:d4:92"
         addresses    = [{ ip = "192.168.10.210" }]
       }]
@@ -65,11 +68,11 @@ locals {
     node1 = { // Supermicro 20C@2.4GHz 64Gi
       cluster = "none"
       type    = "none"
-
       install = {
-        disk_filters = {}
+        selector = ""
       }
       interfaces = [{
+        id           = "ens1f0"
         hardwareAddr = ""
         addresses    = [{ ip = "" }]
       }]
@@ -77,11 +80,11 @@ locals {
     node2 = { // Supermicro 20C@2.2GHz 128Gi
       cluster = "none"
       type    = "none"
-
       install = {
-        disk_filters = {}
+        selector = ""
       }
       interfaces = [{
+        id           = "ens1f0"
         hardwareAddr = "0c:c4:7a:a4:f1:d2"
         addresses    = [{ ip = "192.168.10.182" }]
       }]
@@ -89,11 +92,11 @@ locals {
     node3 = { // Supermicro 20C@2.2GHz 128Gi
       cluster = "none"
       type    = "none"
-
       install = {
-        disk_filters = {}
+        selector = ""
       }
       interfaces = [{
+        id           = "ens1f0"
         hardwareAddr = ""
         addresses    = [{ ip = "" }]
       }]
@@ -103,7 +106,7 @@ locals {
       type    = "controlplane"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = false
           tags    = ["fast", "ssd", "any"]
@@ -132,7 +135,7 @@ locals {
       type    = "controlplane"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = true
           tags    = ["fast", "ssd", "any"]
@@ -161,7 +164,7 @@ locals {
       type    = "controlplane"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = false
           tags    = ["fast", "ssd", "any"]
@@ -186,11 +189,11 @@ locals {
       }]
     }
     node44 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "staging"
+      cluster = "integration"
       type    = "controlplane"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = false
           tags    = ["fast", "ssd", "any"]
@@ -215,11 +218,11 @@ locals {
       }]
     }
     node45 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "integration"
+      cluster = "none"#"integration"
       type    = "controlplane"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = false
           tags    = ["fast", "ssd", "any"]
@@ -229,7 +232,7 @@ locals {
       interfaces = [{
         id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:83:d3:2c"
-        addresses    = [{ ip = "192.168.10.252" }]
+        addresses    = [{ ip = "192.168.10.251" }]
       }]
     }
     node46 = { // Supermicro 8C@2.1GHz 32Gi
@@ -237,7 +240,7 @@ locals {
       type    = "none"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = false
           tags    = ["fast", "ssd", "any"]
@@ -255,7 +258,7 @@ locals {
       type    = "none"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = false
           tags    = ["fast", "ssd", "any"]
@@ -273,7 +276,7 @@ locals {
       type    = "none"
 
       install = {
-        selector = "disk.model = 'Micron_5100_MTFD'"
+        selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
           enabled = false
           tags    = ["fast", "ssd", "any"]

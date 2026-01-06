@@ -165,7 +165,7 @@ locals {
         machine_files                       = machine.files
         machine_kubelet_extraMounts         = machine.kubelet_extraMounts
       })
-      image = {
+      install = {
         selector          = machine.install.selector
         extensions        = machine.install.extensions
         extra_kernel_args = machine.install.extra_kernel_args
@@ -228,7 +228,7 @@ locals {
       ip  = machine.interfaces[0].addresses[0].ip
     }
   }
-
+  /*
   # SSM parameters to fetch
   params_get = toset([
     var.accounts.unifi.api_key_store,
@@ -237,4 +237,5 @@ locals {
     var.accounts.external_secrets.secret_store,
     var.accounts.healthchecksio.api_key_store,
   ])
+*/
 }

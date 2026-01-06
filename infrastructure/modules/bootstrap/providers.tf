@@ -14,11 +14,19 @@ provider "kubernetes" {
   cluster_ca_certificate = var.kubeconfig.cluster_ca_certificate
 }
 
+data "aws_ssm_parameter" "github_token" {
+  name = var.github.token_store
+}
+
 provider "github" {
   owner = var.github.org
-  token = var.github.token
+  token = data.aws_ssm_parameter.github_token.value
+}
+
+data "aws_ssm_parameter" "healthchecksio_api_key" {
+  name = var.healthchecksio.api_key_store
 }
 
 provider "healthchecksio" {
-  api_key = var.healthchecksio.api_key
+  api_key = data.aws_ssm_parameter.healthchecksio_api_key.value
 }

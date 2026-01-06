@@ -8,6 +8,9 @@ run "plan" {
 
     talos_machines = [
       {
+        install = {
+          selector = "disk.model = *"
+        }
         config = <<EOT
 cluster:
   clusterName: talos.local

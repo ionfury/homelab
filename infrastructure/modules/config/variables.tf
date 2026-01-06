@@ -73,7 +73,33 @@ variable "networking" {
 
 variable "machines" {
   description = "Machine inventory - pass inventory.hcl hosts directly."
-  type        = any
+  type = map(object({
+    cluster = string
+    type    = string
+    install = object({
+      selector     = string
+      architecture = optional(string, "amd64")
+      platform     = optional(string, "metal")
+      sbc          = optional(string, "")
+      secureboot   = optional(bool, false)
+      data = optional(object({
+        enabled = bool
+        tags    = list(string)
+      }), { enabled = false, tags = [] })
+    })
+    disks = optional(list(object({
+      device     = string
+      mountpoint = string
+      tags       = list(string)
+    })), [])
+    interfaces = list(object({
+      id           = string
+      hardwareAddr = string
+      addresses = list(object({
+        ip = string
+      }))
+    }))
+  }))
 }
 
 variable "versions" {
@@ -129,13 +155,14 @@ variable "local_paths" {
     kubernetes = "~/.kube"
   }
 }
-
+/*
 variable "account_values" {
   description = "Secret values to bind to accounts."
   type        = map(string)
   sensitive   = true
   default     = {}
 }
+*/
 
 variable "accounts" {
   description = "Account configuration from accounts.hcl."

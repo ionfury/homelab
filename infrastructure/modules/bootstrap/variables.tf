@@ -40,21 +40,21 @@ variable "github" {
     org             = string
     repository      = string
     repository_path = string
-    token           = string
+    token_store     = string
   })
 }
 
 variable "external_secrets" {
   description = "The external secret store."
   type = object({
-    id     = string
-    secret = string
+    id_store     = string
+    secret_store = string
   })
 }
 
 variable "healthchecksio" {
   description = "The healthchecks.io account to use."
   type = object({
-    api_key = string
+    api_key_store = string
   })
 }

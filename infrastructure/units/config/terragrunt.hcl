@@ -25,7 +25,7 @@ include "root" {
 terraform {
   source = "../../../.././/modules/config"
 }
-
+/*
 dependency "aws_get_params" {
   config_path = "../aws-get-params"
 
@@ -34,14 +34,14 @@ dependency "aws_get_params" {
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
 }
-
+*/
 inputs = {
-  name           = values.name
-  features       = values.features
-  networking     = local.networking_vars.locals.clusters[values.name]
-  machines       = local.inventory_vars.locals.hosts
-  versions       = local.versions
-  local_paths    = local.local_paths
-  accounts       = local.accounts_vars.locals.accounts
-  account_values = dependency.aws_get_params.outputs.values
+  name        = values.name
+  features    = values.features
+  networking  = local.networking_vars.locals.clusters[values.name]
+  machines    = local.inventory_vars.locals.hosts
+  versions    = local.versions
+  local_paths = local.local_paths
+  accounts    = local.accounts_vars.locals.accounts
+  //account_values = dependency.aws_get_params.outputs.values
 }

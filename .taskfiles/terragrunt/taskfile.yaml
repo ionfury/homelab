@@ -10,13 +10,32 @@ env:
   AWS_PROFILE: terragrunt
 
 tasks:
-  run:
-    desc: Runs all terragrunt stacks.
+  list:
+    desc: Lists all terragrunt stacks.
     cmds:
-      - task: clean
-      - task: fmt
-      - task: gen
-      - task: validate
+      - "find {{.INFRASTRUCTURE_DIR}}/stacks -mindepth 1 -maxdepth 1 -type d | sort | xargs -n1 basename"
+
+  plan-*:
+    desc: Plans a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
+    label: plan-{{.STACK}}
+    cmds:
+      - terragrunt stack run plan --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
+    preconditions:
+      - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+
+  apply-*:
+    desc: Applies a specific terragrunt stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
+    label: apply-{{.STACK}}
+    cmds:
+      - terragrunt stack run apply --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
+    preconditions:
+      - which terragrunt
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
 
   fmt:
     desc: Formats Open Tofu & Terragrunt files.
@@ -69,6 +88,8 @@ tasks:
       - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
     sources:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
+      - "{{.INFRASTRUCTURE_DIR}}/modules/**"
+      - "{{.INFRASTRUCTURE_DIR}}/units/**"
     generates:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
 
@@ -91,10 +112,6 @@ tasks:
     preconditions:
       - which terragrunt
       - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
-    sources:
-      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
-    generates:
-      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
 
   validate:
     desc: Validates terragrunt stacks.
@@ -117,3 +134,7 @@ tasks:
       - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
     sources:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/**"
+      - "{{.INFRASTRUCTURE_DIR}}/modules/**"
+      - "{{.INFRASTRUCTURE_DIR}}/units/**"
+    generates:
+      - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"

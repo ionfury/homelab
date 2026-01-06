@@ -26,6 +26,14 @@ resource "talos_machine_secrets" "this" {
   talos_version = var.talos_version
 }
 
+data "talos_machine_disks" "this" {
+  for_each = local.machines
+
+  client_configuration = talos_machine_secrets.this.client_configuration
+  node                 = local.addresses[each.key]
+  selector             = local.machines[each.key].install.selector
+}
+
 data "talos_machine_configuration" "this" {
   for_each = local.machines
 
@@ -39,7 +47,8 @@ data "talos_machine_configuration" "this" {
   config_patches = [
     each.value.config,
     templatefile("${path.module}/resources/talos-patches/machine_install.yaml.tftpl", {
-      machine_install_disk_image = each.value.image.secureboot ? local.machine_installer_secureboot[each.key] : local.machine_installer[each.key]
+      machine_install_disk_image = each.value.install.secureboot ? local.machine_installer_secureboot[each.key] : local.machine_installer[each.key]
+      machine_install_disk       = data.talos_machine_disks.this[each.key].disks[0].dev_path
     }),
     templatefile("${path.module}/resources/talos-patches/inline_manifests.yaml.tftpl", {
       machine_type = yamldecode(each.value.config).machine.type

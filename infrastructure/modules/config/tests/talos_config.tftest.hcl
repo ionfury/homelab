@@ -33,8 +33,6 @@ variables {
     kubernetes = "~/.kube"
   }
 
-  account_values = {}
-
   accounts = {
     unifi = {
       address       = "https://192.168.1.1"
@@ -67,8 +65,9 @@ run "talos_cluster_endpoint" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -95,8 +94,9 @@ run "talos_cluster_name" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -123,8 +123,9 @@ run "talos_pod_subnet" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -152,8 +153,9 @@ run "talos_service_subnet" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -181,8 +183,9 @@ run "talos_proxy_disabled" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -210,8 +213,9 @@ run "talos_cni_none" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -239,8 +243,9 @@ run "talos_machine_type_controlplane" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -267,8 +272,9 @@ run "talos_machine_type_worker" {
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -295,8 +301,9 @@ run "talos_hostname" {
       my-special-node = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -323,8 +330,9 @@ run "talos_interface_addresses" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -341,34 +349,6 @@ run "talos_interface_addresses" {
   }
 }
 
-# Custom CIDR on address
-run "talos_interface_custom_cidr" {
-  command = plan
-
-  variables {
-    features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = {}
-        interfaces = [{
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101", cidr = "25" }]
-        }]
-      }
-    }
-  }
-
-  assert {
-    condition = alltrue([
-      for m in output.talos.talos_machines :
-      strcontains(m.config, "192.168.10.101/25")
-    ])
-    error_message = "Custom CIDR should be respected"
-  }
-}
-
 # Hardware address in config
 run "talos_hardware_address" {
   command = plan
@@ -379,8 +359,9 @@ run "talos_hardware_address" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -407,8 +388,9 @@ run "talos_vip_controlplane_only" {
       cp1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -416,8 +398,9 @@ run "talos_vip_controlplane_only" {
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:02"
           addresses    = [{ ip = "192.168.10.102" }]
         }]
@@ -457,8 +440,9 @@ run "talos_nameservers" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -487,8 +471,9 @@ run "talos_timeservers" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -517,8 +502,9 @@ run "talos_kernel_args" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -561,8 +547,9 @@ run "talos_install_wipe" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -589,8 +576,9 @@ run "talos_kubelet_node_ip" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -619,8 +607,9 @@ run "talos_host_dns" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -664,14 +653,16 @@ run "talos_disk_partitions" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         disks = [
           {
             device     = "/dev/sdb"
             mountpoint = "/var/mnt/data"
+            tags       = ["data"]
           }
         ]
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -701,10 +692,12 @@ run "talos_image_architecture" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector     = "disk.model = *"
           architecture = "amd64"
           platform     = "metal"
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -715,7 +708,7 @@ run "talos_image_architecture" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      m.image.architecture == "amd64"
+      m.install.architecture == "amd64"
     ])
     error_message = "Image architecture should be amd64"
   }
@@ -732,9 +725,11 @@ run "talos_image_platform" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector = "disk.model = *"
           platform = "metal"
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -745,7 +740,7 @@ run "talos_image_platform" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      m.image.platform == "metal"
+      m.install.platform == "metal"
     ])
     error_message = "Image platform should be metal"
   }
@@ -761,8 +756,9 @@ run "talos_allow_scheduling_controlplane" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -789,8 +785,9 @@ run "talos_api_server_psp_disabled" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]

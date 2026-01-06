@@ -1,3 +1,7 @@
+locals {
+  accounts_vars = read_terragrunt_config(find_in_parent_folders("accounts.hcl"))
+}
+
 include "root" {
   path = find_in_parent_folders("root.hcl")
 }
@@ -14,19 +18,6 @@ dependency "config" {
       cluster_name     = "mock"
       flux_version     = "v2.4.0"
       cluster_env_vars = []
-      github = {
-        org             = "mock"
-        repository      = "mock"
-        repository_path = "mock"
-        token           = "mock"
-      }
-      external_secrets = {
-        id     = "mock"
-        secret = "mock"
-      }
-      healthchecksio = {
-        api_key = "mock"
-      }
     }
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
@@ -48,9 +39,9 @@ inputs = {
   cluster_name     = dependency.config.outputs.bootstrap.cluster_name
   flux_version     = dependency.config.outputs.bootstrap.flux_version
   cluster_env_vars = dependency.config.outputs.bootstrap.cluster_env_vars
-  github           = dependency.config.outputs.bootstrap.github
-  external_secrets = dependency.config.outputs.bootstrap.external_secrets
-  healthchecksio   = dependency.config.outputs.bootstrap.healthchecksio
+  github           = local.accounts_vars.locals.accounts.github
+  external_secrets = local.accounts_vars.locals.accounts.external_secrets
+  healthchecksio   = local.accounts_vars.locals.accounts.healthchecksio
   kubeconfig = {
     host                   = dependency.talos.outputs.kubeconfig_host
     client_certificate     = dependency.talos.outputs.kubeconfig_client_certificate

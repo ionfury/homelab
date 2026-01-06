@@ -12,14 +12,15 @@ variable "talos_machines" {
   description = "A list of machines to create the talos cluster from. See: https://docs.siderolabs.com/talos/v1.10/reference/configuration/v1alpha1/config"
   type = list(object({
     config = string
-    image = optional(object({
+    install = object({
+      selector          = string
       extensions        = optional(list(string), [])
       extra_kernel_args = optional(list(string), [])
       secureboot        = optional(bool, false)
       architecture      = optional(string, "amd64")
       platform          = optional(string, "metal")
       sbc               = optional(string, "")
-    }), {})
+    })
   }))
   validation {
     condition     = length(var.talos_machines) > 0
@@ -32,16 +33,24 @@ variable "talos_machines" {
   }
 
   validation {
-    error_message = "You must not provide a config.machine.install.image value. The module will populate this automatically."
+    error_message = "You must not provide a config.machine.install.install value. The module will populate this automatically."
     condition = alltrue([
       for m in var.talos_machines :
-      !can(yamldecode(m.config).machine.install.image)
+      !can(yamldecode(m.config).machine.install.install)
+    ])
+  }
+
+  validation {
+    error_message = "You must not provide a config.machine.install.diskSelector value. The module will populate this automatically."
+    condition = alltrue([
+      for m in var.talos_machines :
+      !can(yamldecode(m.config).machine.install.diskSelector)
     ])
   }
 
   validation {
     error_message = "If architecture is amd64, sbc must be empty."
-    condition     = alltrue([for m in var.talos_machines : !(m.image.architecture == "amd64" && m.image.sbc != "")])
+    condition     = alltrue([for m in var.talos_machines : !(m.install.architecture == "amd64" && m.install.sbc != "")])
   }
 }
 

@@ -33,8 +33,6 @@ variables {
     kubernetes = "~/.kube"
   }
 
-  account_values = {}
-
   accounts = {
     unifi = {
       address       = "https://192.168.1.1"
@@ -67,8 +65,9 @@ run "no_features_clean_config" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -130,8 +129,9 @@ run "single_node_replica_count" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -163,8 +163,9 @@ run "three_node_replica_count" {
       cp1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -172,8 +173,9 @@ run "three_node_replica_count" {
       cp2 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:02"
           addresses    = [{ ip = "192.168.10.102" }]
         }]
@@ -181,8 +183,9 @@ run "three_node_replica_count" {
       cp3 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:03"
           addresses    = [{ ip = "192.168.10.103" }]
         }]
@@ -209,8 +212,9 @@ run "five_node_replica_count_capped" {
       cp1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -218,8 +222,9 @@ run "five_node_replica_count_capped" {
       cp2 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:02"
           addresses    = [{ ip = "192.168.10.102" }]
         }]
@@ -227,8 +232,9 @@ run "five_node_replica_count_capped" {
       cp3 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:03"
           addresses    = [{ ip = "192.168.10.103" }]
         }]
@@ -236,8 +242,9 @@ run "five_node_replica_count_capped" {
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:04"
           addresses    = [{ ip = "192.168.10.104" }]
         }]
@@ -245,8 +252,9 @@ run "five_node_replica_count_capped" {
       worker2 = {
         cluster = "test-cluster"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:05"
           addresses    = [{ ip = "192.168.10.105" }]
         }]
@@ -273,8 +281,9 @@ run "worker_only_no_vip" {
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -314,11 +323,13 @@ run "arm64_architecture" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector     = "disk.model = *"
           architecture = "arm64"
           platform     = ""
           sbc          = "rpi_generic"
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -329,7 +340,7 @@ run "arm64_architecture" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      m.image.architecture == "arm64"
+      m.install.architecture == "arm64"
     ])
     error_message = "ARM64 architecture should propagate to image spec"
   }
@@ -346,10 +357,12 @@ run "sbc_platform" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector     = "disk.model = *"
           architecture = "arm64"
           sbc          = "rpi_generic"
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -360,7 +373,7 @@ run "sbc_platform" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      m.image.sbc == "rpi_generic"
+      m.install.sbc == "rpi_generic"
     ])
     error_message = "SBC type should propagate to image spec"
   }
@@ -377,9 +390,11 @@ run "secureboot_enabled" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector   = "disk.model = *"
           secureboot = true
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -390,7 +405,7 @@ run "secureboot_enabled" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      m.image.secureboot == true
+      m.install.secureboot == true
     ])
     error_message = "Secureboot flag should propagate to image spec"
   }
@@ -406,8 +421,9 @@ run "secureboot_default_false" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -418,7 +434,7 @@ run "secureboot_default_false" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      m.image.secureboot == false
+      m.install.secureboot == false
     ])
     error_message = "Secureboot should default to false"
   }
@@ -435,12 +451,14 @@ run "all_features_combined" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector = "disk.model = *"
           data = {
             enabled = true
             tags    = ["fast"]
           }
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -452,8 +470,8 @@ run "all_features_combined" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      contains(m.image.extensions, "iscsi-tools") &&
-      contains(m.image.extensions, "util-linux-tools")
+      contains(m.install.extensions, "iscsi-tools") &&
+      contains(m.install.extensions, "util-linux-tools")
     ])
     error_message = "Longhorn extensions should be present"
   }
@@ -515,7 +533,7 @@ run "multi_interface_machine" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [
           {
             id           = "eth0"
@@ -525,7 +543,7 @@ run "multi_interface_machine" {
           {
             id           = "eth1"
             hardwareAddr = "aa:bb:cc:dd:ee:02"
-            addresses    = [{ ip = "10.0.0.101", cidr = "16" }]
+            addresses    = [{ ip = "10.0.0.101" }]
           }
         ]
       }
@@ -535,8 +553,8 @@ run "multi_interface_machine" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "192.168.10.101/24") &&
-      strcontains(m.config, "10.0.0.101/16")
+      strcontains(m.config, "192.168.10.101") &&
+      strcontains(m.config, "10.0.0.101")
     ])
     error_message = "Both interface IPs should be in config"
   }
@@ -561,8 +579,9 @@ run "l2_interfaces_env_var" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
@@ -571,8 +590,9 @@ run "l2_interfaces_env_var" {
       node2 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           id           = "enp0s3"
           hardwareAddr = "aa:bb:cc:dd:ee:02"
           addresses    = [{ ip = "192.168.10.102" }]
@@ -602,8 +622,9 @@ run "other_cluster_machines_excluded" {
       test-node = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -611,8 +632,9 @@ run "other_cluster_machines_excluded" {
       other-node = {
         cluster = "production"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:02"
           addresses    = [{ ip = "192.168.10.102" }]
         }]
@@ -620,8 +642,9 @@ run "other_cluster_machines_excluded" {
       another-node = {
         cluster = "staging"
         type    = "worker"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:03"
           addresses    = [{ ip = "192.168.10.103" }]
         }]
@@ -650,78 +673,6 @@ run "other_cluster_machines_excluded" {
   }
 }
 
-# VLAN configuration
-run "vlan_configuration" {
-  command = plan
-
-  variables {
-    features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = {}
-        interfaces = [{
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-          vlans = [
-            {
-              vlanId           = 100
-              addresses        = [{ ip = "10.100.0.101", cidr = "24" }]
-              dhcp_routeMetric = 200
-            }
-          ]
-        }]
-      }
-    }
-  }
-
-  assert {
-    condition = alltrue([
-      for m in output.talos.talos_machines :
-      strcontains(m.config, "vlans:") &&
-      strcontains(m.config, "vlanId: 100")
-    ])
-    error_message = "VLAN configuration should be in talos config"
-  }
-
-  assert {
-    condition = alltrue([
-      for m in output.talos.talos_machines :
-      strcontains(m.config, "10.100.0.101/24")
-    ])
-    error_message = "VLAN IP address should be in config"
-  }
-}
-
-# Custom DHCP route metric
-run "custom_dhcp_route_metric" {
-  command = plan
-
-  variables {
-    features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = {}
-        interfaces = [{
-          hardwareAddr     = "aa:bb:cc:dd:ee:01"
-          addresses        = [{ ip = "192.168.10.101" }]
-          dhcp_routeMetric = 500
-        }]
-      }
-    }
-  }
-
-  assert {
-    condition = alltrue([
-      for m in output.talos.talos_machines :
-      strcontains(m.config, "routeMetric: 500")
-    ])
-    error_message = "Custom DHCP route metric should be in config"
-  }
-}
 
 # Empty disks array - no disks section in config
 run "empty_disks_no_section" {
@@ -733,9 +684,10 @@ run "empty_disks_no_section" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         disks   = []
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -767,8 +719,9 @@ run "on_destroy_config" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]

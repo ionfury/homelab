@@ -25,6 +25,7 @@ variables {
       cluster = "test-cluster"
       type    = "controlplane"
       install = {
+        selector     = "disk.model = *"
         architecture = "amd64"
         platform     = "metal"
         data = {
@@ -43,6 +44,7 @@ variables {
       cluster = "test-cluster"
       type    = "controlplane"
       install = {
+        selector     = "disk.model = *"
         architecture = "amd64"
         platform     = "metal"
         data = {
@@ -66,8 +68,9 @@ variables {
     node3 = {
       cluster = "other-cluster"
       type    = "controlplane"
-      install = {}
+      install = { selector = "disk.model = *" }
       interfaces = [{
+        id           = "eth0"
         hardwareAddr = "aa:bb:cc:dd:ee:03"
         addresses    = [{ ip = "192.168.10.103" }]
       }]
@@ -86,14 +89,6 @@ variables {
   local_paths = {
     talos      = "~/.talos"
     kubernetes = "~/.kube"
-  }
-
-  account_values = {
-    "/homelab/infrastructure/accounts/unifi/api-key"           = "test-unifi-key"
-    "/homelab/infrastructure/accounts/github/token"            = "test-github-token"
-    "/homelab/infrastructure/accounts/external-secrets/id"     = "test-es-id"
-    "/homelab/infrastructure/accounts/external-secrets/secret" = "test-es-secret"
-    "/homelab/infrastructure/accounts/healthchecksio/api-key"  = "test-hc-key"
   }
 
   accounts = {
@@ -171,21 +166,6 @@ run "unifi_output_structure" {
     condition     = length(output.unifi.dhcp_reservations) == 2
     error_message = "Expected 2 DHCP reservations (one per machine)"
   }
-
-  assert {
-    condition     = output.unifi.address == "https://192.168.1.1"
-    error_message = "Unifi address should be passed through"
-  }
-
-  assert {
-    condition     = output.unifi.site == "default"
-    error_message = "Unifi site should be passed through"
-  }
-
-  assert {
-    condition     = output.unifi.api_key == "test-unifi-key"
-    error_message = "Unifi API key should be resolved from account_values"
-  }
 }
 
 # Talos output structure - versions and machine count
@@ -261,36 +241,6 @@ run "bootstrap_output_structure" {
     condition     = output.bootstrap.flux_version == "v2.4.0"
     error_message = "Flux version should match input"
   }
-
-  assert {
-    condition     = output.bootstrap.github.org == "testorg"
-    error_message = "GitHub org should be passed through"
-  }
-
-  assert {
-    condition     = output.bootstrap.github.repository == "testrepo"
-    error_message = "GitHub repository should be passed through"
-  }
-
-  assert {
-    condition     = output.bootstrap.github.token == "test-github-token"
-    error_message = "GitHub token should be resolved from account_values"
-  }
-
-  assert {
-    condition     = output.bootstrap.external_secrets.id == "test-es-id"
-    error_message = "External secrets ID should be resolved from account_values"
-  }
-
-  assert {
-    condition     = output.bootstrap.external_secrets.secret == "test-es-secret"
-    error_message = "External secrets secret should be resolved from account_values"
-  }
-
-  assert {
-    condition     = output.bootstrap.healthchecksio.api_key == "test-hc-key"
-    error_message = "Healthchecks.io API key should be resolved from account_values"
-  }
 }
 
 # AWS SSM output paths
@@ -364,25 +314,5 @@ run "cluster_env_vars_content" {
       for v in output.cluster_env_vars : v.name == "cluster_id" && v.value == "1"
     ])
     error_message = "cluster_id env var should match networking.id"
-  }
-}
-
-# SSM parameters to fetch
-run "params_get_list" {
-  command = plan
-
-  assert {
-    condition     = length(output.params_get) == 5
-    error_message = "Expected 5 SSM parameters to fetch"
-  }
-
-  assert {
-    condition     = contains(output.params_get, "/homelab/infrastructure/accounts/unifi/api-key")
-    error_message = "params_get should include unifi api key path"
-  }
-
-  assert {
-    condition     = contains(output.params_get, "/homelab/infrastructure/accounts/github/token")
-    error_message = "params_get should include github token path"
   }
 }

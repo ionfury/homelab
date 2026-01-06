@@ -33,8 +33,6 @@ variables {
     kubernetes = "~/.kube"
   }
 
-  account_values = {}
-
   accounts = {
     unifi = {
       address       = "https://192.168.1.1"
@@ -67,8 +65,9 @@ run "prometheus_etcd_extra_args" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -103,8 +102,9 @@ run "prometheus_controller_manager_extra_args" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -140,8 +140,9 @@ run "prometheus_scheduler_extra_args" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -168,8 +169,9 @@ run "prometheus_extra_manifests" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -228,8 +230,9 @@ run "prometheus_version_in_manifests" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -264,8 +267,9 @@ run "prometheus_custom_version" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -292,8 +296,9 @@ run "no_prometheus_no_etcd_args" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -320,8 +325,9 @@ run "no_prometheus_no_controller_manager_section" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -348,8 +354,9 @@ run "no_prometheus_no_scheduler_section" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -376,8 +383,9 @@ run "no_prometheus_no_manifests" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -404,8 +412,9 @@ run "prometheus_with_gateway_api" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]

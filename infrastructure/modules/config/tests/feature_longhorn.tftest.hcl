@@ -33,8 +33,6 @@ variables {
     kubernetes = "~/.kube"
   }
 
-  account_values = {}
-
   accounts = {
     unifi = {
       address       = "https://192.168.1.1"
@@ -68,10 +66,12 @@ run "longhorn_extensions_added" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector     = "disk.model = *"
           architecture = "amd64"
           platform     = "metal"
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -82,7 +82,7 @@ run "longhorn_extensions_added" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      contains(m.image.extensions, "iscsi-tools")
+      contains(m.install.extensions, "iscsi-tools")
     ])
     error_message = "iscsi-tools extension should be added when longhorn enabled"
   }
@@ -90,7 +90,7 @@ run "longhorn_extensions_added" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      contains(m.image.extensions, "util-linux-tools")
+      contains(m.install.extensions, "util-linux-tools")
     ])
     error_message = "util-linux-tools extension should be added when longhorn enabled"
   }
@@ -106,8 +106,9 @@ run "longhorn_label_added" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -137,8 +138,9 @@ run "longhorn_kubelet_mount" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -179,12 +181,14 @@ run "longhorn_annotation_with_data_enabled" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector = "disk.model = *"
           data = {
             enabled = true
             tags    = ["fast", "nvme"]
           }
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -229,8 +233,10 @@ run "longhorn_annotation_with_explicit_disks" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector = "disk.model = *"
           data = {
             enabled = false
+            tags    = []
           }
         }
         disks = [
@@ -241,6 +247,7 @@ run "longhorn_annotation_with_explicit_disks" {
           }
         ]
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -285,6 +292,7 @@ run "longhorn_combined_disk_sources" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector = "disk.model = *"
           data = {
             enabled = true
             tags    = ["primary"]
@@ -298,6 +306,7 @@ run "longhorn_combined_disk_sources" {
           }
         ]
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -339,12 +348,14 @@ run "no_longhorn_no_extensions" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector = "disk.model = *"
           data = {
             enabled = true
             tags    = ["fast"]
           }
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -355,7 +366,7 @@ run "no_longhorn_no_extensions" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !contains(m.image.extensions, "iscsi-tools")
+      !contains(m.install.extensions, "iscsi-tools")
     ])
     error_message = "iscsi-tools should not be added without longhorn"
   }
@@ -363,7 +374,7 @@ run "no_longhorn_no_extensions" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !contains(m.image.extensions, "util-linux-tools")
+      !contains(m.install.extensions, "util-linux-tools")
     ])
     error_message = "util-linux-tools should not be added without longhorn"
   }
@@ -379,8 +390,9 @@ run "no_longhorn_no_labels" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -407,8 +419,9 @@ run "no_longhorn_no_mount" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {}
+        install = { selector = "disk.model = *" }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]
@@ -436,12 +449,14 @@ run "no_longhorn_no_annotations" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = {
+          selector = "disk.model = *"
           data = {
             enabled = true
             tags    = ["fast"]
           }
         }
         interfaces = [{
+          id           = "eth0"
           hardwareAddr = "aa:bb:cc:dd:ee:01"
           addresses    = [{ ip = "192.168.10.101" }]
         }]

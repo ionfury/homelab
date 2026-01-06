@@ -22,12 +22,12 @@ unit "unifi" {
   source = "../../units/unifi"
   path   = "unifi"
 }
-
 unit "talos" {
   source = "../../units/talos"
   path   = "talos"
 }
 
+/*
 unit "bootstrap" {
   source = "../../units/bootstrap"
   path   = "bootstrap"
@@ -37,3 +37,4 @@ unit "aws_set_params" {
   source = "../../units/aws-set-params"
   path   = "aws-set-params"
 }
+*/
