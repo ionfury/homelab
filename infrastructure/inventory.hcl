@@ -217,8 +217,8 @@ locals {
         addresses    = [{ ip = "192.168.10.219" }]
       }]
     }
-    node45 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none"#"integration"
+    node45 = {         // Supermicro 8C@2.1GHz 32Gi
+      cluster = "none" #"integration"
       type    = "controlplane"
 
       install = {

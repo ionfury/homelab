@@ -10,6 +10,13 @@ env:
   AWS_PROFILE: terragrunt
 
 tasks:
+  use:
+    desc: Uses tgenv to set up the Terragrunt environment.
+    cmds:
+      - tgenv use
+    preconditions:
+      - which tgenv
+
   list:
     desc: Lists all terragrunt stacks.
     cmds:
@@ -17,6 +24,7 @@ tasks:
 
   plan-*:
     desc: Plans a specific terragrunt stack.
+    deps: [use, fmt]
     vars:
       STACK: "{{index .MATCH 0}}"
     label: plan-{{.STACK}}
@@ -28,6 +36,7 @@ tasks:
 
   apply-*:
     desc: Applies a specific terragrunt stack.
+    deps: [use, fmt]
     vars:
       STACK: "{{index .MATCH 0}}"
     label: apply-{{.STACK}}
@@ -78,6 +87,7 @@ tasks:
 
   gen-*:
     desc: Generates a specific terragrunt stack.
+    deps: [use, fmt]
     vars:
       STACK: "{{index .MATCH 0}}"
     label: gen-{{.STACK}}
@@ -95,6 +105,7 @@ tasks:
 
   clean:
     desc: Cleans generated terragrunt stacks.
+    deps: [use, fmt]
     vars:
       STACKS:
         sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
@@ -104,6 +115,7 @@ tasks:
 
   clean-*:
     desc: Cleans a specific terragrunt stack.
+    deps: [use, fmt]
     vars:
       STACK: "{{index .MATCH 0}}"
     label: clean-{{.STACK}}
@@ -124,6 +136,7 @@ tasks:
 
   validate-*:
     desc: Validates a specific terragrunt stack.
+    deps: [use, fmt]
     vars:
       STACK: "{{index .MATCH 0}}"
     label: validate-{{.STACK}}
