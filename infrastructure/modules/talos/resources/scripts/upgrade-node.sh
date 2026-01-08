@@ -19,7 +19,7 @@ wait_for_node_ready() {
     output=$(talosctl --talosconfig "$config_path" get machinestatus --nodes "$node" -o json )
     ready=$(echo "$output" | jq -r '.spec.status.ready')
     stage=$(echo "$output" | jq -r '.spec.stage')
-    if [ "$ready" = "true" ] && [ "$stage" = "running" ]; then  
+    if [ "$ready" = "true" ] && [ "$stage" = "running" ]; then
       echo "✅ Node '$node' is reporting ready!"
       return 0
     fi
@@ -59,7 +59,7 @@ if [ "$DESIRED_TALOS_TAG" = "$CURRENT_TALOS_TAG" ] && [ "$DESIRED_TALOS_SCHEMATI
   echo "No Upgrade required."
 else
   echo "Commencing Upgrade to: $DESIRED_TALOS_SCHEMATIC:$DESIRED_TALOS_TAG"
-  if ! talosctl --talosconfig "$TALOS_CONFIG_PATH" --nodes "$TALOS_NODE" upgrade --image="factory.talos.dev/installer/$DESIRED_TALOS_SCHEMATIC:$DESIRED_TALOS_TAG" --timeout=$TIMEOUT; then
+  if ! talosctl --talosconfig "$TALOS_CONFIG_PATH" --nodes "$TALOS_NODE" upgrade --image="factory.talos.dev/installer/$DESIRED_TALOS_SCHEMATIC:$DESIRED_TALOS_TAG" --timeout=$TIMEOUT --wait --debug; then
     echo "⚠️ Upgrade RPC errored out (EOF / GOAWAY is expected during reboot), continuing…"
   else
     echo "✅ Upgrade RPC completed without errors."

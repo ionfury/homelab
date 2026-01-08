@@ -214,7 +214,7 @@ locals {
       interfaces = [{
         id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:2d:ba:1e"
-        addresses    = [{ ip = "192.168.10.218" }]
+        addresses    = [{ ip = "192.168.10.219" }]
       }]
     }
     node45 = { // Supermicro 8C@2.1GHz 32Gi

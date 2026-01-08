@@ -2,12 +2,7 @@ locals {
   name     = "${basename(get_terragrunt_dir())}"
   features = ["gateway-api", "longhorn", "prometheus", "spegel"]
 }
-/*
-unit "aws_get_params" {
-  source = "../../units/aws-get-params"
-  path   = "aws-get-params"
-}
-*/
+
 unit "config" {
   source = "../../units/config"
   path   = "config"

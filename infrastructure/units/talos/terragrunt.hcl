@@ -11,8 +11,8 @@ dependency "config" {
 
   mock_outputs = {
     talos = {
-      talos_version      = "v1.10.0"
-      kubernetes_version = "1.32.0"
+      talos_version      = "v1.12.0"
+      kubernetes_version = "1.34.0"
       talos_machines = [
         {
           install = { selector = "disk.model = *" }
