@@ -151,3 +151,28 @@ tasks:
       - "{{.INFRASTRUCTURE_DIR}}/units/**"
     generates:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
+
+  test:
+    desc: Runs tests for all modules that have tests.
+    deps: [fmt]
+    vars:
+      MODULES:
+        sh: "find {{.INFRASTRUCTURE_DIR}}/modules -mindepth 2 -maxdepth 2 -type d -name tests | xargs -n1 dirname | xargs -n1 basename | sort"
+    cmds:
+      - for: { var: MODULES }
+        task: test-{{.ITEM}}
+
+  test-*:
+    desc: Runs tests for a specific module.
+    deps: [fmt]
+    vars:
+      MODULE: "{{index .MATCH 0}}"
+    label: test-{{.MODULE}}
+    dir: "{{.INFRASTRUCTURE_DIR}}/modules/{{.MODULE}}"
+    cmds:
+      - tofu init -upgrade
+      - tofu test
+    preconditions:
+      - which tofu
+      - test -d "{{.INFRASTRUCTURE_DIR}}/modules/{{.MODULE}}"
+      - test -d "{{.INFRASTRUCTURE_DIR}}/modules/{{.MODULE}}/tests"

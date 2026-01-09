@@ -351,6 +351,43 @@ Expanding capacity for increased workload from new monitoring stack.
 
 **No Claude signoff**: Do not include `Co-Authored-By: Claude` in commits. The existence of this CLAUDE.md file documents AI assistance in this repository.
 
+## Pull Requests
+
+PRs follow the same philosophy as commits: explain WHY, not WHAT. The diff speaks for itself.
+
+**Structure:**
+```markdown
+## Summary
+<1-3 bullet points explaining the purpose and motivation>
+
+## Test plan
+<Checklist of verification steps>
+```
+
+**PR description rules:**
+- **Summary explains intent**: Why is this change being made? What problem does it solve?
+- **Don't enumerate files**: Reviewers can see what changed in the diff
+- **Don't describe obvious changes**: "Updated X" is noise - explain why X needed updating
+- **Test plan is actionable**: Specific steps someone can follow to verify the change works
+
+```markdown
+# BAD: Restates the diff
+## Summary
+- Modified infrastructure/modules/talos/main.tf to add new variable
+- Updated infrastructure/stacks/live/terragrunt.hcl to pass variable
+- Changed kubernetes/clusters/base/monitoring/grafana.yaml version
+
+# GOOD: Explains the reasoning
+## Summary
+- Enable persistent storage for Grafana dashboards to survive pod restarts
+- Upgrade Grafana to v10.x for new alerting features needed by on-call rotation
+
+## Test plan
+- [ ] Verify Grafana pod starts with PVC mounted
+- [ ] Confirm existing dashboards load after pod restart
+- [ ] Test new alerting rule creation in UI
+```
+
 ---
 
 # TESTING & VALIDATION
