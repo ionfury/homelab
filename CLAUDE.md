@@ -421,10 +421,13 @@ Testing is non-negotiable. Every change must pass validation before being consid
 # 1. Format all code
 task tg:fmt                        # Formats HCL (Terragrunt + OpenTofu)
 
-# 2. Validate infrastructure
+# 2. Run module tests
+task tg:test                       # Runs OpenTofu native tests for all modules
+
+# 3. Validate infrastructure
 task tg:validate                   # Validates all Terragrunt stacks
 
-# 3. Render and validate Kubernetes manifests
+# 4. Render and validate Kubernetes manifests
 task k8s:render                    # Renders all clusters and Helm releases
 ```
 
@@ -461,6 +464,8 @@ task k8s:render                    # Renders all clusters and Helm releases
 ```bash
 # Validation (run these first!)
 task tg:fmt                        # Format all HCL files
+task tg:test                       # Run all module tests
+task tg:test-<module>              # Run tests for specific module
 task tg:validate                   # Validate all Terragrunt stacks
 task k8s:render                    # Render all Kubernetes manifests
 
