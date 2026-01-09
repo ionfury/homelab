@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  validate:
+    desc: Validates the Renovate configuration.
+    cmds:
+      - npx --yes --package renovate@41 -- renovate-config-validator --strict
+    preconditions:
+      - which npx
