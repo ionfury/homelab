@@ -4,6 +4,9 @@ brew "ipmitool"
 # Cloud Dependencies
 brew "awscli"
 
+# GitHub
+brew "gh"
+
 # Kubernetes
 brew "kubectl"
 

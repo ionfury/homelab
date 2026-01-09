@@ -1,11 +1,15 @@
-run "plan" {
+# Plan tests for talos module - validates Talos cluster provisioning
+
+variables {
+  talos_version      = "v1.9.0"
+  kubernetes_version = "1.32.0"
+  bootstrap_charts   = []
+}
+
+run "single_controlplane" {
   command = plan
 
   variables {
-    talos_version      = "v1.9.0"
-    kubernetes_version = "1.32.0"
-    bootstrap_charts   = []
-
     talos_machines = [
       {
         install = {
@@ -107,6 +111,265 @@ EOT
   assert {
     condition     = strcontains(data.talos_machine_configuration.this["host1"].config_patches[0], "hostname: host1")
     error_message = "hostname missing from host1 each.value.config patch!"
+  }
+}
+
+run "multi_node_cluster" {
+  command = plan
+
+  variables {
+    talos_machines = [
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: multi-node.local
+  controlPlane:
+    endpoint: https://multi-node.local:6443
+machine:
+  type: controlplane
+  network:
+    hostname: cp1
+    interfaces:
+      - addresses:
+        - 10.10.10.11/24
+EOT
+      },
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: multi-node.local
+  controlPlane:
+    endpoint: https://multi-node.local:6443
+machine:
+  type: controlplane
+  network:
+    hostname: cp2
+    interfaces:
+      - addresses:
+        - 10.10.10.12/24
+EOT
+      },
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: multi-node.local
+  controlPlane:
+    endpoint: https://multi-node.local:6443
+machine:
+  type: controlplane
+  network:
+    hostname: cp3
+    interfaces:
+      - addresses:
+        - 10.10.10.13/24
+EOT
+      }
+    ]
+  }
+
+  assert {
+    condition     = length(data.talos_machine_configuration.this) == 3
+    error_message = "Expected 3 machine configurations"
+  }
+
+  assert {
+    condition     = length(data.talos_client_configuration.this.endpoints) == 3
+    error_message = "Expected 3 controlplane endpoints"
+  }
+
+  assert {
+    condition     = length(data.talos_client_configuration.this.nodes) == 3
+    error_message = "Expected 3 nodes in client configuration"
+  }
+
+  assert {
+    condition     = talos_machine_bootstrap.this.endpoint == "10.10.10.11"
+    error_message = "Bootstrap should use first controlplane IP"
+  }
+}
+
+run "mixed_controlplane_worker" {
+  command = plan
+
+  variables {
+    talos_machines = [
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: mixed.local
+  controlPlane:
+    endpoint: https://mixed.local:6443
+machine:
+  type: controlplane
+  network:
+    hostname: cp1
+    interfaces:
+      - addresses:
+        - 10.10.10.20/24
+EOT
+      },
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: mixed.local
+  controlPlane:
+    endpoint: https://mixed.local:6443
+machine:
+  type: worker
+  network:
+    hostname: worker1
+    interfaces:
+      - addresses:
+        - 10.10.10.21/24
+EOT
+      },
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: mixed.local
+  controlPlane:
+    endpoint: https://mixed.local:6443
+machine:
+  type: worker
+  network:
+    hostname: worker2
+    interfaces:
+      - addresses:
+        - 10.10.10.22/24
+EOT
+      }
+    ]
+  }
+
+  assert {
+    condition     = length(data.talos_machine_configuration.this) == 3
+    error_message = "Expected 3 machine configurations"
+  }
+
+  # Only controlplane should be in endpoints
+  assert {
+    condition     = length(data.talos_client_configuration.this.endpoints) == 1
+    error_message = "Expected only 1 controlplane endpoint"
+  }
+
+  assert {
+    condition     = data.talos_client_configuration.this.endpoints[0] == "10.10.10.20"
+    error_message = "Endpoint should be controlplane IP"
+  }
+
+  # All nodes should be in nodes list
+  assert {
+    condition     = length(data.talos_client_configuration.this.nodes) == 3
+    error_message = "All 3 nodes should be in client configuration nodes"
+  }
+
+  assert {
+    condition     = data.talos_machine_configuration.this["cp1"].machine_type == "controlplane"
+    error_message = "cp1 should be controlplane"
+  }
+
+  assert {
+    condition     = data.talos_machine_configuration.this["worker1"].machine_type == "worker"
+    error_message = "worker1 should be worker"
+  }
+
+  assert {
+    condition     = data.talos_machine_configuration.this["worker2"].machine_type == "worker"
+    error_message = "worker2 should be worker"
+  }
+}
+
+run "worker_only" {
+  command = plan
+
+  variables {
+    talos_machines = [
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: worker-only.local
+  controlPlane:
+    endpoint: https://worker-only.local:6443
+machine:
+  type: controlplane
+  network:
+    hostname: minimal-cp
+    interfaces:
+      - addresses:
+        - 10.10.10.30/24
+EOT
+      },
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: worker-only.local
+  controlPlane:
+    endpoint: https://worker-only.local:6443
+machine:
+  type: worker
+  network:
+    hostname: worker1
+    interfaces:
+      - addresses:
+        - 10.10.10.31/24
+EOT
+      }
+    ]
+  }
+
+  assert {
+    condition     = data.talos_machine_configuration.this["worker1"].machine_type == "worker"
+    error_message = "worker1 should be worker type"
+  }
+}
+
+run "version_propagation" {
+  command = plan
+
+  variables {
+    talos_version      = "v1.10.0"
+    kubernetes_version = "1.33.0"
+    talos_machines = [
+      {
+        install = { selector = "disk.model = *" }
+        config  = <<EOT
+cluster:
+  clusterName: version-test.local
+  controlPlane:
+    endpoint: https://version-test.local:6443
+machine:
+  type: controlplane
+  network:
+    hostname: host1
+    interfaces:
+      - addresses:
+        - 10.10.10.40/24
+EOT
+      }
+    ]
+  }
+
+  assert {
+    condition     = data.talos_machine_configuration.this["host1"].talos_version == "v1.10.0"
+    error_message = "Talos version should be v1.10.0"
+  }
+
+  assert {
+    condition     = data.talos_machine_configuration.this["host1"].kubernetes_version == "1.33.0"
+    error_message = "Kubernetes version should be 1.33.0"
+  }
+
+  assert {
+    condition     = talos_machine_secrets.this.talos_version == "v1.10.0"
+    error_message = "Machine secrets should use specified Talos version"
   }
 }
 
