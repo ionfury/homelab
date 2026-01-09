@@ -32,7 +32,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
-      "matchStrings": ["talos\\s+=\\s+\"(?<currentValue>v[0-9.]+)\""],
+      "matchStrings": ["talos\\s+=\\s+\"(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)\""],
       "depNameTemplate": "talos",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "siderolabs/talos"
@@ -41,7 +41,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
-      "matchStrings": ["kubernetes\\s+=\\s+\"(?<currentValue>[0-9.]+)\""],
+      "matchStrings": ["kubernetes\\s+=\\s+\"(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)\""],
       "depNameTemplate": "kubernetes",
       "datasourceTemplate": "github-tags",
       "packageNameTemplate": "kubernetes/kubernetes",
@@ -51,7 +51,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
-      "matchStrings": ["cilium\\s+=\\s+\"(?<currentValue>[0-9.]+)\""],
+      "matchStrings": ["cilium\\s+=\\s+\"(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)\""],
       "depNameTemplate": "cilium",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "cilium/cilium",
@@ -61,7 +61,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
-      "matchStrings": ["gateway_api\\s+=\\s+\"(?<currentValue>v[0-9.]+)\""],
+      "matchStrings": ["gateway_api\\s+=\\s+\"(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)\""],
       "depNameTemplate": "gateway-api",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "kubernetes-sigs/gateway-api"
@@ -70,7 +70,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
-      "matchStrings": ["flux\\s+=\\s+\"(?<currentValue>v[0-9.]+)\""],
+      "matchStrings": ["flux\\s+=\\s+\"(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)\""],
       "depNameTemplate": "flux",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "fluxcd/flux2"
@@ -79,7 +79,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
-      "matchStrings": ["prometheus\\s+=\\s+\"(?<currentValue>[0-9.]+)\""],
+      "matchStrings": ["prometheus\\s+=\\s+\"(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)\""],
       "depNameTemplate": "prometheus-operator-crds",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://prometheus-community.github.io/helm-charts"
