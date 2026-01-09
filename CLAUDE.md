@@ -50,6 +50,13 @@ This infrastructure exists to develop enterprise skills:
 - **NEVER** delete resources without explicit human approval
 - **NEVER** use git commands (commit, push, rebase, etc.) without explicit human approval
 
+## Git Safety
+
+- **NEVER** remove `.git/index.lock` or other git lock files - they exist for a reason
+- **NEVER** use `git reset --hard` to undo commits after pushing
+- **NEVER** commit to `main` when creating a PR - always create the branch first, then commit
+- **Correct PR workflow**: `git checkout -b <branch>` → make changes → `git commit` → `git push -u origin <branch>` → `gh pr create`
+
 ## Kubernetes Safety
 
 - **NEVER** use `kubectl --force --grace-period=0` or `--ignore-not-found` flags

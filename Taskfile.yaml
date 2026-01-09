@@ -5,6 +5,7 @@ includes:
   inv: .taskfiles/inventory
   tg: .taskfiles/terragrunt
   k8s: .taskfiles/kubernetes
+  wt: .taskfiles/worktree
 
 tasks:
   default:
