@@ -36,6 +36,62 @@ This infrastructure exists to develop enterprise skills:
 
 ---
 
+# CHANGE MANAGEMENT & DEPLOYMENT
+
+**The primary goal of all practices in this repository is to provide safe continuity of service for the live environment.**
+
+Every process, validation step, and architectural decision exists to protect production stability. When in doubt, choose the option that minimizes risk to live.
+
+## Branch-Based Development
+
+All changes flow through pull requests:
+- **All changes require PRs**: Direct commits to `main` are forbidden (branch protection enforced)
+- **Validation gates**: PRs must pass all validation checks before merge
+- **Review required**: No self-merging - changes require approval
+
+## Environment Promotion Pipeline
+
+The `main` branch represents the desired state for production. Merging to `main` triggers a staged rollout:
+
+```
+PR merged to main
+       ↓
+  integration cluster
+  (automated deployment)
+       ↓
+  1-hour soak period
+  (validation must remain green)
+       ↓
+  live cluster
+  (automated promotion)
+```
+
+1. **Integration deployment**: Changes apply to `integration` immediately after merge
+2. **Soak period**: Minimum 1-hour validation window on `integration`
+3. **Automatic promotion**: If validation remains green after soak, changes automatically promote to `live`
+
+## Environment Purposes
+
+| Environment | Purpose | Deployment |
+|-------------|---------|------------|
+| `dev` | Manual testing and experimentation | Manual (not part of automated pipeline) |
+| `integration` | Automated upgrade testing | Automatic on merge to `main` |
+| `live` | Production workloads | Automatic after integration validation |
+
+The `dev` cluster is intentionally outside the automated promotion pipeline. Use it for:
+- Testing breaking changes before creating a PR
+- Experimenting with new configurations
+- Validating ARM64 compatibility
+
+## Infrastructure Recovery
+
+All machines are configured to PXE boot into Talos maintenance mode when no OS is installed. This enables:
+- **Full cluster rebuilds**: Any cluster can be recreated from git state
+- **Disaster recovery**: Failed nodes automatically enter recovery mode
+- **Consistent provisioning**: No manual OS installation required
+
+---
+
 # ANTI-PATTERNS (NEVER DO THESE)
 
 ## Security
@@ -52,6 +108,7 @@ This infrastructure exists to develop enterprise skills:
 
 ## Git Safety
 
+- **NEVER** merge or commit directly to `main` - all changes require a PR with passing validation
 - **NEVER** remove `.git/index.lock` or other git lock files - they exist for a reason
 - **NEVER** use `git reset --hard` to undo commits after pushing
 - **NEVER** use `git push --force` or `git push --force-with-lease` - always create new commits to fix mistakes
@@ -499,11 +556,21 @@ task tg:apply-<stack>              # Apply (REQUIRES HUMAN APPROVAL)
 | Name | Purpose | Hardware | Notes |
 |------|---------|----------|-------|
 | live | Production | node41-43 (Supermicro x86_64) | 3-node HA control plane |
-| integration | Testing | node44 (Supermicro x86_64) | Single node |
-| dev | Development | rpi4 (Pi CM4 ARM64) | ARM64, resource-constrained |
-| staging | Staging | (inactive) | Reserved |
+| integration | Upgrade testing | node44 (Supermicro x86_64) | Single node, automated deployment |
+| dev | Manual testing | rpi4 (Pi CM4 ARM64) | ARM64, not in automated pipeline |
 
 ## Promotion Path
-Changes flow: `dev` → `integration` → `staging` → `live`
 
-Test on dev (ARM64 compatible), validate on integration (x86_64), then promote to live.
+```
+        dev (manual)              PR merged to main
+             ↓                           ↓
+    Create PR when ready    →    integration (auto)
+                                         ↓
+                                 1-hour soak period
+                                         ↓
+                                   live (auto)
+```
+
+- **dev**: Manual experimentation space - use to validate changes before creating a PR
+- **integration**: Receives changes automatically when PRs merge to `main`
+- **live**: Receives changes automatically after integration passes 1-hour validation soak
