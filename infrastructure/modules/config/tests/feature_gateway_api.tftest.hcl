@@ -53,6 +53,20 @@ variables {
       api_key_store = "/test/hc"
     }
   }
+
+  # Default test machine - inherited by all run blocks
+  machines = {
+    node1 = {
+      cluster = "test-cluster"
+      type    = "controlplane"
+      install = { selector = "disk.model = *" }
+      interfaces = [{
+        id           = "eth0"
+        hardwareAddr = "aa:bb:cc:dd:ee:01"
+        addresses    = [{ ip = "192.168.10.101" }]
+      }]
+    }
+  }
 }
 
 # With gateway-api enabled - experimental CRD manifest added
@@ -61,18 +75,6 @@ run "gateway_api_manifest_present" {
 
   variables {
     features = ["gateway-api"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -98,18 +100,6 @@ run "gateway_api_version_in_url" {
 
   variables {
     features = ["gateway-api"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -143,18 +133,6 @@ run "gateway_api_custom_version" {
       flux        = "v2.4.0"
       prometheus  = "20.0.0"
     }
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -172,18 +150,6 @@ run "gateway_api_full_url" {
 
   variables {
     features = ["gateway-api"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -201,18 +167,6 @@ run "no_gateway_api_no_manifest" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -238,18 +192,6 @@ run "gateway_api_creates_extra_manifests_section" {
 
   variables {
     features = ["gateway-api"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -321,18 +263,6 @@ run "gateway_api_with_all_features" {
 
   variables {
     features = ["gateway-api", "longhorn", "prometheus", "spegel"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   # Gateway API manifest present

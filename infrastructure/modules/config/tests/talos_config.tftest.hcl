@@ -53,6 +53,20 @@ variables {
       api_key_store = "/test/hc"
     }
   }
+
+  # Default test machine - inherited by all run blocks
+  machines = {
+    node1 = {
+      cluster = "test-cluster"
+      type    = "controlplane"
+      install = { selector = "disk.model = *" }
+      interfaces = [{
+        id           = "eth0"
+        hardwareAddr = "aa:bb:cc:dd:ee:01"
+        addresses    = [{ ip = "192.168.10.101" }]
+      }]
+    }
+  }
 }
 
 # Cluster endpoint from internal TLD
@@ -61,18 +75,6 @@ run "talos_cluster_endpoint" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -90,18 +92,6 @@ run "talos_cluster_name" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -119,18 +109,6 @@ run "talos_pod_subnet" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -149,18 +127,6 @@ run "talos_service_subnet" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -179,18 +145,6 @@ run "talos_proxy_disabled" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -209,18 +163,6 @@ run "talos_cni_none" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -239,18 +181,6 @@ run "talos_machine_type_controlplane" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -326,18 +256,6 @@ run "talos_interface_addresses" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -355,18 +273,6 @@ run "talos_hardware_address" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -436,18 +342,6 @@ run "talos_nameservers" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -467,18 +361,6 @@ run "talos_timeservers" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -498,18 +380,6 @@ run "talos_kernel_args" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -543,18 +413,6 @@ run "talos_install_wipe" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -572,18 +430,6 @@ run "talos_kubelet_node_ip" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -603,18 +449,6 @@ run "talos_host_dns" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -752,18 +586,6 @@ run "talos_allow_scheduling_controlplane" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -781,18 +603,6 @@ run "talos_api_server_psp_disabled" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {

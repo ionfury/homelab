@@ -53,6 +53,20 @@ variables {
       api_key_store = "/test/hc"
     }
   }
+
+  # Default test machine - inherited by all run blocks
+  machines = {
+    node1 = {
+      cluster = "test-cluster"
+      type    = "controlplane"
+      install = { selector = "disk.model = *" }
+      interfaces = [{
+        id           = "eth0"
+        hardwareAddr = "aa:bb:cc:dd:ee:01"
+        addresses    = [{ ip = "192.168.10.101" }]
+      }]
+    }
+  }
 }
 
 # No features - clean minimal config
@@ -61,18 +75,6 @@ run "no_features_clean_config" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   # No longhorn artifacts
@@ -125,18 +127,6 @@ run "single_node_replica_count" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -417,18 +407,6 @@ run "secureboot_default_false" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {

@@ -207,12 +207,18 @@ Testing is mandatory. No exceptions. Every infrastructure change must pass all v
 # 1. Format all HCL code
 task tg:fmt
 
-# 2. Validate all stacks
+# 2. Run module tests (if module tests exist)
+task tg:test                    # All modules
+task tg:test-<module>           # Specific module (e.g., task tg:test-config)
+
+# 3. Validate all stacks
 task tg:validate
 
-# 3. Plan the specific stack being changed
+# 4. Plan the specific stack being changed
 task tg:plan-<stack>
 ```
+
+**IMPORTANT**: Always use `task` commands. NEVER run `tofu` or `terragrunt` directly.
 
 ## What Each Validation Step Does
 
@@ -221,6 +227,11 @@ task tg:plan-<stack>
 - Runs `terragrunt hclfmt` on all `.hcl` files
 - **Catches**: Formatting issues, basic syntax errors
 - **Must pass**: Before any other validation
+
+### `task tg:test` / `task tg:test-<module>`
+- Runs OpenTofu tests in `modules/<module>/tests/*.tftest.hcl`
+- **Catches**: Logic errors, incorrect outputs, feature flag behavior
+- **Must pass**: Before stack validation
 
 ### `task tg:validate`
 - Runs `terragrunt stack run validate` for each stack
@@ -258,6 +269,71 @@ When reviewing `terragrunt plan` output, verify:
 - **NEVER** ignore validation warnings - they often indicate real problems
 - **NEVER** approve a plan you haven't fully reviewed
 - **NEVER** plan one stack and apply a different one
+
+## Module Test Patterns
+
+OpenTofu tests support variable inheritance. Use top-level `variables` blocks to define defaults, and only override what differs in each `run` block.
+
+### Compact Test Pattern (CORRECT)
+
+```hcl
+# Top-level variables set defaults for ALL run blocks
+variables {
+  name = "test-cluster"
+  networking = { ... }
+  versions = { ... }
+
+  # Default test machine - inherited by all run blocks
+  machines = {
+    node1 = {
+      cluster = "test-cluster"
+      type    = "controlplane"
+      install = { selector = "disk.model = *" }
+      interfaces = [{ ... }]
+    }
+  }
+}
+
+run "feature_enabled" {
+  variables {
+    features = ["prometheus"]  # Only override what differs
+  }
+  assert { ... }
+}
+
+run "feature_disabled" {
+  variables {
+    features = []  # machines inherited from top-level
+  }
+  assert { ... }
+}
+```
+
+### Verbose Pattern (AVOID)
+
+```hcl
+variables {
+  name = "test-cluster"
+  networking = { ... }
+  # NO default machines - forces repetition
+}
+
+run "feature_enabled" {
+  variables {
+    features = ["prometheus"]
+    machines = { ... }  # REPEATED in every run block
+  }
+}
+
+run "feature_disabled" {
+  variables {
+    features = []
+    machines = { ... }  # DUPLICATED - same 12 lines again
+  }
+}
+```
+
+**Opinion**: Only include `machines` in a `run` block when it needs a different configuration than the default (e.g., testing multi-node clusters, different architectures, special disk configs, or worker nodes).
 
 ---
 

@@ -53,6 +53,20 @@ variables {
       api_key_store = "/test/hc"
     }
   }
+
+  # Default test machine - inherited by all run blocks
+  machines = {
+    node1 = {
+      cluster = "test-cluster"
+      type    = "controlplane"
+      install = { selector = "disk.model = *" }
+      interfaces = [{
+        id           = "eth0"
+        hardwareAddr = "aa:bb:cc:dd:ee:01"
+        addresses    = [{ ip = "192.168.10.101" }]
+      }]
+    }
+  }
 }
 
 # With prometheus enabled - etcd metrics endpoint exposed
@@ -61,18 +75,6 @@ run "prometheus_etcd_extra_args" {
 
   variables {
     features = ["prometheus"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -98,18 +100,6 @@ run "prometheus_controller_manager_extra_args" {
 
   variables {
     features = ["prometheus"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -136,18 +126,6 @@ run "prometheus_scheduler_extra_args" {
 
   variables {
     features = ["prometheus"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -165,18 +143,6 @@ run "prometheus_extra_manifests" {
 
   variables {
     features = ["prometheus"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -226,18 +192,6 @@ run "prometheus_version_in_manifests" {
 
   variables {
     features = ["prometheus"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -263,18 +217,6 @@ run "prometheus_custom_version" {
       flux        = "v2.4.0"
       prometheus  = "21.5.0"
     }
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -292,18 +234,6 @@ run "no_prometheus_no_etcd_args" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -321,18 +251,6 @@ run "no_prometheus_no_controller_manager_section" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -350,18 +268,6 @@ run "no_prometheus_no_scheduler_section" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -379,18 +285,6 @@ run "no_prometheus_no_manifests" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -408,18 +302,6 @@ run "prometheus_with_gateway_api" {
 
   variables {
     features = ["prometheus", "gateway-api"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   # Both sets of manifests should be present

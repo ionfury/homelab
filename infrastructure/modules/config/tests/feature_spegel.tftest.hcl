@@ -53,6 +53,20 @@ variables {
       api_key_store = "/test/hc"
     }
   }
+
+  # Default test machine - inherited by all run blocks
+  machines = {
+    node1 = {
+      cluster = "test-cluster"
+      type    = "controlplane"
+      install = { selector = "disk.model = *" }
+      interfaces = [{
+        id           = "eth0"
+        hardwareAddr = "aa:bb:cc:dd:ee:01"
+        addresses    = [{ ip = "192.168.10.101" }]
+      }]
+    }
+  }
 }
 
 # With spegel enabled - containerd config file created
@@ -61,18 +75,6 @@ run "spegel_file_created" {
 
   variables {
     features = ["spegel"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -98,18 +100,6 @@ run "spegel_file_content" {
 
   variables {
     features = ["spegel"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -135,18 +125,6 @@ run "spegel_file_permissions" {
 
   variables {
     features = ["spegel"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -172,18 +150,6 @@ run "spegel_in_talos_config" {
 
   variables {
     features = ["spegel"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -261,18 +227,6 @@ run "no_spegel_no_files" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -290,18 +244,6 @@ run "no_spegel_no_files_in_config" {
 
   variables {
     features = []
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   assert {
@@ -319,18 +261,6 @@ run "spegel_with_longhorn" {
 
   variables {
     features = ["spegel", "longhorn"]
-    machines = {
-      node1 = {
-        cluster = "test-cluster"
-        type    = "controlplane"
-        install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
-        }]
-      }
-    }
   }
 
   # Spegel file should still be present
