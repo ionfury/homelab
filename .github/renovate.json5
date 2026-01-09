@@ -88,5 +88,14 @@
   "ignorePaths": [
     "kubernetes/clusters/*/flux-system/**",
     "kubernetes/clusters/generated-cluster-vars.env"
+  ],
+  "packageRules": [
+    {
+      // Disable hashicorp/terraform lookups - we use OpenTofu
+      // The actual OpenTofu version is tracked via .opentofu-version custom manager
+      "matchDatasources": ["github-releases"],
+      "matchPackageNames": ["hashicorp/terraform"],
+      "enabled": false
+    }
   ]
 }

@@ -6,6 +6,7 @@ includes:
   tg: .taskfiles/terragrunt
   k8s: .taskfiles/kubernetes
   wt: .taskfiles/worktree
+  renovate: .taskfiles/renovate
 
 tasks:
   default:
