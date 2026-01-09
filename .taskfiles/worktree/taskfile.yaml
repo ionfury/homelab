@@ -1,0 +1,59 @@
+---
+version: "3"
+
+tasks:
+  new:
+    desc: Creates a worktree and starts Claude Code for isolated task work.
+    requires:
+      vars: [CLI_ARGS]
+    vars:
+      NAME: "{{.CLI_ARGS}}"
+      REPO_NAME:
+        sh: basename "{{.ROOT_DIR}}"
+      WORKTREE_PATH: "{{.ROOT_DIR}}/../{{.REPO_NAME}}-{{.NAME}}"
+    cmds:
+      - git worktree add "{{.WORKTREE_PATH}}" -b "{{.NAME}}"
+      - |
+        echo "Worktree created at {{.WORKTREE_PATH}}"
+        echo "Starting Claude Code..."
+        cd "{{.WORKTREE_PATH}}" && claude
+    preconditions:
+      - sh: test ! -d "{{.WORKTREE_PATH}}"
+        msg: "Worktree already exists at {{.WORKTREE_PATH}}"
+      - sh: "! git show-ref --verify --quiet refs/heads/{{.NAME}}"
+        msg: "Branch '{{.NAME}}' already exists"
+
+  resume:
+    desc: Resumes Claude Code in an existing worktree.
+    requires:
+      vars: [CLI_ARGS]
+    vars:
+      NAME: "{{.CLI_ARGS}}"
+      REPO_NAME:
+        sh: basename "{{.ROOT_DIR}}"
+      WORKTREE_PATH: "{{.ROOT_DIR}}/../{{.REPO_NAME}}-{{.NAME}}"
+    cmds:
+      - cd "{{.WORKTREE_PATH}}" && claude --continue
+    preconditions:
+      - sh: test -d "{{.WORKTREE_PATH}}"
+        msg: "Worktree does not exist at {{.WORKTREE_PATH}}"
+
+  list:
+    desc: Lists all worktrees for this repository.
+    cmds:
+      - git worktree list
+
+  remove:
+    desc: Removes a worktree (keeps branch).
+    requires:
+      vars: [CLI_ARGS]
+    vars:
+      NAME: "{{.CLI_ARGS}}"
+      REPO_NAME:
+        sh: basename "{{.ROOT_DIR}}"
+      WORKTREE_PATH: "{{.ROOT_DIR}}/../{{.REPO_NAME}}-{{.NAME}}"
+    cmds:
+      - git worktree remove "{{.WORKTREE_PATH}}"
+    preconditions:
+      - sh: test -d "{{.WORKTREE_PATH}}"
+        msg: "Worktree does not exist at {{.WORKTREE_PATH}}"
