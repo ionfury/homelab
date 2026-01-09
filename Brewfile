@@ -16,6 +16,7 @@ brew "jq"
 brew "helm"
 brew "kustomize"
 brew "kubeconform"
+brew "dyff"
 
 # Flux
 tap "fluxcd/tap"
