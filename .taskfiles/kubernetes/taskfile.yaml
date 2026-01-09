@@ -27,6 +27,114 @@ tasks:
         kubectl get pods --all-namespaces -o json | \
         jq -r '.items[] | select(.status.phase=="Succeeded" or .status.containerStatuses[]?.state.terminated?.reason=="Error") | "\(.metadata.namespace) \(.metadata.name)"' | \
         xargs -n2 sh -c 'kubectl delete pod -n "$0" "$1"'
+
+  diff:
+    desc: Show diff of rendered Kubernetes manifests between current branch and main
+    silent: false
+    vars:
+      CLUSTERS:
+        sh: "ls -1 {{.CLUSTER_DIR}}"
+      CURRENT_BRANCH:
+        sh: "git rev-parse --abbrev-ref HEAD"
+      CURRENT_RENDERED: "{{.ROOT_DIR}}/.rendered/current"
+      MAIN_RENDERED: "{{.ROOT_DIR}}/.rendered/main"
+    cmds:
+      - defer: rm -rf {{.CURRENT_RENDERED}} {{.MAIN_RENDERED}}
+      # Render current branch (HEAD)
+      - mkdir -p {{.CURRENT_RENDERED}}
+      - task: render-clusters-to-dir
+        vars:
+          OUTPUT_BASE: "{{.CURRENT_RENDERED}}"
+      # Render main branch using git show (worktree-safe)
+      - mkdir -p {{.MAIN_RENDERED}}
+      - task: render-clusters-from-ref
+        vars:
+          GIT_REF: main
+          OUTPUT_BASE: "{{.MAIN_RENDERED}}"
+      # Run dyff for each cluster (compare main vs current to show changes FROM main TO current)
+      - for: { var: CLUSTERS }
+        cmd: |
+          echo "=== Cluster: {{.ITEM}} ==="
+          if [ -f "{{.MAIN_RENDERED}}/{{.ITEM}}/kustomize.yaml" ] && [ -f "{{.CURRENT_RENDERED}}/{{.ITEM}}/kustomize.yaml" ]; then
+            dyff between --color on --omit-header "{{.MAIN_RENDERED}}/{{.ITEM}}/kustomize.yaml" "{{.CURRENT_RENDERED}}/{{.ITEM}}/kustomize.yaml" || true
+          elif [ -f "{{.CURRENT_RENDERED}}/{{.ITEM}}/kustomize.yaml" ]; then
+            echo "New cluster (not in main)"
+          elif [ -f "{{.MAIN_RENDERED}}/{{.ITEM}}/kustomize.yaml" ]; then
+            echo "Cluster removed"
+          fi
+          echo ""
+    preconditions:
+      - which dyff
+      - which kustomize
+      - which git
+
+  render-clusters-from-ref:
+    desc: Renders all clusters from a specific git ref (worktree-safe)
+    internal: true
+    silent: true
+    requires:
+      vars: [GIT_REF, OUTPUT_BASE]
+    vars:
+      CLUSTERS:
+        sh: "ls -1 {{.CLUSTER_DIR}}"
+      TEMP_DIR:
+        sh: "mktemp -d"
+    cmds:
+      - defer: rm -rf {{.TEMP_DIR}}
+      # Extract kubernetes/ directory from git ref to temp location
+      - mkdir -p {{.TEMP_DIR}}/kubernetes
+      - git archive {{.GIT_REF}} kubernetes | tar -x -C {{.TEMP_DIR}}
+      # Render each cluster from the extracted files
+      - for: { var: CLUSTERS }
+        cmd: |
+          cluster_name="{{.ITEM}}"
+          kustomization="{{.TEMP_DIR}}/kubernetes/clusters/$cluster_name"
+          output_dir="{{.OUTPUT_BASE}}/$cluster_name"
+          mkdir -p "$output_dir"
+          if [ -d "$kustomization" ] && [ -f "$kustomization/kustomization.yaml" ]; then
+            kustomize build "$kustomization" > "$output_dir/kustomize.yaml" 2> "$output_dir/kustomize_errors.log" || true
+          else
+            echo "Cluster $cluster_name has no kustomization.yaml in {{.GIT_REF}}" > "$output_dir/kustomize_errors.log"
+          fi
+
+  render-clusters-to-dir:
+    desc: Renders all clusters to a specific directory
+    internal: true
+    silent: true
+    requires:
+      vars: [OUTPUT_BASE]
+    vars:
+      CLUSTERS:
+        sh: "ls -1 {{.CLUSTER_DIR}}"
+    cmds:
+      - for: { var: CLUSTERS }
+        task: render-cluster-to-dir
+        vars:
+          CLUSTER: "{{.ITEM}}"
+          OUTPUT_BASE: "{{.OUTPUT_BASE}}"
+
+  render-cluster-to-dir:
+    desc: Renders a cluster to a specific directory
+    internal: true
+    silent: true
+    requires:
+      vars: [CLUSTER, OUTPUT_BASE]
+    vars:
+      OUTPUT_DIR: "{{.OUTPUT_BASE}}/{{.CLUSTER}}"
+      RENDERED: "{{.OUTPUT_DIR}}/kustomize.yaml"
+      ERRORS: "{{.OUTPUT_DIR}}/kustomize_errors.log"
+      KUSTOMIZATION: "{{.CLUSTER_DIR}}/{{.CLUSTER}}"
+    cmds:
+      - mkdir -p {{.OUTPUT_DIR}}
+      - cmd: |
+          if [ -d "{{.KUSTOMIZATION}}" ] && [ -f "{{.KUSTOMIZATION}}/kustomization.yaml" ]; then
+            kustomize build "{{.KUSTOMIZATION}}" > "{{.RENDERED}}" 2> "{{.ERRORS}}"
+          else
+            echo "Cluster {{.CLUSTER}} has no kustomization.yaml, skipping" > "{{.ERRORS}}"
+          fi
+        ignore_error: true
+    preconditions:
+      - which kustomize
   render:
     desc: Renders all manifests.
     silent: true

@@ -1,0 +1,63 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Kubernetes Manifest Diff
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - kubernetes/**
+      - .github/workflows/kubernetes-diff.yaml
+      - .github/actions/kubernetes-diff/**
+
+jobs:
+  render-and-diff:
+    runs-on: homelab-runner-staging-runner-app
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Kubernetes diff
+        id: k8s-diff
+        uses: ./.github/actions/kubernetes-diff
+        with:
+          base_ref: origin/main
+          head_ref: HEAD
+
+      - name: Post PR comment
+        if: steps.k8s-diff.outputs.has_changes == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Kubernetes Manifest Diff
+
+            ${{ steps.k8s-diff.outputs.summary_text }}
+
+            <details>
+            <summary>Click to expand full diff</summary>
+
+            ```diff
+            ${{ steps.k8s-diff.outputs.diff_text }}
+            ```
+
+            </details>
+          edit-mode: replace
+          comment-tag: k8s-manifest-diff
+
+      - name: Post no changes comment
+        if: steps.k8s-diff.outputs.has_changes == 'false'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Kubernetes Manifest Diff
+
+            No changes detected in rendered Kubernetes manifests.
+          edit-mode: replace
+          comment-tag: k8s-manifest-diff

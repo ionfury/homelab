@@ -1,0 +1,197 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Kubernetes Manifest Diff
+description: Compare rendered Kubernetes manifests between two Git refs
+inputs:
+  base_ref:
+    description: Base Git ref to compare against
+    required: false
+    default: main
+  head_ref:
+    description: Head Git ref to compare
+    required: false
+    default: HEAD
+outputs:
+  diff_text:
+    description: Full diff output from dyff
+    value: ${{ steps.diff.outputs.diff_text }}
+  summary_text:
+    description: Summary of changes
+    value: ${{ steps.diff.outputs.summary_text }}
+  has_changes:
+    description: Whether any changes were detected
+    value: ${{ steps.diff.outputs.has_changes }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        brew install go-task kustomize helm yq dyff
+        brew tap fluxcd/tap
+        brew install fluxcd/tap/flux
+
+    - name: Render base ref manifests
+      shell: bash
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+
+        # Extract base ref files to temp directory (worktree-safe)
+        TEMP_BASE=$(mktemp -d)
+        cleanup_base() { rm -rf "$TEMP_BASE" 2>/dev/null || true; }
+        trap cleanup_base EXIT
+        mkdir -p "$TEMP_BASE/kubernetes"
+        git archive ${{ inputs.base_ref }} kubernetes | tar -x -C "$TEMP_BASE"
+
+        mkdir -p .rendered/base
+        for cluster in "$TEMP_BASE"/kubernetes/clusters/*; do
+          if [ -d "$cluster" ]; then
+            cluster_name=$(basename "$cluster")
+            mkdir -p ".rendered/base/$cluster_name"
+            if [ -f "$cluster/kustomization.yaml" ]; then
+              if ! kustomize build "$cluster" > ".rendered/base/$cluster_name/kustomize.yaml" 2> ".rendered/base/$cluster_name/errors.log"; then
+                echo "ERROR: Failed to render $cluster_name in base ref" >&2
+                cat ".rendered/base/$cluster_name/errors.log" >&2
+                exit 1
+              fi
+            else
+              echo "Cluster $cluster_name has no kustomization.yaml in base ref" > ".rendered/base/$cluster_name/errors.log"
+            fi
+          fi
+        done
+
+    - name: Render head ref manifests
+      shell: bash
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+
+        # Extract head ref files to temp directory (worktree-safe)
+        TEMP_HEAD=$(mktemp -d)
+        cleanup_head() { rm -rf "$TEMP_HEAD" 2>/dev/null || true; }
+        trap cleanup_head EXIT
+        mkdir -p "$TEMP_HEAD/kubernetes"
+        git archive ${{ inputs.head_ref }} kubernetes | tar -x -C "$TEMP_HEAD"
+
+        mkdir -p .rendered/head
+        for cluster in "$TEMP_HEAD"/kubernetes/clusters/*; do
+          if [ -d "$cluster" ]; then
+            cluster_name=$(basename "$cluster")
+            mkdir -p ".rendered/head/$cluster_name"
+            if [ -f "$cluster/kustomization.yaml" ]; then
+              if ! kustomize build "$cluster" > ".rendered/head/$cluster_name/kustomize.yaml" 2> ".rendered/head/$cluster_name/errors.log"; then
+                echo "ERROR: Failed to render $cluster_name in head ref" >&2
+                cat ".rendered/head/$cluster_name/errors.log" >&2
+                exit 1
+              fi
+            else
+              echo "Cluster $cluster_name has no kustomization.yaml in head ref" > ".rendered/head/$cluster_name/errors.log"
+            fi
+          fi
+        done
+
+    - name: Run diff
+      id: diff
+      shell: bash
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+
+        diff_output=""
+        has_changes="false"
+        cluster_count=0
+        resources_added=0
+        resources_modified=0
+        resources_removed=0
+
+        # First pass: compare existing clusters in both base and head
+        for cluster_dir in .rendered/head/*; do
+          cluster_name=$(basename "$cluster_dir")
+          base_file=".rendered/base/$cluster_name/kustomize.yaml"
+          head_file=".rendered/head/$cluster_name/kustomize.yaml"
+
+          if [ -f "$base_file" ] && [ -f "$head_file" ]; then
+            # Compare base vs head to show changes FROM base TO head
+            cluster_diff=$(dyff between --color off --omit-header "$base_file" "$head_file" 2>&1 || true)
+            if [ -n "$cluster_diff" ]; then
+              diff_output+="### Cluster: $cluster_name"$'\n\n'
+              diff_output+="$cluster_diff"$'\n\n'
+              has_changes="true"
+              cluster_count=$((cluster_count + 1))
+
+              # Parse dyff output for resource-level changes
+              # dyff uses these patterns for resource-level changes:
+              # - "+ one document added:" = entire resource added (preceded by "(root level)" line)
+              # - "- one document removed:" = entire resource removed (preceded by "(root level)" line)
+              # - Field path with "(kind/name)" = modification to existing resource (e.g., "data.key  (v1/ConfigMap/test1)")
+              added=$(echo "$cluster_diff" | grep -c '^\+ one document added:' || true)
+              removed=$(echo "$cluster_diff" | grep -c '^- one document removed:' || true)
+              # Count unique resources with modifications (exclude "(root level)" which indicates add/remove)
+              modified=$(echo "$cluster_diff" | grep -E '\([^)]+/[^)]+/[^)]+\)' | grep -v '(root level)' | grep -oE '\([^)]+/[^)]+/[^)]+\)' | sort -u | wc -l | tr -d ' ')
+
+              resources_added=$((resources_added + added))
+              resources_removed=$((resources_removed + removed))
+              resources_modified=$((resources_modified + modified))
+            fi
+          elif [ -f "$head_file" ]; then
+            # New cluster added in head ref
+            diff_output+="### Cluster: $cluster_name"$'\n\n'
+            diff_output+="New cluster (not in base ref)"$'\n\n'
+            has_changes="true"
+            cluster_count=$((cluster_count + 1))
+
+            # Count all resources in new cluster as added
+            resource_count=$(grep -c '^kind: ' "$head_file" || true)
+            resources_added=$((resources_added + resource_count))
+          fi
+        done
+
+        # Second pass: check for removed clusters (iterate over base, check if missing in head)
+        for cluster_dir in .rendered/base/*; do
+          cluster_name=$(basename "$cluster_dir")
+          base_file=".rendered/base/$cluster_name/kustomize.yaml"
+          head_file=".rendered/head/$cluster_name/kustomize.yaml"
+
+          if [ -f "$base_file" ] && [ ! -f "$head_file" ]; then
+            diff_output+="### Cluster: $cluster_name"$'\n\n'
+            diff_output+="Cluster removed"$'\n\n'
+            has_changes="true"
+            cluster_count=$((cluster_count + 1))
+
+            # Count all resources in removed cluster as removed
+            resource_count=$(grep -c '^kind: ' "$base_file" || true)
+            resources_removed=$((resources_removed + resource_count))
+          fi
+        done
+
+        # Generate summary
+        if [ "$has_changes" = "true" ]; then
+          total_changes=$((resources_added + resources_modified + resources_removed))
+          summary="**$total_changes resource change"
+          if [ "$total_changes" -ne 1 ]; then
+            summary+="s"
+          fi
+          summary+="**: $resources_added added, $resources_modified modified, $resources_removed removed"
+        else
+          summary="No changes detected"
+        fi
+
+        # Output results
+        echo "has_changes=$has_changes" >> "$GITHUB_OUTPUT"
+        echo "summary_text=$summary" >> "$GITHUB_OUTPUT"
+
+        # Truncate diff if too large for GitHub comment (65536 char limit)
+        max_length=60000
+        if [ ${#diff_output} -gt "$max_length" ]; then
+          diff_output="${diff_output:0:$max_length}"$'\n\n'"... (diff truncated, see workflow logs for full output)"
+        fi
+
+        # Handle multiline diff output
+        {
+          echo 'diff_text<<EOF'
+          echo "$diff_output"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
