@@ -107,6 +107,18 @@ kubernetes/              # Flux GitOps - deploys workloads
 For detailed patterns and operations in specific areas, see:
 - **`infrastructure/CLAUDE.md`** - Terragrunt/OpenTofu patterns, units vs stacks, HCL conventions
 
+## Development Environment
+
+All required CLI tools are defined in the `Brewfile`. Install them with:
+
+```bash
+brew bundle
+```
+
+This installs: `gh`, `awscli`, `kubectl`, `helm`, `kustomize`, `flux`, `go-task`, `tgenv`, `tofuenv`, `talosctl`, `cilium-cli`, and other dependencies.
+
+**Opinion**: Always install tools via Brewfile. Never install CLI tools manually - if a tool is missing, add it to the Brewfile first.
+
 ---
 
 # KUBERNETES OPINIONS (Flux GitOps)
