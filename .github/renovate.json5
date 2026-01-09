@@ -27,6 +27,62 @@
       "depNameTemplate": "terragrunt",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "gruntwork-io/terragrunt"
+    },
+    // Talos version (v-prefixed)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
+      "matchStrings": ["talos\\s+=\\s+\"(?<currentValue>v[0-9.]+)\""],
+      "depNameTemplate": "talos",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "siderolabs/talos"
+    },
+    // Kubernetes version (unprefixed, extract from v-prefixed tags)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
+      "matchStrings": ["kubernetes\\s+=\\s+\"(?<currentValue>[0-9.]+)\""],
+      "depNameTemplate": "kubernetes",
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "kubernetes/kubernetes",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    // Cilium version (unprefixed, extract from v-prefixed releases)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
+      "matchStrings": ["cilium\\s+=\\s+\"(?<currentValue>[0-9.]+)\""],
+      "depNameTemplate": "cilium",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "cilium/cilium",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    // Gateway API version (v-prefixed)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
+      "matchStrings": ["gateway_api\\s+=\\s+\"(?<currentValue>v[0-9.]+)\""],
+      "depNameTemplate": "gateway-api",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "kubernetes-sigs/gateway-api"
+    },
+    // Flux version (v-prefixed)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
+      "matchStrings": ["flux\\s+=\\s+\"(?<currentValue>v[0-9.]+)\""],
+      "depNameTemplate": "flux",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "fluxcd/flux2"
+    },
+    // Prometheus CRDs Helm chart version
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^infrastructure/versions\\.hcl$/"],
+      "matchStrings": ["prometheus\\s+=\\s+\"(?<currentValue>[0-9.]+)\""],
+      "depNameTemplate": "prometheus-operator-crds",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://prometheus-community.github.io/helm-charts"
     }
   ],
   "ignorePaths": [
