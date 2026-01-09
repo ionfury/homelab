@@ -19,9 +19,17 @@ jobs:
       - name: Install task
         uses: arduino/setup-task@v2
 
-      - name: Install tofuenv
+      - name: Install tgenv and tofuenv
         shell: bash
-        run: brew install tofuenv
+        run: |
+          brew install tgenv
+          brew install tofuenv
+
+      - name: Setup Terragrunt
+        shell: bash
+        run: |
+          tgenv install
+          tgenv use
 
       - name: Setup OpenTofu
         shell: bash
