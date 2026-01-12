@@ -127,3 +127,9 @@ terraform.rc
 
 **/.upgrade-node.lock
 **/.local
+
+# Agents
+.claude
+.claude/**
+
+.venv
