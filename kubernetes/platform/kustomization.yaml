@@ -11,17 +11,17 @@ generatorOptions:
 configMapGenerator:
   - name: platform-values
     files:
+      - canary-checker.yaml=values/canary-checker.yaml
       - cert-manager.yaml=values/cert-manager.yaml
       - cilium.yaml=values/cilium.yaml
-      - external-secrets.yaml=values/external-secrets.yaml
       - descheduler.yaml=values/descheduler.yaml
+      - external-secrets.yaml=values/external-secrets.yaml
+      - grafana-loki-single-binary.yaml=values/grafana-loki-single-binary.yaml
+      - grafana.yaml=values/grafana.yaml
+      - kube-prometheus-stack-crds.yaml=values/kube-prometheus-stack-crds.yaml
+      - kube-prometheus-stack.yaml=values/kube-prometheus-stack.yaml
+      - longhorn.yaml=values/longhorn.yaml
+      - promtail.yaml=values/promtail.yaml
       - reloader.yaml=values/reloader.yaml
       - replicator.yaml=values/replicator.yaml
       - secret-generator.yaml=values/secret-generator.yaml
-      - canary-checker.yaml=values/canary-checker.yaml
-      - grafana-loki-single-binary.yaml=values/grafana-loki-single-b
-      - kube-prometheus-stack-crds.yaml=values/kube-prometheus-stack-crds.yaml
-      - longhorn.yaml=values/longhorn.yaml
-      - kube-prometheus-stack.yaml=values/kube-prometheus-stack.yaml
-      - promtail.yaml=values/promtail.yaml
-      - grafana.yaml=values/grafana.yaml
