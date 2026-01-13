@@ -1,0 +1,25 @@
+# https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
+global:
+  leaderElection:
+    namespace: "${NAMESPACE:kube-system}"
+  commonLabels:
+podLabels:
+  networking/allow-egress-internet: "true"
+  networking/allow-ingress-prometheus: "true"
+  networking/allow-cluster-egress: "true"
+namespace: "${NAMESPACE:kube-system}"
+installCRDs: true
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+webhook:
+  podLabels:
+    networking/allow-ingress-prometheus: "true"
+    networking/allow-cluster-egress: "true"
+  networkPolicy:
+    enabled: false
+cainjector:
+  podLabels:
+    networking/allow-ingress-prometheus: "true"
+    networking/allow-cluster-egress: "true"

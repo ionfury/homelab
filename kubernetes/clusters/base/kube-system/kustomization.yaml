@@ -6,6 +6,5 @@ namespace: kube-system
 components:
   - ../../../manifests/common/components/configurations/namespace
 resources:
+  # Migrated to platform: cilium.yaml, descheduler.yaml
   - cilium-config.yaml
-  - cilium.yaml
-  - descheduler.yaml

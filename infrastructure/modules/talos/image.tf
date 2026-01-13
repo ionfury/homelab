@@ -12,6 +12,7 @@ locals {
       data.talos_image_factory_urls.machine_image_url_metal[k].talos_version
     )
   }
+
   machine_installer = {
     for k in keys(local.machines) : k => try(
       data.talos_image_factory_urls.machine_image_url_sbc[k].urls.installer,

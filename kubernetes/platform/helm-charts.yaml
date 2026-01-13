@@ -1,0 +1,147 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: platform-resources
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcile: "enabled"
+    fluxcd.controlplane.io/reconcileEvery: "30m"
+    fluxcd.controlplane.io/reconcileTimeout: "10m"
+spec:
+  dependsOn:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: platform-namespaces
+      namespace: flux-system
+  inputs:
+    - name: "cert-manager"
+      namespace: "cert-manager"
+      chart:
+        name: "cert-manager"
+        version: "1.17.1"
+        url: "https://charts.jetstack.io"
+      values:
+        configMapRef: "cert-manager-values"
+    - name: "external-secrets"
+      namespace: "external-secrets"
+      chart:
+        name: "external-secrets"
+        version: "0.13.0"
+        url: "https://charts.external-secrets.io"
+      values:
+        configMapRef: "external-secrets-values"
+    - name: "cilium"
+      namespace: "kube-system"
+      chart:
+        name: "cilium"
+        version: "1.16.5"
+        url: "https://helm.cilium.io/"
+      values:
+        configMapRef: "cilium-values"
+    # Tier 1 migrations
+    - name: "descheduler"
+      namespace: "kube-system"
+      chart:
+        name: "descheduler"
+        version: "0.32.1"
+        url: "https://kubernetes-sigs.github.io/descheduler"
+      values:
+        configMapRef: "descheduler-values"
+    - name: "reloader"
+      namespace: "system"
+      chart:
+        name: "reloader"
+        version: "v1.2.1"
+        url: "https://stakater.github.io/stakater-charts"
+      values:
+        configMapRef: "reloader-values"
+    - name: "replicator"
+      namespace: "system"
+      chart:
+        name: "kubernetes-replicator"
+        version: "2.11.0"
+        url: "https://helm.mittwald.de"
+      values:
+        configMapRef: "replicator-values"
+    - name: "secret-generator"
+      namespace: "system"
+      chart:
+        name: "kubernetes-secret-generator"
+        version: "3.4.0"
+        url: "https://helm.mittwald.de"
+      values:
+        configMapRef: "secret-generator-values"
+    - name: "canary-checker"
+      namespace: "monitoring"
+      chart:
+        name: "canary-checker"
+        version: "1.1.1"
+        url: "https://flanksource.github.io/charts"
+      values:
+        configMapRef: "canary-checker-values"
+    - name: "grafana-loki-single-binary"
+      namespace: "monitoring"
+      chart:
+        name: "loki"
+        version: "6.25.0"
+        url: "https://grafana.github.io/helm-charts"
+      values:
+        configMapRef: "grafana-loki-single-binary-values"
+    - name: "kube-prometheus-stack-crds"
+      namespace: "monitoring"
+      chart:
+        name: "prometheus-operator-crds"
+        version: "20.0.0"
+        url: "https://prometheus-community.github.io/helm-charts"
+      values:
+        configMapRef: "kube-prometheus-stack-crds-values"
+
+  resourcesTemplate: |
+    ---
+    apiVersion: source.toolkit.fluxcd.io/v1
+    kind: HelmRepository
+    metadata:
+      name: << inputs.name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      interval: 10m
+      url: << inputs.chart.url >>
+    ---
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: << inputs.name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      <<- if inputs.dependsOn >>
+      dependsOn:
+      <<- range $depName, $depNamespace := inputs.dependsOn >>
+        - name: << $depName >>
+          namespace: << $depNamespace >>
+      <<- end >>
+      <<- end >>
+      chart:
+        spec:
+          chart: << inputs.chart.name >>
+          version: << inputs.chart.version >>
+          interval: 10m
+          sourceRef:
+            kind: HelmRepository
+            name: << inputs.name >>
+      install:
+        createNamespace: false
+        remediation:
+          retries: 3
+      interval: 10m
+      maxHistory: 3
+      releaseName: << inputs.name >>
+      targetNamespace: << inputs.namespace >>
+      uninstall:
+        keepHistory: false
+      upgrade:
+        crds: CreateReplace
+        remediation:
+          retries: 3
+      valuesFrom:
+        - kind: ConfigMap
+          name: << inputs.values.configMapRef >>

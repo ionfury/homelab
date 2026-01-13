@@ -1,0 +1,34 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: platform-namespaces
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcile: "enabled"
+    fluxcd.controlplane.io/reconcileEvery: "30m"
+    fluxcd.controlplane.io/reconcileTimeout: "10m"
+spec:
+  inputs:
+    - name: "cert-manager"
+      dataplaneMode: "ambient"
+    - name: "external-secrets"
+      dataplaneMode: "ambient"
+    - name: "kube-system"
+      dataplaneMode: "ambient"
+    - name: "longhorn-system"
+      dataplaneMode: "standard"
+    - name: "istio-system"
+      dataplaneMode: "ambient"
+    - name: "monitoring"
+      dataplaneMode: "ambient"
+    - name: "network"
+      dataplaneMode: "ambient"
+    - name: "system"
+      dataplaneMode: "ambient"
+  resources:
+    - apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: << inputs.name >>
+      labels:
+        istio.io/dataplane-mode: << inputs.dataplaneMode >>

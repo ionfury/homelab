@@ -6,13 +6,9 @@ kind: Kustomization
 #  - ../../manifests/common/components/configurations/kustomization
 #  - ../../manifests/common/components/flux-kustomization-defaults
 resources:
-  - _network-policy
-  - actions-runner-system
   - cert-manager
   - kube-system
-  - kubevirt
   - longhorn-system
   - monitoring
   - network
   - system
-  - tailscale

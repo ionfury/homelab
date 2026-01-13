@@ -5,8 +5,5 @@ namespace: system
 resources:
   - ../../../manifests/common/resources/namespace
 
+  # Migrated to platform: external-secrets.yaml, reloader.yaml, replicator.yaml, secret-generator.yaml
   - external-secrets-stores.yaml
-  - external-secrets.yaml
-  - reloader.yaml
-  - replicator.yaml
-  - secret-generator.yaml

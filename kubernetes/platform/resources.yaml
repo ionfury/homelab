@@ -1,0 +1,77 @@
+---
+# ResourceSet that generates Flux Kustomizations for non-Helm resources
+# These resources depend on Helm releases and require variable substitution
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: platform-kustomizations
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcile: "enabled"
+    fluxcd.controlplane.io/reconcileEvery: "30m"
+    fluxcd.controlplane.io/reconcileTimeout: "10m"
+spec:
+  dependsOn:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: platform-resources
+      namespace: flux-system
+  inputs:
+    - name: cilium-config
+      namespace: kube-system
+      path: kubernetes/manifests/common/resources/cilium-config
+      dependsOn:
+        - name: cilium
+          namespace: kube-system
+    - name: issuers
+      namespace: cert-manager
+      path: kubernetes/manifests/common/resources/issuers
+      dependsOn:
+        - name: cert-manager
+          namespace: cert-manager
+        - name: external-secrets
+          namespace: external-secrets
+    - name: certificates
+      namespace: network
+      path: kubernetes/manifests/common/resources/certificates
+      dependsOn:
+        - name: issuers
+          namespace: cert-manager
+    - name: external-secrets-stores
+      namespace: system
+      path: kubernetes/manifests/common/resources/external-secret-stores
+      dependsOn:
+        - name: external-secrets
+          namespace: external-secrets
+    - name: longhorn-storage
+      namespace: longhorn-system
+      path: kubernetes/manifests/common/resources/longhorn-storage
+      dependsOn:
+        - name: longhorn
+          namespace: longhorn-system
+
+  resourceTemplate: |
+    ---
+    apiVersion: kustomize.toolkit.fluxcd.io/v1
+    kind: Kustomization
+    metadata:
+      name: << inputs.name >>
+      namespace: flux-system
+    spec:
+      interval: 10m
+      path: << inputs.path >>
+      prune: true
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+      targetNamespace: << inputs.namespace >>
+      dependsOn:
+      <<- range $dep := inputs.dependsOn >>
+        - name: << $dep.name >>
+          namespace: << $dep.namespace >>
+      <<- end >>
+      postBuild:
+        substituteFrom:
+          - kind: ConfigMap
+            name: cluster-vars
+            optional: false

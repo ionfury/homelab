@@ -6,10 +6,9 @@ namespace: monitoring
 resources:
   - ../../../manifests/common/resources/namespace
 
-  - canary-checker.yaml
+  # Migrated to platform: canary-checker.yaml, grafana-loki-single-binary.yaml, kube-prometheus-stack-crds.yaml
+  # Tier 2 (has variable substitution - not yet migrated):
   - grafana.yaml
-  - grafana-loki-single-binary.yaml
-  - kube-prometheus-stack-crds.yaml
   - kube-prometheus-stack.yaml
   - promtail.yaml
   #- policy.yaml

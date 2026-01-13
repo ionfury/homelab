@@ -1,0 +1,44 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: flux-system
+resources:
+  - namespaces.yaml
+  #- resources.yaml
+  - helm-charts.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  # Already migrated
+  - name: cert-manager-values
+    files:
+      - values.yaml=values/cert-manager.yaml
+  - name: cilium-values
+    files:
+      - values.yaml=values/cilium.yaml
+  - name: external-secrets-values
+    files:
+      - values.yaml=values/external-secrets.yaml
+  # Tier 1 migrations
+  - name: descheduler-values
+    files:
+      - values.yaml=values/descheduler.yaml
+  - name: reloader-values
+    files:
+      - values.yaml=values/reloader.yaml
+  - name: replicator-values
+    files:
+      - values.yaml=values/replicator.yaml
+  - name: secret-generator-values
+    files:
+      - values.yaml=values/secret-generator.yaml
+  - name: canary-checker-values
+    files:
+      - values.yaml=values/canary-checker.yaml
+  - name: grafana-loki-single-binary-values
+    files:
+      - values.yaml=values/grafana-loki-single-binary.yaml
+  - name: kube-prometheus-stack-crds-values
+    files:
+      - values.yaml=values/kube-prometheus-stack-crds.yaml
