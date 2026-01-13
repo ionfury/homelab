@@ -20,6 +20,7 @@ spec:
         name: "cert-manager"
         version: "1.17.1"
         url: "https://charts.jetstack.io"
+      dependsOn: []
       values:
         configMapRef: "cert-manager-values"
     - name: "external-secrets"
@@ -28,6 +29,7 @@ spec:
         name: "external-secrets"
         version: "0.13.0"
         url: "https://charts.external-secrets.io"
+      dependsOn: []
       values:
         configMapRef: "external-secrets-values"
     - name: "cilium"
@@ -36,6 +38,7 @@ spec:
         name: "cilium"
         version: "1.16.5"
         url: "https://helm.cilium.io/"
+      dependsOn: []
       values:
         configMapRef: "cilium-values"
     # Tier 1 migrations
@@ -45,6 +48,7 @@ spec:
         name: "descheduler"
         version: "0.32.1"
         url: "https://kubernetes-sigs.github.io/descheduler"
+      dependsOn: []
       values:
         configMapRef: "descheduler-values"
     - name: "reloader"
@@ -53,6 +57,7 @@ spec:
         name: "reloader"
         version: "v1.2.1"
         url: "https://stakater.github.io/stakater-charts"
+      dependsOn: []
       values:
         configMapRef: "reloader-values"
     - name: "replicator"
@@ -61,6 +66,7 @@ spec:
         name: "kubernetes-replicator"
         version: "2.11.0"
         url: "https://helm.mittwald.de"
+      dependsOn: []
       values:
         configMapRef: "replicator-values"
     - name: "secret-generator"
@@ -69,6 +75,7 @@ spec:
         name: "kubernetes-secret-generator"
         version: "3.4.0"
         url: "https://helm.mittwald.de"
+      dependsOn: []
       values:
         configMapRef: "secret-generator-values"
     - name: "canary-checker"
@@ -77,6 +84,7 @@ spec:
         name: "canary-checker"
         version: "1.1.1"
         url: "https://flanksource.github.io/charts"
+      dependsOn: []
       values:
         configMapRef: "canary-checker-values"
     - name: "grafana-loki-single-binary"
@@ -85,6 +93,7 @@ spec:
         name: "loki"
         version: "6.25.0"
         url: "https://grafana.github.io/helm-charts"
+      dependsOn: []
       values:
         configMapRef: "grafana-loki-single-binary-values"
     - name: "kube-prometheus-stack-crds"
@@ -93,6 +102,7 @@ spec:
         name: "prometheus-operator-crds"
         version: "20.0.0"
         url: "https://prometheus-community.github.io/helm-charts"
+      dependsOn: []
       values:
         configMapRef: "kube-prometheus-stack-crds-values"
 
