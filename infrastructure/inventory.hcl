@@ -46,7 +46,7 @@ locals {
       }]
     }
     rpi4 = { // Pi CM4 8Gi
-      cluster = "dev"
+      cluster = "none"
       type    = "controlplane"
       install = {
         selector     = "disk.size < 1u * TiB && disk.size > 100u * GiB"

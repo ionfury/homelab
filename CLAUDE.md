@@ -133,7 +133,7 @@ All machines are configured to PXE boot into Talos maintenance mode when no OS i
 ## Verification
 
 - **NEVER** guess resource names, strings, IPs, or values - VERIFY against source files
-- **NEVER** skip validation steps (`task tg:fmt`, `task tg:validate`, `task k8s:render`) before committing
+- **NEVER** skip validation steps (`task tg:fmt`, `task tg:validate-<stack>`) before committing
 - **NEVER** ignore deprecation warnings - implement migrations immediately
 
 ## Documentation
@@ -155,30 +155,32 @@ This repository pushes the boundaries of "infrastructure as code" - starting fro
 ## Repository Structure
 
 ```
-infrastructure/           # Terragrunt/OpenTofu - provisions bare metal to Kubernetes
-  ├── stacks/            # Cluster deployments (dev, integration)
+.taskfiles/              # Task runner definitions
+  ├── inventory/         # IPMI/hardware management tasks
+  ├── talos/             # Talos cluster operations
+  ├── terragrunt/        # Infrastructure validation/deployment
+  ├── worktree/          # Git worktree management
+  └── renovate/          # Dependency update validation
+
+infrastructure/          # Terragrunt/OpenTofu - provisions bare metal to Kubernetes
+  ├── stacks/            # Cluster deployments (dev, integration, live)
   ├── units/             # Reusable Terragrunt units
-  ├── modules/           # Terraform modules
-  ├── inventory.hcl      # Hardware inventory
+  ├── modules/           # OpenTofu modules
+  ├── inventory.hcl      # Hardware inventory (hosts, IPs, MACs, disks)
   ├── networking.hcl     # Network topology
-  ├── versions.hcl       # Pinned versions
+  ├── versions.hcl       # Pinned tool versions
   └── accounts.hcl       # External service credentials
 
 kubernetes/              # Flux GitOps - deploys workloads
-  ├── clusters/          # Per-cluster configs
-  │   ├── base/          # Shared across all clusters
-  │   ├── live/          # Production
-  │   ├── integration/   # Testing
-  │   └── dev/           # Development (Pi)
-  └── manifests/         # Reusable manifests
-      ├── helm-release/  # Helm chart releases
-      └── common/        # Shared templates
+  ├── clusters/          # Per-cluster Flux bootstrap configs
+  │   └── integration/   # Integration cluster entry point
+  └── platform/          # Centralized platform definition
+      ├── helm-charts.yaml    # ResourceSet defining all Helm releases
+      ├── namespaces.yaml     # ResourceSet defining all namespaces
+      ├── resources.yaml      # ResourceSet for non-Helm Kustomizations
+      ├── kustomization.yaml  # Generates ConfigMap from values
+      └── values/             # Helm values files (one per chart)
 ```
-
-## Domain-Specific References
-
-For detailed patterns and operations in specific areas, see:
-- **`infrastructure/CLAUDE.md`** - Terragrunt/OpenTofu patterns, units vs stacks, HCL conventions
 
 ## Development Environment
 
@@ -188,7 +190,7 @@ All required CLI tools are defined in the `Brewfile`. Install them with:
 brew bundle
 ```
 
-This installs: `gh`, `awscli`, `kubectl`, `helm`, `kustomize`, `flux`, `go-task`, `tgenv`, `tofuenv`, `talosctl`, `cilium-cli`, and other dependencies.
+This installs: `gh`, `awscli`, `kubectl`, `helm`, `kustomize`, `flux`, `go-task`, `tgenv`, `tofuenv`, `talosctl`, `cilium-cli`, `hcl2json`, `jq`, `yq`, and other dependencies.
 
 **Opinion**: Always install tools via Brewfile. Never install CLI tools manually - if a tool is missing, add it to the Brewfile first.
 
@@ -196,97 +198,46 @@ This installs: `gh`, `awscli`, `kubectl`, `helm`, `kustomize`, `flux`, `go-task`
 
 # KUBERNETES OPINIONS (Flux GitOps)
 
-## Helm Release Pattern
+## Platform Structure
 
-**ALL Helm releases MUST use the base template pattern.** Never create inline HelmRelease resources.
+The Kubernetes platform uses **Flux ResourceSets** for centralized, declarative management. All Helm releases are defined in a single `helm-charts.yaml` file rather than scattered across directories.
 
-Structure:
-```
-kubernetes/manifests/helm-release/<name>/
-├── kustomization.yaml    # Patches base template
-├── values.yaml           # Helm values
-└── (optional) canary.yaml, external-secret.yaml
-```
+### Key Files
 
-The `kustomization.yaml` MUST:
-1. Set `namePrefix: <name>-`
-2. Reference `../../common/resources/helm-release` as base
-3. Use `configMapGenerator` to inject values.yaml
-4. Patch HelmRelease with chart name and release name
-5. Patch HelmRepository with repository URL
+| File | Purpose |
+|------|---------|
+| `kubernetes/platform/helm-charts.yaml` | ResourceSet defining all Helm releases with versions and dependencies |
+| `kubernetes/platform/namespaces.yaml` | ResourceSet defining all namespaces |
+| `kubernetes/platform/resources.yaml` | ResourceSet for non-Helm Kustomizations (configs, secrets, etc.) |
+| `kubernetes/platform/values/<chart>.yaml` | Helm values for each chart |
 
-```yaml
-# CORRECT pattern - always follow this structure
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namePrefix: grafana-
-resources:
-  - ../../common/resources/helm-release
-configMapGenerator:
-  - name: values
-    behavior: replace
-    files:
-      - values.yaml
-patches:
-  - target:
-      kind: HelmRelease
-    patch: |-
-      - op: replace
-        path: /spec/chart/spec/chart
-        value: grafana
-      - op: add
-        path: /spec/releaseName
-        value: grafana
-  - target:
-      kind: HelmRepository
-      name: app
-    patch: |-
-      - op: replace
-        path: /spec/url
-        value: https://grafana.github.io/helm-charts
-```
+### Adding a New Helm Release
 
-## Namespace Organization
+1. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
+2. Create `values/<chart-name>.yaml` with Helm values
+3. Add the values file to `kustomization.yaml` configMapGenerator
+4. If the chart needs post-install resources, add entry to `resources.yaml`
 
-Each namespace in `kubernetes/clusters/base/<namespace>/`:
-1. MUST include the namespace resource: `../../../manifests/common/resources/namespace`
-2. MUST set `namespace:` at the top of kustomization.yaml
-3. Contains Flux Kustomization resources (not raw manifests)
+### ResourceSet Pattern
+
+Helm releases are defined as inputs to a ResourceSet, which generates HelmRelease and HelmRepository resources:
 
 ```yaml
-# CORRECT namespace kustomization
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: monitoring
-resources:
-  - ../../../manifests/common/resources/namespace
-  - grafana.yaml           # Flux Kustomization, NOT HelmRelease
-  - prometheus.yaml
-```
-
-## Flux Kustomization Resources
-
-Workloads are deployed via Flux Kustomization resources that point to manifests:
-
-```yaml
-# CORRECT: Flux Kustomization pointing to helm-release
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: grafana
-spec:
-  path: kubernetes/manifests/helm-release/grafana
-  dependsOn:
-    - name: kube-prometheus-stack    # Explicit dependency
-  postBuild:
-    substitute:
-      HELM_CHART_VERSION: 8.8.5      # Version set HERE, not in values.yaml
+# In helm-charts.yaml
+inputs:
+  - name: "grafana"
+    namespace: "monitoring"
+    chart:
+      name: "grafana"
+      version: "8.8.5"
+      url: "https://grafana.github.io/helm-charts"
+    dependsOn: [kube-prometheus-stack]
 ```
 
 **Opinion**:
-- Chart versions go in `postBuild.substitute`, NOT in values.yaml
-- Dependencies between releases go in `dependsOn`, NOT in Helm dependencies
-- Namespace is inherited from the parent kustomization, NOT set per-release
+- Chart versions are defined in `helm-charts.yaml`, NOT in values files
+- Dependencies between releases use `dependsOn` arrays
+- Values files contain only Helm chart configuration
 
 ## Variable Substitution
 
@@ -296,10 +247,7 @@ Flux performs variable substitution at reconciliation time. Use these patterns:
 # Simple substitution
 url: https://grafana.${internal_domain}
 
-# With default value
-namespace: ${NAMESPACE:=monitoring}
-
-# Cluster-specific (set in generated-cluster-vars.env)
+# Cluster-specific (set in cluster-vars ConfigMap)
 cluster: ${cluster_name}
 ```
 
@@ -308,47 +256,8 @@ cluster: ${cluster_name}
 - `${external_domain}` - External TLD
 - `${cluster_name}` - Cluster name (dev, integration, live)
 - `${cluster_id}` - Numeric cluster ID
-- `${HELM_CHART_VERSION}` - Set per-release in Flux Kustomization
 
-**Opinion**: Never hardcode domains, cluster names, or versions. Always use substitution.
-
-## Network Policies
-
-Network policies use the **Kustomize Components** pattern in `.network-policies/`:
-
-```
-.network-policies/
-├── allow-same-namespace/source/
-├── allow-ingress-from-internal/
-│   ├── source/       # Applied to nginx
-│   └── destination/  # Applied to target pods
-├── allow-egress-to-private/source/
-```
-
-**To enable network policies for a namespace:**
-1. Uncomment `components: - ../.network-policies` in namespace kustomization
-2. Add labels to pods that need specific access:
-   - `networking/allow-ingress-from-internal: "true"` - Accept internal ingress
-   - `networking/allow-egress-to-private: "true"` - Allow RFC1918 egress
-   - `networking/allow-ingress-prometheus: "true"` - Allow Prometheus scraping
-
-**Opinion**: Default deny is opt-in via `allow-same-namespace`. When enabling, be explicit about what traffic is allowed using labels.
-
-## Cluster Hierarchy
-
-```
-base/     → Shared by ALL clusters (core infrastructure)
-  ↓
-live/     → Production-specific overrides
-staging/  → Staging-specific overrides
-integration/ → Integration-specific overrides
-dev/      → Development-specific overrides (ARM64 compatible)
-```
-
-**Opinion**: Put everything possible in `base/`. Only use cluster-specific directories for:
-- Hardware-specific configs (ARM64 vs AMD64)
-- Environment-specific secrets
-- Scale/resource differences
+**Opinion**: Never hardcode domains or cluster names. Always use substitution.
 
 ---
 
@@ -360,13 +269,17 @@ dev/      → Development-specific overrides (ARM64 compatible)
 - 2-space indentation
 - Quote strings that could be misinterpreted (especially "true"/"false")
 
+## HCL (Terragrunt/OpenTofu)
+- Use `hcl2json` + `jq` for scripted access to HCL data (e.g., inventory lookups)
+- Format with `task tg:fmt` before committing
+
 ## Naming Conventions
 | Resource | Convention | Example |
 |----------|------------|---------|
-| Helm release directory | kebab-case, matches chart | `kube-prometheus-stack/` |
-| Flux Kustomization name | kebab-case, matches release | `name: kube-prometheus-stack` |
+| Helm release name | kebab-case, matches chart | `kube-prometheus-stack` |
 | Namespace | kebab-case | `longhorn-system` |
-| ConfigMap/Secret | kebab-case with suffix | `grafana-values`, `app-secret` |
+| Values file | kebab-case, matches release | `values/grafana.yaml` |
+| Task names | namespace:action-target | `talos:maint-node41` |
 
 ---
 
@@ -487,14 +400,11 @@ Testing is non-negotiable. Every change must pass validation before being consid
 # 1. Format all code
 task tg:fmt                        # Formats HCL (Terragrunt + OpenTofu)
 
-# 2. Run module tests
-task tg:test                       # Runs OpenTofu native tests for all modules
+# 2. Run module tests (for specific module)
+task tg:test-<module>              # Runs OpenTofu native tests
 
-# 3. Validate infrastructure
-task tg:validate                   # Validates all Terragrunt stacks
-
-# 4. Render and validate Kubernetes manifests
-task k8s:render                    # Renders all clusters and Helm releases
+# 3. Validate infrastructure (for specific stack)
+task tg:validate-<stack>           # Validates Terragrunt stack
 ```
 
 ## Validation Tools
@@ -503,23 +413,13 @@ task k8s:render                    # Renders all clusters and Helm releases
 |------|---------|------|
 | `tofu fmt` | OpenTofu formatting | `task tg:fmt` |
 | `terragrunt hclfmt` | Terragrunt HCL formatting | `task tg:fmt` |
-| `terragrunt validate` | Stack validation | `task tg:validate` |
-| `kustomize build` | Kubernetes manifest rendering | `task k8s:render` |
-| `helm template` | Helm chart rendering | `task k8s:render` |
+| `terragrunt validate` | Stack validation | `task tg:validate-<stack>` |
 | `kubeconform` | Kubernetes schema validation | Available in Brewfile |
-
-## What Validation Catches
-
-- **`task tg:fmt`**: Formatting inconsistencies, syntax errors in HCL
-- **`task tg:validate`**: Invalid Terraform/OpenTofu configurations, missing variables, dependency issues
-- **`task k8s:render`**: Invalid kustomizations, missing resources, Helm chart errors, template failures
 
 ## Testing Philosophy
 
 - **Fail fast**: Run validation early and often during development
-- **No partial validation**: Run ALL validation tasks, not just the ones you think are relevant
 - **Errors are blockers**: If any validation fails, stop and fix before proceeding
-- **Render is validation**: The `k8s:render` task builds all manifests - if it passes, the structure is valid
 
 ---
 
@@ -528,27 +428,39 @@ task k8s:render                    # Renders all clusters and Helm releases
 ## Task Commands
 
 ```bash
-# Validation (run these first!)
+# Validation
 task tg:fmt                        # Format all HCL files
-task tg:test                       # Run all module tests
 task tg:test-<module>              # Run tests for specific module
-task tg:validate                   # Validate all Terragrunt stacks
-task k8s:render                    # Render all Kubernetes manifests
+task tg:validate-<stack>           # Validate specific stack
 
-# Kubernetes
-task k8s:render-cluster-<cluster>  # Render specific cluster
-task k8s:get-kubeconfig-<cluster>  # Fetch kubeconfig from AWS SSM
-task k8s:delete-terminated-pods    # Clean up failed/completed pods
+# Infrastructure
+task tg:list                       # List all stacks
+task tg:gen-<stack>                # Generate stack from units
+task tg:plan-<stack>               # Plan changes
+task tg:apply-<stack>              # Apply (REQUIRES HUMAN APPROVAL)
+task tg:clean-<stack>              # Clean stack cache
+
+# Talos
+task talos:maint                   # Check maintenance mode for all hosts
+task talos:maint-<host>            # Check maintenance mode for specific host
 
 # Hardware (IPMI)
+task inv:hosts                     # List all hosts
+task inv:power-status              # Power status for all hosts
 task inv:power-on-<host>           # Power on via IPMI
 task inv:power-off-<host>          # Power off via IPMI
+task inv:power-cycle-<host>        # Power cycle via IPMI
 task inv:status-<host>             # Check IPMI status
 task inv:sol-activate-<host>       # Serial-over-LAN console
 
-# Infrastructure - see infrastructure/CLAUDE.md for full details
-task tg:plan-<stack>               # Plan changes
-task tg:apply-<stack>              # Apply (REQUIRES HUMAN APPROVAL)
+# Worktrees
+task wt:list                       # List all worktrees
+task wt:new                        # Create worktree for isolated work
+task wt:remove                     # Remove worktree
+task wt:resume                     # Resume Claude Code in worktree
+
+# Renovate
+task renovate:validate             # Validate Renovate config
 ```
 
 ## Secrets Management
@@ -556,6 +468,21 @@ task tg:apply-<stack>              # Apply (REQUIRES HUMAN APPROVAL)
 - Retrieved via External Secrets Operator
 - Path pattern: `/homelab/kubernetes/${cluster_name}/<secret-name>`
 - Never commit secrets to git - use ExternalSecret resources
+
+## Inventory Lookups
+
+Use `hcl2json` + `jq` to query inventory data:
+
+```bash
+# Get IP for a host
+hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts.node41.interfaces[0].addresses[0].ip'
+
+# List all hosts
+hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | keys[]'
+
+# Get hosts in a cluster
+hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | to_entries[] | select(.value.cluster == "live") | .key'
+```
 
 ---
 
@@ -565,7 +492,7 @@ task tg:apply-<stack>              # Apply (REQUIRES HUMAN APPROVAL)
 |------|---------|----------|-------|
 | live | Production | node41-43 (Supermicro x86_64) | 3-node HA control plane |
 | integration | Upgrade testing | node44 (Supermicro x86_64) | Single node, automated deployment |
-| dev | Manual testing | rpi4 (Pi CM4 ARM64) | ARM64, not in automated pipeline |
+| dev | Manual testing | rpi4, node46-48 (mixed ARM64/x86_64) | Multi-node, not in automated pipeline |
 
 ## Promotion Path
 
