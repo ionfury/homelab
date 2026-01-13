@@ -6,6 +6,14 @@ terraform {
   source = "../../../.././/modules/talos"
 }
 
+dependency "unifi" {
+  config_path = "../unifi"
+
+  mock_outputs                            = {}
+  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  skip_outputs                            = true
+}
+
 dependency "config" {
   config_path = "../config"
 

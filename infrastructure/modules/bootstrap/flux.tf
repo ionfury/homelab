@@ -23,6 +23,10 @@ resource "kubernetes_namespace" "flux_system" {
   lifecycle {
     ignore_changes = [metadata]
   }
+
+  timeouts {
+    delete = "5m"
+  }
 }
 
 resource "kubernetes_secret" "git_auth" {
@@ -49,6 +53,7 @@ resource "helm_release" "flux_operator" {
   repository = "oci://ghcr.io/controlplaneio-fluxcd/charts"
   chart      = "flux-operator"
   wait       = true
+  timeout    = 300
 }
 
 resource "helm_release" "flux_instance" {
@@ -59,6 +64,7 @@ resource "helm_release" "flux_instance" {
   repository = "oci://ghcr.io/controlplaneio-fluxcd/charts"
   chart      = "flux-instance"
   wait       = true
+  timeout    = 300
 
   values = [
     templatefile("${path.module}/resources/instance.yaml.tftpl", {
