@@ -129,4 +129,4 @@ terraform.rc
 **/.local
 .venv
 
-.taskfiles/inventory/resources/inventory.yaml
+./.taskfiles/inventory/resources/inventory.yaml

@@ -34,6 +34,7 @@ brew 'tgenv'
 brew 'tofuenv'
 brew "tflint" # Does not officially support OpenTofu https://github.com/terraform-linters/tflint/issues/2194#issuecomment-2558127231
 brew "terraform-docs"
+brew "hcl2json"
 
 # Talos
 brew "talosctl"

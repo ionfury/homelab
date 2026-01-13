@@ -3,6 +3,7 @@ version: "3"
 
 includes:
   inv: .taskfiles/inventory
+  talos: .taskfiles/talos
   tg: .taskfiles/terragrunt
   wt: .taskfiles/worktree
   renovate: .taskfiles/renovate

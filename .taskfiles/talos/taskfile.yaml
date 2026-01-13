@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  maint:
+    desc: Checks maintenance mode status for all hosts.
+    silent: true
+    vars:
+      HOSTS:
+        sh: hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | keys[]'
+    cmds:
+      - for: { var: HOSTS }
+        cmd: printf "%-10s %s\n" "{{.ITEM}}" "$(task talos:maint-{{.ITEM}})"
+
+  maint-*:
+    desc: Checks if a host is in maintenance mode.
+    silent: true
+    vars:
+      HOST: "{{index .MATCH 0}}"
+      IP:
+        sh: hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts.{{.HOST}}.interfaces[0].addresses[0].ip'
+    cmds:
+      - |
+        if [ -z "{{.IP}}" ] || [ "{{.IP}}" = "null" ] || [ "{{.IP}}" = "" ]; then
+          echo "no-ip"
+        elif talosctl -n {{.IP}} version --insecure 2>&1 | grep -q "in maintenance mode"; then
+          echo "yes"
+        else
+          echo "no"
+        fi

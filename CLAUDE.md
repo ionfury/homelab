@@ -34,6 +34,14 @@ This infrastructure exists to develop enterprise skills:
 - **Observability depth**: Full metrics, logs, traces, and profiling - understand what's happening
 - **Failure modes**: Design for failure, test failure, learn from failure
 
+## DRY and Code Reuse
+
+Don't Repeat Yourself. Duplication is technical debt:
+- **Single source of truth**: Every piece of logic should exist in exactly one place
+- **Compose, don't copy**: Build higher-level operations by calling lower-level ones
+- **Refactor when duplicating**: If you're copying code, stop and extract it into a reusable component
+- **Consistency through reuse**: Reusing code ensures consistent behavior across the system
+
 ---
 
 # CHANGE MANAGEMENT & DEPLOYMENT
