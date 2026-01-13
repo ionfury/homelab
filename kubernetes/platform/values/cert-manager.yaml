@@ -1,13 +1,13 @@
 # https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
 global:
   leaderElection:
-    namespace: "${NAMESPACE:kube-system}"
+    namespace: cert-manager
   commonLabels:
 podLabels:
   networking/allow-egress-internet: "true"
   networking/allow-ingress-prometheus: "true"
   networking/allow-cluster-egress: "true"
-namespace: "${NAMESPACE:kube-system}"
+namespace: cert-manager
 installCRDs: true
 prometheus:
   enabled: true
