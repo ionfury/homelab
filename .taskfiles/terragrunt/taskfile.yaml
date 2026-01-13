@@ -76,15 +76,6 @@ tasks:
     generates:
       - "{{.INFRASTRUCTURE_DIR}}/**/*.hcl"
 
-  gen:
-    desc: Generates terragrunt stacks.
-    vars:
-      STACKS:
-        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
-    cmds:
-      - for: { var: STACKS }
-        task: gen-{{.ITEM}}
-
   gen-*:
     desc: Generates a specific terragrunt stack.
     deps: [use, fmt]
@@ -103,16 +94,6 @@ tasks:
     generates:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
 
-  clean:
-    desc: Cleans generated terragrunt stacks.
-    deps: [use, fmt]
-    vars:
-      STACKS:
-        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
-    cmds:
-      - for: { var: STACKS }
-        task: clean-{{.ITEM}}
-
   clean-*:
     desc: Cleans a specific terragrunt stack.
     deps: [use, fmt]
@@ -124,15 +105,6 @@ tasks:
     preconditions:
       - which terragrunt
       - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
-
-  validate:
-    desc: Validates terragrunt stacks.
-    vars:
-      STACKS:
-        sh: "ls -1 {{.INFRASTRUCTURE_DIR}}/stacks/**"
-    cmds:
-      - for: { var: STACKS }
-        task: validate-{{.ITEM}}
 
   validate-*:
     desc: Validates a specific terragrunt stack.
@@ -151,16 +123,6 @@ tasks:
       - "{{.INFRASTRUCTURE_DIR}}/units/**"
     generates:
       - "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack/**"
-
-  test:
-    desc: Runs tests for all modules that have tests.
-    deps: [fmt]
-    vars:
-      MODULES:
-        sh: "find {{.INFRASTRUCTURE_DIR}}/modules -mindepth 2 -maxdepth 2 -type d -name tests | xargs -n1 dirname | xargs -n1 basename | sort"
-    cmds:
-      - for: { var: MODULES }
-        task: test-{{.ITEM}}
 
   test-*:
     desc: Runs tests for a specific module.

@@ -4,7 +4,6 @@ version: "3"
 includes:
   inv: .taskfiles/inventory
   tg: .taskfiles/terragrunt
-  k8s: .taskfiles/kubernetes
   wt: .taskfiles/worktree
   renovate: .taskfiles/renovate
 
