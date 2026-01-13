@@ -128,3 +128,5 @@ terraform.rc
 **/.upgrade-node.lock
 **/.local
 .venv
+
+.taskfiles/inventory/resources/inventory.yaml
