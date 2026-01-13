@@ -184,8 +184,8 @@ locals {
     internal_domain    = var.networking.internal_tld
   })
 
-  # Cluster environment variables for flux post-build substitution
-  cluster_env_vars = [
+  # Cluster environment variables for flux post-build substitution (non-version)
+  cluster_vars = [
     { name = "cluster_name", value = var.name },
     { name = "cluster_tld", value = var.networking.internal_tld },
     { name = "cluster_endpoint", value = local.cluster_endpoint },
@@ -194,11 +194,6 @@ locals {
     { name = "cluster_pod_subnet", value = var.networking.pod_subnet },
     { name = "cluster_service_subnet", value = var.networking.service_subnet },
     { name = "cluster_path", value = local.cluster_path },
-    { name = "talos_version", value = var.versions.talos },
-    { name = "cilium_version", value = var.versions.cilium },
-    { name = "flux_version", value = var.versions.flux },
-    { name = "prometheus_version", value = var.versions.prometheus },
-    { name = "kubernetes_version", value = var.versions.kubernetes },
     { name = "default_replica_count", value = "\"${tostring(min(3, length(local.machines)))}\"" },
     { name = "cluster_id", value = tostring(var.networking.id) },
     { name = "cluster_ip_pool_start", value = var.networking.ip_pool_start },
@@ -208,6 +203,15 @@ locals {
     { name = "internal_domain", value = var.networking.internal_tld },
     { name = "external_domain", value = var.networking.external_tld },
     { name = "cluster_l2_interfaces", value = jsonencode(distinct(flatten([for m in values(local.machines) : [for iface in m.interfaces : lookup(iface, "id", "") if lookup(iface, "id", "") != ""]]))) },
+  ]
+
+  # Version environment variables for flux post-build substitution
+  version_vars = [
+    { name = "talos_version", value = var.versions.talos },
+    { name = "cilium_version", value = var.versions.cilium },
+    { name = "flux_version", value = var.versions.flux },
+    { name = "prometheus_version", value = var.versions.prometheus },
+    { name = "kubernetes_version", value = var.versions.kubernetes },
   ]
 
   # DNS records for control plane nodes

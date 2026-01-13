@@ -32,9 +32,10 @@ output "talos" {
 output "bootstrap" {
   description = "Bootstrap module configuration."
   value = {
-    cluster_name     = var.name
-    flux_version     = var.versions.flux
-    cluster_env_vars = local.cluster_env_vars
+    cluster_name = var.name
+    flux_version = var.versions.flux
+    cluster_vars = local.cluster_vars
+    version_vars = local.version_vars
   }
   sensitive = true
 }
@@ -62,7 +63,12 @@ output "machines" {
   value       = local.machines
 }
 
-output "cluster_env_vars" {
-  description = "Flux post-build substitution variables."
-  value       = local.cluster_env_vars
+output "cluster_vars" {
+  description = "Non-version flux post-build substitution variables."
+  value       = local.cluster_vars
+}
+
+output "version_vars" {
+  description = "Version flux post-build substitution variables."
+  value       = local.version_vars
 }

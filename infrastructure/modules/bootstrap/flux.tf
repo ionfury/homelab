@@ -6,12 +6,31 @@ data "github_repository" "this" {
   full_name = "${var.github.org}/${var.github.repository}"
 }
 
-resource "github_repository_file" "this" {
-  repository = data.github_repository.this.name
-  file       = "${local.github_repository_cluster_directory}/generated-cluster-vars.env"
-  content = templatefile("${path.module}/resources/generated-cluster-vars.env.tftpl", {
-    cluster_vars = var.cluster_env_vars
-  })
+resource "github_repository_file" "cluster_vars" {
+  repository          = data.github_repository.this.name
+  file                = "${local.github_repository_cluster_directory}/.cluster-vars.env"
+  content             = templatefile("${path.module}/resources/cluster-vars.env.tftpl", { cluster_vars = var.cluster_vars })
+  overwrite_on_create = true
+}
+
+resource "github_repository_file" "versions" {
+  repository          = data.github_repository.this.name
+  file                = "${local.github_repository_cluster_directory}/.versions.env"
+  content             = templatefile("${path.module}/resources/versions.env.tftpl", { version_vars = var.version_vars })
+  overwrite_on_create = true
+}
+
+resource "github_repository_file" "kustomization" {
+  repository          = data.github_repository.this.name
+  file                = "${local.github_repository_cluster_directory}/kustomization.yaml"
+  content             = templatefile("${path.module}/resources/kustomization.yaml.tftpl", {})
+  overwrite_on_create = true
+}
+
+resource "github_repository_file" "platform" {
+  repository          = data.github_repository.this.name
+  file                = "${local.github_repository_cluster_directory}/platform.yaml"
+  content             = templatefile("${path.module}/resources/platform.yaml.tftpl", {})
   overwrite_on_create = true
 }
 
@@ -46,7 +65,14 @@ resource "kubernetes_secret" "git_auth" {
 }
 
 resource "helm_release" "flux_operator" {
-  depends_on = [kubernetes_namespace.flux_system, data.github_repository.this, github_repository_file.this]
+  depends_on = [
+    kubernetes_namespace.flux_system,
+    data.github_repository.this,
+    github_repository_file.cluster_vars,
+    github_repository_file.versions,
+    github_repository_file.kustomization,
+    github_repository_file.platform,
+  ]
 
   name       = "flux-operator"
   namespace  = "flux-system"

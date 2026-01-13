@@ -258,61 +258,70 @@ run "aws_set_params_output" {
   }
 }
 
-# Cluster environment variables for flux post-build substitution
-run "cluster_env_vars_content" {
+# Cluster environment variables for flux post-build substitution (split into cluster_vars and version_vars)
+run "cluster_vars_content" {
   command = plan
 
   assert {
-    condition     = length(output.cluster_env_vars) >= 15
-    error_message = "Expected at least 15 cluster env vars"
+    condition     = length(output.cluster_vars) >= 12
+    error_message = "Expected at least 12 cluster vars (non-version)"
   }
 
   assert {
     condition = anytrue([
-      for v in output.cluster_env_vars : v.name == "cluster_name" && v.value == "test-cluster"
+      for v in output.cluster_vars : v.name == "cluster_name" && v.value == "test-cluster"
     ])
     error_message = "cluster_name env var should be set"
   }
 
   assert {
     condition = anytrue([
-      for v in output.cluster_env_vars : v.name == "cluster_tld" && v.value == "internal.test.local"
+      for v in output.cluster_vars : v.name == "cluster_tld" && v.value == "internal.test.local"
     ])
     error_message = "cluster_tld env var should match internal_tld"
   }
 
   assert {
     condition = anytrue([
-      for v in output.cluster_env_vars : v.name == "cluster_vip" && v.value == "192.168.10.20"
+      for v in output.cluster_vars : v.name == "cluster_vip" && v.value == "192.168.10.20"
     ])
     error_message = "cluster_vip env var should match networking.vip"
   }
 
   assert {
     condition = anytrue([
-      for v in output.cluster_env_vars : v.name == "cluster_pod_subnet" && v.value == "172.18.0.0/16"
+      for v in output.cluster_vars : v.name == "cluster_pod_subnet" && v.value == "172.18.0.0/16"
     ])
     error_message = "cluster_pod_subnet env var should match networking.pod_subnet"
   }
 
   assert {
     condition = anytrue([
-      for v in output.cluster_env_vars : v.name == "talos_version" && v.value == "v1.9.0"
+      for v in output.cluster_vars : v.name == "cluster_id" && v.value == "1"
+    ])
+    error_message = "cluster_id env var should match networking.id"
+  }
+}
+
+run "version_vars_content" {
+  command = plan
+
+  assert {
+    condition     = length(output.version_vars) == 5
+    error_message = "Expected exactly 5 version vars"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.version_vars : v.name == "talos_version" && v.value == "v1.9.0"
     ])
     error_message = "talos_version env var should match versions.talos"
   }
 
   assert {
     condition = anytrue([
-      for v in output.cluster_env_vars : v.name == "kubernetes_version" && v.value == "1.32.0"
+      for v in output.version_vars : v.name == "kubernetes_version" && v.value == "1.32.0"
     ])
     error_message = "kubernetes_version env var should match versions.kubernetes"
-  }
-
-  assert {
-    condition = anytrue([
-      for v in output.cluster_env_vars : v.name == "cluster_id" && v.value == "1"
-    ])
-    error_message = "cluster_id env var should match networking.id"
   }
 }
