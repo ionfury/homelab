@@ -20,18 +20,14 @@ spec:
         name: "cert-manager"
         version: "1.17.1"
         url: "https://charts.jetstack.io"
-      dependsOn: []
-      values:
-        configMapRef: "cert-manager-values"
+      dependsOn: [cilium]
     - name: "external-secrets"
       namespace: "external-secrets"
       chart:
         name: "external-secrets"
         version: "0.13.0"
         url: "https://charts.external-secrets.io"
-      dependsOn: []
-      values:
-        configMapRef: "external-secrets-values"
+      dependsOn: [cilium]
     - name: "cilium"
       namespace: "kube-system"
       chart:
@@ -39,18 +35,20 @@ spec:
         version: "1.16.5"
         url: "https://helm.cilium.io/"
       dependsOn: []
-      values:
-        configMapRef: "cilium-values"
-    # Tier 1 migrations
     - name: "descheduler"
       namespace: "kube-system"
       chart:
         name: "descheduler"
         version: "0.32.1"
         url: "https://kubernetes-sigs.github.io/descheduler"
-      dependsOn: []
-      values:
-        configMapRef: "descheduler-values"
+      dependsOn: [cilium]
+    - name: longhorn
+      namespace: longhorn-system
+      chart:
+        name: longhorn
+        version: v1.8.0
+        url: https://charts.longhorn.io
+      dependsOn: [cilium]
     - name: "reloader"
       namespace: "system"
       chart:
@@ -58,8 +56,6 @@ spec:
         version: "v1.2.1"
         url: "https://stakater.github.io/stakater-charts"
       dependsOn: []
-      values:
-        configMapRef: "reloader-values"
     - name: "replicator"
       namespace: "system"
       chart:
@@ -67,8 +63,6 @@ spec:
         version: "2.11.0"
         url: "https://helm.mittwald.de"
       dependsOn: []
-      values:
-        configMapRef: "replicator-values"
     - name: "secret-generator"
       namespace: "system"
       chart:
@@ -76,26 +70,41 @@ spec:
         version: "3.4.0"
         url: "https://helm.mittwald.de"
       dependsOn: []
-      values:
-        configMapRef: "secret-generator-values"
     - name: "canary-checker"
       namespace: "monitoring"
       chart:
         name: "canary-checker"
         version: "1.1.1"
         url: "https://flanksource.github.io/charts"
-      dependsOn: []
-      values:
-        configMapRef: "canary-checker-values"
+      dependsOn: [cilium, kube-prometheus-stack]
+    - name: kube-prometheus-stack
+      namespace: monitoring
+      chart:
+        name: kube-prometheus-stack
+        version: 72.3.1
+        url: https://prometheus-community.github.io/helm-charts
+      dependsOn: [longhorn, kube-prometheus-stack-crds, external-secrets]
     - name: "grafana-loki-single-binary"
       namespace: "monitoring"
       chart:
         name: "loki"
         version: "6.25.0"
         url: "https://grafana.github.io/helm-charts"
-      dependsOn: []
-      values:
-        configMapRef: "grafana-loki-single-binary-values"
+      dependsOn: [cilium, longhorn]
+    - name: promtail
+      namespace: monitoring
+      chart:
+        name: promtail
+        version: 6.16.6
+        url: https://grafana.github.io/helm-charts
+      dependsOn: [grafana-loki-single-binary]
+    - name: grafana
+      namespace: monitoring
+      chart:
+        name: grafana
+        version: 8.8.5
+        url: https://grafana.github.io/helm-charts
+      dependsOn: [kube-prometheus-stack, promtail]
     - name: "kube-prometheus-stack-crds"
       namespace: "monitoring"
       chart:
@@ -103,8 +112,6 @@ spec:
         version: "20.0.0"
         url: "https://prometheus-community.github.io/helm-charts"
       dependsOn: []
-      values:
-        configMapRef: "kube-prometheus-stack-crds-values"
 
   resourcesTemplate: |
     ---
@@ -125,9 +132,8 @@ spec:
     spec:
       <<- if inputs.dependsOn >>
       dependsOn:
-      <<- range $depName, $depNamespace := inputs.dependsOn >>
-        - name: << $depName >>
-          namespace: << $depNamespace >>
+      <<- range $dep := inputs.dependsOn >>
+        - name: << $dep >>
       <<- end >>
       <<- end >>
       chart:
@@ -154,4 +160,5 @@ spec:
           retries: 3
       valuesFrom:
         - kind: ConfigMap
-          name: << inputs.values.configMapRef >>
+          name: platform-values
+          valuesKey: << inputs.name >>.yaml

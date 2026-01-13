@@ -5,24 +5,17 @@ kind: Kustomization
 resources:
   - platform.yaml
 configMapGenerator:
-  - name: generated-cluster-vars
+  - name: cluster-vars
     options:
       disableNameSuffixHash: true
     namespace: flux-system
     behavior: create
     envs:
-      - generated-cluster-vars.env
-#  - name: cluster-vars
-#    options:
-#      disableNameSuffixHash: true
-#    namespace: flux-system
-#    behavior: create
-#    envs:
-#      - cluster-vars.env
-#  - name: versions
-#    options:
-#      disableNameSuffixHash: true
-#    namespace: flux-system
-#    behavior: create
-#    envs:
-#      - versions.env
+      - .cluster-vars.env
+  - name: versions
+    options:
+      disableNameSuffixHash: true
+    namespace: flux-system
+    behavior: create
+    envs:
+      - .versions.env

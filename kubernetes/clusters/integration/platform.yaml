@@ -9,7 +9,9 @@ spec:
   postBuild:
     substituteFrom:
       - kind: ConfigMap
-        name: generated-cluster-vars
+        name: cluster-vars
+      - kind: ConfigMap
+        name: versions
   prune: true
   sourceRef:
     kind: GitRepository
