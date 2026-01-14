@@ -285,7 +285,7 @@ locals {
       disks = []
       interfaces = [{
         id           = "ens1f0"
-        hardwareAddr = "0c:c4:7a:54:9e:6b"
+        hardwareAddr = "0c:c4:7a:54:9e:6a"
         addresses    = [{ ip = "192.168.10.151" }]
       }]
     }

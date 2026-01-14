@@ -217,6 +217,20 @@ Run with `task tg:test-config` or `task tg:test` for all modules.
 - **NEVER** commit `.terragrunt-cache/` or `.terragrunt-stack/`
 - **NEVER** manually edit Terraform state
 
+## State Operations
+
+When removing state entries with indexed resources (e.g., `this["rpi4"]`), `xargs` strips the quotes causing errors. Use a `while` loop instead:
+
+```bash
+# WRONG - xargs mangles quotes in resource names
+terragrunt state list | xargs -n 1 terragrunt state rm
+
+# CORRECT - while loop preserves quotes
+terragrunt state list | while read -r resource; do terragrunt state rm "$resource"; done
+```
+
+This applies to any state operation on resources with map keys like `data.talos_machine_configuration.this["rpi4"]`.
+
 ## Validation Checklist
 
 Before requesting apply approval:
