@@ -149,7 +149,7 @@ tasks:
     label: destroy-{{.STACK}}
     cmds:
       - terragrunt --working-dir {{.BOOTSTRAP_DIR}} state list | grep -E '^(helm_release|kubernetes)' | xargs -I {} terragrunt --working-dir {{.BOOTSTRAP_DIR}} state rm {}
-      - terragrunt stack run destroy --working-dir {{{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}}}
+      - terragrunt stack run destroy --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
       - test -d "{{.WORKING_DIR}}"
