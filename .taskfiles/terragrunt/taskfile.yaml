@@ -138,3 +138,19 @@ tasks:
       - which tofu
       - test -d "{{.INFRASTRUCTURE_DIR}}/modules/{{.MODULE}}"
       - test -d "{{.INFRASTRUCTURE_DIR}}/modules/{{.MODULE}}/tests"
+
+  destroy-*:
+    desc: Destroys a specific terragrunt stack.
+    prompt: This will destroy the cluster.  Are you sure you want to continue? (yes/no)
+    vars:
+      STACK: "{{index .MATCH 0}}"
+      WORKING_DIR: "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}/.terragrunt-stack"
+      BOOTSTRAP_DIR: "{{.WORKING_DIR}}/bootstrap"
+    label: destroy-{{.STACK}}
+    cmds:
+      - terragrunt --working-dir {{.BOOTSTRAP_DIR}} state list | grep -E '^(helm_release|kubernetes)' | xargs -I {} terragrunt --working-dir {{.BOOTSTRAP_DIR}} state rm {}
+      - terragrunt stack run destroy --working-dir {{{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}}}
+    preconditions:
+      - which terragrunt
+      - test -d "{{.WORKING_DIR}}"
+      - test -d "{{.BOOTSTRAP_DIR}}"
