@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - recurring-jobs/backup-weekly.yaml
+  - recurring-jobs/snapshot-daily.yaml
+  - recurring-jobs/filesystem-trim-daily.yaml
+  - storage-classes/fast-critical.yaml
+  - storage-classes/fast.yaml
+  - storage-classes/fast-unmanaged.yaml
+  - storage-classes/slow-critical.yaml
+  - storage-classes/slow.yaml
+  - storage-classes/slow-unmanaged.yaml
