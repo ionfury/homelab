@@ -44,6 +44,7 @@ inputs = {
   github           = local.accounts_vars.locals.accounts.github
   external_secrets = local.accounts_vars.locals.accounts.external_secrets
   healthchecksio   = local.accounts_vars.locals.accounts.healthchecksio
+  discord          = local.accounts_vars.locals.accounts.discord
   kubeconfig = {
     host                   = dependency.talos.outputs.kubeconfig_host
     client_certificate     = dependency.talos.outputs.kubeconfig_client_certificate

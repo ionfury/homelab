@@ -28,6 +28,10 @@ locals {
     healthchecksio = {
       api_key_store = "/homelab/infrastructure/accounts/healthchecksio/api-key"
     }
+
+    discord = {
+      webhook_url_store = "/homelab/infrastructure/accounts/discord/webhook-url"
+    }
   }
 }
 
