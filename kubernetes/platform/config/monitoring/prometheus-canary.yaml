@@ -11,4 +11,4 @@ spec:
       url: https://prometheus.${internal_domain}
       responseCodes: [200]
       maxSSLExpiry: 7
-      responseTime: 5000
+      thresholdMillis: 5000
