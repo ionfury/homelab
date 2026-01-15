@@ -1,0 +1,69 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  PLATFORM_CONFIG_DIR: kubernetes/platform/config
+  PLATFORM_CHARTS_DIR: kubernetes/platform/charts
+
+tasks:
+  validate:
+    desc: Validates all Kubernetes YAML schemas and kustomizations
+    cmds:
+      - task: validate-kustomizations
+      - task: validate-charts
+
+  validate-kustomizations:
+    desc: Validates all kustomizations in platform/config build successfully
+    cmds:
+      - |
+        echo "Validating kustomizations..."
+        failed=0
+        for dir in {{.PLATFORM_CONFIG_DIR}}/*/; do
+          if [ -f "${dir}kustomization.yaml" ]; then
+            echo "  Building: $dir"
+            if ! kustomize build "$dir" > /dev/null 2>&1; then
+              echo "  ❌ FAILED: $dir"
+              kustomize build "$dir"
+              failed=1
+            else
+              echo "  ✓ OK: $dir"
+            fi
+          fi
+        done
+        exit $failed
+    preconditions:
+      - which kustomize
+
+  validate-charts:
+    desc: Validates Helm chart values files are valid YAML
+    cmds:
+      - |
+        echo "Validating chart values files..."
+        failed=0
+        for file in {{.PLATFORM_CHARTS_DIR}}/*.yaml; do
+          echo "  Checking: $file"
+          if ! yq '.' "$file" > /dev/null 2>&1; then
+            echo "  ❌ FAILED: $file"
+            yq '.' "$file"
+            failed=1
+          else
+            echo "  ✓ OK: $file"
+          fi
+        done
+        exit $failed
+    preconditions:
+      - which yq
+
+  validate-kubeconform:
+    desc: Validates Kubernetes manifests against schemas using kubeconform
+    cmds:
+      - |
+        echo "Validating with kubeconform..."
+        find {{.PLATFORM_CONFIG_DIR}} -name '*.yaml' -not -name 'kustomization.yaml' | \
+          xargs kubeconform -summary \
+            -skip-kinds Kustomization,Canary \
+            -schema-location default \
+            -schema-location 'https://kubernetes-schemas.pages.dev/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+    preconditions:
+      - which kubeconform

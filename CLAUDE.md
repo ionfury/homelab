@@ -130,6 +130,32 @@ All machines are configured to PXE boot into Talos maintenance mode when no OS i
 - **NEVER** apply changes directly to the cluster - always use the GitOps approach through Flux
 - **NEVER** hallucinate YAML fields - use `kubectl explain`, official docs, or YAML schema validation
 
+## YAML Schema Validation (CRITICAL)
+
+**ALWAYS validate YAML schemas before committing.** Invalid fields cause Flux reconciliation failures.
+
+- **NEVER** guess CRD field names - always verify against official documentation or API reference
+- **NEVER** add `yaml-language-server: $schema=` comments with URLs that don't exist - verify the URL returns valid JSON first
+- **ALWAYS** validate CRD resources using `kubectl explain <resource>.<field>` or official API docs
+- **ALWAYS** test kustomizations build: `kustomize build <path>` before committing
+- **For Custom Resources**: Consult the operator's API documentation (e.g., Flanksource docs for Canary resources, Istio docs for Gateway API)
+
+```bash
+# Validate a CRD field exists
+kubectl explain canary.spec.http --api-version=canaries.flanksource.com/v1
+
+# Verify kustomization builds
+kustomize build kubernetes/platform/config/<directory>/
+
+# Check schema URL exists before using it
+curl -sI https://kubernetes-schemas.pages.dev/<path>.json | head -1
+```
+
+**Common schema sources**:
+- Gateway API: `https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/`
+- cert-manager: `https://kubernetes-schemas.pages.dev/cert-manager.io/`
+- For CRDs not in kubernetes-schemas.pages.dev: Omit the schema comment and rely on kubectl explain
+
 ## Verification
 
 - **NEVER** guess resource names, strings, IPs, or values - VERIFY against source files
