@@ -469,6 +469,26 @@ task renovate:validate             # Validate Renovate config
 - Path pattern: `/homelab/kubernetes/${cluster_name}/<secret-name>`
 - Never commit secrets to git - use ExternalSecret resources
 
+## Runbooks
+
+Operational runbooks for common procedures are in `docs/runbooks/`:
+
+| Runbook | Purpose |
+|---------|---------|
+| `resize-volume.md` | Resize Longhorn volumes when automatic expansion fails |
+| `supermicro-machine-setup.md` | Initial BIOS/IPMI configuration for new hardware |
+| `longhorn-disaster-recovery.md` | Complete cluster recovery from S3 backups |
+
+**When to use runbooks:**
+- During incident response for known procedures
+- When performing maintenance operations
+- As reference during disaster recovery
+
+**Runbook philosophy:**
+- Runbooks document **procedural** knowledge (step-by-step)
+- CLAUDE.md documents **declarative** knowledge (how the system works)
+- Skills document **investigative** knowledge (how to debug)
+
 ## Inventory Lookups
 
 Use `hcl2json` + `jq` to query inventory data:

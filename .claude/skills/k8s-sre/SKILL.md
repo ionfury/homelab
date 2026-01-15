@@ -203,6 +203,9 @@ Research Longhorn storage troubleshooting. Focus on:
 Start with: https://longhorn.io/docs/latest/troubleshooting/
 ```
 
+**Longhorn Disaster Recovery:**
+For complete cluster recovery from S3 backups, see runbook: `docs/runbooks/longhorn-disaster-recovery.md`
+
 **Istio:**
 ```
 Research Istio service mesh troubleshooting. Focus on:
@@ -480,6 +483,33 @@ kubectl top nodes
 - Certificate CN mismatch
 - Missing CA certificate
 - Incorrect certificate chain
+
+### Longhorn Backup/Restore Issues
+
+**Symptoms:**
+- Backup target shows "Error" in Longhorn UI
+- Backups failing with S3 authentication errors
+- Restored volumes showing incorrect data
+
+**Investigation:**
+```
+├── Check backup target connectivity
+│   kubectl -n longhorn-system get settings backup-target -o yaml
+├── Verify S3 credentials secret exists
+│   kubectl -n longhorn-system get secret longhorn-s3-backup-credentials
+├── Check ExternalSecret sync status
+│   kubectl -n longhorn-system get externalsecret longhorn-s3-backup-credentials
+└── Review Longhorn manager logs for backup errors
+    kubectl -n longhorn-system logs -l app=longhorn-manager --tail=100 | grep -i backup
+```
+
+**Common causes:**
+- Expired or rotated AWS credentials
+- S3 bucket policy changes
+- Network connectivity to AWS S3
+- ExternalSecret sync failure
+
+**Runbook:** For complete disaster recovery, see `docs/runbooks/longhorn-disaster-recovery.md`
 
 ## Real-World Example: Pod Crash Loop Investigation
 
