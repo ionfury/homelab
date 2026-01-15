@@ -464,10 +464,59 @@ task renovate:validate             # Validate Renovate config
 ```
 
 ## Secrets Management
-- Secrets stored in AWS SSM Parameter Store
-- Retrieved via External Secrets Operator
-- Path pattern: `/homelab/kubernetes/${cluster_name}/<secret-name>`
-- Never commit secrets to git - use ExternalSecret resources
+
+**Preferred approach**: Generate secrets in-cluster using `secret-generator` (mittwald/kubernetes-secret-generator).
+
+### In-Cluster Generated Secrets (Preferred)
+
+For secrets that don't need to exist outside the cluster (API keys, RPC secrets, tokens), use secret-generator annotations:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-app-secret
+  annotations:
+    secret-generator.v1.mittwald.de/autogenerate: password,api-key
+    secret-generator.v1.mittwald.de/encoding: hex      # or base64, base32, raw
+    secret-generator.v1.mittwald.de/length: "32"
+data: {}
+```
+
+**Benefits**:
+- Self-contained clusters - no external dependencies for secrets
+- Secrets auto-regenerate on cluster rebuild
+- No need to manage secrets in AWS SSM
+
+### External Secrets (When Required)
+
+Use ExternalSecret only when secrets MUST come from outside the cluster:
+- Credentials for external services (cloud APIs, SaaS integrations)
+- Shared secrets that must be consistent across clusters
+- Secrets needed for disaster recovery bootstrapping
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: external-api-credentials
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: aws-ssm
+  data:
+    - secretKey: api-key
+      remoteRef:
+        key: /homelab/kubernetes/${cluster_name}/external-api-key
+```
+
+Path pattern: `/homelab/kubernetes/${cluster_name}/<secret-name>`
+
+### Decision Tree
+
+1. Can this secret be randomly generated? → Use `secret-generator`
+2. Must this secret match a value outside the cluster? → Use `ExternalSecret`
+3. Never commit secrets to git
 
 ## Inventory Lookups
 

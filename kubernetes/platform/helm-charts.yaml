@@ -147,6 +147,13 @@ spec:
         version: 1.28.1
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni, istio-ztunnel]
+    - name: garage
+      namespace: garage
+      chart:
+        name: app-template
+        version: 3.6.1
+        url: oci://ghcr.io/bjw-s/helm
+      dependsOn: [longhorn, secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
@@ -156,6 +163,9 @@ spec:
       namespace: << inputs.provider.namespace >>
     spec:
       interval: 10m
+      <<- if hasPrefix "oci://" inputs.chart.url >>
+      type: oci
+      <<- end >>
       url: << inputs.chart.url >>
     ---
     apiVersion: helm.toolkit.fluxcd.io/v2

@@ -25,6 +25,9 @@ spec:
     - name: longhorn-storage
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn
+    - name: garage-config
+      namespace: garage
+      path: kubernetes/platform/config/garage
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

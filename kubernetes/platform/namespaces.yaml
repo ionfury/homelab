@@ -33,6 +33,9 @@ spec:
     - name: system
       dataplane: ambient
       security: privileged
+    - name: garage
+      dataplane: ambient
+      security: privileged
   resourcesTemplate: |
     ---
     apiVersion: v1
