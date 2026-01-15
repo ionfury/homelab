@@ -2,7 +2,7 @@
 # https://github.com/istio/istio/blob/master/manifests/charts/istio-cni/values.yaml
 profile: ambient
 
-gobal:
+global:
   logAsJson: true
   defaultResources:
     resources:
