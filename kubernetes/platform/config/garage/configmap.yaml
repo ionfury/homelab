@@ -10,7 +10,7 @@ data:
     db_engine = "lmdb"
     metadata_auto_snapshot_interval = "6h"
 
-    replication_factor = 3
+    replication_factor = ${default_replica_count}
 
     [rpc]
     bind_addr = "[::]:3901"
