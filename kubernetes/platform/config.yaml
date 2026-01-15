@@ -25,6 +25,9 @@ spec:
     - name: longhorn-storage
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn
+    - name: monitoring-config
+      namespace: monitoring
+      path: kubernetes/platform/config/monitoring
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
