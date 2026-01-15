@@ -26,7 +26,7 @@ spec:
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn
     - name: gateway
-      namespace: istio-system
+      namespace: istio-gateway
       path: kubernetes/platform/config/gateway
     - name: monitoring-routes
       namespace: monitoring

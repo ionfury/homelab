@@ -3,13 +3,16 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
-  name: allow-gateway-tls-from-istio-system
+  name: allow-gateway-tls-from-istio-gateway
 spec:
   from:
     - group: gateway.networking.k8s.io
       kind: Gateway
-      namespace: istio-system
+      namespace: istio-gateway
   to:
     - group: ""
       kind: Secret
       name: internal-tls
+    - group: ""
+      kind: Secret
+      name: external-tls
