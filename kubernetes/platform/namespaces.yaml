@@ -16,7 +16,7 @@ spec:
       dataplane: ambient
       security: privileged
     - name: kube-system
-      dataplane: ambient
+      dataplane: standard
       security: privileged
     - name: longhorn-system
       dataplane: standard
