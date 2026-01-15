@@ -16,9 +16,9 @@ spec:
     - name: issuers
       namespace: cert-manager
       path: kubernetes/platform/config/issuers
-    # - name: certificates
-    #   namespace: network
-    #   path: kubernetes/manifests/common/resources/certificates
+    - name: certificates
+      namespace: network
+      path: kubernetes/platform/config/certificates
     - name: external-secrets-stores
       namespace: system
       path: kubernetes/platform/config/secrets
