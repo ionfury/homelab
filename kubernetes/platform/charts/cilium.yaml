@@ -1,6 +1,6 @@
-# https://docs.cilium.io/en/stable/helm-reference/
-# https://docs.cilium.io/en/stable/network/kubernetes/configuration/#configmap-options
 ---
+# https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/values.yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/values.schema.json
 autoDirectNodeRoutes: true
 ipv4NativeRoutingCIDR: ${cluster_pod_subnet}
 bandwidthManager:

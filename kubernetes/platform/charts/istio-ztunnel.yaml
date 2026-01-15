@@ -1,0 +1,5 @@
+---
+# https://raw.githubusercontent.com/istio/istio/master/manifests/charts/ztunnel/values.yaml
+# yaml-language-server: $schema=https://json.schemastore.org/helm-values.json
+
+profile: ambient

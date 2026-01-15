@@ -1,3 +1,5 @@
+---
+# https://raw.githubusercontent.com/kubernetes-sigs/descheduler/master/charts/descheduler/values.yaml
 replicas: 2
 kind: Deployment
 deschedulerPolicyAPIVersion: descheduler/v1alpha2

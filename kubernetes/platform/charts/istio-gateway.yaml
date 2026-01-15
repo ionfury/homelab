@@ -1,0 +1,11 @@
+---
+# https://github.com/istio/istio/blob/master/manifests/charts/gateway/values.yaml
+profile: ambient
+
+service:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: ${internal_domain}
+    lbipam.cilium.io/ips: ${internal_ingress_ip}
+
+autoscaling:
+  minReplicas: 2

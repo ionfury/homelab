@@ -1,4 +1,5 @@
-# https://github.com/longhorn/charts/blob/v1.9.x/charts/longhorn/values.yaml
+---
+# https://raw.githubusercontent.com/longhorn/charts/master/charts/longhorn/values.yaml
 persistence:
   defaultFsType: xfs
   defaultClassReplicaCount: ${default_replica_count}

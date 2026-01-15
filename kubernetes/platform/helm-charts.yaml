@@ -112,6 +112,41 @@ spec:
         version: "20.0.0"
         url: "https://prometheus-community.github.io/helm-charts"
       dependsOn: []
+    - name: "istio-base"
+      namespace: "istio-system"
+      chart:
+        name: "istio-base"
+        version: "1.28.1"
+        url: "https://istio-release.storage.googleapis.com/charts"
+      dependsOn: [cilium]
+    - name: "istiod"
+      namespace: "istio-system"
+      chart:
+        name: "istiod"
+        version: "1.28.1"
+        url: "https://istio-release.storage.googleapis.com/charts"
+      dependsOn: [istio-base]
+    - name: istio-cni
+      namespace: istio-system
+      chart:
+        name: istio-cni
+        version: 1.28.1
+        url: https://istio-release.storage.googleapis.com/charts
+      dependsOn: [istio-base, istiod]
+    - name: istio-ztunnel
+      namespace: istio-system
+      chart:
+        name: istio-zttunnel
+        version: 1.28.1
+        url: https://istio-release.storage.googleapis.com/charts
+      dependsOn: [istio-base, istiod, istio-cni]
+    - name: istio-gateway
+      namespace: istio-system
+      chart:
+        name: istio-gateway
+        version: 1.28.1
+        url: https://istio-release.storage.googleapis.com/charts
+      dependsOn: [istio-base, istiod, istio-cni, istio-ztunnel]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

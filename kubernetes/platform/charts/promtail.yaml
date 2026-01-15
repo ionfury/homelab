@@ -1,3 +1,5 @@
+---
+# https://raw.githubusercontent.com/grafana/helm-charts/main/charts/promtail/values.yaml
 fullnameOverride: promtail
 config:
   clients:
