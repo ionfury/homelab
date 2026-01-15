@@ -25,6 +25,9 @@ spec:
     - name: longhorn-storage
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn
+    - name: database-config
+      namespace: database
+      path: kubernetes/platform/config/database
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

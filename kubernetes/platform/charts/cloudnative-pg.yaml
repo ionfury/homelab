@@ -1,0 +1,15 @@
+---
+# https://github.com/cloudnative-pg/charts/blob/main/charts/cloudnative-pg/values.yaml
+crds:
+  create: true
+replicaCount: 2
+monitoring:
+  podMonitorEnabled: true
+  grafanaDashboard:
+    create: true
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
+  limits:
+    memory: 256Mi

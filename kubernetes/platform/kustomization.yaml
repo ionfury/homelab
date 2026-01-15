@@ -15,6 +15,7 @@ configMapGenerator:
       - canary-checker.yaml=charts/canary-checker.yaml
       - cert-manager.yaml=charts/cert-manager.yaml
       - cilium.yaml=charts/cilium.yaml
+      - cloudnative-pg.yaml=charts/cloudnative-pg.yaml
       - descheduler.yaml=charts/descheduler.yaml
       - external-secrets.yaml=charts/external-secrets.yaml
       - grafana-loki-single-binary.yaml=charts/grafana-loki-single-binary.yaml

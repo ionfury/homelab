@@ -33,6 +33,9 @@ spec:
     - name: system
       dataplane: ambient
       security: privileged
+    - name: database
+      dataplane: ambient
+      security: privileged
   resourcesTemplate: |
     ---
     apiVersion: v1

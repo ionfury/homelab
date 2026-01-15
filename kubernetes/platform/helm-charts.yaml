@@ -147,6 +147,13 @@ spec:
         version: 1.28.1
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni, istio-ztunnel]
+    - name: cloudnative-pg
+      namespace: database
+      chart:
+        name: cloudnative-pg
+        version: 0.27.0
+        url: https://cloudnative-pg.github.io/charts
+      dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

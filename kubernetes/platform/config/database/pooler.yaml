@@ -1,0 +1,17 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: platform-pooler-rw
+spec:
+  cluster:
+    name: platform
+  instances: ${default_replica_count}
+  type: rw
+  pgbouncer:
+    poolMode: transaction
+    parameters:
+      max_client_conn: "1000"
+      default_pool_size: "25"
+  monitoring:
+    enablePodMonitor: true
