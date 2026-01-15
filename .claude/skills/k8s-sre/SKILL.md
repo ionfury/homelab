@@ -29,6 +29,57 @@ Invoke this skill when:
 - ✅ Deployments are failing or stuck in rollout
 - ✅ Need to perform incident triage or post-mortem analysis
 
+## Cluster Context Selection
+
+**CRITICAL:** Before running ANY kubectl commands, you MUST ask the user which cluster context to use.
+
+**Available clusters:**
+| Cluster | Purpose | When to Use |
+|---------|---------|-------------|
+| `dev` | Manual testing & experimentation | Development issues, testing changes |
+| `integration` | Automated upgrade testing | Post-merge validation issues |
+| `live` | Production workloads | **Production incidents** (handle with care) |
+
+**Kubeconfig location:** `~/.kube/config`
+
+Each cluster has a separate context configured in kubeconfig. Use `kubectl config get-contexts` to list available contexts and `kubectl config use-context <context-name>` to switch.
+
+**Example prompt to user:**
+> "Which cluster are you investigating? (dev/integration/live)"
+
+**NEVER assume the cluster context.** Even if the user mentions a namespace or service name, always confirm the cluster before running commands. Running commands against the wrong cluster (especially `live`) can cause confusion or, in extreme cases, unintended impact.
+
+## Flux GitOps Operations
+
+This repository uses Flux for GitOps-based deployments. After pushing fixes to git, you can trigger Flux to reconcile immediately rather than waiting for the default interval.
+
+**Trigger git source reconciliation:**
+```bash
+KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile source git flux-system
+```
+
+**Trigger specific Kustomization:**
+```bash
+KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile kustomization <name>
+```
+
+**Trigger HelmRelease:**
+```bash
+KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile helmrelease <name> -n <namespace>
+```
+
+**Check Flux status:**
+```bash
+KUBECONFIG=~/.kube/<cluster>.yaml flux get all
+KUBECONFIG=~/.kube/<cluster>.yaml flux get helmreleases -A
+KUBECONFIG=~/.kube/<cluster>.yaml flux get kustomizations
+```
+
+**When to trigger reconciliation:**
+- After pushing configuration fixes to git
+- When investigating why changes haven't applied
+- To verify a fix takes effect immediately
+
 ## Quick Reference: Investigation Phases
 
 | Phase | Focus | Primary Tools |
@@ -42,6 +93,9 @@ Invoke this skill when:
 ## Common Confusions
 
 ### Wrong vs. Correct Approaches
+
+❌ **WRONG:** Start running kubectl commands without confirming the cluster
+✅ **CORRECT:** Always ask "Which cluster?" (dev/integration/live) before any investigation
 
 ❌ **WRONG:** Jump directly to pod logs without checking events
 ✅ **CORRECT:** Check events first to understand context, then investigate logs
@@ -198,6 +252,12 @@ This maximizes efficiency by gathering service-specific knowledge while continui
 ### Phase 1: Triage
 
 **CRITICAL:** Assess severity before diving deep
+
+0. **Confirm cluster context** (ALWAYS FIRST):
+   - Ask user: "Which cluster are you investigating? (dev/integration/live)"
+   - Verify context: `kubectl config current-context`
+   - Switch if needed: `kubectl config use-context <context-name>`
+   - **Never proceed without explicit cluster confirmation**
 
 1. **Determine incident type**:
    - Pod-level: Single pod failure
@@ -504,4 +564,4 @@ Prevention:
 
 ## Keywords for Search
 
-kubernetes, pod failure, crashloopbackoff, oomkilled, pending pod, debugging, incident investigation, root cause analysis, pod logs, events, kubectl, container restart, image pull error, resource constraints, memory leak, application crash, service degradation, tls error, certificate expiry, readiness probe, liveness probe, troubleshooting, production incident, cluster debugging, namespace investigation, deployment failure, rollout stuck, error analysis, log correlation, documentation research, service documentation, helm chart troubleshooting, cert-manager, external-secrets, longhorn, istio, cilium, grafana, prometheus, unfamiliar service, operator troubleshooting
+kubernetes, pod failure, crashloopbackoff, oomkilled, pending pod, debugging, incident investigation, root cause analysis, pod logs, events, kubectl, container restart, image pull error, resource constraints, memory leak, application crash, service degradation, tls error, certificate expiry, readiness probe, liveness probe, troubleshooting, production incident, cluster debugging, namespace investigation, deployment failure, rollout stuck, error analysis, log correlation, documentation research, service documentation, helm chart troubleshooting, cert-manager, external-secrets, longhorn, istio, cilium, grafana, prometheus, unfamiliar service, operator troubleshooting, kubeconfig, cluster context, dev cluster, integration cluster, live cluster, context switching
