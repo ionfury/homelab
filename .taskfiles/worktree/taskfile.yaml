@@ -3,9 +3,7 @@ version: "3"
 
 tasks:
   new:
-    desc: Creates a worktree and starts Claude Code for isolated task work.
-    requires:
-      vars: [CLI_ARGS]
+    desc: "Creates a worktree and starts Claude Code for isolated task work.  Usage: `task wt:new -- <worktree-name>`"
     vars:
       NAME: "{{.CLI_ARGS}}"
       REPO_NAME:
@@ -18,15 +16,15 @@ tasks:
         echo "Starting Claude Code..."
         cd "{{.WORKTREE_PATH}}" && claude
     preconditions:
+      - sh: test -n "{{.CLI_ARGS}}"
+        msg: "Usage: task wt:new -- <worktree-name>"
       - sh: test ! -d "{{.WORKTREE_PATH}}"
         msg: "Worktree already exists at {{.WORKTREE_PATH}}"
       - sh: "if git show-ref --verify --quiet refs/heads/{{.NAME}}; then exit 1; else exit 0; fi"
         msg: "Branch '{{.NAME}}' already exists"
 
   resume:
-    desc: Resumes Claude Code in an existing worktree.
-    requires:
-      vars: [CLI_ARGS]
+    desc: "Resumes Claude Code in an existing worktree. Usage: `task wt:resume -- <worktree-name>`"
     vars:
       NAME: "{{.CLI_ARGS}}"
       REPO_NAME:
@@ -35,6 +33,8 @@ tasks:
     cmds:
       - cd "{{.WORKTREE_PATH}}" && claude --continue
     preconditions:
+      - sh: test -n "{{.CLI_ARGS}}"
+        msg: "Usage: task wt:resume -- <worktree-name>"
       - sh: test -d "{{.WORKTREE_PATH}}"
         msg: "Worktree does not exist at {{.WORKTREE_PATH}}"
 
@@ -44,9 +44,7 @@ tasks:
       - git worktree list
 
   remove:
-    desc: Removes a worktree (keeps branch).
-    requires:
-      vars: [CLI_ARGS]
+    desc: "Removes a worktree (keeps branch). Usage: `task wt:remove -- <worktree-name>`"
     vars:
       NAME: "{{.CLI_ARGS}}"
       REPO_NAME:
@@ -55,5 +53,7 @@ tasks:
     cmds:
       - git worktree remove "{{.WORKTREE_PATH}}"
     preconditions:
+      - sh: test -n "{{.CLI_ARGS}}"
+        msg: "Usage: task wt:remove -- <worktree-name>"
       - sh: test -d "{{.WORKTREE_PATH}}"
         msg: "Worktree does not exist at {{.WORKTREE_PATH}}"
