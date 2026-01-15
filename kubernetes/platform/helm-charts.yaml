@@ -115,7 +115,7 @@ spec:
     - name: "istio-base"
       namespace: "istio-system"
       chart:
-        name: "istio-base"
+        name: "base"
         version: "1.28.1"
         url: "https://istio-release.storage.googleapis.com/charts"
       dependsOn: [cilium]
@@ -129,21 +129,21 @@ spec:
     - name: istio-cni
       namespace: istio-system
       chart:
-        name: istio-cni
+        name: cni
         version: 1.28.1
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod]
     - name: istio-ztunnel
       namespace: istio-system
       chart:
-        name: istio-zttunnel
+        name: ztunnel
         version: 1.28.1
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni]
     - name: istio-gateway
       namespace: istio-system
       chart:
-        name: istio-gateway
+        name: gateway
         version: 1.28.1
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni, istio-ztunnel]
