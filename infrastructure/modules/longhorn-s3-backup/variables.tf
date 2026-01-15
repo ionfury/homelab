@@ -8,9 +8,3 @@ variable "region" {
   type        = string
   default     = "us-east-2"
 }
-
-variable "retention_days" {
-  description = "Number of days to retain backup objects before expiration"
-  type        = number
-  default     = 90
-}

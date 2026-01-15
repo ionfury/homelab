@@ -1,4 +1,8 @@
-# S3 bucket for Longhorn backups with encryption, versioning, and lifecycle management
+# S3 bucket for Longhorn backups with encryption and versioning
+# Note: No lifecycle expiration - Longhorn backups are incremental and share block
+# objects across backups. Age-based S3 expiration would delete blocks still
+# referenced by newer backups, corrupting them. Retention is managed by Longhorn's
+# RecurringJob `retain` field instead.
 
 resource "aws_s3_bucket" "longhorn_backup" {
   bucket = "homelab-longhorn-backup-${var.cluster_name}"
@@ -24,23 +28,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "longhorn_backup" 
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "longhorn_backup" {
-  bucket = aws_s3_bucket.longhorn_backup.id
-
-  rule {
-    id     = "cleanup-old-backups"
-    status = "Enabled"
-
-    expiration {
-      days = var.retention_days
-    }
-
-    noncurrent_version_expiration {
-      noncurrent_days = 30
     }
   }
 }

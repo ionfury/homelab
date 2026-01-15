@@ -16,7 +16,6 @@ dependency "config" {
 }
 
 inputs = {
-  cluster_name   = dependency.config.outputs.cluster_name
-  region         = "us-east-2"
-  retention_days = 90
+  cluster_name = dependency.config.outputs.cluster_name
+  region       = "us-east-2"
 }

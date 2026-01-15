@@ -11,9 +11,8 @@ run "basic_configuration" {
   }
 
   variables {
-    cluster_name   = "dev"
-    region         = "us-east-2"
-    retention_days = 90
+    cluster_name = "dev"
+    region       = "us-east-2"
   }
 
   assert {
@@ -66,23 +65,6 @@ run "encryption_configured" {
   assert {
     condition     = length(aws_s3_bucket_server_side_encryption_configuration.longhorn_backup.rule) == 1
     error_message = "Server-side encryption should have one rule"
-  }
-}
-
-run "lifecycle_rules" {
-  command = plan
-  providers = {
-    aws = aws.mock
-  }
-
-  variables {
-    cluster_name   = "dev"
-    retention_days = 30
-  }
-
-  assert {
-    condition     = length(aws_s3_bucket_lifecycle_configuration.longhorn_backup.rule) == 1
-    error_message = "Lifecycle configuration should have one rule"
   }
 }
 
