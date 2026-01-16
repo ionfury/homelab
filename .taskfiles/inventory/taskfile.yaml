@@ -4,22 +4,35 @@ version: "3"
 
 vars:
   INVENTORY_FILE: "{{.ROOT_DIR}}/.taskfiles/inventory/resources/inventory.yaml"
-  VALID_HOSTS:
-    sh: "cat {{.INVENTORY_FILE}} | yq -r '.hosts | keys[]'"
+  INVENTORY_DIST: "{{.ROOT_DIR}}/.taskfiles/inventory/resources/inventory.yaml.dist"
 
 tasks:
+  setup:
+    desc: Creates inventory.yaml from dist file if it doesn't exist
+    silent: true
+    status:
+      - test -f {{.INVENTORY_FILE}}
+    cmds:
+      - cp {{.INVENTORY_DIST}} {{.INVENTORY_FILE}}
+      - echo "Created inventory.yaml from dist file. Update with your IPMI credentials."
+
   power-status:
     desc: Lists the power status of all hosts.
+    deps: [setup]
     silent: true
+    vars:
+      HOSTS:
+        sh: "cat {{.INVENTORY_FILE}} | yq -r '.hosts | keys[]'"
     cmds:
-      - for: { var: VALID_HOSTS }
+      - for: { var: HOSTS }
         cmd: task inv:status-{{ .ITEM }} | grep "System Power" | awk '{print "{{ .ITEM }} " $0}'
 
   hosts:
     desc: Lists all hosts.
+    deps: [setup]
     silent: true
     cmds:
-      - echo "{{ .VALID_HOSTS }}"
+      - cat {{.INVENTORY_FILE}} | yq -r '.hosts | keys[]'
 
   status-*:
     desc: Gets the status of the host.
@@ -107,25 +120,27 @@ tasks:
     internal: true
     silent: true
     desc: Run ipmi command on a host.
+    deps: [setup]
     requires:
-      vars: [HOST, USER, COMMAND]
+      vars: [HOST, COMMAND]
     vars:
+      VALID_HOSTS:
+        sh: "cat {{.INVENTORY_FILE}} | yq -r '.hosts | keys[]'"
       PASSWORD:
         sh: 'cat {{ .INVENTORY_FILE }} | yq -r ''.hosts["{{ .HOST }}"].password'''
       USERNAME:
-        sh: 'cat {{ .INVENTORY_FILE }} |yq -r ''.hosts["{{ .HOST }}"].username'''
+        sh: 'cat {{ .INVENTORY_FILE }} | yq -r ''.hosts["{{ .HOST }}"].username'''
       HOSTNAME:
         sh: 'cat {{ .INVENTORY_FILE }} | yq -r ''.hosts["{{ .HOST }}"].hostname'''
     cmds:
       - "ipmitool -I lanplus -H {{ .HOSTNAME }} -U {{ .USERNAME }} -P '{{ .PASSWORD }}' {{ .COMMAND }}"
     preconditions:
+      - sh: test "$(echo "{{ .VALID_HOSTS }}" | grep -c "^{{ .HOST }}$")" -gt 0
+        msg: "'{{.HOST}}' is not a valid host. Valid hosts:\n{{ .VALID_HOSTS }}"
+      - sh: test "{{ .USERNAME }}" != "null"
+        msg: "Username for host '{{ .HOST }}' is blank. Update '{{ .INVENTORY_FILE }}'."
+      - sh: test "{{ .PASSWORD }}" != "null"
+        msg: "Password for host '{{ .HOST }}' is blank. Update '{{ .INVENTORY_FILE }}'."
+      - which ipmitool
       - sh: ping -c1 -W1 {{ .HOSTNAME }} >/dev/null 2>&1
         msg: "Host '{{ .HOST }}' ({{ .HOSTNAME }}) is not reachable via ICMP (ping)."
-      - sh: test "$(echo "{{ .VALID_HOSTS }}" | grep -c "^{{ .HOST }}$")" -gt 0
-        msg: "'{{.HOST}}' is not a valid host.  Valid Hosts: \n{{ .VALID_HOSTS }}"
-      - sh: test "{{ .USERNAME }}" != "null"
-        msg: "Username for host '{{ .HOST }}' is blank.  Please update '{{ .CREDENTIALS_FILE }}' for '{{ .HOST }}'."
-      - sh: test "{{ .PASSWORD }}" != "null"
-        msg: "Password for host '{{ .HOST }}' is blank.  Please update '{{ .CREDENTIALS_FILE }}' for '{{ .HOST }}'."
-      - test -f {{.CREDENTIALS_FILE}}
-      - which ipmitool
