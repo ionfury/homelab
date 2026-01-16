@@ -194,7 +194,7 @@ locals {
     { name = "cluster_pod_subnet", value = var.networking.pod_subnet },
     { name = "cluster_service_subnet", value = var.networking.service_subnet },
     { name = "cluster_path", value = local.cluster_path },
-    { name = "default_replica_count", value = "\"${tostring(min(3, length(local.machines)))}\"" },
+    { name = "default_replica_count", value = tostring(min(3, length(local.machines))) },
     { name = "cluster_id", value = tostring(var.networking.id) },
     { name = "cluster_ip_pool_start", value = var.networking.ip_pool_start },
     { name = "cluster_ip_pool_stop", value = var.networking.ip_pool_stop },

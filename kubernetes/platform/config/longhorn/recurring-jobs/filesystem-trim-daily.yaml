@@ -5,6 +5,7 @@ kind: RecurringJob
 metadata:
   name: &name filesystem-trim-daily
 spec:
+  name: *name
   cron: "0 4 * * *"
   task: filesystem-trim
   concurrency: 1
