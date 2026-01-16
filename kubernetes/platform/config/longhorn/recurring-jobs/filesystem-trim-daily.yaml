@@ -1,10 +1,10 @@
 ---
-apiVersion: longhorn.io/v1beta1
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/longhorn.io/recurringjob_v1beta2.json
+apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
   name: &name filesystem-trim-daily
 spec:
-  name: trim
   cron: "0 4 * * *"
   task: filesystem-trim
   concurrency: 1

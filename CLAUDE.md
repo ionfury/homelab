@@ -163,7 +163,7 @@ This repository pushes the boundaries of "infrastructure as code" - starting fro
   └── renovate/          # Dependency update validation
 
 infrastructure/          # Terragrunt/OpenTofu - provisions bare metal to Kubernetes
-  ├── stacks/            # Cluster deployments (dev, integration, live)
+  ├── stacks/            # Stack deployments (see Infrastructure Stacks below)
   ├── units/             # Reusable Terragrunt units
   ├── modules/           # OpenTofu modules
   ├── inventory.hcl      # Hardware inventory (hosts, IPs, MACs, disks)
@@ -536,6 +536,26 @@ When bootstrapping a new cluster, populate these SSM parameters before the clust
 - `cloudflare-api-token` (cert-manager) - DNS challenge credentials
 - `alertmanager-discord-webhook` (monitoring) - Discord notifications
 
+## Runbooks
+
+Operational runbooks for common procedures are in `docs/runbooks/`:
+
+| Runbook | Purpose |
+|---------|---------|
+| `resize-volume.md` | Resize Longhorn volumes when automatic expansion fails |
+| `supermicro-machine-setup.md` | Initial BIOS/IPMI configuration for new hardware |
+| `longhorn-disaster-recovery.md` | Complete cluster recovery from S3 backups |
+
+**When to use runbooks:**
+- During incident response for known procedures
+- When performing maintenance operations
+- As reference during disaster recovery
+
+**Runbook philosophy:**
+- Runbooks document **procedural** knowledge (step-by-step)
+- CLAUDE.md documents **declarative** knowledge (how the system works)
+- Skills document **investigative** knowledge (how to debug)
+
 ## Inventory Lookups
 
 Use `hcl2json` + `jq` to query inventory data:
@@ -576,3 +596,37 @@ hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | to_entries[]
 - **dev**: Manual experimentation space - use to validate changes before creating a PR
 - **integration**: Receives changes automatically when PRs merge to `main`
 - **live**: Receives changes automatically after integration passes 1-hour validation soak
+
+---
+
+# INFRASTRUCTURE STACKS
+
+Infrastructure is organized into stacks with different lifecycles:
+
+| Stack | Lifecycle | Purpose |
+|-------|-----------|---------|
+| `storage` | Persistent | Longhorn backup buckets (S3) - never destroyed |
+| `dev` | Ephemeral | Dev cluster infrastructure - can be rebuilt |
+| `integration` | Ephemeral | Integration cluster infrastructure - can be rebuilt |
+| `live` | Ephemeral | Production cluster infrastructure - can be rebuilt |
+
+## Lifecycle Separation
+
+**Backup infrastructure is decoupled from cluster lifecycle.** This ensures:
+- Cluster stacks can be destroyed and rebuilt without losing backups
+- Disaster recovery can restore from backups even after complete cluster loss
+- Each cluster has its own S3 bucket managed by the storage stack
+
+**Storage stack provisions:**
+- S3 buckets: `homelab-longhorn-backup-{dev,integration,live}`
+- IAM users with scoped access per cluster
+- SSM parameters for credential injection
+
+**Recovery flow:**
+1. Storage stack persists (never destroyed)
+2. Cluster stack is rebuilt from scratch
+3. Kubernetes ExternalSecrets pull credentials from SSM
+4. Longhorn connects to existing backup bucket
+5. Volumes restored from S3 backups
+
+**Operational rule:** Never destroy the storage stack unless you intentionally want to lose all backup data
