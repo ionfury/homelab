@@ -41,6 +41,7 @@ spec:
       security: privileged
     - name: kromgo
       dataplane: ambient
+      security: privileged
     - name: spegel
       dataplane: standard
       security: privileged
