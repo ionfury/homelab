@@ -98,3 +98,9 @@ variable "bootstrap_charts" {
   }))
   default = []
 }
+
+variable "manage_versions" {
+  description = "Whether Terragrunt manages Talos/Kubernetes versions. Set to false after initial bootstrap to let Tuppr handle upgrades. When false, version changes in infrastructure code won't trigger node upgrades."
+  type        = bool
+  default     = false
+}

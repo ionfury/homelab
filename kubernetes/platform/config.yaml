@@ -37,6 +37,9 @@ spec:
     - name: database-config
       namespace: database
       path: kubernetes/platform/config/database
+    - name: tuppr-config
+      namespace: system-upgrade
+      path: kubernetes/platform/config/tuppr
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -56,4 +59,7 @@ spec:
         substituteFrom:
           - kind: ConfigMap
             name: cluster-vars
+            optional: false
+          - kind: ConfigMap
+            name: versions
             optional: false

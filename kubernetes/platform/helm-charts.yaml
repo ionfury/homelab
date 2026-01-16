@@ -154,6 +154,13 @@ spec:
         version: 0.27.0
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+    - name: tuppr
+      namespace: system-upgrade
+      chart:
+        name: tuppr
+        version: 0.1.0
+        url: oci://ghcr.io/home-operations/charts
+      dependsOn: [cilium, kube-prometheus-stack-crds]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

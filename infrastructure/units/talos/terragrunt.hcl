@@ -43,6 +43,7 @@ EOT
       talos_config_path      = "~/.talos"
       kubernetes_config_path = "~/.kube"
       talos_timeout          = "10m"
+      manage_versions        = false
       bootstrap_charts       = []
     }
   }

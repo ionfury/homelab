@@ -17,6 +17,7 @@ output "talos" {
     talos_config_path      = var.local_paths.talos
     kubernetes_config_path = var.local_paths.kubernetes
     talos_timeout          = "10m"
+    manage_versions        = var.manage_versions
     bootstrap_charts = [{
       repository = "https://helm.cilium.io/"
       chart      = "cilium"
