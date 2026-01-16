@@ -1,19 +1,15 @@
 ---
 # https://github.com/spegel-org/spegel/blob/main/charts/spegel/values.yaml
-# Talos-specific containerd registry configuration path
-containerdRegistryConfigPath: /etc/cri/conf.d/hosts
-
+spegel:
+  containerdSock: /run/containerd/containerd.sock
+  containerdRegistryConfigPath: /etc/cri/conf.d/hosts
+  
+service:
+  registry:
+    hostPort: 29999
+    
 serviceMonitor:
   enabled: true
 
 grafanaDashboard:
   enabled: true
-
-# Registries to mirror via peer-to-peer
-containerdMirrorAdd: true
-registries:
-  - https://docker.io
-  - https://ghcr.io
-  - https://gcr.io
-  - https://registry.k8s.io
-  - https://quay.io
