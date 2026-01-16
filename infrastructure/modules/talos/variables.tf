@@ -106,3 +106,4 @@ variable "bootstrap_charts" {
   }))
   default = []
 }
+

@@ -69,6 +69,12 @@ machine:
       enabled: true
       forwardKubeDNSToHost: true
       resolveMemberNames: true
+    kubernetesTalosAPIAccess:
+      enabled: true
+      allowedRoles:
+        - os:admin
+      allowedKubernetesNamespaces:
+        - system-upgrade
 %{ if length(machine_labels) > 0 ~}
   nodeLabels:
 %{ for item in machine_labels ~}
