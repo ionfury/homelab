@@ -26,6 +26,12 @@ jobs:
           curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
           sudo mv kubeconform /usr/local/bin/
 
+      - name: Install yq
+        run: |
+          curl -sSL https://github.com/mikefarah/yq/releases/download/v4.44.1/yq_linux_amd64 -o yq
+          chmod +x yq
+          sudo mv yq /usr/local/bin/
+
       - name: Build kustomizations
         run: |
           mkdir -p /tmp/manifests
