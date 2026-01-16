@@ -161,6 +161,13 @@ spec:
         version: 3.6.1
         url: oci://ghcr.io/bjw-s/helm
       dependsOn: [kube-prometheus-stack]
+    - name: spegel
+      namespace: spegel
+      chart:
+        name: spegel
+        version: v0.6.0
+        url: oci://ghcr.io/spegel-org/helm-charts
+      dependsOn: [cilium, kube-prometheus-stack-crds]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
