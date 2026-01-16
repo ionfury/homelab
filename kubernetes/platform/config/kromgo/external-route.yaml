@@ -12,5 +12,5 @@ spec:
     - "kromgo.${external_domain}"
   rules:
     - backendRefs:
-        - name: kromgo
+        - name: kromgo-app
           port: 8080
