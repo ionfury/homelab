@@ -67,16 +67,3 @@ variable "healthchecksio" {
     api_key_store = string
   })
 }
-
-variable "discord" {
-  description = "Discord integration configuration."
-  type = object({
-    webhook_url_store = string
-  })
-}
-
-variable "discord_replication_allowed_namespaces" {
-  description = "Namespaces to allow replication for Discord webhook secret."
-  type        = string
-  default     = "monitoring"
-}
