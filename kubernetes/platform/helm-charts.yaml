@@ -140,13 +140,6 @@ spec:
         version: 1.28.1
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni]
-    - name: istio-gateway
-      namespace: istio-system
-      chart:
-        name: gateway
-        version: 1.28.1
-        url: https://istio-release.storage.googleapis.com/charts
-      dependsOn: [istio-base, istiod, istio-cni, istio-ztunnel]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

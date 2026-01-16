@@ -17,7 +17,7 @@ spec:
       namespace: cert-manager
       path: kubernetes/platform/config/issuers
     - name: certificates
-      namespace: network
+      namespace: istio-gateway
       path: kubernetes/platform/config/certs
     - name: external-secrets-stores
       namespace: system
@@ -25,6 +25,9 @@ spec:
     - name: longhorn-storage
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn
+    - name: gateway
+      namespace: istio-gateway
+      path: kubernetes/platform/config/gateway
     - name: monitoring-config
       namespace: monitoring
       path: kubernetes/platform/config/monitoring

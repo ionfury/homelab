@@ -16,7 +16,7 @@ spec:
       dataplane: ambient
       security: privileged
     - name: kube-system
-      dataplane: ambient
+      dataplane: standard
       security: privileged
     - name: longhorn-system
       dataplane: standard
@@ -24,10 +24,10 @@ spec:
     - name: istio-system
       dataplane: ambient
       security: privileged
-    - name: monitoring
+    - name: istio-gateway
       dataplane: ambient
       security: privileged
-    - name: network
+    - name: monitoring
       dataplane: ambient
       security: privileged
     - name: system

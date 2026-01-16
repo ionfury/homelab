@@ -46,10 +46,7 @@ kubeProxy:
   enabled: false
 prometheus:
   ingress:
-    enabled: true
-    ingressClassName: internal
-    hosts: ["prometheus.${internal_domain}"]
-    pathType: Prefix
+    enabled: false
   prometheusSpec:
     podMetadata:
       labels:
