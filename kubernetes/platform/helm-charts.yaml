@@ -165,7 +165,7 @@ spec:
       namespace: spegel
       chart:
         name: spegel
-        version: v0.6.0
+        version: 0.6.0
         url: oci://ghcr.io/spegel-org/helm-charts
       dependsOn: [cilium, kube-prometheus-stack-crds]
   resourcesTemplate: |
