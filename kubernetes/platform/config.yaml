@@ -17,7 +17,7 @@ spec:
       namespace: cert-manager
       path: kubernetes/platform/config/issuers
     - name: certificates
-      namespace: network
+      namespace: istio-gateway
       path: kubernetes/platform/config/certs
     - name: external-secrets-stores
       namespace: system

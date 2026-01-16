@@ -5,4 +5,3 @@ kind: Kustomization
 resources:
   - internal-certificate.yaml
   - external-certificate.yaml
-  - reference-grant.yaml

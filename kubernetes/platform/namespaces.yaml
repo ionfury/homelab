@@ -30,9 +30,6 @@ spec:
     - name: monitoring
       dataplane: ambient
       security: privileged
-    - name: network
-      dataplane: ambient
-      security: privileged
     - name: system
       dataplane: ambient
       security: privileged
