@@ -1,0 +1,14 @@
+---
+apiVersion: tuppr.home-operations/v1alpha1
+kind: KubernetesUpgrade
+metadata:
+  name: kubernetes
+spec:
+  kubernetes:
+    version: ${kubernetes_version}
+  healthChecks:
+    - name: all-nodes-ready
+      timeout: 10m
+      expression: |
+        nodes.items.all(n, n.status.conditions.exists(c,
+          c.type == 'Ready' && c.status == 'True'))

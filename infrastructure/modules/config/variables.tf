@@ -207,3 +207,9 @@ variable "on_destroy" {
     reset    = true
   }
 }
+
+variable "manage_versions" {
+  description = "Whether Terragrunt manages Talos/Kubernetes versions. Set to false after initial bootstrap to let Tuppr handle upgrades."
+  type        = bool
+  default     = false
+}

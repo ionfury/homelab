@@ -22,11 +22,12 @@ resource "null_resource" "talos_cluster_health" {
 
 # Hack: https://github.com/siderolabs/terraform-provider-talos/issues/140
 # This upgrades the cluster
+# When manage_versions is false, Tuppr handles upgrades instead of Terragrunt
 resource "null_resource" "talos_upgrade_trigger" {
   #depends_on = [null_resource.talos_cluster_health]
 
   depends_on = [talos_machine_bootstrap.this, talos_machine_configuration_apply.machines]
-  for_each   = local.machines
+  for_each   = var.manage_versions ? local.machines : {}
 
   triggers = {
     desired_talos_tag    = local.machine_talos_version[each.key]
@@ -50,7 +51,9 @@ resource "null_resource" "talos_upgrade_trigger" {
 }
 
 # This completes when the upgrade is complete.
+# Only runs when manage_versions is true (Terragrunt-managed upgrades)
 resource "null_resource" "talos_cluster_health_upgrade" {
+  count      = var.manage_versions ? 1 : 0
   depends_on = [null_resource.talos_upgrade_trigger]
 
   triggers = {
