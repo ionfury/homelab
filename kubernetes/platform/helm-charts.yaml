@@ -154,6 +154,13 @@ spec:
         version: 0.27.0
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+    - name: kromgo
+      namespace: kromgo
+      chart:
+        name: app-template
+        version: 3.6.1
+        url: oci://ghcr.io/bjw-s/helm
+      dependsOn: [kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

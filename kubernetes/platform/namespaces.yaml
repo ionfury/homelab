@@ -39,6 +39,9 @@ spec:
     - name: database
       dataplane: ambient
       security: privileged
+    - name: kromgo
+      dataplane: ambient
+      security: privileged
   resourcesTemplate: |
     ---
     apiVersion: v1
