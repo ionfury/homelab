@@ -5,6 +5,7 @@ kind: RecurringJob
 metadata:
   name: &name snapshot-daily
 spec:
+  name: *name
   cron: "0 1 * * *"
   task: snapshot
   groups:

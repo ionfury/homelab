@@ -137,7 +137,7 @@ run "single_node_replica_count" {
   assert {
     condition = anytrue([
       for v in output.cluster_vars :
-      v.name == "default_replica_count" && v.value == "\"1\""
+      v.name == "default_replica_count" && v.value == "1"
     ])
     error_message = "default_replica_count should be 1 for single node"
   }
@@ -186,7 +186,7 @@ run "three_node_replica_count" {
   assert {
     condition = anytrue([
       for v in output.cluster_vars :
-      v.name == "default_replica_count" && v.value == "\"3\""
+      v.name == "default_replica_count" && v.value == "3"
     ])
     error_message = "default_replica_count should be 3 for three nodes"
   }
@@ -255,7 +255,7 @@ run "five_node_replica_count_capped" {
   assert {
     condition = anytrue([
       for v in output.cluster_vars :
-      v.name == "default_replica_count" && v.value == "\"3\""
+      v.name == "default_replica_count" && v.value == "3"
     ])
     error_message = "default_replica_count should be capped at 3 even with 5 nodes"
   }
