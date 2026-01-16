@@ -31,7 +31,7 @@ spec:
     - name: gateway
       namespace: istio-gateway
       path: kubernetes/platform/config/gateway
-    - name: monitoring-routes
+    - name: monitoring-config
       namespace: monitoring
       path: kubernetes/platform/config/monitoring
   resourcesTemplate: |

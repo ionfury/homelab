@@ -17,7 +17,7 @@ alertmanager:
         networking/allow-egress-internet: "true"
     replicas: 1
     alertmanagerConfiguration:
-      name: kube-prometheus-stack-alertmanager
+      name: alertmanager
       global:
         resolveTimeout: 5m
     externalUrl: https://alertmanager.${external_domain}

@@ -518,6 +518,24 @@ Path pattern: `/homelab/kubernetes/${cluster_name}/<secret-name>`
 2. Must this secret match a value outside the cluster? → Use `ExternalSecret`
 3. Never commit secrets to git
 
+### Required SSM Parameters for New Clusters
+
+When bootstrapping a new cluster, populate these SSM parameters before the cluster can function fully:
+
+| SSM Path | Description | Format |
+|----------|-------------|--------|
+| `/homelab/kubernetes/<cluster>/cloudflare-api-token` | Cloudflare API token for DNS challenges | JSON: `{"token": "<value>"}` |
+| `/homelab/kubernetes/<cluster>/discord-webhook-secret` | Discord webhook URL for Alertmanager | Plain string: webhook URL |
+
+**Bootstrap-managed secrets** (created by Terragrunt in kube-system):
+- `external-secrets-access-key` - AWS IAM credentials for External Secrets Operator
+- `heartbeat-ping-url` - Healthchecks.io ping URL (dynamically created per cluster)
+- `flux-system` - GitHub token for Flux GitOps
+
+**ExternalSecret-managed secrets** (synced from AWS SSM):
+- `cloudflare-api-token` (cert-manager) - DNS challenge credentials
+- `alertmanager-discord-webhook` (monitoring) - Discord notifications
+
 ## Inventory Lookups
 
 Use `hcl2json` + `jq` to query inventory data:
