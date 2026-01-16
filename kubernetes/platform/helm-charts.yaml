@@ -154,6 +154,13 @@ spec:
         version: 0.27.0
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+    - name: spegel
+      namespace: spegel
+      chart:
+        name: spegel
+        version: v0.6.0
+        url: oci://ghcr.io/spegel-org/helm-charts
+      dependsOn: [cilium, kube-prometheus-stack-crds]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
