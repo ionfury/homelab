@@ -34,6 +34,9 @@ spec:
     - name: monitoring-config
       namespace: monitoring
       path: kubernetes/platform/config/monitoring
+    - name: database-config
+      namespace: database
+      path: kubernetes/platform/config/database
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

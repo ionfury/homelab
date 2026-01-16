@@ -147,6 +147,13 @@ spec:
         version: 3.6.1
         url: oci://ghcr.io/bjw-s/helm
       dependsOn: [longhorn, secret-generator]
+    - name: cloudnative-pg
+      namespace: database
+      chart:
+        name: cloudnative-pg
+        version: 0.27.0
+        url: https://cloudnative-pg.github.io/charts
+      dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
