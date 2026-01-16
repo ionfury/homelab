@@ -28,11 +28,6 @@ unit "bootstrap" {
   path   = "bootstrap"
 }
 
-unit "longhorn_s3_backup" {
-  source = "../../units/longhorn-s3-backup"
-  path   = "longhorn-s3-backup"
-}
-
 unit "aws_set_params" {
   source = "../../units/aws-set-params"
   path   = "aws-set-params"
