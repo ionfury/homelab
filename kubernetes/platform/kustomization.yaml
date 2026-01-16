@@ -18,11 +18,11 @@ configMapGenerator:
       - cloudnative-pg.yaml=charts/cloudnative-pg.yaml
       - descheduler.yaml=charts/descheduler.yaml
       - external-secrets.yaml=charts/external-secrets.yaml
+      - garage.yaml=charts/garage.yaml
       - grafana-loki-single-binary.yaml=charts/grafana-loki-single-binary.yaml
       - grafana.yaml=charts/grafana.yaml
       - istio-base.yaml=charts/istio-base.yaml
       - istio-cni.yaml=charts/istio-cni.yaml
-      - istio-gateway.yaml=charts/istio-gateway.yaml
       - istio-ztunnel.yaml=charts/istio-ztunnel.yaml
       - istiod.yaml=charts/istiod.yaml
       - kube-prometheus-stack-crds.yaml=charts/kube-prometheus-stack-crds.yaml
