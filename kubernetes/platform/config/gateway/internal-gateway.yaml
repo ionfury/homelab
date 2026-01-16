@@ -19,7 +19,6 @@ spec:
         certificateRefs:
           - kind: Secret
             name: internal-tls
-            namespace: network
       allowedRoutes:
         namespaces:
           from: All
