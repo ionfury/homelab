@@ -25,6 +25,9 @@ spec:
     - name: longhorn-storage
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn
+    - name: garage-config
+      namespace: garage
+      path: kubernetes/platform/config/garage
     - name: gateway
       namespace: istio-gateway
       path: kubernetes/platform/config/gateway

@@ -17,6 +17,7 @@ configMapGenerator:
       - cilium.yaml=charts/cilium.yaml
       - descheduler.yaml=charts/descheduler.yaml
       - external-secrets.yaml=charts/external-secrets.yaml
+      - garage.yaml=charts/garage.yaml
       - grafana-loki-single-binary.yaml=charts/grafana-loki-single-binary.yaml
       - grafana.yaml=charts/grafana.yaml
       - istio-base.yaml=charts/istio-base.yaml
