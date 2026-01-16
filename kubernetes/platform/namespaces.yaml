@@ -39,6 +39,9 @@ spec:
     - name: database
       dataplane: ambient
       security: privileged
+    - name: spegel
+      dataplane: standard
+      security: privileged
   resourcesTemplate: |
     ---
     apiVersion: v1
