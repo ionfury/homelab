@@ -5,3 +5,5 @@ kind: Kustomization
 resources:
   - l2.yaml
   - pool.yaml
+  - hubble-route.yaml
+  - hubble-canary.yaml

@@ -6,5 +6,9 @@ resources:
   - alertmanager-config.yaml
   - discord-secret.yaml
   - heartbeat-secret.yaml
+  - alertmanager-route.yaml
+  - alertmanager-canary.yaml
+  - grafana-route.yaml
+  - grafana-canary.yaml
   - prometheus-route.yaml
   - prometheus-canary.yaml

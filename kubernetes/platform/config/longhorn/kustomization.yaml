@@ -9,6 +9,7 @@ resources:
   - recurring-jobs/backup-weekly.yaml
   - recurring-jobs/snapshot-daily.yaml
   - recurring-jobs/filesystem-trim-daily.yaml
+  - routes/
   - storage-classes/fast-critical.yaml
   - storage-classes/fast.yaml
   - storage-classes/fast-unmanaged.yaml
