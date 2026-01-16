@@ -1,18 +1,43 @@
 ---
 # https://raw.githubusercontent.com/kubernetes-sigs/descheduler/master/charts/descheduler/values.yaml
+
+# Run as Deployment with leader election for HA
 replicas: 2
 kind: Deployment
+
 deschedulerPolicyAPIVersion: descheduler/v1alpha2
 deschedulerPolicy:
+  # Limit evictions per node per cycle to prevent disruption
+  maxNoOfPodsToEvictPerNode: 3
   profiles:
     - name: Default
       pluginConfig:
         - name: DefaultEvictor
           args:
-            evictFailedBarePods: true
-            evictLocalStoragePods: true
+            # Safety: Never evict system-critical pods
             evictSystemCriticalPods: false
+            # Safety: Don't evict pods with local storage (Longhorn volumes use this)
+            evictLocalStoragePods: false
+            # Evict failed bare pods (pods without controller)
+            evictFailedBarePods: true
+            # Ensure evicted pods can be rescheduled elsewhere
             nodeFit: true
+            # Extra protection: Don't evict pods using PVCs (Longhorn safety)
+            podProtections:
+              extraEnabled:
+                - PodsWithPVC
+        - name: LowNodeUtilization
+          args:
+            # Nodes below these thresholds are considered underutilized
+            thresholds:
+              cpu: 20
+              memory: 20
+              pods: 20
+            # Nodes above these thresholds are considered overutilized
+            targetThresholds:
+              cpu: 50
+              memory: 50
+              pods: 50
         - name: RemovePodsViolatingInterPodAntiAffinity
         - name: RemovePodsViolatingNodeAffinity
           args:
@@ -24,26 +49,44 @@ deschedulerPolicy:
             constraints:
               - DoNotSchedule
               - ScheduleAnyway
+        - name: RemovePodsHavingTooManyRestarts
+          args:
+            # Evict pods exceeding this restart count
+            podRestartThreshold: 100
+            includingInitContainers: true
         - name: RemoveFailedPods
           args:
             excludeOwnerKinds:
               - Job
             includingInitContainers: true
+            # Only clean up pods that have been failed for at least 1 hour
             minPodLifetimeSeconds: 3600
       plugins:
         balance:
           enabled:
+            # Redistribute pods from overutilized to underutilized nodes
+            - LowNodeUtilization
+            # Ensure topology spread constraints are respected over time
             - RemovePodsViolatingTopologySpreadConstraint
         deschedule:
           enabled:
+            # Fix anti-affinity violations that occur after scheduling
             - RemovePodsViolatingInterPodAntiAffinity
+            # Fix node affinity violations after node changes
             - RemovePodsViolatingNodeAffinity
+            # Evict pods not tolerating current node taints
             - RemovePodsViolatingNodeTaints
+            # Clean up crashlooping pods
+            - RemovePodsHavingTooManyRestarts
+            # Remove pods stuck in Failed phase
             - RemoveFailedPods
+
 service:
   enabled: true
+
 serviceMonitor:
   enabled: true
+
 leaderElection:
   enabled: true
   leaseDuration: 15s
@@ -51,4 +94,4 @@ leaderElection:
   retryPeriod: 2s
   resourceLock: "leases"
   resourceName: "descheduler"
-  resourceNamescape: "kube-system"
+  resourceNamespace: "kube-system"
