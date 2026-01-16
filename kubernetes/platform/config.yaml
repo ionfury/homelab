@@ -37,6 +37,9 @@ spec:
     - name: database-config
       namespace: database
       path: kubernetes/platform/config/database
+    - name: kromgo-config
+      namespace: kromgo
+      path: kubernetes/platform/config/kromgo
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

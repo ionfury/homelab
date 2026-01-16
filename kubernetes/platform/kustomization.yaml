@@ -32,4 +32,5 @@ configMapGenerator:
       - reloader.yaml=charts/reloader.yaml
       - replicator.yaml=charts/replicator.yaml
       - secret-generator.yaml=charts/secret-generator.yaml
+      - kromgo.yaml=charts/kromgo.yaml
       - spegel.yaml=charts/spegel.yaml
