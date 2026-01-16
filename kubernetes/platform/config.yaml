@@ -17,7 +17,7 @@ spec:
       namespace: cert-manager
       path: kubernetes/platform/config/issuers
     - name: certificates
-      namespace: network
+      namespace: istio-gateway
       path: kubernetes/platform/config/certs
     - name: external-secrets-stores
       namespace: system
@@ -28,6 +28,12 @@ spec:
     - name: garage-config
       namespace: garage
       path: kubernetes/platform/config/garage
+    - name: gateway
+      namespace: istio-gateway
+      path: kubernetes/platform/config/gateway
+    - name: monitoring-routes
+      namespace: monitoring
+      path: kubernetes/platform/config/monitoring
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

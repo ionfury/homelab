@@ -52,6 +52,8 @@ loadBalancer:
   acceleration: best-effort
   algorithm: maglev
   mode: dsr
+socketLB:
+  hostNamespaceOnly: true
 operator:
   rollOutPods: true
   replicas: 1
