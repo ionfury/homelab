@@ -48,6 +48,27 @@ These variables are injected into the `flux-system` ConfigMap and used throughou
 
 ---
 
+## Cluster Access
+
+Each cluster has a separate kubeconfig file. **Every kubectl command must specify the KUBECONFIG**:
+
+```bash
+# Pattern: KUBECONFIG=~/.kube/<cluster>.yaml kubectl <command>
+KUBECONFIG=~/.kube/dev.yaml kubectl get pods -A
+KUBECONFIG=~/.kube/integration.yaml kubectl get nodes
+KUBECONFIG=~/.kube/live.yaml kubectl describe pod -n monitoring prometheus-0
+```
+
+| Cluster | Kubeconfig Path |
+|---------|-----------------|
+| `dev` | `~/.kube/dev.yaml` |
+| `integration` | `~/.kube/integration.yaml` |
+| `live` | `~/.kube/live.yaml` |
+
+**Important**: Do not rely on `kubectl config use-context` - always prefix commands with `KUBECONFIG=` to avoid accidentally targeting the wrong cluster.
+
+---
+
 ## Available Clusters
 
 | Name | Purpose | Hardware | Notes |
