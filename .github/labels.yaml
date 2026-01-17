@@ -1,0 +1,24 @@
+- name: type/major
+  color: "d73a4a"
+  description: "Major version update"
+- name: type/minor
+  color: "0e8a16"
+  description: "Minor version update"
+- name: type/patch
+  color: "1d76db"
+  description: "Patch version update"
+- name: type/digest
+  color: "c5def5"
+  description: "Container digest update"
+- name: renovate/helm
+  color: "0f5283"
+  description: "Helm chart dependency"
+- name: renovate/container
+  color: "2496ed"
+  description: "Container image dependency"
+- name: renovate/github-action
+  color: "2088ff"
+  description: "GitHub Action dependency"
+- name: renovate/github-release
+  color: "6f42c1"
+  description: "GitHub release dependency"

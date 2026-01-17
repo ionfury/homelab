@@ -1,0 +1,44 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    // EXCLUSIONS FIRST (order matters - later rules override earlier)
+    // Never automerge infrastructure tooling - these affect cluster stability fundamentally
+    {
+      "description": "Never automerge infrastructure tooling",
+      "matchDepNames": ["opentofu", "terragrunt", "talos", "kubernetes", "cilium", "flux", "gateway-api", "prometheus-operator-crds"],
+      "automerge": false
+    },
+    // Never automerge major updates - breaking changes need review
+    {
+      "description": "Never automerge major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+
+    // AUTOMERGE RULES
+    // Aggressive: All minor and patch updates (Flux handles rollback)
+    {
+      "description": "Automerge minor and patch updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "3 days"
+    },
+    // Digest updates - very safe (SHA pinning changes only)
+    {
+      "description": "Automerge container digest updates",
+      "matchUpdateTypes": ["digest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "1 day"
+    },
+    // Trusted GitHub Actions get faster automerge
+    {
+      "description": "Fast-track trusted GitHub Actions",
+      "matchDatasources": ["github-tags"],
+      "matchPackageNames": ["/^actions\\//", "/^renovatebot\\//"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "minimumReleaseAge": "1 day"
+    }
+  ]
+}
