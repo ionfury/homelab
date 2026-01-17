@@ -7,30 +7,18 @@ on:
     paths:
       - "kubernetes/**"
       - ".github/workflows/kubernetes-validate.yaml"
+      - ".github/actions/**"
   workflow_dispatch:
 
 jobs:
-  validate:
+  validate-kustomize:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Install kustomize
-        uses: imranismail/setup-kustomize@v2.1.0
-        with:
-          kustomize-version: "5.4.1"
-
-      - name: Install kubeconform
-        run: |
-          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
-          sudo mv kubeconform /usr/local/bin/
-
-      - name: Install yq
-        run: |
-          curl -sSL https://github.com/mikefarah/yq/releases/download/v4.44.1/yq_linux_amd64 -o yq
-          chmod +x yq
-          sudo mv yq /usr/local/bin/
+      - name: Setup validation tools
+        uses: ./.github/actions/setup-validation-tools
 
       - name: Build kustomizations
         run: |
@@ -73,120 +61,14 @@ jobs:
             -output text \
             /tmp/manifests/*.yaml
 
-      - name: Validate Helm values YAML
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { execFileSync } = require('child_process');
-            const fs = require('fs');
-            const path = require('path');
+  validate-helm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
 
-            const chartsDir = 'kubernetes/platform/charts';
-            const files = fs.readdirSync(chartsDir).filter(f => f.endsWith('.yaml'));
+      - name: Setup validation tools
+        uses: ./.github/actions/setup-validation-tools
 
-            console.log(`Validating ${files.length} chart values files...`);
-
-            for (const file of files) {
-              const filePath = path.join(chartsDir, file);
-              try {
-                execFileSync('yq', ['eval', '.', filePath], { stdio: 'pipe' });
-                console.log(`✓ ${file}`);
-              } catch (error) {
-                core.setFailed(`Invalid YAML in ${file}: ${error.message}`);
-              }
-            }
-
-      - name: Setup Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: 'v3.16.0'
-
-      - name: Helm template critical charts
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { execFileSync, spawnSync } = require('child_process');
-            const fs = require('fs');
-
-            // Parse helm-charts.yaml to extract chart definitions
-            const helmChartsJson = execFileSync(
-              'yq', ['.spec.inputs', 'kubernetes/platform/helm-charts.yaml', '-o=json']
-            ).toString();
-            const inputs = JSON.parse(helmChartsJson);
-
-            // Build lookup map: name -> { chartName, version, url }
-            const chartDefs = {};
-            for (const input of inputs) {
-              chartDefs[input.name] = {
-                chartName: input.chart.name,
-                version: input.chart.version,
-                url: input.chart.url
-              };
-            }
-
-            // Critical charts to validate
-            const criticalCharts = ['cilium', 'kube-prometheus-stack', 'grafana'];
-
-            // CI test variables for substitution
-            const testVars = {
-              cluster_name: 'ci-test',
-              cluster_pod_subnet: '10.244.0.0/16',
-              internal_domain: 'internal.ci.example.com',
-              external_domain: 'external.ci.example.com',
-              default_replica_count: '1'
-            };
-
-            // Set env vars for envsubst
-            Object.entries(testVars).forEach(([k, v]) => process.env[k] = v);
-
-            // Add repos and template each critical chart
-            const addedRepos = new Map();
-
-            for (const name of criticalCharts) {
-              const def = chartDefs[name];
-              if (!def) {
-                core.setFailed(`Chart "${name}" not found in helm-charts.yaml`);
-                return;
-              }
-
-              // Skip OCI registries (not supported by helm repo add)
-              if (def.url.startsWith('oci://')) {
-                console.log(`⊘ Skipping ${name} (OCI registry)`);
-                continue;
-              }
-
-              // Add repo if not already added (use URL as key to avoid duplicates)
-              let repoName = addedRepos.get(def.url);
-              if (!repoName) {
-                repoName = name.replace(/-/g, '');
-                execFileSync('helm', ['repo', 'add', repoName, def.url], { stdio: 'inherit' });
-                addedRepos.set(def.url, repoName);
-              }
-
-              // Substitute variables in values file
-              const valuesFile = `kubernetes/platform/charts/${name}.yaml`;
-              const envsubstResult = spawnSync('envsubst', [], {
-                input: fs.readFileSync(valuesFile),
-                encoding: 'utf8'
-              });
-              const tmpValues = `/tmp/${name}-values.yaml`;
-              fs.writeFileSync(tmpValues, envsubstResult.stdout);
-
-              // Template the chart
-              const chart = `${repoName}/${def.chartName}`;
-              console.log(`\nTemplating: ${name} (${chart}:${def.version})`);
-
-              try {
-                execFileSync('helm', [
-                  'template', name, chart,
-                  '--version', def.version,
-                  '--values', tmpValues,
-                  '--namespace', 'test'
-                ], { stdio: 'pipe' });
-                console.log(`✓ ${name} templated successfully`);
-              } catch (error) {
-                core.setFailed(`Failed to template ${name}: ${error.stderr?.toString() || error.message}`);
-              }
-            }
-
-            execFileSync('helm', ['repo', 'update'], { stdio: 'inherit' });
+      - name: Validate Helm charts
+        uses: ./.github/actions/validate-helm-charts
