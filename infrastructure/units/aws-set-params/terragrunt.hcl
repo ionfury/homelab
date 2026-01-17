@@ -16,7 +16,7 @@ dependency "config" {
     }
     cluster_name = "mock"
   }
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
 }
 
 dependency "talos" {
@@ -26,7 +26,7 @@ dependency "talos" {
     kubeconfig_raw  = "mock"
     talosconfig_raw = "mock"
   }
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
 }
 
 inputs = {

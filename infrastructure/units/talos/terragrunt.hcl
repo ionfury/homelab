@@ -10,7 +10,7 @@ dependency "unifi" {
   config_path = "../unifi"
 
   mock_outputs                            = {}
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
   skip_outputs                            = true
 }
 
@@ -46,7 +46,7 @@ EOT
       bootstrap_charts       = []
     }
   }
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
 }
 
 inputs = dependency.config.outputs.talos
