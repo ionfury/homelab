@@ -206,6 +206,7 @@ spec:
         createNamespace: false
         remediation:
           retries: 3
+        timeout: 10m
       interval: 10m
       maxHistory: 3
       releaseName: << inputs.name >>
@@ -216,6 +217,7 @@ spec:
         crds: CreateReplace
         remediation:
           retries: 3
+        timeout: 10m
       valuesFrom:
         - kind: ConfigMap
           name: platform-values
