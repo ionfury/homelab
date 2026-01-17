@@ -5,6 +5,6 @@ locals {
     cilium      = "1.18.6"
     gateway_api = "v1.4.1"
     flux        = "v2.7.5"
-    prometheus  = "20.0.0"
+    prometheus  = "20.0.3"
   }
 }
