@@ -42,6 +42,22 @@ Don't Repeat Yourself. Duplication is technical debt:
 - **Refactor when duplicating**: If you're copying code, stop and extract it into a reusable component
 - **Consistency through reuse**: Reusing code ensures consistent behavior across the system
 
+## Continuous Improvement
+
+Documentation and skills are living artifacts. Improve them proactively:
+- **Learn from every task**: When completing work, identify patterns or knowledge that should be captured
+- **Update documentation immediately**: If you discover something that should be in CLAUDE.md or a skill, update it as part of the current task
+- **Capture user feedback**: When users provide corrections, preferences, or clarifications, encode them in the appropriate documentation
+- **Use agent delegation**: Spawn specialized agents to update skills and documentation in parallel with primary work
+- **Skills over repetition**: If you find yourself explaining the same concept twice, it belongs in a skill or CLAUDE.md
+
+**When to update documentation:**
+- New patterns discovered during implementation
+- User corrections that reveal missing or incorrect guidance
+- Repetitive explanations that could be codified
+- Anti-patterns encountered that should be warned against
+- Workflow improvements that benefit future tasks
+
 ---
 
 # CHANGE MANAGEMENT & DEPLOYMENT
