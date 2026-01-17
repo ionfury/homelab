@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [aws-set-params, bootstrap, config, talos, unifi]
+        module: [aws-set-params, bootstrap, config, talos]
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
