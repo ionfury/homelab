@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Renovate Validate
+
+on:
+  pull_request:
+    paths:
+      - ".github/renovate.json5"
+      - ".github/renovate/**"
+      - ".github/workflows/renovate-validate.yaml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Validate Renovate config
+        run: npx --yes --package renovate@41 -- renovate-config-validator --strict
