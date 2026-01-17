@@ -1,3 +1,79 @@
 {
+  "permissions": {
+    "allow": [
+      "WebSearch",
+
+      "Bash(ls:*)",
+      "Bash(tree:*)",
+      "Bash(test:*)",
+
+      "Bash(task -l:*)",
+      "Bash(task tg:fmt:*)",
+      "Bash(task tg:list:*)",
+      "Bash(task tg:validate-*:*)",
+      "Bash(task tg:test-*:*)",
+      "Bash(task talos:maint:*)",
+      "Bash(task wt:*:*)",
+      "Bash(task renovate:validate:*)",
+
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git worktree:*)",
+
+      "Bash(kubectl get:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl cluster-info:*)",
+      "Bash(kubectl config:*)",
+      "Bash(kubectl explain:*)",
+      "Bash(kubectl top:*)",
+
+      "Bash(flux get:*)",
+      "Bash(flux logs:*)",
+      "Bash(flux stats:*)",
+      "Bash(flux reconcile:*)",
+
+      "Bash(helm repo:*)",
+      "Bash(helm search:*)",
+      "Bash(helm show:*)",
+
+      "Bash(kustomize build:*)",
+      "Bash(yq:*)",
+      "Bash(jq:*)",
+
+      "Bash(gh issue:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh run:*)",
+      "Bash(gh workflow:*)",
+      "Bash(gh release:*)",
+      "Bash(gh repo:*)",
+      "Bash(gh api:*)",
+
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:kubesearch.dev)",
+      "WebFetch(domain:taskfile.dev)",
+      "WebFetch(domain:opentofu.org)",
+      "WebFetch(domain:terragrunt.gruntwork.io)",
+      "WebFetch(domain:istio.io)",
+      "WebFetch(domain:gateway-api.sigs.k8s.io)",
+      "WebFetch(domain:kubernetes.io)",
+      "WebFetch(domain:fluxcd.io)",
+
+      "Skill(kubesearch)",
+      "Skill(terragrunt)",
+      "Skill(flux-gitops)",
+      "Skill(app-template)",
+      "Skill(k8s-sre)",
+      "Skill(taskfiles)",
+      "Skill(opentofu-modules)",
+      "Skill(gha-pipelines)",
+      "Skill(k8s-manifest-generator)"
+    ]
+  },
+  "outputStyle": "Explanatory",
   "enabledPlugins": {}
 }
