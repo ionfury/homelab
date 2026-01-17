@@ -1,154 +1,267 @@
-# Coraza WAF Implementation Strategy
+# Coraza WAF Implementation Plan
 
-## 1. Scope and Intent
+## Overview
 
-**Goal**
-Provide lightweight HTTP hygiene and exploit noise reduction for unauthenticated ingress traffic in a homelab Kubernetes cluster.
+This document defines the architectural approach for deploying Coraza WAF as a lightweight HTTP hygiene layer on the external ingress gateway. The design prioritizes simplicity and fail-open behavior over comprehensive security—Coraza filters exploit noise and basic HTTP violations, not sophisticated attacks.
 
-**Explicit non-goals**
-- Enterprise-grade virtual patching
-- East–west traffic inspection
-- Sidecar-based WAF
+### Goals
+
+- **Exploit noise reduction**: Block common scanner patterns and malformed requests
+- **HTTP hygiene**: Enforce basic request sanity (method, headers, body size)
+- **Minimal operational overhead**: No per-service tuning, fail-open posture
+- **Observable blocking**: WAF decisions visible via Prometheus metrics and Hubble flows
+- **Lifecycle safety**: WAF never becomes a dependency for cluster operations
+
+### Non-Goals
+
+- Enterprise-grade virtual patching or comprehensive security
+- Internal gateway protection (Tailscale traffic is trusted)
 - Per-service or stateful WAF tuning
-- TCP or streaming traffic inspection (e.g., Jellyfin)
+- East–west traffic inspection
+
+### Technology Choice
+
+**Coraza via Istio WasmPlugin CRD**. Rationale:
+
+| Option | Verdict | Reasoning |
+|--------|---------|-----------|
+| Istio WasmPlugin + coraza-proxy-wasm | ✅ | Native Istio resource, OCI-based distribution, embedded OWASP CRS |
+| Raw EnvoyFilter | ❌ | Lower-level complexity, harder to maintain |
+| Tetrate Envoy Gateway Helm | ❌ | Replaces Istio as Gateway API impl—not compatible with current setup |
+| Sidecar-based WAF | ❌ | Per-pod overhead, conflicts with ambient mode |
 
 ---
 
-## 2. Architectural Placement
+## Architecture
 
-### Control Plane
-- Kubernetes cluster managed by Talos
-- Ingress implemented using Istio
-- Ingress routing defined via Kubernetes Gateway API (`Gateway`, `HTTPRoute`)
+### Gateway Topology (Current State)
 
-### WAF Placement (Critical)
-- Coraza runs **only** at the Istio ingress gateway
-- Implemented as a WASM HTTP filter in Envoy
-- Injected via Istio `EnvoyFilter`
-- Never runs in:
-  - Sidecars
-  - Ambient waypoints
-  - East–west traffic
-  - Storage or infrastructure namespaces
+The homelab uses a two-gateway model, both deployed in `istio-gateway` namespace:
 
----
+| Gateway | Purpose | Hostname Pattern | WAF Protected |
+|---------|---------|------------------|---------------|
+| `external` | Public internet traffic | `*.${external_domain}` | ✅ Yes |
+| `internal` | Tailscale/private traffic | `*.${internal_domain}` | ❌ No (trusted) |
 
-## 3. CRDs and APIs
+### WAF Placement
 
-### Actively Used
-- `Gateway` (Gateway API)
-- `HTTPRoute` (Gateway API)
-- `EnvoyFilter` (Istio)
-- Optional:
-  - `AuthorizationPolicy`
-  - `RequestAuthentication`
-
-### Explicitly Not Used for Ingress
-- `VirtualService`
-- `DestinationRule`
-
-Gateway API is the ingress **contract**; Istio is the **implementation**.
-
----
-
-## 4. Traffic Coverage Rules
-
-### WAF Applies To
-- HTTP/HTTPS traffic
-- Unauthenticated or publicly reachable endpoints
-- Selected hosts or routes only
-
-### WAF Explicitly Excludes
-- Jellyfin and other streaming endpoints
-- Long-lived or high-bandwidth connections
-- TCP services
-- Authenticated internal APIs (unless explicitly opted in)
-
-**Scoping mechanisms**
-- Separate Gateways, or
-- Hostname-based matching in the `EnvoyFilter`
-
----
-
-## 5. Envoy Filter Ordering (Required)
-
-The Coraza filter must appear in the Envoy HTTP filter chain in the following order:
-
-LS termination
-→ Rate limiting (if used)
-→ Coraza WAF (WASM)
-→ Authentication / Authorization (optional)
-→ Router
+```
+                    Internet
+                        │
+                        ▼
+┌───────────────────────────────────────────────────────────┐
+│                   External Gateway                         │
+│                   (istio-gateway ns)                       │
+│                                                           │
+│   TLS termination                                         │
+│        ↓                                                  │
+│   Coraza WasmPlugin  ◄── Inspects all HTTP requests      │
+│        ↓                                                  │
+│   Router → HTTPRoute                                      │
+└───────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+              Backend Services (ambient mesh)
 
 
-This preserves visibility into raw requests and avoids masking failures.
+                   Tailscale
+                        │
+                        ▼
+┌───────────────────────────────────────────────────────────┐
+│                   Internal Gateway                         │
+│                   (istio-gateway ns)                       │
+│                                                           │
+│   TLS termination                                         │
+│        ↓                                                  │
+│   Router → HTTPRoute  (no WAF - trusted traffic)         │
+└───────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+              Backend Services (ambient mesh)
+```
+
+### Traffic Coverage
+
+All HTTP traffic through the external gateway is inspected. Non-HTTP traffic naturally bypasses Coraza:
+
+| Traffic Type | WAF Inspection | Notes |
+|--------------|----------------|-------|
+| HTTP/HTTPS via external gateway | ✅ | All public-facing routes |
+| HTTP/HTTPS via internal gateway | ❌ | Trusted Tailscale traffic |
+| TCP streams (Jellyfin, game servers) | ❌ | Non-HTTP, Coraza doesn't apply |
+| Kubernetes API | ❌ | Not routed through gateways |
 
 ---
 
-## 6. Coraza Configuration Posture
+## Implementation Details
 
-### Rule Set
-- OWASP Core Rule Set (CRS)
-- Low paranoia level
-- Fail-open behavior preferred
+### File Structure
 
-### Enabled Capabilities
-- HTTP method sanity checks
-- Header normalization
-- Request body size limits
-- Generic exploit pattern blocking
+All Coraza resources live alongside existing gateway configuration:
 
-### Explicitly Disabled or Avoided
-- Aggressive CRS tuning
-- Stateful inspection
-- Per-service rule customization
-- Detailed audit logging
+```
+kubernetes/platform/config/gateway/
+├── external-gateway.yaml      # Existing
+├── internal-gateway.yaml      # Existing
+├── httproutes/                # Existing
+├── coraza-wasm-plugin.yaml    # NEW: WasmPlugin resource
+└── coraza-config.yaml         # NEW: ConfigMap with SecLang rules
+```
 
-The WAF is intended for noise reduction, not comprehensive security.
+### WasmPlugin Resource
+
+```yaml
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: coraza-waf
+  namespace: istio-gateway
+spec:
+  # Target only the external gateway
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: external
+  url: oci://ghcr.io/corazawaf/coraza-proxy-wasm
+  phase: AUTHN  # Run early in filter chain, before auth
+  pluginConfig:
+    # Reference ConfigMap for SecLang configuration
+    directives_map:
+      default: |
+        Include @coraza.conf-recommended
+        Include @crs-setup.conf.example
+        Include @owasp_crs/*.conf
+        SecRuleEngine On
+  failStrategy: FAIL_OPEN  # Don't block traffic if WAF errors
+```
+
+### ConfigMap for Rule Tuning
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coraza-rules
+  namespace: istio-gateway
+data:
+  custom-rules.conf: |
+    # Paranoia level 1 (lowest, fewer false positives)
+    SecAction "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
+
+    # Disable specific rules that cause false positives
+    # SecRuleRemoveById 920350  # Example: Host header validation
+
+    # Request body size limit (10MB)
+    SecRequestBodyLimit 10485760
+    SecRequestBodyNoFilesLimit 131072
+
+    # Response body inspection disabled (performance)
+    SecResponseBodyAccess Off
+```
+
+### Prometheus Metrics
+
+Coraza exposes metrics via the Envoy stats endpoint. Key metrics to monitor:
+
+| Metric | Description |
+|--------|-------------|
+| `waf_requests_total` | Total requests processed |
+| `waf_blocked_total` | Requests blocked by WAF |
+| `waf_rule_hits_total{rule_id}` | Hits per CRS rule |
+| `waf_latency_seconds` | Processing time overhead |
+
+These are exposed through Istio's proxy metrics and scraped by Prometheus.
+
+### Hubble Integration
+
+Hubble provides L3/L4 visibility complementing WAF's L7 inspection:
+
+- **Flow logs**: See connection patterns to/from external gateway
+- **Dropped flows**: Correlate with WAF blocks
+- **Network policy enforcement**: Verify WAF sits in expected path
 
 ---
 
-## 7. Istio Mode Compatibility
+## Configuration Management
 
-- Works with both:
-  - Classic Istio
-  - Ambient Istio
-- Ambient mesh does not change ingress behavior
-- Coraza is never deployed to:
-  - Ambient waypoints
-  - ztunnel paths
+### SecLang Rule Customization
 
-Ingress gateways always run classic Envoy.
+The ConfigMap allows iterative tuning without redeploying the WASM binary:
 
----
+1. **Initial deployment**: Use embedded CRS defaults
+2. **Monitor false positives**: Check `waf_blocked_total` and application logs
+3. **Add exclusions**: Update ConfigMap with `SecRuleRemoveById` directives
+4. **Tune paranoia**: Adjust `blocking_paranoia_level` if needed
 
-## 8. Lifecycle and Teardown Safety
+### Version Management
 
-- Coraza must never be required for:
-  - Cluster reachability
-  - kubeconfig generation
-  - Terraform destroy operations
-- If Istio, Coraza, or Gateway API objects are removed or broken:
-  - Cluster teardown must still succeed
-- Coraza is treated as ephemeral application infrastructure
+| Component | Source | Update Strategy |
+|-----------|--------|-----------------|
+| coraza-proxy-wasm | `ghcr.io/corazawaf/coraza-proxy-wasm` | Renovate updates WasmPlugin image tag |
+| OWASP CRS | Embedded in WASM binary | Updates with coraza-proxy-wasm releases |
+| Custom rules | ConfigMap in git | Manual updates via PR |
 
 ---
 
-## 9. Implementation Checklist
+## Lifecycle Safety
 
-1. Install Kubernetes Gateway API CRDs
-2. Deploy Istio ingress gateway
-3. Define ingress using `Gateway` and `HTTPRoute`
-4. Deploy Coraza via an Istio `EnvoyFilter`:
-   - Scoped to ingress gateway workload
-   - WASM-based HTTP filter
-   - Correct filter ordering
-5. Scope WAF to selected hosts or routes
-6. Explicitly bypass Jellyfin and other streaming services
-7. Keep configuration minimal and fail-open
+### Protected Operations
+
+These must work even if Coraza, Istio, or Gateway API is broken:
+
+- Kubernetes API access (not routed through gateways)
+- kubeconfig generation (Talos API)
+- Terragrunt operations (direct API access)
+- Cluster teardown
+- Node provisioning and PXE boot
+
+### Failure Modes
+
+| Failure | Behavior | Recovery |
+|---------|----------|----------|
+| WASM binary unavailable | Traffic passes (FAIL_OPEN) | Flux reconciles, pulls image |
+| ConfigMap invalid | WAF uses embedded defaults | Fix ConfigMap, Flux reconciles |
+| High latency | Consider FAIL_OPEN timeout | Investigate rule complexity |
+| False positives blocking users | Add rule exclusion to ConfigMap | PR and merge |
 
 ---
 
-## 10. One-Sentence Summary
+## Implementation Phases
 
-**Coraza is a gateway-only, WASM-based HTTP WAF implemented via Istio `EnvoyFilter`, applied selectively to unauthenticated ingress defined with Kubernetes Gateway API, and deliberately excluded from sidecars, ambient waypoints, and critical cluster lifecycle paths.**
+### Phase 1: Foundation
+
+- [ ] Add `coraza-wasm-plugin.yaml` to `kubernetes/platform/config/gateway/`
+- [ ] Add `coraza-config.yaml` ConfigMap with baseline SecLang rules
+- [ ] Update gateway kustomization to include new resources
+- [ ] Verify WasmPlugin pulls OCI image successfully
+
+### Phase 2: Validation
+
+- [ ] Test common attack patterns are blocked (SQLi, XSS, path traversal)
+- [ ] Test legitimate application traffic passes without errors
+- [ ] Verify fail-open behavior (delete WasmPlugin, traffic still flows)
+- [ ] Measure latency overhead (target: < 5ms p99)
+
+### Phase 3: Observability
+
+- [ ] Verify Coraza metrics appear in Prometheus
+- [ ] Create Grafana dashboard: block rate, top triggered rules, latency
+- [ ] Configure alert for sustained high block rate
+- [ ] Document Hubble queries for WAF-related flow analysis
+
+### Phase 4: Tuning
+
+- [ ] Monitor for false positives over 1-week soak period
+- [ ] Add rule exclusions to ConfigMap as needed
+- [ ] Document any application-specific tuning in ConfigMap comments
+- [ ] Establish runbook for adding new exclusions
+
+---
+
+## Success Criteria
+
+- Coraza blocks common scanner noise and malformed requests
+- Legitimate application traffic passes without increased latency (< 5ms p99 overhead)
+- WAF metrics visible in Prometheus/Grafana
+- Fail-open behavior verified: traffic flows when WASM binary unavailable
+- False positive rate < 0.1% of legitimate traffic after tuning
+- Cluster operations (destroy, provision) succeed with WAF deployed
