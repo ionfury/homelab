@@ -33,7 +33,8 @@ jobs:
         run: tofu fmt -check -recursive -diff infrastructure/
 
       - name: Check Terragrunt formatting
-        run: terragrunt hclfmt --check infrastructure/
+        working-directory: infrastructure
+        run: terragrunt hcl format --check
 
   test:
     needs: format
