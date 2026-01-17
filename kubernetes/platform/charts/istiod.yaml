@@ -1,0 +1,12 @@
+---
+# https://raw.githubusercontent.com/istio/istio/master/manifests/charts/istio-control/istio-discovery/values.yaml
+# yaml-language-server: $schema=https://json.schemastore.org/helm-chart-lock.json
+profile: ambient
+
+global:
+  logAsJson: true
+  defaultResources:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi

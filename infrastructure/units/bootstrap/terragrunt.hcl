@@ -15,9 +15,10 @@ dependency "config" {
 
   mock_outputs = {
     bootstrap = {
-      cluster_name     = "mock"
-      flux_version     = "v2.4.0"
-      cluster_env_vars = []
+      cluster_name = "mock"
+      flux_version = "v2.4.0"
+      cluster_vars = []
+      version_vars = []
     }
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
@@ -38,7 +39,8 @@ dependency "talos" {
 inputs = {
   cluster_name     = dependency.config.outputs.bootstrap.cluster_name
   flux_version     = dependency.config.outputs.bootstrap.flux_version
-  cluster_env_vars = dependency.config.outputs.bootstrap.cluster_env_vars
+  cluster_vars     = dependency.config.outputs.bootstrap.cluster_vars
+  version_vars     = dependency.config.outputs.bootstrap.version_vars
   github           = local.accounts_vars.locals.accounts.github
   external_secrets = local.accounts_vars.locals.accounts.external_secrets
   healthchecksio   = local.accounts_vars.locals.accounts.healthchecksio

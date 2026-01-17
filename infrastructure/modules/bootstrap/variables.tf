@@ -9,8 +9,17 @@ variable "flux_version" {
   default     = "v2.4.0"
 }
 
-variable "cluster_env_vars" {
-  description = "Environment variables to add to the cluster git repository root directory, to be consumed by flux. See: https://fluxcd.io/flux/components/kustomize/kustomizations/#post-build-variable-substitution"
+variable "cluster_vars" {
+  description = "Non-version environment variables for flux post-build substitution."
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
+}
+
+variable "version_vars" {
+  description = "Version environment variables for flux post-build substitution."
   type = list(object({
     name  = string
     value = string

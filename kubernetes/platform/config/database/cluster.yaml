@@ -1,0 +1,42 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: platform
+spec:
+  description: "Shared platform PostgreSQL cluster"
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.2
+  instances: ${default_replica_count}
+  primaryUpdateStrategy: unsupervised
+
+  superuserSecret:
+    name: cnpg-platform-superuser
+
+  postgresql:
+    parameters:
+      shared_buffers: "256MB"
+      max_connections: "200"
+      effective_cache_size: "512MB"
+      log_statement: "ddl"
+      log_min_duration_statement: "1000"
+    pg_hba:
+      - host all all 10.0.0.0/8 scram-sha-256
+      - host all all 172.16.0.0/12 scram-sha-256
+
+  storage:
+    storageClass: fast
+    size: ${database_volume_size}
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+  monitoring:
+    enablePodMonitor: true
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname

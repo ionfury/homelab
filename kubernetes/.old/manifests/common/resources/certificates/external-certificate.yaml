@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: external
+spec:
+  secretName: external-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  commonName: ${external_domain}
+  dnsNames:
+    - ${external_domain}
+    - "*.${external_domain}"

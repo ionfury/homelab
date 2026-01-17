@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/longhorn.io/recurringjob_v1beta2.json
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: &name backup-daily
+spec:
+  name: *name
+  cron: "0 2 * * *"
+  task: backup
+  groups:
+    - *name
+  retain: 7
+  concurrency: 2
+  labels:
+    jobname: *name

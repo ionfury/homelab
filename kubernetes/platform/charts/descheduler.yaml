@@ -1,0 +1,54 @@
+---
+# https://raw.githubusercontent.com/kubernetes-sigs/descheduler/master/charts/descheduler/values.yaml
+replicas: 2
+kind: Deployment
+deschedulerPolicyAPIVersion: descheduler/v1alpha2
+deschedulerPolicy:
+  profiles:
+    - name: Default
+      pluginConfig:
+        - name: DefaultEvictor
+          args:
+            evictFailedBarePods: true
+            evictLocalStoragePods: true
+            evictSystemCriticalPods: false
+            nodeFit: true
+        - name: RemovePodsViolatingInterPodAntiAffinity
+        - name: RemovePodsViolatingNodeAffinity
+          args:
+            nodeAffinityType:
+              - requiredDuringSchedulingIgnoredDuringExecution
+        - name: RemovePodsViolatingNodeTaints
+        - name: RemovePodsViolatingTopologySpreadConstraint
+          args:
+            constraints:
+              - DoNotSchedule
+              - ScheduleAnyway
+        - name: RemoveFailedPods
+          args:
+            excludeOwnerKinds:
+              - Job
+            includingInitContainers: true
+            minPodLifetimeSeconds: 3600
+      plugins:
+        balance:
+          enabled:
+            - RemovePodsViolatingTopologySpreadConstraint
+        deschedule:
+          enabled:
+            - RemovePodsViolatingInterPodAntiAffinity
+            - RemovePodsViolatingNodeAffinity
+            - RemovePodsViolatingNodeTaints
+            - RemoveFailedPods
+service:
+  enabled: true
+serviceMonitor:
+  enabled: true
+leaderElection:
+  enabled: true
+  leaseDuration: 15s
+  renewDeadline: 10s
+  retryPeriod: 2s
+  resourceLock: "leases"
+  resourceName: "descheduler"
+  resourceNamescape: "kube-system"

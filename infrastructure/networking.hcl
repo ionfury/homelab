@@ -66,7 +66,7 @@ locals {
     dev = {
       id           = 4
       internal_tld = "internal.dev.${local.domains.internal}"
-      external_tld = "internal.dev.${local.domains.external}"
+      external_tld = "external.dev.${local.domains.external}"
 
       node_subnet         = local.subnets.citadel
       pod_subnet          = "172.24.0.0/16"

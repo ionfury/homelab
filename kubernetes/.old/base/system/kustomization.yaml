@@ -1,0 +1,9 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+namespace: system
+
+resources:
+  - ../../../manifests/common/resources/namespace
+
+  # Migrated to platform: external-secrets.yaml, reloader.yaml, replicator.yaml, secret-generator.yaml
+  - external-secrets-stores.yaml

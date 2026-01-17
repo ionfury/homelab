@@ -46,7 +46,7 @@ locals {
       }]
     }
     rpi4 = { // Pi CM4 8Gi
-      cluster = "dev"
+      cluster = "none"
       type    = "controlplane"
       install = {
         selector     = "disk.size < 1u * TiB && disk.size > 100u * GiB"
@@ -217,14 +217,14 @@ locals {
         addresses    = [{ ip = "192.168.10.219" }]
       }]
     }
-    node45 = {         // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none" #"integration"
-      type    = "controlplane"
+    node45 = { // Supermicro 8C@2.1GHz 32Gi
+      cluster = "none"
+      type    = "none"
 
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
-          enabled = false
+          enabled = true
           tags    = ["fast", "ssd", "any"]
         }
       }
@@ -236,13 +236,13 @@ locals {
       }]
     }
     node46 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none"
-      type    = "none"
+      cluster = "dev"
+      type    = "controlplane"
 
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
-          enabled = false
+          enabled = true
           tags    = ["fast", "ssd", "any"]
         }
       }
@@ -254,13 +254,13 @@ locals {
       }]
     }
     node47 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none"
-      type    = "none"
+      cluster = "dev"
+      type    = "controlplane"
 
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
-          enabled = false
+          enabled = true
           tags    = ["fast", "ssd", "any"]
         }
       }
@@ -272,20 +272,20 @@ locals {
       }]
     }
     node48 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none"
-      type    = "none"
+      cluster = "dev"
+      type    = "controlplane"
 
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
         data = {
-          enabled = false
+          enabled = true
           tags    = ["fast", "ssd", "any"]
         }
       }
       disks = []
       interfaces = [{
         id           = "ens1f0"
-        hardwareAddr = "0c:c4:7a:54:9e:6b"
+        hardwareAddr = "0c:c4:7a:54:9e:6a"
         addresses    = [{ ip = "192.168.10.151" }]
       }]
     }

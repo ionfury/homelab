@@ -1,0 +1,27 @@
+---
+# https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
+# yaml-language-server: $schema=https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.schema.json
+global:
+  leaderElection:
+    namespace: cert-manager
+  commonLabels:
+podLabels:
+  networking/allow-egress-internet: "true"
+  networking/allow-ingress-prometheus: "true"
+  networking/allow-cluster-egress: "true"
+namespace: cert-manager
+installCRDs: true
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+webhook:
+  podLabels:
+    networking/allow-ingress-prometheus: "true"
+    networking/allow-cluster-egress: "true"
+  networkPolicy:
+    enabled: false
+cainjector:
+  podLabels:
+    networking/allow-ingress-prometheus: "true"
+    networking/allow-cluster-egress: "true"
