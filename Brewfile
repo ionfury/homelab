@@ -16,6 +16,7 @@ brew "jq"
 brew "helm"
 brew "kustomize"
 brew "kubeconform"
+brew "yamllint"
 
 # Flux
 tap "fluxcd/tap"
@@ -27,6 +28,9 @@ brew "cloudflare/cloudflare/cf-terraforming"
 
 # Task
 brew "go-task"
+
+# Node.js (for npx in renovate validation)
+brew "node"
 
 # OpenTofu
 tap 'tofuutils/tap'
