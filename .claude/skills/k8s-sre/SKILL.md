@@ -5,593 +5,198 @@ description: Use when investigating Kubernetes pod failures, crashes, resource i
 
 # Debugging Kubernetes Incidents
 
-## Overview
+## Core Principles
 
-**Core Principles:**
+- **5 Whys Analysis** - NEVER stop at symptoms. Ask "why" until you reach the root cause.
 - **Read-Only Investigation** - Observe and analyze, never modify resources
-- **Systematic Methodology** - Follow structured phases for thorough analysis
 - **Multi-Source Correlation** - Combine logs, events, metrics for complete picture
-- **Root Cause Focus** - Identify underlying cause, not just symptoms
-- **Research Unknown Services** - When unfamiliar with a service, research its documentation before deep investigation
+- **Research Unknown Services** - Check documentation before deep investigation
 
-**Key Abbreviations:**
-- **RCA** - Root Cause Analysis
-- **MTTR** - Mean Time To Resolution
-- **P1/P2/P3/P4** - Severity levels (Critical/High/Medium/Low)
+## The 5 Whys Analysis (CRITICAL)
 
-## When to Use
+**You MUST apply 5 Whys before concluding any investigation.** Stopping at symptoms leads to ineffective fixes.
 
-Invoke this skill when:
-- ✅ Pods are crashing, restarting, or stuck in `CrashLoopBackOff`
-- ✅ Services are returning errors or experiencing high latency
-- ✅ Resources are exhausted (CPU, memory, storage)
-- ✅ Certificate errors or TLS handshake failures occur
-- ✅ Deployments are failing or stuck in rollout
-- ✅ Need to perform incident triage or post-mortem analysis
+### How to Apply
 
-## Cluster Context Selection
+1. Start with the observed symptom
+2. Ask "Why did this happen?" for each answer
+3. Continue until you reach an actionable root cause (typically 5 levels)
 
-**CRITICAL:** Before running ANY kubectl commands, you MUST ask the user which cluster context to use.
+### Example
 
-**Available clusters:**
-| Cluster | Purpose | When to Use |
-|---------|---------|-------------|
-| `dev` | Manual testing & experimentation | Development issues, testing changes |
-| `integration` | Automated upgrade testing | Post-merge validation issues |
-| `live` | Production workloads | **Production incidents** (handle with care) |
+```
+Symptom: Helm install failed with "context deadline exceeded"
 
-**Kubeconfig location:** `~/.kube/config`
+Why #1: Why did Helm timeout?
+  → Pods never became Ready
 
-Each cluster has a separate context configured in kubeconfig. Use `kubectl config get-contexts` to list available contexts and `kubectl config use-context <context-name>` to switch.
+Why #2: Why weren't pods Ready?
+  → Pods stuck in Pending state
 
-**Example prompt to user:**
-> "Which cluster are you investigating? (dev/integration/live)"
+Why #3: Why were pods Pending?
+  → PVCs couldn't bind (StorageClass "fast" not found)
 
-**NEVER assume the cluster context.** Even if the user mentions a namespace or service name, always confirm the cluster before running commands. Running commands against the wrong cluster (especially `live`) can cause confusion or, in extreme cases, unintended impact.
+Why #4: Why was StorageClass missing?
+  → longhorn-storage Kustomization failed to apply
 
-## Flux GitOps Operations
+Why #5: Why did the Kustomization fail?
+  → numberOfReplicas was integer instead of string
 
-This repository uses Flux for GitOps-based deployments. After pushing fixes to git, you can trigger Flux to reconcile immediately rather than waiting for the default interval.
-
-**Trigger git source reconciliation:**
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile source git flux-system
+ROOT CAUSE: YAML type coercion issue
+FIX: Use properly typed variable for StorageClass parameters
 ```
 
-**Trigger specific Kustomization:**
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile kustomization <name>
+### Red Flags You Haven't Reached Root Cause
+
+- Your "fix" is increasing a timeout or retry count
+- Your "fix" addresses the symptom, not what caused it
+- You can still ask "but why did THAT happen?"
+- Multiple issues share the same underlying cause
+
+```
+❌ WRONG: "Helm timed out → increase timeout to 15m"
+✅ CORRECT: "Helm timed out → ... → Kustomization type error → fix YAML"
 ```
 
-**Trigger HelmRelease:**
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile helmrelease <name> -n <namespace>
-```
+## Cluster Context
 
-**Check Flux status:**
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml flux get all
-KUBECONFIG=~/.kube/<cluster>.yaml flux get helmreleases -A
-KUBECONFIG=~/.kube/<cluster>.yaml flux get kustomizations
-```
+**CRITICAL:** Always confirm cluster before running commands.
 
-**When to trigger reconciliation:**
-- After pushing configuration fixes to git
-- When investigating why changes haven't applied
-- To verify a fix takes effect immediately
-
-## Quick Reference: Investigation Phases
-
-| Phase | Focus | Primary Tools |
-|-------|-------|--------------|
-| **1. Triage** | Severity & scope | Pod status, events |
-| **2. Data Collection** | Logs, events, metrics | kubectl logs, events, top |
-| **3. Correlation** | Pattern detection | Timeline analysis |
-| **4. Root Cause** | Underlying issue | Multi-source synthesis |
-| **5. Remediation** | Fix & prevention | Recommendations only |
-
-## Common Confusions
-
-### Wrong vs. Correct Approaches
-
-❌ **WRONG:** Start running kubectl commands without confirming the cluster
-✅ **CORRECT:** Always ask "Which cluster?" (dev/integration/live) before any investigation
-
-❌ **WRONG:** Jump directly to pod logs without checking events
-✅ **CORRECT:** Check events first to understand context, then investigate logs
-
-❌ **WRONG:** Only look at the current pod state
-✅ **CORRECT:** Check previous container logs if pod restarted (use `--previous` flag)
-
-❌ **WRONG:** Investigate single data source in isolation
-✅ **CORRECT:** Correlate logs + events + metrics for complete picture
-
-❌ **WRONG:** Assume first error found is root cause
-✅ **CORRECT:** Identify temporal sequence - what happened FIRST?
-
-❌ **WRONG:** Recommend changes without understanding full impact
-✅ **CORRECT:** Provide read-only recommendations with manual review required
-
-❌ **WRONG:** Investigate unfamiliar services using only generic Kubernetes knowledge
-✅ **CORRECT:** Research service documentation first to understand expected behavior and common issues
-
-## Researching Unfamiliar Services
-
-**CRITICAL:** When investigating a service you're not familiar with, spawn a haiku agent to research its documentation before deep investigation. This ensures you understand:
-- Expected behavior and architecture
-- Common failure modes and their solutions
-- Service-specific metrics and health indicators
-- Configuration patterns and gotchas
-
-### When to Research
-
-Spawn a research agent when:
-- You don't recognize the service name or purpose
-- The service has unique CRDs or custom resources
-- Error messages contain service-specific terminology you don't understand
-- Standard Kubernetes troubleshooting doesn't reveal the root cause
-
-### Finding Documentation URLs
-
-**Step 1: Check helm-charts.yaml for chart URL**
-
-The repository's Helm chart definitions include source URLs that lead to documentation:
+| Cluster | Purpose | Kubeconfig |
+|---------|---------|------------|
+| `dev` | Manual testing | `~/.kube/dev.yaml` |
+| `integration` | Automated testing | `~/.kube/integration.yaml` |
+| `live` | Production | `~/.kube/live.yaml` |
 
 ```bash
-# Find the chart URL for a service
-grep -A5 'name: "<service-name>"' kubernetes/platform/helm-charts.yaml
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl <command>
 ```
 
-**Chart URL → Documentation mapping:**
-| Chart URL Pattern | Documentation Location |
-|-------------------|------------------------|
-| `charts.jetstack.io` | https://cert-manager.io/docs |
-| `charts.external-secrets.io` | https://external-secrets.io/latest |
-| `helm.cilium.io` | https://docs.cilium.io |
-| `charts.longhorn.io` | https://longhorn.io/docs |
-| `grafana.github.io/helm-charts` | https://grafana.com/docs |
-| `prometheus-community.github.io` | https://prometheus.io/docs |
-| `istio-release.storage.googleapis.com` | https://istio.io/latest/docs |
-| `flanksource.github.io/charts` | https://docs.flanksource.com |
-
-### Spawning Research Agents
-
-Use the Task tool to spawn a haiku agent for efficient, parallel research:
-
-```
-Task tool parameters:
-- subagent_type: "general-purpose"
-- model: "haiku"
-- prompt: "Research [service-name] documentation to understand:
-  1. What is this service and what problem does it solve?
-  2. What are common failure modes and their symptoms?
-  3. What metrics/logs indicate health vs problems?
-  4. What configuration issues commonly cause problems?
-
-  Focus on troubleshooting guides and operational documentation.
-  Start with: [documentation-url]"
-```
-
-**Example research prompts by service:**
-
-**cert-manager:**
-```
-Research cert-manager troubleshooting. Focus on:
-- Certificate issuance failures (ACME, self-signed, CA)
-- Challenge solver issues (HTTP-01, DNS-01)
-- ClusterIssuer vs Issuer problems
-- Certificate renewal failures
-Start with: https://cert-manager.io/docs/troubleshooting/
-```
-
-**external-secrets:**
-```
-Research External Secrets Operator troubleshooting. Focus on:
-- SecretStore connection failures
-- ExternalSecret sync errors
-- Provider authentication issues (AWS, Vault, etc.)
-Start with: https://external-secrets.io/latest/guides/troubleshooting/
-```
-
-**Longhorn:**
-```
-Research Longhorn storage troubleshooting. Focus on:
-- Volume attachment failures
-- Replica rebuilding issues
-- Node disk pressure problems
-- Backup/restore failures
-Start with: https://longhorn.io/docs/latest/troubleshooting/
-```
-
-**Longhorn Disaster Recovery:**
-For complete cluster recovery from S3 backups, see runbook: `docs/runbooks/longhorn-disaster-recovery.md`
-
-**Istio:**
-```
-Research Istio service mesh troubleshooting. Focus on:
-- Sidecar injection failures
-- mTLS certificate issues
-- Traffic routing problems
-- Gateway configuration errors
-Start with: https://istio.io/latest/docs/ops/diagnostic-tools/
-```
-
-### Parallel Research Pattern
-
-For complex incidents involving multiple services, spawn multiple haiku agents in parallel:
-
-```
-# In a single message, spawn multiple Task calls:
-1. Task: Research service A documentation (haiku)
-2. Task: Research service B documentation (haiku)
-3. Continue investigation while agents research
-```
-
-This maximizes efficiency by gathering service-specific knowledge while continuing the investigation.
-
-## Decision Tree: Incident Type
-
-**Q: Is the pod running?**
-- **No** → Check pod status and events
-  - ImagePullBackOff → [Image Pull Issues](#image-pull-issues)
-  - Pending → [Resource Constraints](#resource-constraints)
-  - CrashLoopBackOff → [Application Crashes](#application-crashes)
-  - OOMKilled → [Memory Issues](#memory-issues)
-
-**Q: Is the pod running but unhealthy?**
-- **Yes** → Check logs and resource usage
-  - High CPU/Memory → [Resource Saturation](#resource-saturation)
-  - Application errors → [Log Analysis](#log-analysis)
-  - Failed health checks → [Liveness/Readiness Probes](#probe-failures)
-
-**Q: Is this a service-level issue?**
-- **Yes** → Check service endpoints and network
-  - No endpoints → [Pod Selector Issues](#selector-issues)
-  - Connection timeouts → [Network Issues](#network-issues)
-  - Certificate errors → [TLS Issues](#tls-issues)
-
-## Rules: Investigation Methodology
+## Investigation Phases
 
 ### Phase 1: Triage
 
-**CRITICAL:** Assess severity before diving deep
-
-0. **Confirm cluster context** (ALWAYS FIRST):
-   - Ask user: "Which cluster are you investigating? (dev/integration/live)"
-   - Verify context: `kubectl config current-context`
-   - Switch if needed: `kubectl config use-context <context-name>`
-   - **Never proceed without explicit cluster confirmation**
-
-1. **Determine incident type**:
-   - Pod-level: Single pod failure
-   - Deployment-level: Multiple pods affected
-   - Service-level: API/service unavailable
-   - Cluster-level: Node or system-wide issue
-
-2. **Assess severity**:
-   - **P1 (Critical)**: Production service down, data loss risk
-   - **P2 (High)**: Major feature broken, significant user impact
-   - **P3 (Medium)**: Minor feature degraded, limited impact
-   - **P4 (Low)**: No immediate user impact
-
-3. **Identify scope**:
-   - Single pod, deployment, namespace, or cluster-wide?
-   - How many users affected?
-   - What services depend on this?
-
-4. **Research unfamiliar services** (if needed):
-   - If you don't fully understand the affected service, spawn a haiku research agent NOW
-   - Check `kubernetes/platform/helm-charts.yaml` for the chart URL
-   - Run research in background while continuing triage
-   - See [Researching Unfamiliar Services](#researching-unfamiliar-services) for details
+1. **Confirm cluster** - Ask user: "Which cluster? (dev/integration/live)"
+2. **Assess severity** - P1 (down) / P2 (degraded) / P3 (minor) / P4 (cosmetic)
+3. **Identify scope** - Pod / Deployment / Namespace / Cluster-wide
 
 ### Phase 2: Data Collection
 
-**Gather comprehensive data from multiple sources:**
-
-**Pod Information:**
 ```bash
+# Pod status and events
 kubectl get pods -n <namespace>
-kubectl describe pod <pod-name> -n <namespace>
-kubectl get pod <pod-name> -n <namespace> -o yaml
-```
+kubectl describe pod <pod> -n <namespace>
 
-**Logs:**
-```bash
-# Current logs
-kubectl logs <pod-name> -n <namespace> --tail=100
+# Logs (current and previous)
+kubectl logs <pod> -n <namespace> --tail=100
+kubectl logs <pod> -n <namespace> --previous
 
-# Previous container (if restarted)
-kubectl logs <pod-name> -n <namespace> --previous
-
-# All containers in pod
-kubectl logs <pod-name> -n <namespace> --all-containers=true
-```
-
-**Events:**
-```bash
-# Namespace events
+# Events timeline
 kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 
-# Pod-specific events
-kubectl describe pod <pod-name> -n <namespace> | grep -A 10 Events
-```
-
-**Resource Usage:**
-```bash
+# Resource usage
 kubectl top pods -n <namespace>
-kubectl top nodes
 ```
 
-### Phase 3: Correlation & Analysis
+### Phase 3: Correlation
 
-**Create unified timeline:**
+1. Extract timestamps from logs, events, metrics
+2. Identify what happened FIRST (root cause)
+3. Trace the cascade of effects
 
-1. **Extract timestamps** from logs, events, metrics
-2. **Align data sources** on common timeline
-3. **Identify temporal patterns**:
-   - What happened first? (root cause)
-   - What happened simultaneously? (correlation)
-   - What happened after? (cascading effects)
+### Phase 4: Root Cause (5 Whys)
 
-**Look for common patterns:**
-- Memory spike → OOMKilled → Pod restart
-- Image pull failure → Pending → Timeout
-- Probe failure → Unhealthy → Traffic removed
-- Certificate expiry → TLS errors → Connection failures
+Apply 5 Whys analysis. Validate:
+- **Temporal**: Did it happen BEFORE the symptom?
+- **Causal**: Does it logically explain the symptom?
+- **Evidence**: Is there supporting data?
+- **Complete**: Have you asked "why" enough times?
 
-### Phase 4: Root Cause Determination
+### Phase 5: Remediation
 
-**CRITICAL:** Distinguish correlation from causation
+Provide recommendations only (read-only investigation):
+- **Immediate**: Rollback, scale, restart
+- **Permanent**: Code/config fixes
+- **Prevention**: Alerts, quotas, tests
 
-**Validate root cause:**
-1. **Temporal precedence**: Did it happen BEFORE the symptom?
-2. **Causal mechanism**: Does it logically explain the symptom?
-3. **Evidence**: Is there supporting data from multiple sources?
+## Quick Diagnosis
 
-**Common root causes:**
-- Application bugs (crashes, exceptions)
-- Resource exhaustion (CPU, memory, disk)
-- Configuration errors (wrong env vars, missing secrets)
-- Network issues (DNS failures, timeouts)
-- Infrastructure problems (node failures, storage issues)
+| Symptom | First Check | Common Cause |
+|---------|-------------|--------------|
+| `ImagePullBackOff` | `describe pod` events | Wrong image/registry auth |
+| `Pending` | Events, node capacity | Insufficient resources |
+| `CrashLoopBackOff` | `logs --previous` | App error, missing config |
+| `OOMKilled` | Memory limits | Memory leak, limits too low |
+| `Unhealthy` | Probe config | Slow startup, wrong endpoint |
 
-### Phase 5: Remediation Planning
+## Common Failure Chains
 
-**Provide structured recommendations:**
-
-**Immediate mitigation:**
-- Rollback deployment
-- Scale resources
-- Restart pods
-- Apply emergency config
-
-**Permanent fix:**
-- Code changes
-- Resource limit adjustments
-- Configuration updates
-- Infrastructure improvements
-
-**Prevention:**
-- Monitoring alerts
-- Resource quotas
-- Automated testing
-- Runbook updates
-
-## Common Issue Types
-
-### Image Pull Issues
-
-**Symptoms:**
-- Pod status: `ImagePullBackOff` or `ErrImagePull`
-- Events: "Failed to pull image"
-
-**Investigation:**
+**Storage failures cascade:**
 ```
-├── Check image name and tag in pod spec
-├── Verify image exists in registry
-├── Check image pull secrets
-└── Validate network connectivity to registry
+StorageClass missing → PVC Pending → Pod Pending → Helm timeout
 ```
 
-**Common causes:**
-- Wrong image name/tag
-- Missing/expired image pull secret
-- Private registry authentication failure
-- Network connectivity to registry
-
-### Resource Constraints
-
-**Symptoms:**
-- Pod status: `Pending`
-- Events: "Insufficient cpu/memory"
-
-**Investigation:**
+**Network failures cascade:**
 ```
-├── Check namespace resource quotas
-├── Check pod resource requests/limits
-├── Review node capacity
-└── Check for pod priority and preemption
+DNS failure → Service unreachable → Health check fails → Pod restarted
 ```
 
-**Common causes:**
-- Namespace quota exceeded
-- Insufficient cluster capacity
-- Resource requests too high
-- No nodes matching pod requirements
-
-### Application Crashes
-
-**Symptoms:**
-- Pod status: `CrashLoopBackOff`
-- Container exit code: non-zero
-- Frequent restarts
-
-**Investigation:**
+**Secret failures cascade:**
 ```
-├── Get logs from current container
-├── Get logs from previous container (--previous)
-├── Check exit code in pod status
-├── Review application startup logs
-└── Check for environment variable issues
+ExternalSecret fails → Secret missing → Pod CrashLoopBackOff
 ```
 
-**Common causes:**
-- Application exceptions/errors
-- Missing required environment variables
-- Database connection failures
-- Invalid configuration
+## Flux GitOps Commands
 
-### Memory Issues
-
-**Symptoms:**
-- Pod status shows: `OOMKilled`
-- Events: "Container exceeded memory limit"
-- High memory usage before restart
-
-**Investigation:**
-```
-├── Check memory limits vs actual usage
-├── Review memory usage trends
-├── Analyze for memory leaks
-└── Check for spike patterns
-```
-
-**Common causes:**
-- Memory leak in application
-- Insufficient memory limits
-- Unexpected traffic spike
-- Large dataset processing
-
-### TLS Issues
-
-**Symptoms:**
-- Logs show: "tls: bad certificate" or "x509: certificate has expired"
-- Connection failures between services
-- HTTP 503 errors
-
-**Investigation:**
-```
-├── Check certificate expiration dates
-├── Verify certificate CN/SAN matches hostname
-├── Check CA bundle configuration
-└── Review certificate secret in namespace
-```
-
-**Common causes:**
-- Expired certificates
-- Certificate CN mismatch
-- Missing CA certificate
-- Incorrect certificate chain
-
-### Longhorn Backup/Restore Issues
-
-**Symptoms:**
-- Backup target shows "Error" in Longhorn UI
-- Backups failing with S3 authentication errors
-- Restored volumes showing incorrect data
-
-**Investigation:**
-```
-├── Check backup target connectivity
-│   kubectl -n longhorn-system get settings backup-target -o yaml
-├── Verify S3 credentials secret exists
-│   kubectl -n longhorn-system get secret longhorn-s3-backup-credentials
-├── Check ExternalSecret sync status
-│   kubectl -n longhorn-system get externalsecret longhorn-s3-backup-credentials
-└── Review Longhorn manager logs for backup errors
-    kubectl -n longhorn-system logs -l app=longhorn-manager --tail=100 | grep -i backup
-```
-
-**Common causes:**
-- Expired or rotated AWS credentials
-- S3 bucket policy changes
-- Network connectivity to AWS S3
-- ExternalSecret sync failure
-
-**Runbook:** For complete disaster recovery, see `docs/runbooks/longhorn-disaster-recovery.md`
-
-## Real-World Example: Pod Crash Loop Investigation
-
-**Scenario:** API gateway pods crashing repeatedly
-
-**Step 1: Triage**
 ```bash
-$ kubectl get pods -n production | grep api-gateway
-api-gateway-7d8f9b-xyz   0/1   CrashLoopBackOff   5   10m
-```
-Severity: P2 (High) - Production API affected
+# Check status
+KUBECONFIG=~/.kube/<cluster>.yaml flux get all
+KUBECONFIG=~/.kube/<cluster>.yaml flux get kustomizations
+KUBECONFIG=~/.kube/<cluster>.yaml flux get helmreleases -A
 
-**Step 2: Check Events**
-```bash
-$ kubectl describe pod api-gateway-7d8f9b-xyz -n production | grep -A 10 Events
-Events:
-  10m   Warning   BackOff   Pod   Back-off restarting failed container
-  9m    Warning   Failed    Pod   Error: container exceeded memory limit
-```
-Key finding: OOMKilled event
-
-**Step 3: Check Logs (Previous Container)**
-```bash
-$ kubectl logs api-gateway-7d8f9b-xyz -n production --previous --tail=50
-...
-[ERROR] Database connection pool exhausted: 50/50 connections in use
-[WARN] High memory pressure detected
-[CRITICAL] Memory usage at 98%, OOM imminent
-```
-Pattern: Connection pool → Memory pressure → OOM
-
-**Step 4: Check Resource Limits**
-```bash
-$ kubectl get pod api-gateway-7d8f9b-xyz -n production -o yaml | grep -A 5 resources
-resources:
-  limits:
-    memory: "2Gi"
-  requests:
-    memory: "1Gi"
+# Trigger reconciliation
+KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile source git flux-system
+KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile kustomization <name>
+KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile helmrelease <name> -n <namespace>
 ```
 
-**Step 5: Root Cause Analysis**
+## Researching Unfamiliar Services
+
+When investigating unknown services, spawn a haiku agent to research documentation:
+
 ```
-Timeline:
-09:00 - Database query slowdown (from logs)
-09:05 - Connection pool exhausted
-09:10 - Memory usage spike (connections held)
-09:15 - OOM killed
-09:16 - Pod restart
-```
-
-**Root Cause:** Slow database queries → connection pool exhaustion → memory leak → OOM
-
-**Recommendations:**
-```markdown
-Immediate:
-1. Increase memory limit to 4Gi (temporary)
-2. Add connection timeout (10s)
-
-Permanent:
-1. Optimize slow database query
-2. Increase connection pool size
-3. Implement connection timeout
-4. Add memory alerts at 80%
-
-Prevention:
-1. Monitor database query performance
-2. Add Prometheus alert for connection pool usage
-3. Regular load testing
+Task tool:
+- subagent_type: "general-purpose"
+- model: "haiku"
+- prompt: "Research [service] troubleshooting docs. Focus on:
+  1. Common failure modes
+  2. Health indicators
+  3. Configuration gotchas
+  Start with: [docs-url]"
 ```
 
-## Troubleshooting Decision Matrix
+**Chart URL → Docs mapping:**
+| Chart Source | Documentation |
+|--------------|---------------|
+| `charts.jetstack.io` | cert-manager.io/docs |
+| `charts.longhorn.io` | longhorn.io/docs |
+| `grafana.github.io` | grafana.com/docs |
+| `prometheus-community.github.io` | prometheus.io/docs |
 
-| Symptom | First Check | Common Cause | Quick Fix |
-|---------|-------------|--------------|-----------|
-| ImagePullBackOff | `describe pod` events | Wrong image/registry | Fix image name |
-| Pending | Resource quotas | Insufficient resources | Increase quota |
-| CrashLoopBackOff | Logs (--previous) | App error | Fix application |
-| OOMKilled | Memory limits | Memory leak | Increase limits |
-| Unhealthy | Readiness probe | Slow startup | Increase probe delay |
-| No endpoints | Service selector | Label mismatch | Fix selector |
+## Common Confusions
 
-## Keywords for Search
+❌ Jump to logs without checking events first
+✅ Events provide context, then investigate logs
 
-kubernetes, pod failure, crashloopbackoff, oomkilled, pending pod, debugging, incident investigation, root cause analysis, pod logs, events, kubectl, container restart, image pull error, resource constraints, memory leak, application crash, service degradation, tls error, certificate expiry, readiness probe, liveness probe, troubleshooting, production incident, cluster debugging, namespace investigation, deployment failure, rollout stuck, error analysis, log correlation, documentation research, service documentation, helm chart troubleshooting, cert-manager, external-secrets, longhorn, istio, cilium, grafana, prometheus, unfamiliar service, operator troubleshooting, kubeconfig, cluster context, dev cluster, integration cluster, live cluster, context switching
+❌ Look only at current pod state
+✅ Check `--previous` logs if pod restarted
+
+❌ Assume first error is root cause
+✅ Apply 5 Whys to find true root cause
+
+❌ Investigate without confirming cluster
+✅ ALWAYS confirm cluster before any kubectl command
+
+## Keywords
+
+kubernetes, debugging, crashloopbackoff, oomkilled, pending, root cause analysis, 5 whys, incident investigation, pod logs, events, kubectl, flux, gitops, troubleshooting
