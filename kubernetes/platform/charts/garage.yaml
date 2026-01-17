@@ -120,7 +120,7 @@ persistence:
     type: persistentVolumeClaim
     storageClass: fast
     accessMode: ReadWriteOnce
-    size: 10Gi
+    size: ${garage_meta_volume_size}
     globalMounts:
       - path: /var/lib/garage/meta
   data:
@@ -128,6 +128,6 @@ persistence:
     type: persistentVolumeClaim
     storageClass: fast
     accessMode: ReadWriteOnce
-    size: 100Gi
+    size: ${garage_data_volume_size}
     globalMounts:
       - path: /var/lib/garage/data

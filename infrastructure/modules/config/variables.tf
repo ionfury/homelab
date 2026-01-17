@@ -14,6 +14,17 @@ variable "features" {
   }
 }
 
+variable "storage_provisioning" {
+  description = "Storage provisioning mode: 'normal' for production sizes, 'minimal' for dev/test sizes."
+  type        = string
+  default     = "normal"
+
+  validation {
+    condition     = contains(["normal", "minimal"], var.storage_provisioning)
+    error_message = "storage_provisioning must be 'normal' or 'minimal'."
+  }
+}
+
 variable "networking" {
   description = "Networking configuration for the cluster."
   type = object({

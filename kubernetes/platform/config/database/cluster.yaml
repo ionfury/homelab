@@ -25,7 +25,7 @@ spec:
 
   storage:
     storageClass: fast
-    size: 20Gi
+    size: ${database_volume_size}
 
   resources:
     requests:
