@@ -20,7 +20,7 @@ loki:
     type: filesystem
   schemaConfig:
     configs:
-      - from: "2024-04-01" # quote
+      - from: "2024-04-01"  # quote
         store: tsdb
         object_store: filesystem
         schema: v13

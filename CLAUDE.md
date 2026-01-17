@@ -151,13 +151,17 @@ kubernetes/
 
 ## Development Environment
 
-All required CLI tools are defined in the `Brewfile`. Install them with:
+The `Brewfile` is the **definitive source** for all local CLI tooling. Every tool used in development, CI, or referenced in Taskfiles must be listed here.
 
 ```bash
 brew bundle
 ```
 
-**Opinion**: Always install tools via Brewfile. Never install CLI tools manually - if a tool is missing, add it to the Brewfile first.
+**Rules:**
+- **Brewfile is authoritative**: If a tool isn't in Brewfile, it shouldn't be assumed available
+- **Add before using**: When introducing a new tool dependency, add it to Brewfile first
+- **CI parity**: Tools used in CI workflows should have Brewfile equivalents for local development
+- **No manual installs**: Never install CLI tools manually - always go through Brewfile
 
 ---
 

@@ -7,6 +7,7 @@ on:
     paths:
       - "kubernetes/**"
       - ".github/workflows/kubernetes-validate.yaml"
+      - ".yamllint.yaml"
   workflow_dispatch:
 
 jobs:
@@ -15,6 +16,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML files
+        run: |
+          yamllint --strict kubernetes/
+          yamllint --strict .github/workflows/
 
       - name: Install kustomize
         uses: imranismail/setup-kustomize@v2.1.0
