@@ -1,0 +1,148 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: "Validate Helm Charts"
+description: "Validate Helm values YAML syntax and template critical charts"
+
+inputs:
+  charts-dir:
+    description: "Directory containing chart values"
+    default: "kubernetes/platform/charts"
+  helm-charts-file:
+    description: "Path to helm-charts.yaml ResourceSet"
+    default: "kubernetes/platform/helm-charts.yaml"
+  critical-charts:
+    description: "Comma-separated list of critical charts to template"
+    default: "cilium,kube-prometheus-stack,grafana"
+  helm-version:
+    description: "Helm version to install"
+    default: "v3.16.0"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate Helm values YAML
+      uses: actions/github-script@v7
+      env:
+        CHARTS_DIR: ${{ inputs.charts-dir }}
+      with:
+        script: |
+          const { execFileSync } = require('child_process');
+          const fs = require('fs');
+          const path = require('path');
+
+          const chartsDir = process.env.CHARTS_DIR;
+          const files = fs.readdirSync(chartsDir).filter(f => f.endsWith('.yaml'));
+
+          console.log(`Validating ${files.length} chart values files...`);
+
+          for (const file of files) {
+            const filePath = path.join(chartsDir, file);
+            try {
+              execFileSync('yq', ['eval', '.', filePath], { stdio: 'pipe' });
+              console.log(`✓ ${file}`);
+            } catch (error) {
+              core.setFailed(`Invalid YAML in ${file}: ${error.message}`);
+            }
+          }
+
+    - name: Setup Helm
+      uses: azure/setup-helm@v4
+      with:
+        version: ${{ inputs.helm-version }}
+
+    - name: Helm template critical charts
+      uses: actions/github-script@v7
+      env:
+        CHARTS_DIR: ${{ inputs.charts-dir }}
+        HELM_CHARTS_FILE: ${{ inputs.helm-charts-file }}
+        CRITICAL_CHARTS: ${{ inputs.critical-charts }}
+      with:
+        script: |
+          const { execFileSync, spawnSync } = require('child_process');
+          const fs = require('fs');
+
+          const chartsDir = process.env.CHARTS_DIR;
+          const helmChartsFile = process.env.HELM_CHARTS_FILE;
+          const criticalCharts = process.env.CRITICAL_CHARTS.split(',').map(c => c.trim());
+
+          // Parse helm-charts.yaml to extract chart definitions
+          const helmChartsJson = execFileSync(
+            'yq', ['.spec.inputs', helmChartsFile, '-o=json']
+          ).toString();
+          const inputs = JSON.parse(helmChartsJson);
+
+          // Build lookup map: name -> { chartName, version, url }
+          const chartDefs = {};
+          for (const input of inputs) {
+            chartDefs[input.name] = {
+              chartName: input.chart.name,
+              version: input.chart.version,
+              url: input.chart.url
+            };
+          }
+
+          // CI test variables for substitution
+          const testVars = {
+            cluster_name: 'ci-test',
+            cluster_pod_subnet: '10.244.0.0/16',
+            internal_domain: 'internal.ci.example.com',
+            external_domain: 'external.ci.example.com',
+            default_replica_count: '1'
+          };
+
+          // Set env vars for envsubst
+          Object.entries(testVars).forEach(([k, v]) => process.env[k] = v);
+
+          // Add repos and template each critical chart
+          const addedRepos = new Map();
+
+          for (const name of criticalCharts) {
+            const def = chartDefs[name];
+            if (!def) {
+              core.setFailed(`Chart "${name}" not found in helm-charts.yaml`);
+              return;
+            }
+
+            // Skip OCI registries (not supported by helm repo add)
+            if (def.url.startsWith('oci://')) {
+              console.log(`⊘ Skipping ${name} (OCI registry)`);
+              continue;
+            }
+
+            // Add repo if not already added (use URL as key to avoid duplicates)
+            let repoName = addedRepos.get(def.url);
+            if (!repoName) {
+              repoName = name.replace(/-/g, '');
+              execFileSync('helm', ['repo', 'add', repoName, def.url], { stdio: 'inherit' });
+              addedRepos.set(def.url, repoName);
+            }
+
+            // Substitute variables in values file
+            const valuesFile = `${chartsDir}/${name}.yaml`;
+            const envsubstResult = spawnSync('envsubst', [], {
+              input: fs.readFileSync(valuesFile),
+              encoding: 'utf8'
+            });
+            const tmpValues = `/tmp/${name}-values.yaml`;
+            fs.writeFileSync(tmpValues, envsubstResult.stdout);
+
+            // Template the chart
+            const chart = `${repoName}/${def.chartName}`;
+            console.log(`\nTemplating: ${name} (${chart}:${def.version})`);
+
+            // Use spawnSync with stdio: 'inherit' to avoid buffer overflow on large charts
+            const result = spawnSync('helm', [
+              'template', name, chart,
+              '--version', def.version,
+              '--values', tmpValues,
+              '--namespace', 'test'
+            ], { stdio: 'inherit' });
+
+            if (result.status !== 0) {
+              core.setFailed(`Failed to template ${name} (exit code ${result.status})`);
+              return;
+            }
+            console.log(`✓ ${name} templated successfully`);
+          }
+
+          execFileSync('helm', ['repo', 'update'], { stdio: 'inherit' });
