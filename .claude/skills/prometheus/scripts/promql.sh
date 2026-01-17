@@ -266,10 +266,10 @@ cmd_labels() {
 cmd_health() {
     echo "=== Prometheus Health ==="
     echo -n "Ready: "
-    curl -s "$PROMETHEUS_URL/-/ready" && echo " OK" || echo " FAILED"
+    curl -fsS "$PROMETHEUS_URL/-/ready" >/dev/null 2>&1 && echo "OK" || echo "FAILED"
 
     echo -n "Healthy: "
-    curl -s "$PROMETHEUS_URL/-/healthy" && echo " OK" || echo " FAILED"
+    curl -fsS "$PROMETHEUS_URL/-/healthy" >/dev/null 2>&1 && echo "OK" || echo "FAILED"
 
     echo ""
     echo "=== Build Info ==="
