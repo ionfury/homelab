@@ -29,6 +29,7 @@ tasks:
       STACK: "{{index .MATCH 0}}"
     label: plan-{{.STACK}}
     cmds:
+      - terragrunt stack run init --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}} -- -upgrade
       - terragrunt stack run plan --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
@@ -41,6 +42,7 @@ tasks:
       STACK: "{{index .MATCH 0}}"
     label: apply-{{.STACK}}
     cmds:
+      - terragrunt stack run init --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}} -- -upgrade
       - terragrunt stack run apply --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
@@ -113,6 +115,7 @@ tasks:
       STACK: "{{index .MATCH 0}}"
     label: validate-{{.STACK}}
     cmds:
+      - terragrunt stack run init --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}} -- -upgrade
       - terragrunt stack run validate --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
@@ -141,6 +144,7 @@ tasks:
 
   destroy-*:
     desc: Destroys a specific terragrunt stack.
+    deps: [use, fmt]
     prompt: This will destroy the cluster.  Are you sure you want to continue? (yes/no)
     vars:
       STACK: "{{index .MATCH 0}}"
@@ -148,6 +152,7 @@ tasks:
       BOOTSTRAP_DIR: "{{.WORKING_DIR}}/bootstrap"
     label: destroy-{{.STACK}}
     cmds:
+      - terragrunt stack run init --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}} -- -upgrade
       - terragrunt --working-dir {{.BOOTSTRAP_DIR}} state list | grep -E '^(helm_release|kubernetes)' | xargs -I {} terragrunt --working-dir {{.BOOTSTRAP_DIR}} state rm {}
       - terragrunt stack run destroy --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
