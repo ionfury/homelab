@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - ".github/renovate.json5"
-      - ".github/renovate/**"
+      - ".github/renovate-*.json5"
       - ".github/workflows/renovate-validate.yaml"
   workflow_dispatch:
 
