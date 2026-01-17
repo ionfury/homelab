@@ -13,11 +13,6 @@ csi:
   provisionerReplicaCount: ${default_replica_count}
   resizerReplicaCount: ${default_replica_count}
   snapshotterReplicaCount: ${default_replica_count}
-ingress:
-  enabled: true
-  ingressClassName: internal
-  tls: true
-  host: longhorn.${internal_domain}
 metrics:
   serviceMonitor:
     enabled: true
