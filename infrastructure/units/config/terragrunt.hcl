@@ -19,11 +19,12 @@ terraform {
 }
 
 inputs = {
-  name        = values.name
-  features    = values.features
-  networking  = local.networking_vars.locals.clusters[values.name]
-  machines    = local.inventory_vars.locals.hosts
-  versions    = local.versions_vars.locals.versions
-  local_paths = local.local_paths
-  accounts    = local.accounts_vars.locals.accounts
+  name                 = values.name
+  features             = values.features
+  storage_provisioning = values.storage_provisioning
+  networking           = local.networking_vars.locals.clusters[values.name]
+  machines             = local.inventory_vars.locals.hosts
+  versions             = local.versions_vars.locals.versions
+  local_paths          = local.local_paths
+  accounts             = local.accounts_vars.locals.accounts
 }

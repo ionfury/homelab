@@ -1,3 +1,23 @@
+# Storage size mappings by provisioning mode
+locals {
+  storage_sizes = {
+    normal = {
+      garage_data = "100Gi"
+      garage_meta = "10Gi"
+      database    = "20Gi"
+      loki        = "50Gi"
+    }
+    minimal = {
+      garage_data = "10Gi"
+      garage_meta = "2Gi"
+      database    = "5Gi"
+      loki        = "10Gi"
+    }
+  }
+
+  selected_sizes = local.storage_sizes[var.storage_provisioning]
+}
+
 locals {
   cluster_endpoint = "k8s.${var.networking.internal_tld}"
   cluster_path     = "${var.accounts.github.repository_path}/${var.name}"
@@ -205,6 +225,12 @@ locals {
     { name = "internal_domain", value = var.networking.internal_tld },
     { name = "external_domain", value = var.networking.external_tld },
     { name = "cluster_l2_interfaces", value = jsonencode(distinct(flatten([for m in values(local.machines) : [for iface in m.interfaces : lookup(iface, "id", "") if lookup(iface, "id", "") != ""]]))) },
+    # Storage provisioning - volume sizes based on cluster mode
+    { name = "storage_provisioning", value = var.storage_provisioning },
+    { name = "garage_data_volume_size", value = local.selected_sizes.garage_data },
+    { name = "garage_meta_volume_size", value = local.selected_sizes.garage_meta },
+    { name = "database_volume_size", value = local.selected_sizes.database },
+    { name = "loki_volume_size", value = local.selected_sizes.loki },
   ]
 
   # Version environment variables for flux post-build substitution

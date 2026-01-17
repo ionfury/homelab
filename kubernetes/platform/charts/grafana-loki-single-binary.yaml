@@ -34,7 +34,7 @@ singleBinary:
   persistence:
     enabled: true
     storageClass: fast
-    size: 50Gi
+    size: ${loki_volume_size}
 gateway:
   replicas: 0
 backend:
