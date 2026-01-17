@@ -4,8 +4,8 @@
     "config:recommended",
     ":dependencyDashboard",
     ":timezone(America/New_York)",
-    "local>.github/renovate/automerge.json5",
-    "local>.github/renovate/labels.json5"
+    "local>.github/renovate/automerge",
+    "local>.github/renovate/labels"
   ],
   "dependencyDashboardTitle": "Dependency Dashboard",
   "terraform": {
