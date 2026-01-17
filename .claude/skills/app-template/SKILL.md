@@ -1,11 +1,16 @@
 ---
 name: app-template
 description: |
-  Deploy applications using bjw-s/app-template Helm chart - a flexible, common-powered chart for helmifying container images without dedicated charts.
+  Deploy applications using bjw-s/app-template Helm chart - a flexible chart for helmifying container images without dedicated charts.
 
-  Use when: (1) Deploying container images that lack official Helm charts, (2) Creating HelmRelease manifests for Flux GitOps, (3) Configuring multi-container pods with sidecars, (4) Setting up persistent storage, ingress, services for custom applications, (5) Questions about app-template values structure or patterns.
+  Use when: (1) Deploying container images that lack official Helm charts, (2) Creating HelmRelease manifests for Flux GitOps,
+  (3) Configuring multi-container pods with sidecars, (4) Setting up persistent storage, ingress, services for custom applications,
+  (5) Questions about app-template values structure or patterns, (6) Deploying any custom container to Kubernetes.
 
-  Triggers: "deploy with app-template", "helmify this image", "create helm release for", "app-template values", "sidecar container", "multi-container pod helm"
+  Triggers: "deploy with app-template", "helmify this image", "create helm release for", "app-template values",
+  "sidecar container", "multi-container pod helm", "deploy container image", "no helm chart available",
+  "custom container deployment", "bjw-s", "app-template chart", "deploy docker image to kubernetes",
+  "container without helm chart", "generic helm chart"
 ---
 
 # app-template Helm Chart

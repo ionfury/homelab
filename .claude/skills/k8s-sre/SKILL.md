@@ -1,6 +1,17 @@
 ---
 name: k8s-sre
-description: Use when investigating Kubernetes pod failures, crashes, resource issues, or service degradation. Provides systematic investigation methodology for incident triage, root cause analysis, and remediation planning in any Kubernetes environment.
+description: |
+  Kubernetes SRE debugging and incident investigation for pod failures, crashes, and service issues.
+
+  Use when: (1) Pods not starting, stuck, or failing (CrashLoopBackOff, ImagePullBackOff, OOMKilled, Pending),
+  (2) Debugging Kubernetes errors or investigating "why is my pod...", (3) Service degradation or unavailability,
+  (4) Reading pod logs or events, (5) Troubleshooting deployments, statefulsets, or daemonsets,
+  (6) Root cause analysis for any Kubernetes incident.
+
+  Triggers: "pod not starting", "pod stuck", "CrashLoopBackOff", "ImagePullBackOff", "OOMKilled",
+  "Pending pod", "why is my pod", "kubernetes error", "k8s error", "service not available",
+  "can't reach service", "pod logs", "debug kubernetes", "troubleshoot k8s", "what's wrong with my pod",
+  "deployment not working", "helm install failed", "flux not reconciling"
 ---
 
 # Debugging Kubernetes Incidents
