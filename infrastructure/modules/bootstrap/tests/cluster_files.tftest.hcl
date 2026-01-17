@@ -14,6 +14,14 @@ mock_provider "helm" {
 
 mock_provider "healthchecksio" {
   alias = "mock"
+
+  # Provider v2.3.0+ validates channel IDs as UUIDs
+  override_data {
+    target = data.healthchecksio_channel.this
+    values = {
+      id = "00000000-0000-0000-0000-000000000000"
+    }
+  }
 }
 
 mock_provider "aws" {
