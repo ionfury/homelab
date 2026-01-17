@@ -5,12 +5,6 @@ crds:
 cleanPrometheusOperatorObjectNames: true
 alertmanager:
   enabled: true
-  additionalLabels:
-  ingress:
-    enabled: true
-    ingressClassName: internal
-    hosts: ["alertmanager.${internal_domain}"]
-    pathType: Prefix
   alertmanagerSpec:
     podMetadata:
       labels:
