@@ -34,7 +34,7 @@ The `.cluster-vars.env` file provides cluster-specific variables that Flux subst
 ```env
 cluster_name=dev
 internal_domain=internal.dev.tomnowak.work
-external_domain=internal.dev.tomnowak.work
+external_domain=external.dev.tomnowak.work
 cluster_id=4
 ```
 
