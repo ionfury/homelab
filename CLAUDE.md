@@ -42,6 +42,22 @@ Don't Repeat Yourself. Duplication is technical debt:
 - **Refactor when duplicating**: If you're copying code, stop and extract it into a reusable component
 - **Consistency through reuse**: Reusing code ensures consistent behavior across the system
 
+## Continuous Improvement
+
+Documentation and skills are living artifacts. Improve them proactively:
+- **Learn from every task**: When completing work, identify patterns or knowledge that should be captured
+- **Update documentation immediately**: If you discover something that should be in CLAUDE.md or a skill, update it as part of the current task
+- **Capture user feedback**: When users provide corrections, preferences, or clarifications, encode them in the appropriate documentation
+- **Use agent delegation**: Spawn specialized agents to update skills and documentation in parallel with primary work
+- **Skills over repetition**: If you find yourself explaining the same concept twice, it belongs in a skill or CLAUDE.md
+
+**When to update documentation:**
+- New patterns discovered during implementation
+- User corrections that reveal missing or incorrect guidance
+- Repetitive explanations that could be codified
+- Anti-patterns encountered that should be warned against
+- Workflow improvements that benefit future tasks
+
 ---
 
 # CHANGE MANAGEMENT & DEPLOYMENT
@@ -77,19 +93,6 @@ PR merged to main
 1. **Integration deployment**: Changes apply to `integration` immediately after merge
 2. **Soak period**: Minimum 1-hour validation window on `integration`
 3. **Automatic promotion**: If validation remains green after soak, changes automatically promote to `live`
-
-## Environment Purposes
-
-| Environment | Purpose | Deployment |
-|-------------|---------|------------|
-| `dev` | Manual testing and experimentation | Manual (not part of automated pipeline) |
-| `integration` | Automated upgrade testing | Automatic on merge to `main` |
-| `live` | Production workloads | Automatic after integration validation |
-
-The `dev` cluster is intentionally outside the automated promotion pipeline. Use it for:
-- Testing breaking changes before creating a PR
-- Experimenting with new configurations
-- Validating ARM64 compatibility
 
 ## Infrastructure Recovery
 
@@ -155,131 +158,53 @@ This repository pushes the boundaries of "infrastructure as code" - starting fro
 ## Repository Structure
 
 ```
-.taskfiles/              # Task runner definitions
-  ├── inventory/         # IPMI/hardware management tasks
-  ├── talos/             # Talos cluster operations
-  ├── terragrunt/        # Infrastructure validation/deployment
-  ├── worktree/          # Git worktree management
-  └── renovate/          # Dependency update validation
-
-infrastructure/          # Terragrunt/OpenTofu - provisions bare metal to Kubernetes
-  ├── stacks/            # Cluster deployments (dev, integration, live)
-  ├── units/             # Reusable Terragrunt units
-  ├── modules/           # OpenTofu modules
-  ├── inventory.hcl      # Hardware inventory (hosts, IPs, MACs, disks)
-  ├── networking.hcl     # Network topology
-  ├── versions.hcl       # Pinned tool versions
-  └── accounts.hcl       # External service credentials
-
-kubernetes/              # Flux GitOps - deploys workloads
-  ├── clusters/          # Per-cluster Flux bootstrap configs
-  │   └── integration/   # Integration cluster entry point
-  └── platform/          # Centralized platform definition
-      ├── helm-charts.yaml    # ResourceSet defining all Helm releases
-      ├── namespaces.yaml     # ResourceSet defining all namespaces
-      ├── resources.yaml      # ResourceSet for non-Helm Kustomizations
-      ├── kustomization.yaml  # Generates ConfigMap from values
-      └── values/             # Helm values files (one per chart)
+.taskfiles/              # Task runner definitions (see .taskfiles/CLAUDE.md)
+infrastructure/          # Terragrunt/OpenTofu (see infrastructure/CLAUDE.md)
+kubernetes/
+  ├── clusters/          # Per-cluster bootstrap (see kubernetes/clusters/CLAUDE.md)
+  └── platform/          # Centralized platform (see kubernetes/platform/CLAUDE.md)
 ```
 
 ## Development Environment
 
-All required CLI tools are defined in the `Brewfile`. Install them with:
+The `Brewfile` is the **definitive source** for all local CLI tooling. Every tool used in development, CI, or referenced in Taskfiles must be listed here.
 
 ```bash
 brew bundle
 ```
 
-This installs: `gh`, `awscli`, `kubectl`, `helm`, `kustomize`, `flux`, `go-task`, `tgenv`, `tofuenv`, `talosctl`, `cilium-cli`, `hcl2json`, `jq`, `yq`, and other dependencies.
-
-**Opinion**: Always install tools via Brewfile. Never install CLI tools manually - if a tool is missing, add it to the Brewfile first.
-
----
-
-# KUBERNETES OPINIONS (Flux GitOps)
-
-## Platform Structure
-
-The Kubernetes platform uses **Flux ResourceSets** for centralized, declarative management. All Helm releases are defined in a single `helm-charts.yaml` file rather than scattered across directories.
-
-### Key Files
-
-| File | Purpose |
-|------|---------|
-| `kubernetes/platform/helm-charts.yaml` | ResourceSet defining all Helm releases with versions and dependencies |
-| `kubernetes/platform/namespaces.yaml` | ResourceSet defining all namespaces |
-| `kubernetes/platform/resources.yaml` | ResourceSet for non-Helm Kustomizations (configs, secrets, etc.) |
-| `kubernetes/platform/values/<chart>.yaml` | Helm values for each chart |
-
-### Adding a New Helm Release
-
-1. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
-2. Create `values/<chart-name>.yaml` with Helm values
-3. Add the values file to `kustomization.yaml` configMapGenerator
-4. If the chart needs post-install resources, add entry to `resources.yaml`
-
-### ResourceSet Pattern
-
-Helm releases are defined as inputs to a ResourceSet, which generates HelmRelease and HelmRepository resources:
-
-```yaml
-# In helm-charts.yaml
-inputs:
-  - name: "grafana"
-    namespace: "monitoring"
-    chart:
-      name: "grafana"
-      version: "8.8.5"
-      url: "https://grafana.github.io/helm-charts"
-    dependsOn: [kube-prometheus-stack]
-```
-
-**Opinion**:
-- Chart versions are defined in `helm-charts.yaml`, NOT in values files
-- Dependencies between releases use `dependsOn` arrays
-- Values files contain only Helm chart configuration
-
-## Variable Substitution
-
-Flux performs variable substitution at reconciliation time. Use these patterns:
-
-```yaml
-# Simple substitution
-url: https://grafana.${internal_domain}
-
-# Cluster-specific (set in cluster-vars ConfigMap)
-cluster: ${cluster_name}
-```
-
-**Available variables** (from cluster config):
-- `${internal_domain}` - Internal TLD (e.g., internal.tomnowak.work)
-- `${external_domain}` - External TLD
-- `${cluster_name}` - Cluster name (dev, integration, live)
-- `${cluster_id}` - Numeric cluster ID
-
-**Opinion**: Never hardcode domains or cluster names. Always use substitution.
+**Rules:**
+- **Brewfile is authoritative**: If a tool isn't in Brewfile, it shouldn't be assumed available
+- **Add before using**: When introducing a new tool dependency, add it to Brewfile first
+- **CI parity**: Tools used in CI workflows should have Brewfile equivalents for local development
+- **No manual installs**: Never install CLI tools manually - always go through Brewfile
 
 ---
 
-# CODE STYLE
+# DIRECTORY-SPECIFIC DOCUMENTATION
 
-## YAML (Kubernetes)
-- Include schema comment: `# yaml-language-server: $schema=...`
-- Use `---` document separator at file start
-- 2-space indentation
-- Quote strings that could be misinterpreted (especially "true"/"false")
+Each major directory has its own CLAUDE.md with domain-specific patterns:
 
-## HCL (Terragrunt/OpenTofu)
-- Use `hcl2json` + `jq` for scripted access to HCL data (e.g., inventory lookups)
-- Format with `task tg:fmt` before committing
+| Directory | Focus |
+|-----------|-------|
+| [infrastructure/CLAUDE.md](infrastructure/CLAUDE.md) | Testing, validation, stacks, inventory lookups |
+| [kubernetes/platform/CLAUDE.md](kubernetes/platform/CLAUDE.md) | Flux patterns, secrets management, variable substitution |
+| [kubernetes/clusters/CLAUDE.md](kubernetes/clusters/CLAUDE.md) | Cluster configuration, promotion path |
+| [.taskfiles/CLAUDE.md](.taskfiles/CLAUDE.md) | Task commands quick reference |
 
-## Naming Conventions
-| Resource | Convention | Example |
-|----------|------------|---------|
-| Helm release name | kebab-case, matches chart | `kube-prometheus-stack` |
-| Namespace | kebab-case | `longhorn-system` |
-| Values file | kebab-case, matches release | `values/grafana.yaml` |
-| Task names | namespace:action-target | `talos:maint-node41` |
+## Skills (Lazy-Loaded)
+
+Invoke these skills for detailed procedural guidance:
+
+| Skill | Trigger |
+|-------|---------|
+| `terragrunt` | Infrastructure operations, stack management |
+| `opentofu-modules` | Module development and testing |
+| `flux-gitops` | Adding Helm releases, ResourceSet patterns |
+| `app-template` | Deploying apps with bjw-s/app-template |
+| `kubesearch` | Researching Helm chart configurations |
+| `k8s-sre` | Debugging Kubernetes incidents |
+| `taskfiles` | Taskfile syntax and patterns |
 
 ---
 
@@ -294,19 +219,6 @@ Code should be self-documenting. Comments and messages explain the WHY, not the 
 - **Comments explain reasoning**: Why this approach? Why not the obvious alternative?
 - **Omit the obvious**: Don't comment what the code clearly does
 - **No redundancy**: If the code says it, don't repeat it in a comment
-
-```hcl
-# BAD: Restates what the code does
-# Set the cluster name to "live"
-cluster_name = "live"
-
-# GOOD: Explains why
-# Production cluster - receives traffic after promotion through dev/integration
-cluster_name = "live"
-
-# BEST: Self-documenting, no comment needed
-production_cluster_name = "live"
-```
 
 ## Commits
 
@@ -325,21 +237,6 @@ Follow Conventional Commits format:
 - **Focus on WHY**: Explain the reasoning and intent, not the changes themselves
 - **The diff shows WHAT**: Don't restate file changes - reviewers can see the diff
 - **Be concise**: If you need paragraphs, the commit is probably too big
-
-```bash
-# BAD: Restates the changes
-docs(docs): add CLAUDE.md with core principles section containing enterprise
-at home philosophy and everything as code section and anti-patterns section
-with 14 rules organized into 5 categories and kubernetes opinions...
-
-# GOOD: Explains the why at a high level
-docs(docs): add Claude Code context for repository conventions
-
-# GOOD: With body explaining reasoning
-feat(infra): add node50 to live cluster
-
-Expanding capacity for increased workload from new monitoring stack.
-```
 
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`
 
@@ -368,144 +265,19 @@ PRs follow the same philosophy as commits: explain WHY, not WHAT. The diff speak
 - **Don't describe obvious changes**: "Updated X" is noise - explain why X needed updating
 - **Test plan is actionable**: Specific steps someone can follow to verify the change works
 
-```markdown
-# BAD: Restates the diff
-## Summary
-- Modified infrastructure/modules/talos/main.tf to add new variable
-- Updated infrastructure/stacks/live/terragrunt.hcl to pass variable
-- Changed kubernetes/clusters/base/monitoring/grafana.yaml version
-
-# GOOD: Explains the reasoning
-## Summary
-- Enable persistent storage for Grafana dashboards to survive pod restarts
-- Upgrade Grafana to v10.x for new alerting features needed by on-call rotation
-
-## Test plan
-- [ ] Verify Grafana pod starts with PVC mounted
-- [ ] Confirm existing dashboards load after pod restart
-- [ ] Test new alerting rule creation in UI
-```
-
 ---
 
-# TESTING & VALIDATION
+# RUNBOOKS
 
-Testing is non-negotiable. Every change must pass validation before being considered ready.
+Operational runbooks for common procedures are in `docs/runbooks/`:
 
-## Required Validation Steps
+| Runbook | Purpose |
+|---------|---------|
+| `resize-volume.md` | Resize Longhorn volumes when automatic expansion fails |
+| `supermicro-machine-setup.md` | Initial BIOS/IPMI configuration for new hardware |
+| `longhorn-disaster-recovery.md` | Complete cluster recovery from S3 backups |
 
-**ALWAYS run these before requesting commit approval:**
-
-```bash
-# 1. Format all code
-task tg:fmt                        # Formats HCL (Terragrunt + OpenTofu)
-
-# 2. Run module tests (for specific module)
-task tg:test-<module>              # Runs OpenTofu native tests
-
-# 3. Validate infrastructure (for specific stack)
-task tg:validate-<stack>           # Validates Terragrunt stack
-```
-
-## Validation Tools
-
-| Tool | Purpose | Task |
-|------|---------|------|
-| `tofu fmt` | OpenTofu formatting | `task tg:fmt` |
-| `terragrunt hclfmt` | Terragrunt HCL formatting | `task tg:fmt` |
-| `terragrunt validate` | Stack validation | `task tg:validate-<stack>` |
-| `kubeconform` | Kubernetes schema validation | Available in Brewfile |
-
-## Testing Philosophy
-
-- **Fail fast**: Run validation early and often during development
-- **Errors are blockers**: If any validation fails, stop and fix before proceeding
-
----
-
-# OPERATIONS
-
-## Task Commands
-
-```bash
-# Validation
-task tg:fmt                        # Format all HCL files
-task tg:test-<module>              # Run tests for specific module
-task tg:validate-<stack>           # Validate specific stack
-
-# Infrastructure
-task tg:list                       # List all stacks
-task tg:gen-<stack>                # Generate stack from units
-task tg:plan-<stack>               # Plan changes
-task tg:apply-<stack>              # Apply (REQUIRES HUMAN APPROVAL)
-task tg:clean-<stack>              # Clean stack cache
-
-# Talos
-task talos:maint                   # Check maintenance mode for all hosts
-task talos:maint-<host>            # Check maintenance mode for specific host
-
-# Hardware (IPMI)
-task inv:hosts                     # List all hosts
-task inv:power-status              # Power status for all hosts
-task inv:power-on-<host>           # Power on via IPMI
-task inv:power-off-<host>          # Power off via IPMI
-task inv:power-cycle-<host>        # Power cycle via IPMI
-task inv:status-<host>             # Check IPMI status
-task inv:sol-activate-<host>       # Serial-over-LAN console
-
-# Worktrees
-task wt:list                       # List all worktrees
-task wt:new                        # Create worktree for isolated work
-task wt:remove                     # Remove worktree
-task wt:resume                     # Resume Claude Code in worktree
-
-# Renovate
-task renovate:validate             # Validate Renovate config
-```
-
-## Secrets Management
-- Secrets stored in AWS SSM Parameter Store
-- Retrieved via External Secrets Operator
-- Path pattern: `/homelab/kubernetes/${cluster_name}/<secret-name>`
-- Never commit secrets to git - use ExternalSecret resources
-
-## Inventory Lookups
-
-Use `hcl2json` + `jq` to query inventory data:
-
-```bash
-# Get IP for a host
-hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts.node41.interfaces[0].addresses[0].ip'
-
-# List all hosts
-hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | keys[]'
-
-# Get hosts in a cluster
-hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | to_entries[] | select(.value.cluster == "live") | .key'
-```
-
----
-
-# CLUSTERS
-
-| Name | Purpose | Hardware | Notes |
-|------|---------|----------|-------|
-| live | Production | node41-43 (Supermicro x86_64) | 3-node HA control plane |
-| integration | Upgrade testing | node44 (Supermicro x86_64) | Single node, automated deployment |
-| dev | Manual testing | rpi4, node46-48 (mixed ARM64/x86_64) | Multi-node, not in automated pipeline |
-
-## Promotion Path
-
-```
-        dev (manual)              PR merged to main
-             ↓                           ↓
-    Create PR when ready    →    integration (auto)
-                                         ↓
-                                 1-hour soak period
-                                         ↓
-                                   live (auto)
-```
-
-- **dev**: Manual experimentation space - use to validate changes before creating a PR
-- **integration**: Receives changes automatically when PRs merge to `main`
-- **live**: Receives changes automatically after integration passes 1-hour validation soak
+**Knowledge types:**
+- **Runbooks**: Procedural knowledge (step-by-step)
+- **CLAUDE.md**: Declarative knowledge (how the system works)
+- **Skills**: Investigative knowledge (how to debug)

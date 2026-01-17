@@ -1,0 +1,12 @@
+---
+# https://raw.githubusercontent.com/mittwald/kubernetes-replicator/master/deploy/helm-chart/kubernetes-replicator/values.yaml
+image:
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi

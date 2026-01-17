@@ -16,7 +16,7 @@ spec:
       dataplane: ambient
       security: privileged
     - name: kube-system
-      dataplane: ambient
+      dataplane: standard
       security: privileged
     - name: longhorn-system
       dataplane: standard
@@ -24,14 +24,26 @@ spec:
     - name: istio-system
       dataplane: ambient
       security: privileged
-    - name: monitoring
+    - name: istio-gateway
       dataplane: ambient
       security: privileged
-    - name: network
+    - name: monitoring
       dataplane: ambient
       security: privileged
     - name: system
       dataplane: ambient
+      security: privileged
+    - name: garage
+      dataplane: ambient
+      security: privileged
+    - name: database
+      dataplane: ambient
+      security: privileged
+    - name: kromgo
+      dataplane: ambient
+      security: privileged
+    - name: spegel
+      dataplane: standard
       security: privileged
   resourcesTemplate: |
     ---
@@ -39,18 +51,19 @@ spec:
     kind: Namespace
     metadata:
       name: << inputs.name >>
-    labels:
-      istio.io/dataplane-mode: << inputs.dataplane >>
-      <<- if eq inputs.security "restricted" >>
-      pod-security.kubernetes.io/enforce: restricted
-      pod-security.kubernetes.io/audit: restricted
-      pod-security.kubernetes.io/warn: restricted
-      <<- else if eq inputs.security "privileged" >>
-      pod-security.kubernetes.io/enforce: privileged
-      pod-security.kubernetes.io/audit: baseline
-      pod-security.kubernetes.io/warn: baseline
-      <<- else >>
-      pod-security.kubernetes.io/enforce: baseline
-      pod-security.kubernetes.io/audit: baseline
-      pod-security.kubernetes.io/warn: baseline
-      <<- end >>
+      labels:
+        istio.io/dataplane-mode: << inputs.dataplane >>
+        <<- if eq inputs.security "restricted" >>
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/audit: restricted
+        pod-security.kubernetes.io/warn: restricted
+        <<- else if eq inputs.security "privileged" >>
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/audit: baseline
+        pod-security.kubernetes.io/warn: baseline
+        <<- else >>
+        pod-security.kubernetes.io/enforce: baseline
+        pod-security.kubernetes.io/audit: baseline
+        pod-security.kubernetes.io/warn: baseline
+        <<- end >>

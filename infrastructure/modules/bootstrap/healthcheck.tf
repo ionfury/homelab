@@ -6,9 +6,9 @@ resource "healthchecksio_check" "this" {
   name = "${var.cluster_name}-heartbeat"
   desc = "Alertmanager heartbeat from cluster: ${var.cluster_name}."
 
-  timeout  = 0           # seconds
-  grace    = 300         # seconds
-  schedule = "* * * * *" # every minute
+  timeout  = 0             # seconds
+  grace    = 300           # seconds
+  schedule = "*/2 * * * *" # every 2 minutes
   timezone = "UTC"
 
   tags = [

@@ -1,0 +1,62 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Infrastructure Validate
+
+on:
+  pull_request:
+    paths:
+      - "infrastructure/**"
+      - ".github/workflows/infrastructure-validate.yaml"
+  workflow_dispatch:
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Install OpenTofu
+        run: |
+          TOFU_VERSION=$(cat .opentofu-version)
+          curl -sSL "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_amd64.tar.gz" | tar xz
+          sudo mv tofu /usr/local/bin/
+
+      - name: Install Terragrunt
+        run: |
+          TG_VERSION=$(cat .terragrunt-version)
+          curl -sSL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64" -o terragrunt
+          chmod +x terragrunt
+          sudo mv terragrunt /usr/local/bin/
+
+      - name: Check OpenTofu formatting
+        run: tofu fmt -check -recursive -diff infrastructure/
+
+      - name: Check Terragrunt formatting
+        working-directory: infrastructure
+        run: terragrunt hcl format --check
+
+  test:
+    needs: format
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [aws-set-params, bootstrap, config, talos]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Install OpenTofu
+        run: |
+          TOFU_VERSION=$(cat .opentofu-version)
+          curl -sSL "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_amd64.tar.gz" | tar xz
+          sudo mv tofu /usr/local/bin/
+
+      - name: Initialize module
+        working-directory: infrastructure/modules/${{ matrix.module }}
+        run: tofu init -upgrade
+
+      - name: Run tests
+        working-directory: infrastructure/modules/${{ matrix.module }}
+        run: tofu test

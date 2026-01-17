@@ -112,7 +112,62 @@ spec:
         version: "20.0.0"
         url: "https://prometheus-community.github.io/helm-charts"
       dependsOn: []
-
+    - name: "istio-base"
+      namespace: "istio-system"
+      chart:
+        name: "base"
+        version: "1.28.1"
+        url: "https://istio-release.storage.googleapis.com/charts"
+      dependsOn: [cilium]
+    - name: "istiod"
+      namespace: "istio-system"
+      chart:
+        name: "istiod"
+        version: "1.28.1"
+        url: "https://istio-release.storage.googleapis.com/charts"
+      dependsOn: [istio-base]
+    - name: istio-cni
+      namespace: istio-system
+      chart:
+        name: cni
+        version: 1.28.1
+        url: https://istio-release.storage.googleapis.com/charts
+      dependsOn: [istio-base, istiod]
+    - name: istio-ztunnel
+      namespace: istio-system
+      chart:
+        name: ztunnel
+        version: 1.28.1
+        url: https://istio-release.storage.googleapis.com/charts
+      dependsOn: [istio-base, istiod, istio-cni]
+    - name: garage
+      namespace: garage
+      chart:
+        name: app-template
+        version: 3.6.1
+        url: oci://ghcr.io/bjw-s/helm
+      dependsOn: [longhorn, secret-generator]
+    - name: cloudnative-pg
+      namespace: database
+      chart:
+        name: cloudnative-pg
+        version: 0.27.0
+        url: https://cloudnative-pg.github.io/charts
+      dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+    - name: kromgo
+      namespace: kromgo
+      chart:
+        name: app-template
+        version: 3.6.1
+        url: oci://ghcr.io/bjw-s/helm
+      dependsOn: [kube-prometheus-stack]
+    - name: spegel
+      namespace: spegel
+      chart:
+        name: spegel
+        version: 0.6.0
+        url: oci://ghcr.io/spegel-org/helm-charts
+      dependsOn: [cilium, kube-prometheus-stack-crds]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
@@ -122,6 +177,9 @@ spec:
       namespace: << inputs.provider.namespace >>
     spec:
       interval: 10m
+      <<- if hasPrefix "oci://" inputs.chart.url >>
+      type: oci
+      <<- end >>
       url: << inputs.chart.url >>
     ---
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -148,6 +206,7 @@ spec:
         createNamespace: false
         remediation:
           retries: 3
+        timeout: 10m
       interval: 10m
       maxHistory: 3
       releaseName: << inputs.name >>
@@ -158,6 +217,7 @@ spec:
         crds: CreateReplace
         remediation:
           retries: 3
+        timeout: 10m
       valuesFrom:
         - kind: ConfigMap
           name: platform-values

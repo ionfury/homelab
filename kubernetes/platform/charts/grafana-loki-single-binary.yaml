@@ -1,0 +1,53 @@
+---
+# https://github.com/grafana/loki/blob/main/production/helm/loki/values.yaml
+# yaml-language-server: $schema=https://github.com/grafana/loki/blob/main/production/helm/loki/values.schema.json
+deploymentMode: SingleBinary
+loki:
+  auth_enabled: false
+  analytics:
+    reporting_enabled: false
+  server:
+    log_level: info
+  commonConfig:
+    replication_factor: 1
+  compactor:
+    working_directory: /var/loki/compactor/retention
+    delete_request_store: filesystem
+    retention_enabled: true
+  ingester:
+    chunk_encoding: snappy
+  storage:
+    type: filesystem
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"  # quote
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  limits_config:
+    retention_period: 14d
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    storageClass: fast
+    size: ${loki_volume_size}
+gateway:
+  replicas: 0
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+lokiCanary:
+  enabled: false
+test:
+  enabled: false

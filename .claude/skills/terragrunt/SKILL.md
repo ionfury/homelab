@@ -1,7 +1,20 @@
 ---
 name: terragrunt
 description: |
-  Homelab infrastructure management with Terragrunt and OpenTofu. Use when: (1) Planning or applying infrastructure changes to dev/integration/live clusters, (2) Adding/modifying machines in inventory.hcl, (3) Creating or updating units and stacks, (4) Working with feature flags, (5) Running validation (fmt, validate, test, plan), (6) Understanding the units→stacks→modules architecture. Always use task commands (task tg:*) instead of running terragrunt directly.
+  Homelab infrastructure management with Terragrunt, OpenTofu, and Terraform patterns.
+
+  Use when: (1) Planning or applying infrastructure changes to dev/integration/live clusters,
+  (2) Adding/modifying machines in inventory.hcl, (3) Creating or updating units and stacks,
+  (4) Working with feature flags, (5) Running validation (fmt, validate, test, plan),
+  (6) Understanding the units→stacks→modules architecture, (7) Working with HCL configuration files,
+  (8) Bare-metal Kubernetes provisioning or Talos configuration.
+
+  Triggers: "terragrunt", "terraform", "opentofu", "tofu", "infrastructure code", "IaC",
+  "inventory.hcl", "networking.hcl", "HCL files", "add machine", "add node", "cluster provisioning",
+  "bare metal", "talos config", "task tg:", "infrastructure plan", "infrastructure apply",
+  "stacks", "units", "modules architecture"
+
+  Always use task commands (task tg:*) instead of running terragrunt directly.
 ---
 
 # Terragrunt Infrastructure Skill
@@ -216,6 +229,20 @@ Run with `task tg:test-config` or `task tg:test` for all modules.
 - **NEVER** guess MAC addresses or IPs—verify against `inventory.hcl`
 - **NEVER** commit `.terragrunt-cache/` or `.terragrunt-stack/`
 - **NEVER** manually edit Terraform state
+
+## State Operations
+
+When removing state entries with indexed resources (e.g., `this["rpi4"]`), `xargs` strips the quotes causing errors. Use a `while` loop instead:
+
+```bash
+# WRONG - xargs mangles quotes in resource names
+terragrunt state list | xargs -n 1 terragrunt state rm
+
+# CORRECT - while loop preserves quotes
+terragrunt state list | while read -r resource; do terragrunt state rm "$resource"; done
+```
+
+This applies to any state operation on resources with map keys like `data.talos_machine_configuration.this["rpi4"]`.
 
 ## Validation Checklist
 

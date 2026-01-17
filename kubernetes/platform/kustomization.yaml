@@ -4,6 +4,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: flux-system
 resources:
+  - config.yaml
   - namespaces.yaml
   - helm-charts.yaml
 generatorOptions:
@@ -11,17 +12,25 @@ generatorOptions:
 configMapGenerator:
   - name: platform-values
     files:
-      - canary-checker.yaml=values/canary-checker.yaml
-      - cert-manager.yaml=values/cert-manager.yaml
-      - cilium.yaml=values/cilium.yaml
-      - descheduler.yaml=values/descheduler.yaml
-      - external-secrets.yaml=values/external-secrets.yaml
-      - grafana-loki-single-binary.yaml=values/grafana-loki-single-binary.yaml
-      - grafana.yaml=values/grafana.yaml
-      - kube-prometheus-stack-crds.yaml=values/kube-prometheus-stack-crds.yaml
-      - kube-prometheus-stack.yaml=values/kube-prometheus-stack.yaml
-      - longhorn.yaml=values/longhorn.yaml
-      - promtail.yaml=values/promtail.yaml
-      - reloader.yaml=values/reloader.yaml
-      - replicator.yaml=values/replicator.yaml
-      - secret-generator.yaml=values/secret-generator.yaml
+      - canary-checker.yaml=charts/canary-checker.yaml
+      - cert-manager.yaml=charts/cert-manager.yaml
+      - cilium.yaml=charts/cilium.yaml
+      - cloudnative-pg.yaml=charts/cloudnative-pg.yaml
+      - descheduler.yaml=charts/descheduler.yaml
+      - external-secrets.yaml=charts/external-secrets.yaml
+      - garage.yaml=charts/garage.yaml
+      - grafana-loki-single-binary.yaml=charts/grafana-loki-single-binary.yaml
+      - grafana.yaml=charts/grafana.yaml
+      - istio-base.yaml=charts/istio-base.yaml
+      - istio-cni.yaml=charts/istio-cni.yaml
+      - istio-ztunnel.yaml=charts/istio-ztunnel.yaml
+      - istiod.yaml=charts/istiod.yaml
+      - kube-prometheus-stack-crds.yaml=charts/kube-prometheus-stack-crds.yaml
+      - kube-prometheus-stack.yaml=charts/kube-prometheus-stack.yaml
+      - longhorn.yaml=charts/longhorn.yaml
+      - promtail.yaml=charts/promtail.yaml
+      - reloader.yaml=charts/reloader.yaml
+      - replicator.yaml=charts/replicator.yaml
+      - secret-generator.yaml=charts/secret-generator.yaml
+      - kromgo.yaml=charts/kromgo.yaml
+      - spegel.yaml=charts/spegel.yaml

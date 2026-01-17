@@ -1,0 +1,7 @@
+nameReference:
+  - kind: Secret
+    fieldSpecs:
+      - path: spec/acme/privateKeySecretRef/name
+        kind: ClusterIssuer
+      - path: spec/acme/solvers/dns01/cloudflare/apiTokenSecretRef/name
+        kind: ClusterIssuer

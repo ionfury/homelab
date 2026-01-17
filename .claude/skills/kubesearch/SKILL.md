@@ -1,6 +1,16 @@
 ---
 name: kubesearch
-description: Search kubesearch.dev to research how other homelabs configure Helm charts. Use when configuring a new Helm release, looking for configuration examples, comparing approaches across repositories, or needing real-world values.yaml patterns. Triggers on questions like "how do others configure X", "show me examples of Y helm chart", or when implementing a new helm-release in kubernetes/manifests/.
+description: |
+  Search kubesearch.dev to research how other homelabs configure Helm charts.
+
+  Use when: (1) Configuring a new Helm release, (2) Looking for configuration examples,
+  (3) Comparing approaches across repositories, (4) Needing real-world values.yaml patterns,
+  (5) Researching best practices for specific charts, (6) Finding example implementations.
+
+  Triggers: "how do others configure", "show me examples", "helm chart examples",
+  "configuration examples", "values.yaml examples", "kubesearch", "homelab examples",
+  "how do other homelabs", "real-world config", "chart configuration", "helm values examples",
+  "compare helm configs", "best practices for helm"
 ---
 
 # KubeSearch - Homelab Helm Configuration Research

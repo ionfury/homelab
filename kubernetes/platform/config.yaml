@@ -1,0 +1,62 @@
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: platform-kustomizations
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcile: "enabled"
+    fluxcd.controlplane.io/reconcileEvery: "30m"
+    fluxcd.controlplane.io/reconcileTimeout: "10m"
+spec:
+  inputs:
+    - name: cilium-config
+      namespace: kube-system
+      path: kubernetes/platform/config/cilium
+    - name: issuers
+      namespace: cert-manager
+      path: kubernetes/platform/config/issuers
+    - name: certificates
+      namespace: istio-gateway
+      path: kubernetes/platform/config/certs
+    - name: external-secrets-stores
+      namespace: system
+      path: kubernetes/platform/config/secrets
+    - name: longhorn-storage
+      namespace: longhorn-system
+      path: kubernetes/platform/config/longhorn
+    - name: garage-config
+      namespace: garage
+      path: kubernetes/platform/config/garage
+    - name: gateway
+      namespace: istio-gateway
+      path: kubernetes/platform/config/gateway
+    - name: monitoring-config
+      namespace: monitoring
+      path: kubernetes/platform/config/monitoring
+    - name: database-config
+      namespace: database
+      path: kubernetes/platform/config/database
+    - name: kromgo-config
+      namespace: kromgo
+      path: kubernetes/platform/config/kromgo
+  resourcesTemplate: |
+    ---
+    apiVersion: kustomize.toolkit.fluxcd.io/v1
+    kind: Kustomization
+    metadata:
+      name: << inputs.name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      interval: 10m
+      path: << inputs.path >>
+      prune: true
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+      targetNamespace: << inputs.namespace >>
+      postBuild:
+        substituteFrom:
+          - kind: ConfigMap
+            name: cluster-vars
+            optional: false
