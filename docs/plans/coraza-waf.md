@@ -111,6 +111,7 @@ kubernetes/platform/config/gateway/
 ### WasmPlugin Resource
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/extensions.istio.io/wasmplugin_v1alpha1.json
 apiVersion: extensions.istio.io/v1alpha1
 kind: WasmPlugin
 metadata:
@@ -121,7 +122,10 @@ spec:
   selector:
     matchLabels:
       gateway.networking.k8s.io/gateway-name: external
-  url: oci://ghcr.io/corazawaf/coraza-proxy-wasm
+  # Pin to digest for supply chain security
+  # renovate: datasource=docker depName=ghcr.io/corazawaf/coraza-proxy-wasm
+  url: oci://ghcr.io/corazawaf/coraza-proxy-wasm:v0.7.0@sha256:abc123...
+  imagePullPolicy: IfNotPresent
   phase: AUTHN  # Run early in filter chain, before auth
   pluginConfig:
     # Reference ConfigMap for SecLang configuration
@@ -133,6 +137,8 @@ spec:
         SecRuleEngine On
   failStrategy: FAIL_OPEN  # Don't block traffic if WAF errors
 ```
+
+> **Security Note**: The `failStrategy: FAIL_OPEN` allows traffic when WAF errors occur. This is intentional (availability over security), but requires alerting to detect silent failures. See PrometheusRule below.
 
 ### ConfigMap for Rule Tuning
 
@@ -168,8 +174,57 @@ Coraza exposes metrics via the Envoy stats endpoint. Key metrics to monitor:
 | `waf_blocked_total` | Requests blocked by WAF |
 | `waf_rule_hits_total{rule_id}` | Hits per CRS rule |
 | `waf_latency_seconds` | Processing time overhead |
+| `envoy_wasm_envoy_wasm_runtime_null_active` | WASM runtime health (0 = degraded) |
 
 These are exposed through Istio's proxy metrics and scraped by Prometheus.
+
+### PrometheusRule for Alerting
+
+```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: coraza-waf
+  namespace: istio-gateway
+spec:
+  groups:
+    - name: coraza-waf
+      rules:
+        # Alert if WAF is in FAIL_OPEN state (processing errors)
+        - alert: CorazaWAFDegraded
+          expr: |
+            sum(rate(envoy_wasm_envoy_wasm_runtime_null_active{pod=~"external-gateway.*"}[5m])) == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Coraza WAF is degraded on external gateway"
+            description: "WAF WASM runtime is not active. Traffic is passing unfiltered (FAIL_OPEN)."
+
+        # Alert on sustained high block rate (potential attack or false positives)
+        - alert: CorazaWAFHighBlockRate
+          expr: |
+            sum(rate(waf_blocked_total{pod=~"external-gateway.*"}[5m]))
+            / sum(rate(waf_requests_total{pod=~"external-gateway.*"}[5m])) > 0.1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Coraza WAF blocking >10% of traffic"
+            description: "High block rate may indicate attack or false positives. Review waf_rule_hits_total."
+
+        # Alert if WAF latency is impacting user experience
+        - alert: CorazaWAFHighLatency
+          expr: |
+            histogram_quantile(0.99, sum(rate(waf_latency_seconds_bucket{pod=~"external-gateway.*"}[5m])) by (le)) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Coraza WAF p99 latency >50ms"
+            description: "WAF processing overhead is high. Consider rule optimization."
+```
 
 ### Hubble Integration
 
@@ -257,11 +312,111 @@ These must work even if Coraza, Istio, or Gateway API is broken:
 
 ---
 
+## Verification Commands
+
+Concrete commands for validating each implementation phase:
+
+### Phase 1 Verification
+```bash
+# Verify WasmPlugin is created and image pulled
+kubectl -n istio-gateway get wasmplugins coraza-waf -o yaml
+kubectl -n istio-gateway get pods -l gateway.networking.k8s.io/gateway-name=external -o jsonpath='{.items[*].status.containerStatuses[*].ready}'
+
+# Check WasmPlugin is attached to gateway
+istioctl proxy-config listeners external-gateway-xxx -n istio-gateway | grep -i wasm
+```
+
+### Phase 2 Verification
+```bash
+# Test common attack patterns are blocked
+curl -I "https://app.example.com/?id=1'%20OR%20'1'='1"  # SQLi - expect 403
+curl -I "https://app.example.com/?q=<script>alert(1)</script>"  # XSS - expect 403
+curl -I "https://app.example.com/../../../etc/passwd"  # Path traversal - expect 403
+
+# Test legitimate traffic passes
+curl -I "https://app.example.com/"  # Normal request - expect 200
+
+# Verify fail-open behavior
+kubectl -n istio-gateway delete wasmplugin coraza-waf
+curl -I "https://app.example.com/"  # Should still return 200
+kubectl -n istio-gateway apply -f coraza-wasm-plugin.yaml  # Restore
+
+# Measure latency overhead
+kubectl -n istio-gateway exec -it deploy/external-gateway -- curl -w "@/dev/stdin" -o /dev/null -s "http://localhost:15000/stats/prometheus" <<< "time_total: %{time_total}\n"
+```
+
+### Phase 3 Verification
+```bash
+# Verify metrics in Prometheus
+kubectl -n prometheus port-forward svc/prometheus 9090:9090 &
+curl -s "http://localhost:9090/api/v1/query?query=waf_requests_total" | jq '.data.result'
+curl -s "http://localhost:9090/api/v1/query?query=waf_blocked_total" | jq '.data.result'
+
+# Verify PrometheusRule is loaded
+kubectl -n istio-gateway get prometheusrules coraza-waf
+kubectl -n prometheus exec -it deploy/prometheus -- promtool check rules /etc/prometheus/rules/*.yaml
+```
+
+---
+
+## Rollback Procedures
+
+### Immediate Rollback (Traffic Impact)
+
+If WAF is blocking legitimate traffic:
+
+```bash
+# Option 1: Disable WAF entirely (safest)
+kubectl -n istio-gateway delete wasmplugin coraza-waf
+
+# Option 2: Switch to detection-only mode
+kubectl -n istio-gateway patch configmap coraza-rules --type=merge -p '
+data:
+  custom-rules.conf: |
+    SecRuleEngine DetectionOnly
+'
+
+# Verify traffic flows
+curl -I "https://app.example.com/"
+```
+
+### Rule-Specific Rollback
+
+If specific rules cause false positives:
+
+```bash
+# Identify offending rule from metrics
+kubectl -n prometheus port-forward svc/prometheus 9090:9090 &
+curl -s "http://localhost:9090/api/v1/query?query=topk(5,waf_rule_hits_total)" | jq '.data.result'
+
+# Add exclusion to ConfigMap (then commit via PR)
+kubectl -n istio-gateway patch configmap coraza-rules --type=merge -p '
+data:
+  custom-rules.conf: |
+    SecAction "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
+    SecRuleRemoveById 920350  # Disable specific rule
+'
+```
+
+### Full Rollback via Git
+
+```bash
+# Revert the PR that added Coraza
+git revert <commit-sha>
+git push origin main
+
+# Flux will reconcile and remove WasmPlugin
+flux reconcile kustomization platform --with-source
+```
+
+---
+
 ## Success Criteria
 
 - Coraza blocks common scanner noise and malformed requests
 - Legitimate application traffic passes without increased latency (< 5ms p99 overhead)
 - WAF metrics visible in Prometheus/Grafana
 - Fail-open behavior verified: traffic flows when WASM binary unavailable
+- CorazaWAFDegraded alert fires when WAF is in fail-open state
 - False positive rate < 0.1% of legitimate traffic after tuning
 - Cluster operations (destroy, provision) succeed with WAF deployed

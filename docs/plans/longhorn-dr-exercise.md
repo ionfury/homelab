@@ -4,11 +4,18 @@
 
 This document defines the architecture for an automated Longhorn DR exercise that validates backup/restore capabilities by deploying a test workload, backing it up to S3, destroying the dev cluster, rebuilding it, and verifying data restoration.
 
+### Execution Model
+
+**Manually initiated, fully automated execution.** An operator explicitly starts the exercise via `task dr:exercise`, then all phases execute without further intervention. This model:
+- Requires human intent to begin (no accidental cluster destruction)
+- Auto-approve flags are acceptable within a manually-initiated workflow
+- Provides clear audit trail of who initiated and when
+
 ### Goals
 
 - **Validate backup integrity**: Prove that S3 backups contain restorable data
 - **Exercise full DR path**: Test the complete destroy→rebuild→restore workflow
-- **Fully automated execution**: No human intervention required during the exercise
+- **Fully automated execution**: Once initiated, no human intervention required
 - **Repeatable verification**: Deterministic pass/fail outcome based on data validation
 - **Backup-aware bootstrap**: Clusters automatically restore from backups by default
 - **Leverage existing infrastructure**: Reuse existing tasks and platform patterns
@@ -39,7 +46,8 @@ These decisions were made during planning and guide the implementation:
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Terragrunt auto-approve | Add flag support to existing tasks | Consistent interface, flags passed via CLI args |
+| Execution model | **Manually initiated** | Human explicitly starts exercise; auto-approve acceptable within manual workflow |
+| Terragrunt auto-approve | Add flag support to existing tasks | Consistent interface; safe because exercise is manually initiated |
 | Kubeconfig refresh | Create dedicated `k8s:get-kubeconfig` task | Reusable across other automation |
 | Volume restore strategy | **Backup-aware bootstrap** with well-known PVC names | Clusters self-heal by default; opt-out for fresh starts |
 | Failure handling | Require full re-run | Keep it simple; exercise is ~30 minutes |
@@ -160,7 +168,7 @@ A dedicated `dr-exercise` app deployed via the platform that:
 │  └───────────────────────────┼──────────────────────────────────┘   │
 │                              │                                      │
 │  ┌───────────────────────────▼──────────────────────────────────┐   │
-│  │  PVC: dr-exercise-data (1Gi, RWO, longhorn-critical)         │   │
+│  │  PVC: dr-exercise-data (1Gi, RWO, longhorn)                   │   │
 │  │                                                              │   │
 │  │  Well-known name enables automatic backup restoration        │   │
 │  │                                                              │   │
@@ -225,19 +233,48 @@ kubernetes/platform/
 
 ### Volume Restore Orchestrator
 
-A Kubernetes Job that runs early in cluster bootstrap:
+A Kubernetes Job that runs early in cluster bootstrap. **Key design notes:**
+
+1. **Flux CD v2 ordering**: Use Kustomization `dependsOn` (not Weave v1 annotations)
+2. **Query BackupVolumes**: These are auto-discovered from S3, not `Backup` CRs
+3. **GitOps exception**: The Job creates Volume CRs dynamically because backup URLs aren't known at git-commit time
+
+**Flux Kustomization ordering (in cluster kustomization.yaml):**
+```yaml
+# Ensure orchestrator runs after Longhorn but before workloads
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: longhorn-restore-orchestrator
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: longhorn  # Wait for Longhorn to discover S3 backups
+  path: ./kubernetes/platform/config/longhorn/restore-orchestrator
+  # ... other fields
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: workloads
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: longhorn-restore-orchestrator  # Wait for volumes to be restored
+  # ... workload kustomizations
+```
 
 **Job (config/longhorn/restore-orchestrator/job.yaml):**
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0/job-batch-v1.json
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: longhorn-restore-orchestrator
   namespace: longhorn-system
-  annotations:
-    # Runs before workload kustomizations
-    flux.weave.works/hook: sync
-    flux.weave.works/hook-weight: "-10"
+  labels:
+    app.kubernetes.io/name: restore-orchestrator
+    app.kubernetes.io/component: disaster-recovery
 spec:
   ttlSecondsAfterFinished: 3600
   backoffLimit: 3
@@ -254,7 +291,7 @@ spec:
             - |
               set -euo pipefail
 
-              # Check for skip flag
+              # Check for skip flag (for fresh deployments)
               SKIP=$(kubectl get configmap -n flux-system cluster-config \
                 -o jsonpath='{.data.skip_backup_restore}' 2>/dev/null || echo "false")
 
@@ -268,20 +305,19 @@ spec:
               # Well-known volumes that should be restored from backup
               RESTORE_VOLUMES=(
                 "dr-exercise-data"
-                # Add other well-known volumes here
+                # Add other well-known volumes here as they're onboarded
               )
 
               for VOL_NAME in "${RESTORE_VOLUMES[@]}"; do
                 echo "Checking for backup of ${VOL_NAME}..."
 
-                # Find latest backup for this volume name
-                BACKUP_URL=$(kubectl -n longhorn-system get backups \
-                  -l "longhornvolume=${VOL_NAME}" \
-                  --sort-by='.metadata.creationTimestamp' \
-                  -o jsonpath='{.items[-1].status.url}' 2>/dev/null || echo "")
+                # Query BackupVolume CR (auto-created when Longhorn discovers S3 backups)
+                # BackupVolumes are named after the original volume name
+                BACKUP_URL=$(kubectl -n longhorn-system get backupvolumes "${VOL_NAME}" \
+                  -o jsonpath='{.status.lastBackupURL}' 2>/dev/null || echo "")
 
                 if [ -z "${BACKUP_URL}" ]; then
-                  echo "  No backup found for ${VOL_NAME}, will create fresh"
+                  echo "  No BackupVolume found for ${VOL_NAME}, will create fresh"
                   continue
                 fi
 
@@ -291,6 +327,9 @@ spec:
                   continue
                 fi
 
+                # NOTE: This kubectl apply is a GitOps exception. The backup URL
+                # is dynamic (contains timestamps) and can't be known at git-commit time.
+                # The Volume CR created here will be adopted by Flux on next reconcile.
                 echo "  Restoring ${VOL_NAME} from ${BACKUP_URL}"
                 kubectl apply -f - <<EOF
               apiVersion: longhorn.io/v1beta2
@@ -298,6 +337,8 @@ spec:
               metadata:
                 name: ${VOL_NAME}
                 namespace: longhorn-system
+                labels:
+                  app.kubernetes.io/managed-by: restore-orchestrator
               spec:
                 fromBackup: "${BACKUP_URL}"
                 numberOfReplicas: 3
@@ -319,6 +360,8 @@ spec:
 
               echo "Restore orchestration complete"
 ```
+
+> **GitOps Exception Note**: The orchestrator uses `kubectl apply` to create Volume CRs because the backup URL contains dynamic timestamps that can't be predicted at git-commit time. This is an acceptable exception for disaster recovery scenarios where the goal is data restoration, not declarative state management.
 
 ### Platform Resources
 
@@ -482,10 +525,42 @@ tasks:
         echo "Sentinel written. Checksum: ${CHECKSUM}"
 
   trigger-backup:
-    desc: Create on-demand Longhorn backup
+    desc: Create on-demand Longhorn backup (snapshot first, then backup)
     cmds:
       - |
-        BACKUP_NAME="dr-exercise-$(date -u +%Y%m%d%H%M%S)"
+        TIMESTAMP=$(date -u +%Y%m%d%H%M%S)
+        SNAPSHOT_NAME="dr-exercise-snap-${TIMESTAMP}"
+        BACKUP_NAME="dr-exercise-backup-${TIMESTAMP}"
+
+        # Step 1: Create a snapshot of the volume
+        # The volume name matches the PVC name due to well-known naming
+        echo "Creating snapshot ${SNAPSHOT_NAME}..."
+        kubectl --kubeconfig {{.KUBECONFIG}} apply -f - <<EOF
+        apiVersion: longhorn.io/v1beta2
+        kind: Snapshot
+        metadata:
+          name: ${SNAPSHOT_NAME}
+          namespace: longhorn-system
+        spec:
+          volume: {{.PVC_NAME}}
+          labels:
+            dr-exercise: "true"
+        EOF
+
+        # Wait for snapshot to be ready
+        echo "Waiting for snapshot to be ready..."
+        for i in $(seq 1 30); do
+          READY=$(kubectl --kubeconfig {{.KUBECONFIG}} -n longhorn-system get snapshot ${SNAPSHOT_NAME} \
+            -o jsonpath='{.status.readyToUse}' 2>/dev/null || echo "false")
+          if [ "${READY}" = "true" ]; then
+            echo "Snapshot ready"
+            break
+          fi
+          sleep 2
+        done
+
+        # Step 2: Create backup from the snapshot
+        echo "Creating backup ${BACKUP_NAME} from snapshot..."
         kubectl --kubeconfig {{.KUBECONFIG}} apply -f - <<EOF
         apiVersion: longhorn.io/v1beta2
         kind: Backup
@@ -496,11 +571,12 @@ tasks:
             longhornvolume: {{.PVC_NAME}}
             dr-exercise: "true"
         spec:
-          snapshotName: ""
+          snapshotName: ${SNAPSHOT_NAME}
           labels:
             dr-exercise: "true"
             longhornvolume: {{.PVC_NAME}}
         EOF
+
         echo "Backup triggered: ${BACKUP_NAME}"
         echo "${BACKUP_NAME}" > /tmp/dr-exercise-backup-name.txt
 
@@ -657,6 +733,112 @@ tasks:
 - Exercise completes in under 45 minutes (reasonable time for dev cluster)
 - Cluster is fully functional after exercise (all workloads healthy)
 - Clear pass/fail output with actionable error messages on failure
+
+---
+
+## Mid-Exercise Failure Recovery
+
+If the DR exercise fails partway through, use these recovery procedures:
+
+### Phase 1-2 Failure (Setup/Backup)
+
+**Symptom:** Exercise fails before cluster destruction
+**Recovery:** Safe to re-run the exercise from the beginning
+```bash
+# Re-run the full exercise
+task dr:exercise
+```
+
+### Phase 3 Failure (Destroy Incomplete)
+
+**Symptom:** Cluster partially destroyed, some resources remain
+**Recovery:** Force complete destruction, then re-run
+```bash
+# Check what's left
+task tg:plan-dev
+
+# Force destroy with cleanup
+task tg:destroy-dev -- -auto-approve
+
+# If terragrunt is stuck, check for orphaned resources
+aws ec2 describe-instances --filters "Name=tag:Cluster,Values=dev"
+
+# After successful destroy, re-run exercise
+task dr:exercise
+```
+
+### Phase 4 Failure (Rebuild Incomplete)
+
+**Symptom:** Cluster partially rebuilt, Talos nodes stuck
+**Recovery:** Retry apply, or full teardown and rebuild
+```bash
+# First, try to complete the apply
+task tg:apply-dev -- -auto-approve
+
+# If stuck, check Talos node status
+talosctl --nodes <node-ip> health
+
+# If nodes are unrecoverable, destroy and rebuild
+task tg:destroy-dev -- -auto-approve
+task tg:apply-dev -- -auto-approve
+```
+
+### Phase 5 Failure (Validation)
+
+**Symptom:** Cluster rebuilt but sentinel verification fails
+**Recovery:** Investigate why data wasn't restored
+
+```bash
+# Check if BackupVolume was discovered
+kubectl -n longhorn-system get backupvolumes
+
+# Check if restore orchestrator ran
+kubectl -n longhorn-system logs job/longhorn-restore-orchestrator
+
+# Check if volume was created from backup
+kubectl -n longhorn-system get volumes dr-exercise-data -o yaml | grep fromBackup
+
+# Check PVC binding
+kubectl -n dr-exercise get pvc
+```
+
+---
+
+## Kubernetes Taskfile
+
+**File to create:** `.taskfiles/kubernetes/taskfile.yaml`
+
+```yaml
+version: "3"
+
+tasks:
+  get-kubeconfig:
+    desc: Fetch kubeconfig from AWS SSM for a cluster
+    vars:
+      CLUSTER: '{{.CLUSTER | default "dev"}}'
+      KUBECONFIG_PATH: '{{.KUBECONFIG_PATH | default "~/.kube/{{.CLUSTER}}.yaml"}}'
+    cmds:
+      - |
+        set -euo pipefail
+        echo "Fetching kubeconfig for cluster: {{.CLUSTER}}"
+        aws ssm get-parameter \
+          --name "/homelab/kubernetes/{{.CLUSTER}}/kubeconfig" \
+          --with-decryption \
+          --query "Parameter.Value" \
+          --output text > {{.KUBECONFIG_PATH}}
+        chmod 600 {{.KUBECONFIG_PATH}}
+        echo "Kubeconfig saved to {{.KUBECONFIG_PATH}}"
+
+  health:
+    desc: Check cluster health
+    vars:
+      CLUSTER: '{{.CLUSTER | default "dev"}}'
+      KUBECONFIG: '{{.KUBECONFIG | default "~/.kube/{{.CLUSTER}}.yaml"}}'
+    cmds:
+      - kubectl --kubeconfig {{.KUBECONFIG}} cluster-info
+      - kubectl --kubeconfig {{.KUBECONFIG}} get nodes
+      - kubectl --kubeconfig {{.KUBECONFIG}} get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded
+```
 
 ---
 
