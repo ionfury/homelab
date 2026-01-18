@@ -189,8 +189,8 @@ locals {
       }]
     }
     node44 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "integration"
-      type    = "controlplane"
+      cluster = "none"
+      type    = "none"
 
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
@@ -218,8 +218,8 @@ locals {
       }]
     }
     node45 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none"
-      type    = "none"
+      cluster = "dev"
+      type    = "controlplane"
 
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
@@ -232,11 +232,11 @@ locals {
       interfaces = [{
         id           = "ens1f0"
         hardwareAddr = "ac:1f:6b:83:d3:2c"
-        addresses    = [{ ip = "192.168.10.251" }]
+        addresses    = [{ ip = "192.168.10.252" }]
       }]
     }
     node46 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "dev"
+      cluster = "integration"
       type    = "controlplane"
 
       install = {
@@ -254,7 +254,7 @@ locals {
       }]
     }
     node47 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "dev"
+      cluster = "integration"
       type    = "controlplane"
 
       install = {
@@ -272,7 +272,7 @@ locals {
       }]
     }
     node48 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "dev"
+      cluster = "integration"
       type    = "controlplane"
 
       install = {
