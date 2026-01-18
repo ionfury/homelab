@@ -51,7 +51,7 @@ tasks:
         sh: basename "{{.ROOT_DIR}}"
       WORKTREE_PATH: "{{.ROOT_DIR}}/../{{.REPO_NAME}}-{{.NAME}}"
     cmds:
-      - git worktree remove "{{.WORKTREE_PATH}}"
+      - git worktree remove "{{.WORKTREE_PATH}}" --force
     preconditions:
       - sh: test -n "{{.CLI_ARGS}}"
         msg: "Usage: task wt:remove -- <worktree-name>"
