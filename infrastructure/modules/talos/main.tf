@@ -44,17 +44,17 @@ data "talos_machine_configuration" "this" {
   kubernetes_version = var.kubernetes_version
   talos_version      = var.talos_version
 
-  config_patches = [
-    each.value.config,
-    templatefile("${path.module}/resources/talos-patches/machine_install.yaml.tftpl", {
+  config_patches = concat(
+    [each.value.config],
+    [templatefile("${path.module}/resources/talos-patches/machine_install.yaml.tftpl", {
       machine_install_disk_image = each.value.install.secureboot ? local.machine_installer_secureboot[each.key] : local.machine_installer[each.key]
       machine_install_disk       = data.talos_machine_disks.this[each.key].disks[0].dev_path
-    }),
-    templatefile("${path.module}/resources/talos-patches/inline_manifests.yaml.tftpl", {
+    })],
+    yamldecode(each.value.config).machine.type == "controlplane" && length(var.bootstrap_charts) > 0 ? [templatefile("${path.module}/resources/talos-patches/inline_manifests.yaml.tftpl", {
       machine_type = yamldecode(each.value.config).machine.type
       manifests    = data.helm_template.bootstrap_charts
-    })
-  ]
+    })] : []
+  )
 }
 
 data "talos_client_configuration" "this" {
