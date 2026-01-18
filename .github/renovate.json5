@@ -4,8 +4,8 @@
     "config:recommended",
     ":dependencyDashboard",
     ":timezone(America/New_York)",
-    "local>renovate-automerge",
-    "local>renovate-labels"
+    "github>ionfury/homelab//.renovate/automerge.json5",
+    "github>ionfury/homelab//.renovate/labels.json5"
   ],
   "dependencyDashboardTitle": "Dependency Dashboard",
   "terraform": {
