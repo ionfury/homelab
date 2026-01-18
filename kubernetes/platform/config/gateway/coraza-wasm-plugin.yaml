@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/extensions.istio.io/wasmplugin_v1alpha1.json
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: coraza-waf
+spec:
+  # Target only the external gateway pods
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: external
+  # renovate: datasource=docker depName=ghcr.io/corazawaf/coraza-proxy-wasm
+  url: oci://ghcr.io/corazawaf/coraza-proxy-wasm:0.6.0@sha256:d66f944831428ea27039207fa4019bea55f9ea0a876d7b0dc8cc7c9e385fa4b1
+  imagePullPolicy: IfNotPresent
+  # Run early in filter chain, before authentication
+  phase: AUTHN
+  # Allow traffic if WAF errors - availability over security
+  failStrategy: FAIL_OPEN
+  pluginConfig:
+    directives_map:
+      default:
+        - Include @recommended-conf
+        - Include @crs-setup-conf
+        - Include @owasp_crs/*.conf
+        - SecRuleEngine On
+        # Paranoia level 1 (lowest false positive rate)
+        - SecAction "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
+        # Request body size limit (10MB)
+        - SecRequestBodyLimit 10485760
+        - SecRequestBodyNoFilesLimit 131072
+        # Response body inspection disabled (performance)
+        - SecResponseBodyAccess Off
+    default_directives: default

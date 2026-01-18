@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0/configmap.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coraza-rules
+  annotations:
+    # Istio WasmPlugin doesn't support volume mounts, so rules are inlined in the WasmPlugin.
+    # This ConfigMap serves as a documentation artifact and source-of-truth for custom rules.
+    # When tuning rules, update both this ConfigMap (for docs) and the WasmPlugin (for runtime).
+    note: "Reference copy - actual rules are in WasmPlugin pluginConfig"
+data:
+  custom-rules.conf: |
+    # WasmPlugin includes (for reference):
+    # - Include @recommended-conf
+    # - Include @crs-setup-conf
+    # - Include @owasp_crs/*.conf
+    # - SecRuleEngine On
+    #
+    # Custom rules below tune the CRS behavior:
+
+    # Paranoia level 1 (lowest, fewer false positives)
+    SecAction "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
+
+    # Disable specific rules that cause false positives (examples)
+    # SecRuleRemoveById 920350  # Host header validation
+    # SecRuleRemoveById 942100  # SQL injection detection
+
+    # Request body size limit (10MB)
+    SecRequestBodyLimit 10485760
+    SecRequestBodyNoFilesLimit 131072
+
+    # Response body inspection disabled (performance)
+    SecResponseBodyAccess Off
