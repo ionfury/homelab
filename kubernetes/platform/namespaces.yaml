@@ -51,8 +51,22 @@ spec:
     kind: Namespace
     metadata:
       name: << inputs.name >>
+      <<- if inputs.networkPolicy >>
+      annotations:
+        <<- if inputs.networkPolicy.profile >>
+        network-policy.homelab/profile: << inputs.networkPolicy.profile >>
+        <<- end >>
+        <<- if inputs.networkPolicy.enforcement >>
+        network-policy.homelab/enforcement: << inputs.networkPolicy.enforcement >>
+        <<- end >>
+      <<- end >>
       labels:
         istio.io/dataplane-mode: << inputs.dataplane >>
+        <<- if inputs.networkPolicy >>
+        <<- if inputs.networkPolicy.profile >>
+        network-policy.homelab/profile: << inputs.networkPolicy.profile >>
+        <<- end >>
+        <<- end >>
         <<- if eq inputs.security "restricted" >>
         pod-security.kubernetes.io/enforce: restricted
         pod-security.kubernetes.io/audit: restricted
