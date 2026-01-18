@@ -7,7 +7,7 @@ metadata:
   namespace: database
 spec:
   description: "Allow CloudNative-PG: PostgreSQL connections from labeled namespaces, S3 backup, replication"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow PostgreSQL connections from namespaces with postgres access label
     - fromEndpoints:

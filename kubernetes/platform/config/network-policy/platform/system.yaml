@@ -7,7 +7,7 @@ metadata:
   namespace: system
 spec:
   description: "Allow system utilities: reloader, replicator, secret-generator (K8s operators)"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow Prometheus scraping
     - fromEndpoints:

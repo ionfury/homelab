@@ -7,7 +7,7 @@ metadata:
   namespace: garage
 spec:
   description: "Allow Garage S3: API from labeled namespaces, inter-node replication, admin API"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow S3 API from namespaces with garage-s3 access label
     - fromEndpoints:

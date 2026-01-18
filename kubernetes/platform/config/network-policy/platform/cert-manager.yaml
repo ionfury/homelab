@@ -7,7 +7,7 @@ metadata:
   namespace: cert-manager
 spec:
   description: "Allow cert-manager: ACME challenges, DNS providers, K8s API"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow Prometheus scraping
     - fromEndpoints:

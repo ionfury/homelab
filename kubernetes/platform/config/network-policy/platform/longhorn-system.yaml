@@ -7,11 +7,11 @@ metadata:
   namespace: longhorn-system
 spec:
   description: "Allow Longhorn: inter-node storage traffic, CSI from all namespaces, management UI"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow CSI driver requests from all namespaces (pods mounting volumes)
     - fromEndpoints:
-        - {}
+        - { }
       toPorts:
         - ports:
             - port: "9500"

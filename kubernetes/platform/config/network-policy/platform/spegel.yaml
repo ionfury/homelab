@@ -7,7 +7,7 @@ metadata:
   namespace: spegel
 spec:
   description: "Allow spegel: cluster-local OCI registry mirror for container images"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow image pulls from all cluster pods (registry mirror)
     - fromEntities:

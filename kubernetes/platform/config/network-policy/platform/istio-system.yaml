@@ -7,11 +7,11 @@ metadata:
   namespace: istio-system
 spec:
   description: "Allow Istio control plane: xDS to data plane, K8s API, webhook traffic"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow xDS requests from data plane (ztunnel, waypoints)
     - fromEndpoints:
-        - {}
+        - { }
       toPorts:
         - ports:
             # istiod gRPC port

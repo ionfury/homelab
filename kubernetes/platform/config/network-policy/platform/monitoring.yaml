@@ -7,7 +7,7 @@ metadata:
   namespace: monitoring
 spec:
   description: "Allow monitoring stack: Prometheus scraping, Grafana UI, Alertmanager webhooks, Loki ingestion"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow traffic from gateways (Grafana, Prometheus, Alertmanager UIs)
     - fromEndpoints:
@@ -23,7 +23,7 @@ spec:
               protocol: TCP
     # Allow log shipping from all namespaces to Loki
     - fromEndpoints:
-        - {}
+        - { }
       toPorts:
         - ports:
             - port: "3100"

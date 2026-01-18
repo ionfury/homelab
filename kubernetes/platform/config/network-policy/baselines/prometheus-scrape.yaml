@@ -6,7 +6,7 @@ metadata:
   name: baseline-prometheus-scrape
 spec:
   description: "Allow Prometheus to scrape metrics from all pods"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     - fromEndpoints:
         - matchLabels:

@@ -7,11 +7,11 @@ metadata:
   namespace: kube-system
 spec:
   description: "Allow essential kube-system traffic: DNS serving, NTP, Cilium, metrics"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow DNS queries from all cluster pods
     - fromEndpoints:
-        - {}
+        - { }
       toPorts:
         - ports:
             - port: "53"
