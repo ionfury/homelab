@@ -305,7 +305,7 @@ These must work even if Coraza, Istio, or Gateway API is broken:
 
 ### Phase 4: Tuning
 
-- [ ] Monitor for false positives over 1-week soak period
+- [ ] Monitor for false positives over 1-week observation period
 - [ ] Add rule exclusions to ConfigMap as needed
 - [ ] Document any application-specific tuning in ConfigMap comments
 - [ ] Establish runbook for adding new exclusions

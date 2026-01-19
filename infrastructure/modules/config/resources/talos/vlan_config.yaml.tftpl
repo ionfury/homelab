@@ -4,8 +4,6 @@
 apiVersion: v1alpha1
 kind: VLANConfig
 name: net${idx}.${vlan.vlanId}
-layer: operator
-vlanID: ${vlan.vlanId}
 parent: net${idx}
 up: true
 mtu: ${lookup(vlan, "mtu", 1500)}
