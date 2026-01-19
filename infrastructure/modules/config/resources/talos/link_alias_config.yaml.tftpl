@@ -1,0 +1,9 @@
+%{ for idx, interface in interfaces ~}
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: net${idx}
+layer: operator
+selector:
+  match: mac(link.permanent_addr) == "${interface.hardwareAddr}"
+%{ endfor ~}

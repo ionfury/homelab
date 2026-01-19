@@ -1,0 +1,20 @@
+%{ for idx, interface in interfaces ~}
+---
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: net${idx}
+layer: operator
+clientIdentifier: mac
+routeMetric: ${lookup(interface, "dhcp_routeMetric", 100)}
+%{ endfor ~}
+%{ for idx, interface in interfaces ~}
+%{ for vlan in lookup(interface, "vlans", []) ~}
+---
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: net${idx}.${vlan.vlanId}
+layer: operator
+clientIdentifier: mac
+routeMetric: ${lookup(vlan, "dhcp_routeMetric", 100)}
+%{ endfor ~}
+%{ endfor ~}

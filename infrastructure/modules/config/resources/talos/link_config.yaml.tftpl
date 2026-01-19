@@ -1,0 +1,17 @@
+%{ for idx, interface in interfaces ~}
+---
+apiVersion: v1alpha1
+kind: LinkConfig
+name: net${idx}
+layer: operator
+up: true
+mtu: ${lookup(interface, "mtu", 1500)}
+addresses:
+%{ for address in interface.addresses ~}
+  - address: ${address.ip}/${lookup(address, "cidr", "24")}
+%{ endfor ~}
+%{ if cluster_vip != "" && machine_type == "controlplane" && idx == 0 ~}
+  - address: ${cluster_vip}/32
+    shared: true
+%{ endif ~}
+%{ endfor ~}

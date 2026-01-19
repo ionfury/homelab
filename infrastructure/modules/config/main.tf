@@ -159,32 +159,54 @@ locals {
     "https://github.com/kubernetes-sigs/gateway-api/releases/download/${var.versions.gateway_api}/experimental-install.yaml"
   ] : []
 
-  # Build talos machines for the talos module
+  # Build talos machines for the talos module using modular document pattern (Talos 1.12+)
   talos_machines = [
     for name, machine in local.machines : {
-      config = templatefile("${path.module}/resources/talos_machine.yaml.tftpl", {
-        cluster_name                        = var.name
-        cluster_endpoint                    = "https://${local.cluster_endpoint}:6443"
-        cluster_node_subnet                 = var.networking.node_subnet
-        cluster_pod_subnet                  = var.networking.pod_subnet
-        cluster_service_subnet              = var.networking.service_subnet
-        cluster_vip                         = var.networking.vip
-        cluster_etcd_extraArgs              = local.prometheus_etcd_extraArgs
-        cluster_controllerManager_extraArgs = local.prometheus_controllerManager_extraArgs
-        cluster_scheduler_extraArgs         = local.prometheus_scheduler_extraArgs
-        cluster_extraManifests              = concat(local.prometheus_extraManifests, local.gateway_api_extraManifests)
-        machine_hostname                    = name
-        machine_type                        = machine.type
-        machine_interfaces                  = machine.interfaces
-        machine_nameservers                 = var.networking.nameservers
-        machine_timeservers                 = var.networking.timeservers
-        machine_install                     = machine.install
-        machine_disks                       = lookup(machine, "disks", [])
-        machine_labels                      = machine.labels
-        machine_annotations                 = machine.annotations
-        machine_files                       = machine.files
-        machine_kubelet_extraMounts         = machine.kubelet_extraMounts
-      })
+      config = join("\n", compact([
+        # HostnameConfig - static hostname for the machine
+        templatefile("${path.module}/resources/talos/hostname_config.yaml.tftpl", {
+          hostname = name
+        }),
+        # LinkAliasConfig - stable interface names based on MAC address
+        templatefile("${path.module}/resources/talos/link_alias_config.yaml.tftpl", {
+          interfaces = machine.interfaces
+        }),
+        # LinkConfig - IP addresses, MTU, and shared VIP address
+        templatefile("${path.module}/resources/talos/link_config.yaml.tftpl", {
+          interfaces   = machine.interfaces
+          cluster_vip  = var.networking.vip
+          machine_type = machine.type
+        }),
+        # VLANConfig - only include if any interface has VLANs
+        length(flatten([for i in machine.interfaces : lookup(i, "vlans", [])])) > 0 ? templatefile("${path.module}/resources/talos/vlan_config.yaml.tftpl", {
+          interfaces = machine.interfaces
+        }) : "",
+        # DHCPv4Config - DHCP client configuration per interface
+        templatefile("${path.module}/resources/talos/dhcpv4_config.yaml.tftpl", {
+          interfaces = machine.interfaces
+        }),
+        # Machine config - core cluster and machine settings
+        templatefile("${path.module}/resources/talos/machine_config.yaml.tftpl", {
+          cluster_name                        = var.name
+          cluster_endpoint                    = "https://${local.cluster_endpoint}:6443"
+          cluster_node_subnet                 = var.networking.node_subnet
+          cluster_pod_subnet                  = var.networking.pod_subnet
+          cluster_service_subnet              = var.networking.service_subnet
+          cluster_etcd_extraArgs              = local.prometheus_etcd_extraArgs
+          cluster_controllerManager_extraArgs = local.prometheus_controllerManager_extraArgs
+          cluster_scheduler_extraArgs         = local.prometheus_scheduler_extraArgs
+          cluster_extraManifests              = concat(local.prometheus_extraManifests, local.gateway_api_extraManifests)
+          machine_type                        = machine.type
+          machine_nameservers                 = var.networking.nameservers
+          machine_timeservers                 = var.networking.timeservers
+          machine_install                     = machine.install
+          machine_disks                       = lookup(machine, "disks", [])
+          machine_labels                      = machine.labels
+          machine_annotations                 = machine.annotations
+          machine_files                       = machine.files
+          machine_kubelet_extraMounts         = machine.kubelet_extraMounts
+        }),
+      ]))
       install = {
         selector          = machine.install.selector
         extensions        = machine.install.extensions

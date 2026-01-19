@@ -104,11 +104,23 @@ variable "machines" {
       tags       = list(string)
     })), [])
     interfaces = list(object({
-      id           = string
-      hardwareAddr = string
+      id               = string
+      hardwareAddr     = string
+      mtu              = optional(number, 1500)
+      dhcp_routeMetric = optional(number, 100)
       addresses = list(object({
-        ip = string
+        ip   = string
+        cidr = optional(string, "24")
       }))
+      vlans = optional(list(object({
+        vlanId           = number
+        mtu              = optional(number, 1500)
+        dhcp_routeMetric = optional(number, 100)
+        addresses = list(object({
+          ip   = string
+          cidr = optional(string, "24")
+        }))
+      })), [])
     }))
   }))
 }

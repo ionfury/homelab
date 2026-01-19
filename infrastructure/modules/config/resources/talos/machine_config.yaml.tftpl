@@ -1,3 +1,4 @@
+---
 cluster:
   controlPlane:
     endpoint: ${cluster_endpoint}
@@ -62,40 +63,6 @@ machine:
 %{ endfor ~}
 %{ endif ~}
   network:
-    hostname: ${machine_hostname}
-    interfaces:
-%{ for interface in machine_interfaces ~}
-      - deviceSelector:
-          physical: true
-%{ if lookup(interface, "hardwareAddr", "") != "" ~}
-          hardwareAddr: "${interface.hardwareAddr}"
-%{ endif ~}
-        addresses:
-%{ for address in interface.addresses ~}
-          - ${address.ip}/${lookup(address, "cidr", "24")}
-%{ endfor ~}
-        mtu: 1500
-        dhcp: true
-        dhcpOptions:
-          routeMetric: ${lookup(interface, "dhcp_routeMetric", 100)}
-%{ if cluster_vip != "" && machine_type == "controlplane" ~}
-        vip:
-          ip: ${cluster_vip}
-%{ endif ~}
-%{ if length(lookup(interface, "vlans", [])) > 0 ~}
-        vlans:
-%{ for vlan in interface.vlans ~}
-          - vlanId: ${vlan.vlanId}
-            addresses:
-%{ for address in vlan.addresses ~}
-              - ${address.ip}/${lookup(address, "cidr", "24")}
-%{ endfor ~}
-            dhcp: true
-            dhcpOptions:
-              routeMetric: ${lookup(vlan, "dhcp_routeMetric", 100)}
-%{ endfor ~}
-%{ endif ~}
-%{ endfor ~}
     nameservers:
 %{ for nameserver in machine_nameservers ~}
       - ${nameserver}
@@ -114,14 +81,9 @@ machine:
 %{ endfor ~}
 %{ endif ~}
   install:
-%{ if length(lookup(machine_install, "extra_kernel_args", [])) > 0 ~}
-    extraKernelArgs:
-%{ for arg in machine_install.extra_kernel_args ~}
-      - ${arg}
-%{ endfor ~}
-%{ endif ~}
     wipe: ${lookup(machine_install, "wipe", true)}
   features:
+    stableHostname: false
     hostDNS:
       enabled: true
       forwardKubeDNSToHost: true
