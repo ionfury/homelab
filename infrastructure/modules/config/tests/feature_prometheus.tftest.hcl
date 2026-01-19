@@ -80,7 +80,7 @@ run "prometheus_etcd_extra_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "listen-metrics-urls")
+      strcontains(join("\n", m.config_patches), "listen-metrics-urls")
     ])
     error_message = "etcd listen-metrics-urls should be in config when prometheus enabled"
   }
@@ -88,7 +88,7 @@ run "prometheus_etcd_extra_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "http://0.0.0.0:2381")
+      strcontains(join("\n", m.config_patches), "http://0.0.0.0:2381")
     ])
     error_message = "etcd metrics should listen on 0.0.0.0:2381"
   }
@@ -105,7 +105,7 @@ run "prometheus_controller_manager_extra_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "controllerManager:")
+      strcontains(join("\n", m.config_patches), "controllerManager:")
     ])
     error_message = "controllerManager section should be in config when prometheus enabled"
   }
@@ -113,8 +113,8 @@ run "prometheus_controller_manager_extra_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "bind-address") &&
-      strcontains(m.config, "0.0.0.0")
+      strcontains(join("\n", m.config_patches), "bind-address") &&
+      strcontains(join("\n", m.config_patches), "0.0.0.0")
     ])
     error_message = "bind-address should be 0.0.0.0 for controller manager metrics"
   }
@@ -131,7 +131,7 @@ run "prometheus_scheduler_extra_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "scheduler:")
+      strcontains(join("\n", m.config_patches), "scheduler:")
     ])
     error_message = "scheduler section should be in config when prometheus enabled"
   }
@@ -148,7 +148,7 @@ run "prometheus_extra_manifests" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "extraManifests:")
+      strcontains(join("\n", m.config_patches), "extraManifests:")
     ])
     error_message = "extraManifests section should be present when prometheus enabled"
   }
@@ -156,7 +156,7 @@ run "prometheus_extra_manifests" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "crd-podmonitors.yaml")
+      strcontains(join("\n", m.config_patches), "crd-podmonitors.yaml")
     ])
     error_message = "PodMonitor CRD should be in extraManifests"
   }
@@ -164,7 +164,7 @@ run "prometheus_extra_manifests" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "crd-servicemonitors.yaml")
+      strcontains(join("\n", m.config_patches), "crd-servicemonitors.yaml")
     ])
     error_message = "ServiceMonitor CRD should be in extraManifests"
   }
@@ -172,7 +172,7 @@ run "prometheus_extra_manifests" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "crd-probes.yaml")
+      strcontains(join("\n", m.config_patches), "crd-probes.yaml")
     ])
     error_message = "Probes CRD should be in extraManifests"
   }
@@ -180,7 +180,7 @@ run "prometheus_extra_manifests" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "crd-prometheusrules.yaml")
+      strcontains(join("\n", m.config_patches), "crd-prometheusrules.yaml")
     ])
     error_message = "PrometheusRules CRD should be in extraManifests"
   }
@@ -197,7 +197,7 @@ run "prometheus_version_in_manifests" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "prometheus-operator-crds-20.0.0")
+      strcontains(join("\n", m.config_patches), "prometheus-operator-crds-20.0.0")
     ])
     error_message = "Prometheus version 20.0.0 should be in manifest URLs"
   }
@@ -222,7 +222,7 @@ run "prometheus_custom_version" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "prometheus-operator-crds-21.5.0")
+      strcontains(join("\n", m.config_patches), "prometheus-operator-crds-21.5.0")
     ])
     error_message = "Custom prometheus version should be reflected in manifest URLs"
   }
@@ -239,7 +239,7 @@ run "no_prometheus_no_etcd_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "listen-metrics-urls")
+      !strcontains(join("\n", m.config_patches), "listen-metrics-urls")
     ])
     error_message = "etcd listen-metrics-urls should not be in config without prometheus"
   }
@@ -256,7 +256,7 @@ run "no_prometheus_no_controller_manager_section" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "controllerManager:")
+      !strcontains(join("\n", m.config_patches), "controllerManager:")
     ])
     error_message = "controllerManager section should not be in config without prometheus"
   }
@@ -273,7 +273,7 @@ run "no_prometheus_no_scheduler_section" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "scheduler:")
+      !strcontains(join("\n", m.config_patches), "scheduler:")
     ])
     error_message = "scheduler section should not be in config without prometheus"
   }
@@ -290,7 +290,7 @@ run "no_prometheus_no_manifests" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "prometheus-operator-crds")
+      !strcontains(join("\n", m.config_patches), "prometheus-operator-crds")
     ])
     error_message = "Prometheus CRD manifests should not be in config without prometheus"
   }
@@ -308,7 +308,7 @@ run "prometheus_with_gateway_api" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "prometheus-operator-crds")
+      strcontains(join("\n", m.config_patches), "prometheus-operator-crds")
     ])
     error_message = "Prometheus manifests should be present with gateway-api"
   }
@@ -316,7 +316,7 @@ run "prometheus_with_gateway_api" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.config_patches), "experimental-install.yaml")
     ])
     error_message = "Gateway API manifests should be present with prometheus"
   }

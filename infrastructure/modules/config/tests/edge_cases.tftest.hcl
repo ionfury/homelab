@@ -106,7 +106,7 @@ run "no_features_clean_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "extraManifests:")
+      !strcontains(join("\n", m.config_patches), "extraManifests:")
     ])
     error_message = "No extraManifests without features"
   }
@@ -115,7 +115,7 @@ run "no_features_clean_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "controllerManager:")
+      !strcontains(join("\n", m.config_patches), "controllerManager:")
     ])
     error_message = "No controllerManager section without prometheus"
   }
@@ -284,7 +284,7 @@ run "worker_only_no_vip" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "vip:")
+      !strcontains(join("\n", m.config_patches), "vip:")
     ])
     error_message = "Worker nodes should not have VIP"
   }
@@ -476,7 +476,7 @@ run "all_features_combined" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "listen-metrics-urls")
+      strcontains(join("\n", m.config_patches), "listen-metrics-urls")
     ])
     error_message = "Prometheus etcd config should be present"
   }
@@ -485,7 +485,7 @@ run "all_features_combined" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.config_patches), "experimental-install.yaml")
     ])
     error_message = "Gateway API manifest should be present"
   }
@@ -494,8 +494,8 @@ run "all_features_combined" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "crd-servicemonitors.yaml") &&
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.config_patches), "crd-servicemonitors.yaml") &&
+      strcontains(join("\n", m.config_patches), "experimental-install.yaml")
     ])
     error_message = "Both prometheus and gateway-api manifests should be present"
   }
@@ -531,8 +531,8 @@ run "multi_interface_machine" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "192.168.10.101") &&
-      strcontains(m.config, "10.0.0.101")
+      strcontains(join("\n", m.config_patches), "192.168.10.101") &&
+      strcontains(join("\n", m.config_patches), "10.0.0.101")
     ])
     error_message = "Both interface IPs should be in config"
   }
@@ -540,8 +540,8 @@ run "multi_interface_machine" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "aa:bb:cc:dd:ee:01") &&
-      strcontains(m.config, "aa:bb:cc:dd:ee:02")
+      strcontains(join("\n", m.config_patches), "aa:bb:cc:dd:ee:01") &&
+      strcontains(join("\n", m.config_patches), "aa:bb:cc:dd:ee:02")
     ])
     error_message = "Both interface MACs should be in config"
   }
@@ -676,7 +676,7 @@ run "empty_disks_no_section" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "disks:")
+      !strcontains(join("\n", m.config_patches), "disks:")
     ])
     error_message = "Empty disks array should not create disks section"
   }

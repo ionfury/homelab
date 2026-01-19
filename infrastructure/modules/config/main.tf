@@ -160,9 +160,18 @@ locals {
   ] : []
 
   # Build talos machines for the talos module using modular document pattern (Talos 1.12+)
+  # Each config_patches element is a separate YAML document passed to talos_machine_configuration
   talos_machines = [
     for name, machine in local.machines : {
-      config = join("\n", compact([
+      # Structured metadata for downstream modules (avoids yamldecode on multi-doc YAML)
+      hostname         = name
+      machine_type     = machine.type
+      cluster_name     = var.name
+      cluster_endpoint = "https://${local.cluster_endpoint}:6443"
+      address          = machine.interfaces[0].addresses[0].ip
+
+      # List of YAML patches for talos_machine_configuration.config_patches
+      config_patches = compact([
         # HostnameConfig - static hostname for the machine
         templatefile("${path.module}/resources/talos/hostname_config.yaml.tftpl", {
           hostname = name
@@ -206,7 +215,7 @@ locals {
           machine_files                       = machine.files
           machine_kubelet_extraMounts         = machine.kubelet_extraMounts
         }),
-      ]))
+      ])
       install = {
         selector          = machine.install.selector
         extensions        = machine.install.extensions

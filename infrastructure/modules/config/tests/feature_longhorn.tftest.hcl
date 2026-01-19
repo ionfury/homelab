@@ -154,7 +154,7 @@ run "longhorn_kubelet_mount" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "/var/lib/longhorn")
+      strcontains(join("\n", m.config_patches), "/var/lib/longhorn")
     ])
     error_message = "Talos config should contain longhorn mount path"
   }
