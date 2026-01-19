@@ -451,7 +451,7 @@ kubectl get pods -n grafana
 kubectl get pods -n alertmanager
 kubectl get pods -n loki
 
-# Delete old namespace after soak period (1 week)
+# Delete old namespace after validation period (1 week)
 kubectl delete namespace monitoring
 ```
 
@@ -605,7 +605,7 @@ hubble observe --namespace home-assistant --since 24h --output csv > flows.csv
 
 ### Phase 5: Production Rollout
 
-- [ ] Validate on dev/integration for sufficient soak period
+- [ ] Validate on dev/integration until Flux reports healthy
 - [ ] Apply to live cluster
 - [ ] Monitor for blocked traffic, refine as needed
 

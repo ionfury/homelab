@@ -6,7 +6,7 @@ Implement an **event-driven** staged promotion pipeline where:
 1. **Renovate** updates versions on **dev** (bleeding edge, auto-merged PRs)
 2. **Flux notifications** report reconciliation status to GitHub (commit status)
 3. **Automated promotion to integration** - all successful dev components immediately promote via auto-merged PR
-4. **Selective promotion to live** - components promote based on soak period and approval policy
+4. **Selective promotion to live** - components promote when Flux reports healthy, with approval-based policy
 5. **Partial promotion** supported - successful components promote even if others fail
 
 ---
@@ -60,7 +60,7 @@ GH Action: promote ───────┼─── auto-merged PR ──▶   
 GitHub ◀──commit status───┼─────────────────────┤                     │
            (per component)│                     │                     │
                           │                     │                     │
-         [1-HOUR SOAK + SELECTIVE]              │                     │
+         [FLUX HEALTHY + SELECTIVE]             │                     │
                           │                     │                     │
 GH Action: promote ───────┼─────────────────────┼─── auto-merged PR ──▶
   to live (selective)     │                     │    (approved only)  │
@@ -70,7 +70,7 @@ GH Action: promote ───────┼────────────�
 
 **Promotion Model:**
 - **dev → integration**: Automatic, immediate, ALL components (k8s + talos)
-- **integration → live**: Selective, soak period required, approval-based
+- **integration → live**: Selective, Flux healthy status required, approval-based
 
 ### Key Design Decisions
 
@@ -79,7 +79,7 @@ GH Action: promote ───────┼────────────�
 3. **Auto-merged PRs**: All promotions use PRs with auto-merge (like Renovate PRs), maintaining branch protection
 4. **Two-stage promotion**:
    - **dev → integration**: Automatic, immediate, ALL components (k8s + talos) - "send it"
-   - **integration → live**: Selective, 1-hour soak period, approval-based
+   - **integration → live**: Selective, Flux healthy status required, approval-based
 5. **Partial promotion**: If 8/10 HelmReleases succeed, promote those 8
 
 ---
@@ -457,13 +457,8 @@ on:
         description: 'Specific component to promote'
         type: string
         required: true
-      skip_soak:
-        description: 'Skip soak period check (emergency only)'
-        type: boolean
-        default: false
-
 jobs:
-  check-soak-period:
+  check-flux-status:
     # Only run for integration cluster Flux status updates
     if: |
       github.event.state == 'success' &&
@@ -471,32 +466,29 @@ jobs:
       contains(github.event.context, 'integration')
     runs-on: ubuntu-latest
     outputs:
-      eligible: ${{ steps.soak.outputs.eligible }}
-      components: ${{ steps.soak.outputs.components }}
+      eligible: ${{ steps.status.outputs.eligible }}
+      components: ${{ steps.status.outputs.components }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check soak period
-        id: soak
+      - name: Check Flux health status
+        id: status
         run: |
-          # Query git log for when integration was last updated
-          # Components must have been stable for 1 hour minimum
-          LAST_INTEGRATION_UPDATE=$(git log -1 --format=%ct -- kubernetes/clusters/integration/ infrastructure/stacks/integration/)
-          NOW=$(date +%s)
-          SOAK_SECONDS=$((NOW - LAST_INTEGRATION_UPDATE))
-          SOAK_HOURS=$((SOAK_SECONDS / 3600))
+          # Verify all Flux resources report healthy on integration
+          # When Flux reports green, we're ready to promote
+          FLUX_STATUS=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/status --jq '.statuses[] | select(.context | contains("flux") and contains("integration")) | .state')
 
-          if [ "${SOAK_HOURS}" -lt 1 ]; then
-            echo "Soak period not met: ${SOAK_HOURS}h < 1h required"
-            echo "eligible=false" >> $GITHUB_OUTPUT
-          else
-            echo "Soak period satisfied: ${SOAK_HOURS}h"
+          if [ "${FLUX_STATUS}" == "success" ]; then
+            echo "Flux reports healthy on integration"
             echo "eligible=true" >> $GITHUB_OUTPUT
+          else
+            echo "Flux not yet healthy: ${FLUX_STATUS}"
+            echo "eligible=false" >> $GITHUB_OUTPUT
           fi
 
   promote-to-live:
-    needs: check-soak-period
-    if: needs.check-soak-period.outputs.eligible == 'true'
+    needs: check-flux-status
+    if: needs.check-flux-status.outputs.eligible == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -537,7 +529,7 @@ jobs:
 
           git commit -m "chore(infra): promote to live
 
-          Automated promotion from integration after soak period.
+          Automated promotion from integration - Flux reports healthy.
 
           Components: ${{ steps.check.outputs.components }}"
 
@@ -547,9 +539,9 @@ jobs:
             --title "chore(infra): promote to live" \
             --body "## Production Promotion
 
-          Promotes components from integration to live after 1-hour soak.
+          Promotes components from integration to live - Flux reports all resources healthy.
 
-          **Soak period:** Satisfied
+          **Flux status:** Healthy
           **Components:** ${{ steps.check.outputs.components }}
 
           ⚠️ **Requires approval before merge**" \
@@ -600,12 +592,12 @@ jobs:
    - Verify PR merges automatically after CI passes
    - Verify integration cluster reconciles with new versions
 6. **Integration → Live promotion**:
-   - Wait 1-hour soak period after integration update
+   - Wait for Flux to report healthy on integration
    - Verify GH Action creates PR for live (requires approval)
    - Approve and merge PR
    - Verify live cluster reconciles with new versions
 7. **Partial promotion**: Intentionally fail one HelmRelease, verify only successful ones promote
-8. **End-to-end flow**: Renovate PR → dev reconcile → auto-merge to integration → soak → approved merge to live
+8. **End-to-end flow**: Renovate PR → dev reconcile → auto-merge to integration → Flux healthy → approved merge to live
 
 ---
 

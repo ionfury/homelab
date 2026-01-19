@@ -83,16 +83,16 @@ PR merged to main
   integration cluster
   (automated deployment)
        ↓
-  1-hour soak period
-  (validation must remain green)
+  Flux reports healthy
+  (all resources reconciled)
        ↓
   live cluster
   (automated promotion)
 ```
 
 1. **Integration deployment**: Changes apply to `integration` immediately after merge
-2. **Soak period**: Minimum 1-hour validation window on `integration`
-3. **Automatic promotion**: If validation remains green after soak, changes automatically promote to `live`
+2. **Health validation**: Flux reconciles all resources and reports status
+3. **Automatic promotion**: When Flux reports all resources healthy on `integration`, changes automatically promote to `live`
 
 ## Infrastructure Recovery
 

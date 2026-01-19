@@ -94,14 +94,14 @@ KUBECONFIG=~/.kube/live.yaml kubectl describe pod -n monitoring prometheus-0
              ↓                           ↓
     Create PR when ready    →    integration (auto)
                                          ↓
-                                 1-hour soak period
+                                  Flux reports healthy
                                          ↓
                                    live (auto)
 ```
 
 - **dev**: Manual experimentation space - use to validate changes before creating a PR
 - **integration**: Receives changes automatically when PRs merge to `main`
-- **live**: Receives changes automatically after integration passes 1-hour validation soak
+- **live**: Receives changes automatically when Flux reports all resources healthy on `integration`
 
 ---
 

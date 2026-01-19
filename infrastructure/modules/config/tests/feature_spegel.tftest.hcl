@@ -155,7 +155,7 @@ run "spegel_in_talos_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "files:")
+      strcontains(join("\n", m.config_patches), "files:")
     ])
     error_message = "Talos config should contain files section"
   }
@@ -163,7 +163,7 @@ run "spegel_in_talos_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "/etc/cri/conf.d/20-customization.part")
+      strcontains(join("\n", m.config_patches), "/etc/cri/conf.d/20-customization.part")
     ])
     error_message = "Talos config should contain spegel file path"
   }
@@ -171,7 +171,7 @@ run "spegel_in_talos_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "discard_unpacked_layers")
+      strcontains(join("\n", m.config_patches), "discard_unpacked_layers")
     ])
     error_message = "Talos config should contain spegel config content"
   }
@@ -249,7 +249,7 @@ run "no_spegel_no_files_in_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "/etc/cri/conf.d/20-customization.part")
+      !strcontains(join("\n", m.config_patches), "/etc/cri/conf.d/20-customization.part")
     ])
     error_message = "Talos config should not contain spegel file path without feature"
   }

@@ -80,7 +80,7 @@ run "gateway_api_manifest_present" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "extraManifests:")
+      strcontains(join("\n", m.config_patches), "extraManifests:")
     ])
     error_message = "extraManifests section should be present when gateway-api enabled"
   }
@@ -88,7 +88,7 @@ run "gateway_api_manifest_present" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.config_patches), "experimental-install.yaml")
     ])
     error_message = "Gateway API experimental-install.yaml should be in extraManifests"
   }
@@ -105,7 +105,7 @@ run "gateway_api_version_in_url" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "v1.2.0")
+      strcontains(join("\n", m.config_patches), "v1.2.0")
     ])
     error_message = "Gateway API version v1.2.0 should be in manifest URL"
   }
@@ -113,7 +113,7 @@ run "gateway_api_version_in_url" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "kubernetes-sigs/gateway-api")
+      strcontains(join("\n", m.config_patches), "kubernetes-sigs/gateway-api")
     ])
     error_message = "Manifest URL should reference kubernetes-sigs/gateway-api"
   }
@@ -138,7 +138,7 @@ run "gateway_api_custom_version" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "v1.3.0")
+      strcontains(join("\n", m.config_patches), "v1.3.0")
     ])
     error_message = "Custom Gateway API version v1.3.0 should be in manifest URL"
   }
@@ -155,7 +155,7 @@ run "gateway_api_full_url" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml")
+      strcontains(join("\n", m.config_patches), "https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml")
     ])
     error_message = "Full Gateway API manifest URL should be correct"
   }
@@ -172,7 +172,7 @@ run "no_gateway_api_no_manifest" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "gateway-api")
+      !strcontains(join("\n", m.config_patches), "gateway-api")
     ])
     error_message = "Gateway API manifest should not be in config without feature"
   }
@@ -180,7 +180,7 @@ run "no_gateway_api_no_manifest" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "experimental-install.yaml")
+      !strcontains(join("\n", m.config_patches), "experimental-install.yaml")
     ])
     error_message = "experimental-install.yaml should not be in config without gateway-api"
   }
@@ -197,7 +197,7 @@ run "gateway_api_creates_extra_manifests_section" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "extraManifests:")
+      strcontains(join("\n", m.config_patches), "extraManifests:")
     ])
     error_message = "extraManifests section should be created for gateway-api"
   }
@@ -251,7 +251,7 @@ run "gateway_api_all_machines" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.config_patches), "experimental-install.yaml")
     ])
     error_message = "All machines should have gateway-api manifest in config"
   }
@@ -269,7 +269,7 @@ run "gateway_api_with_all_features" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.config_patches), "experimental-install.yaml")
     ])
     error_message = "Gateway API manifest should be present with all features"
   }
@@ -278,7 +278,7 @@ run "gateway_api_with_all_features" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "crd-servicemonitors.yaml")
+      strcontains(join("\n", m.config_patches), "crd-servicemonitors.yaml")
     ])
     error_message = "Prometheus manifests should be present alongside gateway-api"
   }

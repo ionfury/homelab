@@ -1,12 +1,12 @@
 locals {
-  cluster_config   = yamldecode(var.talos_machines[0].config).cluster
-  cluster_name     = try(local.cluster_config.clusterName, "talos.local")
-  cluster_endpoint = local.cluster_config.controlPlane.endpoint
+  # Use structured metadata from config module (avoids yamldecode on multi-doc YAML)
+  cluster_name     = var.talos_machines[0].cluster_name
+  cluster_endpoint = var.talos_machines[0].cluster_endpoint
 
-  machines          = { for v in var.talos_machines : yamldecode(v.config).machine.network.hostname => v }
-  addresses         = { for k, v in local.machines : k => split("/", yamldecode(v.config).machine.network.interfaces[0].addresses[0])[0] }
-  machine_ips       = [for k, v in local.machines : local.addresses[k]]
-  control_plane_ips = [for k, v in local.machines : local.addresses[k] if yamldecode(v.config).machine.type == "controlplane"]
+  machines          = { for v in var.talos_machines : v.hostname => v }
+  addresses         = { for k, v in local.machines : k => v.address }
+  machine_ips       = [for k, v in local.machines : v.address]
+  control_plane_ips = [for k, v in local.machines : v.address if v.machine_type == "controlplane"]
   bootstrap_ip      = local.control_plane_ips[0]
 }
 
@@ -39,19 +39,20 @@ data "talos_machine_configuration" "this" {
 
   cluster_name       = local.cluster_name
   cluster_endpoint   = local.cluster_endpoint
-  machine_type       = yamldecode(each.value.config).machine.type
+  machine_type       = each.value.machine_type
   machine_secrets    = talos_machine_secrets.this.machine_secrets
   kubernetes_version = var.kubernetes_version
   talos_version      = var.talos_version
 
+  # config_patches is a list of YAML documents - each element is a separate patch
   config_patches = concat(
-    [each.value.config],
+    each.value.config_patches,
     [templatefile("${path.module}/resources/talos-patches/machine_install.yaml.tftpl", {
       machine_install_disk_image = each.value.install.secureboot ? local.machine_installer_secureboot[each.key] : local.machine_installer[each.key]
       machine_install_disk       = data.talos_machine_disks.this[each.key].disks[0].dev_path
     })],
-    yamldecode(each.value.config).machine.type == "controlplane" && length(var.bootstrap_charts) > 0 ? [templatefile("${path.module}/resources/talos-patches/inline_manifests.yaml.tftpl", {
-      machine_type = yamldecode(each.value.config).machine.type
+    each.value.machine_type == "controlplane" && length(var.bootstrap_charts) > 0 ? [templatefile("${path.module}/resources/talos-patches/inline_manifests.yaml.tftpl", {
+      machine_type = each.value.machine_type
       manifests    = data.helm_template.bootstrap_charts
     })] : []
   )
