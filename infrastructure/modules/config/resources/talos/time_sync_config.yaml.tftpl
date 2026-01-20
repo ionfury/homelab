@@ -1,0 +1,8 @@
+---
+apiVersion: v1alpha1
+kind: TimeSyncConfig
+ntp:
+  servers:
+%{ for timeserver in machine_timeservers ~}
+    - ${timeserver}
+%{ endfor ~}

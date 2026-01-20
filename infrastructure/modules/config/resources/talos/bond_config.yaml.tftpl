@@ -1,0 +1,19 @@
+---
+apiVersion: v1alpha1
+kind: BondConfig
+name: ${bond.name}
+links:
+%{ for link in bond.links ~}
+  - ${link}
+%{ endfor ~}
+bondMode: ${bond.bondMode}
+mtu: ${bond.mtu}
+%{ if bond.bondMode == "802.3ad" ~}
+xmitHashPolicy: layer3+4
+lacpRate: slow
+miimon: 100
+%{ endif ~}
+addresses:
+%{ for addr in bond.addresses ~}
+  - address: ${addr}/24
+%{ endfor ~}

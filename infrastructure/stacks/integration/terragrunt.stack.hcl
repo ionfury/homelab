@@ -1,7 +1,7 @@
 locals {
   name                 = "${basename(get_terragrunt_dir())}"
   features             = ["gateway-api", "longhorn", "prometheus", "spegel"]
-  storage_provisioning = "normal"
+  storage_provisioning = "minimal"
 }
 
 unit "config" {

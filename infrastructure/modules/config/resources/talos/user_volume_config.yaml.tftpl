@@ -1,0 +1,9 @@
+---
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: ${volume.name}
+provisioning:
+  grow: true
+  diskSelector:
+    match: ${volume.selector}
+  maxSize: ${volume.maxSize}

@@ -60,10 +60,9 @@ variables {
       cluster = "test-cluster"
       type    = "controlplane"
       install = { selector = "disk.model = *" }
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:01"
-        addresses    = [{ ip = "192.168.10.101" }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+        addresses          = ["192.168.10.101"]
       }]
     }
   }
@@ -84,10 +83,9 @@ run "longhorn_extensions_added" {
           architecture = "amd64"
           platform     = "metal"
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -130,12 +128,29 @@ run "longhorn_label_added" {
   }
 }
 
-# Kubelet extra mount for longhorn data directory
-run "longhorn_kubelet_mount" {
+# Kubelet extra mount for longhorn data directory with system_disk volume
+run "longhorn_kubelet_mount_system_disk" {
   command = plan
 
   variables {
     features = ["longhorn"]
+    machines = {
+      node1 = {
+        cluster = "test-cluster"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        volumes = [{
+          name     = "longhorn"
+          selector = "system_disk == true"
+          maxSize  = "50%"
+          tags     = ["fast", "nvme"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
   }
 
   assert {
@@ -148,20 +163,20 @@ run "longhorn_kubelet_mount" {
         mount.type == "bind"
       ])
     ])
-    error_message = "Longhorn kubelet mount should be configured at /var/lib/longhorn"
+    error_message = "Longhorn kubelet mount should be configured at /var/lib/longhorn for system_disk volume"
   }
 
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "/var/lib/longhorn")
+      strcontains(join("\n", m.configs), "/var/lib/longhorn")
     ])
     error_message = "Talos config should contain longhorn mount path"
   }
 }
 
-# Disk annotation with install.data.enabled = true
-run "longhorn_annotation_with_data_enabled" {
+# Disk annotation with system_disk volume
+run "longhorn_annotation_with_system_disk_volume" {
   command = plan
 
   variables {
@@ -170,17 +185,16 @@ run "longhorn_annotation_with_data_enabled" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {
-          selector = "disk.model = *"
-          data = {
-            enabled = true
-            tags    = ["fast", "nvme"]
-          }
-        }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        install = { selector = "disk.model = *" }
+        volumes = [{
+          name     = "longhorn"
+          selector = "system_disk == true"
+          maxSize  = "50%"
+          tags     = ["fast", "nvme"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -194,7 +208,7 @@ run "longhorn_annotation_with_data_enabled" {
         a.key == "node.longhorn.io/default-disks-config"
       ])
     ])
-    error_message = "Longhorn disk config annotation should be present when data.enabled=true"
+    error_message = "Longhorn disk config annotation should be present with volumes"
   }
 
   assert {
@@ -212,8 +226,8 @@ run "longhorn_annotation_with_data_enabled" {
   }
 }
 
-# Disk annotation with explicit disks array
-run "longhorn_annotation_with_explicit_disks" {
+# Disk annotation with explicit non-system volume
+run "longhorn_annotation_with_explicit_volume" {
   command = plan
 
   variables {
@@ -222,24 +236,16 @@ run "longhorn_annotation_with_explicit_disks" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {
-          selector = "disk.model = *"
-          data = {
-            enabled = false
-            tags    = []
-          }
-        }
-        disks = [
-          {
-            device     = "/dev/sdb"
-            mountpoint = "/var/mnt/storage"
-            tags       = ["slow", "hdd"]
-          }
-        ]
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        install = { selector = "disk.model = *" }
+        volumes = [{
+          name     = "storage"
+          selector = "disk.dev_path == '/dev/sdb'"
+          maxSize  = "100%"
+          tags     = ["slow", "hdd"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -256,7 +262,7 @@ run "longhorn_annotation_with_explicit_disks" {
         strcontains(a.value, "hdd")
       ])
     ])
-    error_message = "Disk annotation should contain explicit disk mountpoint and tags"
+    error_message = "Disk annotation should contain explicit volume mountpoint and tags"
   }
 
   assert {
@@ -267,12 +273,12 @@ run "longhorn_annotation_with_explicit_disks" {
         mount.destination == "/var/mnt/storage"
       ])
     ])
-    error_message = "Explicit disks should have kubelet mounts"
+    error_message = "Explicit volumes should have kubelet mounts"
   }
 }
 
-# Combined: both data.enabled and explicit disks
-run "longhorn_combined_disk_sources" {
+# Combined: both system_disk and explicit volumes
+run "longhorn_combined_volume_sources" {
   command = plan
 
   variables {
@@ -281,24 +287,24 @@ run "longhorn_combined_disk_sources" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {
-          selector = "disk.model = *"
-          data = {
-            enabled = true
-            tags    = ["primary"]
-          }
-        }
-        disks = [
+        install = { selector = "disk.model = *" }
+        volumes = [
           {
-            device     = "/dev/sdb"
-            mountpoint = "/var/mnt/extra"
-            tags       = ["secondary"]
+            name     = "primary"
+            selector = "system_disk == true"
+            maxSize  = "50%"
+            tags     = ["primary"]
+          },
+          {
+            name     = "extra"
+            selector = "disk.dev_path == '/dev/sdb'"
+            maxSize  = "100%"
+            tags     = ["secondary"]
           }
         ]
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -314,16 +320,51 @@ run "longhorn_combined_disk_sources" {
         strcontains(a.value, "/var/mnt/extra")
       ])
     ])
-    error_message = "Disk annotation should contain both data and explicit disk paths"
+    error_message = "Disk annotation should contain both system and explicit volume paths"
   }
 
-  # Should have 2 mounts: longhorn + extra disk
+  # Should have 2 mounts: longhorn + extra volume
   assert {
     condition = alltrue([
       for name, m in output.machines :
       length(m.kubelet_extraMounts) == 2
     ])
-    error_message = "Should have 2 kubelet mounts (longhorn + explicit disk)"
+    error_message = "Should have 2 kubelet mounts (longhorn + explicit volume)"
+  }
+}
+
+# UserVolumeConfig generated for volumes
+run "longhorn_user_volume_config" {
+  command = plan
+
+  variables {
+    features = ["longhorn"]
+    machines = {
+      node1 = {
+        cluster = "test-cluster"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        volumes = [{
+          name     = "data"
+          selector = "disk.dev_path == '/dev/sdb'"
+          maxSize  = "100%"
+          tags     = ["data"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "kind: UserVolumeConfig") &&
+      strcontains(join("\n", m.configs), "name: data")
+    ])
+    error_message = "UserVolumeConfig should be generated for volumes"
   }
 }
 
@@ -337,17 +378,16 @@ run "no_longhorn_no_extensions" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {
-          selector = "disk.model = *"
-          data = {
-            enabled = true
-            tags    = ["fast"]
-          }
-        }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        install = { selector = "disk.model = *" }
+        volumes = [{
+          name     = "data"
+          selector = "system_disk == true"
+          maxSize  = "50%"
+          tags     = ["fast"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -387,7 +427,7 @@ run "no_longhorn_no_labels" {
   }
 }
 
-# Without longhorn - no kubelet mounts (unless explicit disks exist)
+# Without longhorn - no kubelet mounts (unless explicit volumes exist)
 run "no_longhorn_no_mount" {
   command = plan
 
@@ -400,7 +440,7 @@ run "no_longhorn_no_mount" {
       for name, m in output.machines :
       length(m.kubelet_extraMounts) == 0
     ])
-    error_message = "No kubelet mounts should be set without longhorn and no explicit disks"
+    error_message = "No kubelet mounts should be set without longhorn and no volumes"
   }
 }
 
@@ -414,17 +454,16 @@ run "no_longhorn_no_annotations" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {
-          selector = "disk.model = *"
-          data = {
-            enabled = true
-            tags    = ["fast"]
-          }
-        }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        install = { selector = "disk.model = *" }
+        volumes = [{
+          name     = "data"
+          selector = "system_disk == true"
+          maxSize  = "50%"
+          tags     = ["fast"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -435,7 +474,6 @@ run "no_longhorn_no_annotations" {
       for name, m in output.machines :
       length(m.annotations) == 0
     ])
-    error_message = "No annotations should be set without longhorn even if data.enabled=true"
+    error_message = "No annotations should be set without longhorn even if volumes exist"
   }
 }
-

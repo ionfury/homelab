@@ -11,7 +11,7 @@ variable "kubernetes_version" {
 variable "talos_machines" {
   description = "A list of machines to create the talos cluster from. See: https://docs.siderolabs.com/talos/v1.10/reference/configuration/v1alpha1/config"
   type = list(object({
-    config = string
+    configs = list(string)
     install = object({
       selector          = string
       extensions        = optional(list(string), [])
@@ -28,15 +28,23 @@ variable "talos_machines" {
   }
 
   validation {
-    error_message = "Each machine's config must be valid yaml."
-    condition     = alltrue([for m in var.talos_machines : can(yamlencode(m.config))])
+    error_message = "Each machine's configs must contain valid yaml."
+    condition     = alltrue([for m in var.talos_machines : alltrue([for c in m.configs : can(yamldecode(c))])])
+  }
+
+  validation {
+    error_message = "Each machine must have exactly one config document containing machine.type."
+    condition = alltrue([
+      for m in var.talos_machines :
+      length([for c in m.configs : yamldecode(c) if can(yamldecode(c).machine.type)]) == 1
+    ])
   }
 
   validation {
     error_message = "You must not provide a config.machine.install.install value. The module will populate this automatically."
     condition = alltrue([
       for m in var.talos_machines :
-      !can(yamldecode(m.config).machine.install.install)
+      !can([for c in m.configs : yamldecode(c) if can(yamldecode(c).machine.type)][0].machine.install.install)
     ])
   }
 
@@ -44,7 +52,7 @@ variable "talos_machines" {
     error_message = "You must not provide a config.machine.install.diskSelector value. The module will populate this automatically."
     condition = alltrue([
       for m in var.talos_machines :
-      !can(yamldecode(m.config).machine.install.diskSelector)
+      !can([for c in m.configs : yamldecode(c) if can(yamldecode(c).machine.type)][0].machine.install.diskSelector)
     ])
   }
 
