@@ -40,6 +40,7 @@ spec:
     - name: kromgo-config
       namespace: kromgo
       path: kubernetes/platform/config/kromgo
+    # This does not work currently.  Do not enable.
     # - name: network-policy-config
     #   namespace: flux-system
     #   path: kubernetes/platform/config/network-policy
