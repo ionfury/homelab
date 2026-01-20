@@ -11,7 +11,7 @@ spec:
     Usage: Add label access.network-policy.homelab/garage-s3=true to namespace.
   endpointSelector:
     matchExpressions:
-      - key: io.cilium.k8s.namespace.labels.access\.network-policy\.homelab/garage-s3
+      - key: io.cilium.k8s.namespace.labels.access.network-policy.homelab/garage-s3
         operator: In
         values: ["true"]
   egress:

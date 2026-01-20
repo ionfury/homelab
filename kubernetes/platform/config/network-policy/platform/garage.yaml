@@ -12,7 +12,7 @@ spec:
     # Allow S3 API from namespaces with garage-s3 access label
     - fromEndpoints:
         - matchExpressions:
-            - key: io.cilium.k8s.namespace.labels.access\.network-policy\.homelab/garage-s3
+            - key: io.cilium.k8s.namespace.labels.access.network-policy.homelab/garage-s3
               operator: In
               values: ["true"]
       toPorts:
