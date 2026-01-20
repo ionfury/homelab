@@ -5,44 +5,10 @@ kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: baseline-prometheus-scrape
 spec:
-  description: "Allow Prometheus to scrape metrics from all pods"
+  description: "Allow Prometheus to scrape metrics from all pods on any port"
   endpointSelector: { }
   ingress:
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: monitoring
             app.kubernetes.io/name: prometheus
-      toPorts:
-        - ports:
-            # Standard Prometheus metrics port
-            - port: "9090"
-              protocol: TCP
-            # Pushgateway port
-            - port: "9091"
-              protocol: TCP
-            # Common application metrics port (NOTE: 8080 is also used for app traffic;
-            # this allows Prometheus to connect to any pod on 8080. Apps should prefer
-            # dedicated metrics ports like 9090 when possible.)
-            - port: "8080"
-              protocol: TCP
-            # HTTPS metrics port
-            - port: "8443"
-              protocol: TCP
-            # Node exporter port
-            - port: "9100"
-              protocol: TCP
-            # Cilium agent metrics
-            - port: "9962"
-              protocol: TCP
-            # Cilium operator metrics
-            - port: "9963"
-              protocol: TCP
-            # Hubble metrics
-            - port: "9965"
-              protocol: TCP
-            # Longhorn metrics
-            - port: "9500"
-              protocol: TCP
-            # Garage metrics
-            - port: "3903"
-              protocol: TCP
