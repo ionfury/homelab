@@ -40,9 +40,9 @@ spec:
     - name: kromgo-config
       namespace: kromgo
       path: kubernetes/platform/config/kromgo
-    - name: network-policy-config
-      namespace: flux-system
-      path: kubernetes/platform/config/network-policy
+    # - name: network-policy-config
+    #   namespace: flux-system
+    #   path: kubernetes/platform/config/network-policy
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
