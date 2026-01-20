@@ -1,0 +1,72 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kube-system-default
+  namespace: kube-system
+spec:
+  description: "Allow essential kube-system traffic: DNS serving, NTP, Cilium, metrics"
+  endpointSelector: { }
+  ingress:
+    # Allow DNS queries from all cluster pods
+    - fromEndpoints:
+        - { }
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Allow Prometheus scraping
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+            - port: "9100"
+              protocol: TCP
+            - port: "9962"
+              protocol: TCP
+            - port: "9963"
+              protocol: TCP
+            - port: "9965"
+              protocol: TCP
+    # Allow intra-namespace communication (Cilium components)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+  egress:
+    # Allow DNS resolution
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+    # Allow NTP for time sync (world egress on UDP 123)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "123"
+              protocol: UDP
+    # Allow Kubernetes API access
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    # Allow intra-namespace communication
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+    # Allow health checks to all cluster pods (Cilium)
+    - toEntities:
+        - cluster
