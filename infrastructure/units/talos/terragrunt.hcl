@@ -24,7 +24,7 @@ dependency "config" {
       talos_machines = [
         {
           install = { selector = "disk.model = *" }
-          config  = <<EOT
+          configs = [<<EOT
 cluster:
   clusterName: talos.local
   controlPlane:
@@ -37,6 +37,7 @@ machine:
       - addresses:
         - 10.10.10.10/24
 EOT
+          ]
         }
       ]
       on_destroy             = { graceful = false, reboot = true, reset = true }

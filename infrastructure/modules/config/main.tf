@@ -85,53 +85,54 @@ locals {
     EOT
   }
 
-  # Build kubelet mounts per machine: longhorn root + any additional disks
+  # Generate link aliases per machine (one per physical MAC address in bonds)
+  machine_link_aliases = {
+    for name, machine in local.cluster_machines :
+    name => flatten([
+      for bond_idx, bond in machine.bonds : [
+        for link_idx, mac in bond.link_permanentAddr : {
+          name           = "link${bond_idx}_${link_idx}"
+          permanent_addr = mac
+        } if mac != ""
+      ]
+    ])
+  }
+
+  # Build kubelet mounts per machine: longhorn root + any additional volumes
   machine_kubelet_mounts = {
     for name, machine in local.cluster_machines :
     name => concat(
-      local.longhorn_enabled ? [{
+      # System disk volume gets /var/lib/longhorn mount
+      local.longhorn_enabled && anytrue([for v in lookup(machine, "volumes", []) : v.selector == "system_disk == true"]) ? [{
         destination = "/var/lib/longhorn"
         type        = "bind"
         source      = "/var/lib/longhorn"
         options     = ["bind", "rshared", "rw"]
       }] : [],
-      [for disk in lookup(machine, "disks", []) : {
-        destination = disk.mountpoint
+      # Non-system volumes get mounts at /var/mnt/<name>
+      [for vol in lookup(machine, "volumes", []) : {
+        destination = "/var/mnt/${vol.name}"
         type        = "bind"
-        source      = disk.mountpoint
+        source      = "/var/mnt/${vol.name}"
         options     = ["bind", "rshared", "rw"]
-      }]
+      } if vol.selector != "system_disk == true"]
     )
   }
 
-  # Build longhorn disk annotations per machine
+  # Build longhorn disk annotations per machine from volumes
   machine_longhorn_annotations = {
     for name, machine in local.cluster_machines :
-    name => local.longhorn_enabled ? local.machine_disk_configs[name] : []
-  }
-
-  # Compute disk configurations for longhorn annotations
-  machine_disk_configs = {
-    for name, machine in local.cluster_machines :
-    name => (
-      lookup(lookup(machine.install, "data", {}), "enabled", false) || length(lookup(machine, "disks", [])) > 0
-      ) ? [{
-        key = "node.longhorn.io/default-disks-config"
-        value = "'${jsonencode([
-          for disk in concat(
-            lookup(lookup(machine.install, "data", {}), "enabled", false) ? [{
-              mountpoint = "/var/lib/longhorn"
-              tags       = lookup(lookup(machine.install, "data", {}), "tags", [])
-            }] : [],
-            lookup(machine, "disks", [])
-            ) : {
-            name            = basename(disk.mountpoint)
-            path            = disk.mountpoint
-            storageReserved = 0
-            allowScheduling = true
-            tags            = lookup(disk, "tags", [])
-          }
-        ])}'"
+    name => local.longhorn_enabled && length(lookup(machine, "volumes", [])) > 0 ? [{
+      key = "node.longhorn.io/default-disks-config"
+      value = "'${jsonencode([
+        for vol in machine.volumes : {
+          name            = vol.name
+          path            = vol.selector == "system_disk == true" ? "/var/lib/longhorn" : "/var/mnt/${vol.name}"
+          storageReserved = 0
+          allowScheduling = true
+          tags            = vol.tags
+        }
+      ])}'"
     }] : []
   }
 
@@ -159,32 +160,101 @@ locals {
     "https://github.com/kubernetes-sigs/gateway-api/releases/download/${var.versions.gateway_api}/experimental-install.yaml"
   ] : []
 
-  # Build talos machines for the talos module
+  # Build talos machines for the talos module - each machine has configs[] array of separate YAML documents
   talos_machines = [
     for name, machine in local.machines : {
-      config = templatefile("${path.module}/resources/talos_machine.yaml.tftpl", {
-        cluster_name                        = var.name
-        cluster_endpoint                    = "https://${local.cluster_endpoint}:6443"
-        cluster_node_subnet                 = var.networking.node_subnet
-        cluster_pod_subnet                  = var.networking.pod_subnet
-        cluster_service_subnet              = var.networking.service_subnet
-        cluster_vip                         = var.networking.vip
-        cluster_etcd_extraArgs              = local.prometheus_etcd_extraArgs
-        cluster_controllerManager_extraArgs = local.prometheus_controllerManager_extraArgs
-        cluster_scheduler_extraArgs         = local.prometheus_scheduler_extraArgs
-        cluster_extraManifests              = concat(local.prometheus_extraManifests, local.gateway_api_extraManifests)
-        machine_hostname                    = name
-        machine_type                        = machine.type
-        machine_interfaces                  = machine.interfaces
-        machine_nameservers                 = var.networking.nameservers
-        machine_timeservers                 = var.networking.timeservers
-        machine_install                     = machine.install
-        machine_disks                       = lookup(machine, "disks", [])
-        machine_labels                      = machine.labels
-        machine_annotations                 = machine.annotations
-        machine_files                       = machine.files
-        machine_kubelet_extraMounts         = machine.kubelet_extraMounts
-      })
+      configs = compact(concat(
+        # Document 1: Main machine config (NO interfaces, NO disks - those are in separate documents)
+        [templatefile("${path.module}/resources/talos/talos_machine.yaml.tftpl", {
+          cluster_name                        = var.name
+          cluster_endpoint                    = "https://${local.cluster_endpoint}:6443"
+          cluster_node_subnet                 = var.networking.node_subnet
+          cluster_pod_subnet                  = var.networking.pod_subnet
+          cluster_service_subnet              = var.networking.service_subnet
+          cluster_etcd_extraArgs              = local.prometheus_etcd_extraArgs
+          cluster_controllerManager_extraArgs = local.prometheus_controllerManager_extraArgs
+          cluster_scheduler_extraArgs         = local.prometheus_scheduler_extraArgs
+          cluster_extraManifests              = concat(local.prometheus_extraManifests, local.gateway_api_extraManifests)
+          machine_type                        = machine.type
+          machine_install                     = machine.install
+          machine_labels                      = machine.labels
+          machine_annotations                 = machine.annotations
+          machine_files                       = machine.files
+          machine_kubelet_extraMounts         = machine.kubelet_extraMounts
+        })],
+
+        # HostnameConfig document
+        [templatefile("${path.module}/resources/talos/hostname_config.yaml.tftpl", {
+          hostname = name
+        })],
+
+        # LinkAliasConfig for each physical link in bonds
+        [for link in local.machine_link_aliases[name] :
+          templatefile("${path.module}/resources/talos/link_alias_config.yaml.tftpl", { link = link })
+        ],
+
+        # BondConfig for each bond
+        [for bond_idx, bond in machine.bonds :
+          templatefile("${path.module}/resources/talos/bond_config.yaml.tftpl", {
+            bond = {
+              name      = "bond${bond_idx}"
+              links     = [for i, _ in bond.link_permanentAddr : "link${bond_idx}_${i}"]
+              bondMode  = bond.mode
+              mtu       = bond.mtu
+              addresses = bond.addresses
+            }
+          })
+        ],
+
+        # VLANConfig for each VLAN on each bond
+        flatten([for bond_idx, bond in machine.bonds : [
+          for vlan in lookup(bond, "vlans", []) :
+          templatefile("${path.module}/resources/talos/vlan_config.yaml.tftpl", {
+            bond_name = "bond${bond_idx}"
+            vlan      = vlan
+            mtu       = bond.mtu
+          })
+        ]]),
+
+        # DHCPv4Config for each bond
+        [for bond_idx, bond in machine.bonds :
+          templatefile("${path.module}/resources/talos/dhcp_v4_config.yaml.tftpl", {
+            bond = { name = "bond${bond_idx}" }
+          })
+        ],
+
+        # Layer2VIPConfig for controlplane (first bond only)
+        machine.type == "controlplane" && var.networking.vip != "" ? [
+          templatefile("${path.module}/resources/talos/layer2_vip_config.yaml.tftpl", {
+            cluster_vip = var.networking.vip
+            bond_name   = "bond0"
+          })
+        ] : [],
+
+        # VolumeConfig for EPHEMERAL - limit size when user volumes target system disk
+        # This must come BEFORE UserVolumeConfig so EPHEMERAL doesn't consume all space
+        anytrue([for v in lookup(machine, "volumes", []) : v.selector == "system_disk == true"]) ? [
+          templatefile("${path.module}/resources/talos/ephemeral_volume_config.yaml.tftpl", {
+            # Calculate EPHEMERAL maxSize: 100% minus sum of system disk user volume sizes
+            max_size = "${100 - sum([for v in lookup(machine, "volumes", []) : tonumber(trimspace(trimsuffix(v.maxSize, "%"))) if v.selector == "system_disk == true"])}%"
+          })
+        ] : [],
+
+        # UserVolumeConfig for each volume
+        [for volume in lookup(machine, "volumes", []) :
+          templatefile("${path.module}/resources/talos/user_volume_config.yaml.tftpl", { volume = volume })
+        ],
+
+        # Nameservers
+        [templatefile("${path.module}/resources/talos/resolver_config.yaml.tftpl", {
+          machine_nameservers = var.networking.nameservers
+        })],
+
+        # Timeservers
+        [templatefile("${path.module}/resources/talos/time_sync_config.yaml.tftpl", {
+          machine_timeservers = var.networking.timeservers
+        })]
+      ))
       install = {
         selector          = machine.install.selector
         extensions        = machine.install.extensions
@@ -224,7 +294,7 @@ locals {
     { name = "external_ingress_ip", value = var.networking.external_ingress_ip },
     { name = "internal_domain", value = var.networking.internal_tld },
     { name = "external_domain", value = var.networking.external_tld },
-    { name = "cluster_l2_interfaces", value = jsonencode(distinct(flatten([for m in values(local.machines) : [for iface in m.interfaces : lookup(iface, "id", "") if lookup(iface, "id", "") != ""]]))) },
+    { name = "cluster_l2_interfaces", value = jsonencode(distinct(flatten([for m in values(local.machines) : [for bond_idx, _ in m.bonds : "bond${bond_idx}"]]))) },
     # Storage provisioning - volume sizes based on cluster mode
     { name = "storage_provisioning", value = var.storage_provisioning },
     { name = "garage_data_volume_size", value = local.selected_sizes.garage_data },
@@ -247,7 +317,7 @@ locals {
     for name, machine in local.machines :
     name => {
       name   = local.cluster_endpoint
-      record = machine.interfaces[0].addresses[0].ip
+      record = machine.bonds[0].addresses[0]
     }
     if machine.type == "controlplane"
   }
@@ -256,8 +326,8 @@ locals {
   dhcp_reservations = {
     for name, machine in local.machines :
     name => {
-      mac = machine.interfaces[0].hardwareAddr
-      ip  = machine.interfaces[0].addresses[0].ip
+      mac = machine.bonds[0].link_permanentAddr[0]
+      ip  = machine.bonds[0].addresses[0]
     }
   }
   /*

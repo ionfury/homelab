@@ -93,24 +93,26 @@ variable "machines" {
       platform     = optional(string, "metal")
       sbc          = optional(string, "")
       secureboot   = optional(bool, false)
-      data = optional(object({
-        enabled = bool
-        tags    = list(string)
-      }), { enabled = false, tags = [] })
     })
-    disks = optional(list(object({
-      device     = string
-      mountpoint = string
-      tags       = list(string)
+    volumes = optional(list(object({
+      name     = string
+      selector = string # CEL expression: "system_disk == true" or "disk.dev_path == '/dev/sda'"
+      maxSize  = string # "50%" or "100%"
+      tags     = list(string)
     })), [])
-    interfaces = list(object({
-      id           = string
-      hardwareAddr = string
-      addresses = list(object({
-        ip = string
-      }))
+    bonds = list(object({
+      link_permanentAddr = list(string) # MAC addresses
+      addresses          = list(string) # IP addresses (no CIDR)
+      vlans              = optional(list(number), [])
+      mtu                = optional(number, 1500)
+      mode               = optional(string, "active-backup")
     }))
   }))
+
+  validation {
+    condition     = alltrue([for name, m in var.machines : length(m.bonds) > 0])
+    error_message = "Each machine must have at least one bond configuration."
+  }
 }
 
 variable "versions" {

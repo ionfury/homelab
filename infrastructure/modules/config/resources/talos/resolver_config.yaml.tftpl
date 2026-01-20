@@ -1,0 +1,7 @@
+---
+apiVersion: v1alpha1
+kind: ResolverConfig
+nameservers:
+%{ for nameserver in machine_nameservers ~}
+  - address: ${nameserver}
+%{ endfor ~}

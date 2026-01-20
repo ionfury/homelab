@@ -34,6 +34,7 @@ dependency "talos" {
     kubeconfig_cluster_ca_certificate = "mock"
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
+  mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
 inputs = {
