@@ -8,19 +8,34 @@ variables {
   talos_machines = [
     {
       install = { selector = "disk.model = *" }
-      config  = <<EOT
-cluster:
-  clusterName: edge.local
-  controlPlane:
-    endpoint: https://edge.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+      configs = [
+        <<-EOT
+        cluster:
+          clusterName: edge.local
+          controlPlane:
+            endpoint: https://edge.local:6443
+        machine:
+          type: controlplane
+        EOT
+        ,
+        <<-EOT
+        apiVersion: v1alpha1
+        kind: HostnameConfig
+        hostname: host1
+        EOT
+        ,
+        <<-EOT
+        apiVersion: v1alpha1
+        kind: BondConfig
+        name: bond0
+        links:
+          - link0_0
+        bondMode: active-backup
+        mtu: 1500
+        addresses:
+          - address: 10.10.10.10/24
+        EOT
+      ]
     }
   ]
 }
@@ -115,19 +130,34 @@ run "disk_selector_by_size" {
     talos_machines = [
       {
         install = { selector = "disk.size >= 100GB" }
-        config  = <<EOT
-cluster:
-  clusterName: selector.local
-  controlPlane:
-    endpoint: https://selector.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: selector.local
+            controlPlane:
+              endpoint: https://selector.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -145,19 +175,34 @@ run "disk_selector_by_model" {
     talos_machines = [
       {
         install = { selector = "disk.model == Samsung*" }
-        config  = <<EOT
-cluster:
-  clusterName: model.local
-  controlPlane:
-    endpoint: https://model.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: model.local
+            controlPlane:
+              endpoint: https://model.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -175,19 +220,34 @@ run "cluster_name_extraction" {
     talos_machines = [
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: my-production-cluster
-  controlPlane:
-    endpoint: https://prod.example.com:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: my-production-cluster
+            controlPlane:
+              endpoint: https://prod.example.com:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -210,19 +270,34 @@ run "cluster_endpoint_extraction" {
     talos_machines = [
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: endpoint-test
-  controlPlane:
-    endpoint: https://api.mycompany.internal:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: endpoint-test
+            controlPlane:
+              endpoint: https://api.mycompany.internal:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -240,20 +315,35 @@ run "multiple_addresses_first_used" {
     talos_machines = [
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: multi-addr.local
-  controlPlane:
-    endpoint: https://multi-addr.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-        - 10.10.20.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: multi-addr.local
+            controlPlane:
+              endpoint: https://multi-addr.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+            - address: 10.10.20.10/24
+          EOT
+        ]
       }
     ]
   }

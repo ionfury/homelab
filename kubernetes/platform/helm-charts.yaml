@@ -153,7 +153,8 @@ spec:
         name: cloudnative-pg
         version: 0.27.0
         url: https://cloudnative-pg.github.io/charts
-      dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+      dependsOn:
+        [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
     - name: kromgo
       namespace: kromgo
       chart:
