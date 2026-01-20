@@ -11,10 +11,8 @@ spec:
   ingress:
     # Allow PostgreSQL connections from namespaces with postgres access label
     - fromEndpoints:
-        - matchExpressions:
-            - key: io.cilium.k8s.namespace.labels.access\.network-policy\.homelab/postgres
-              operator: In
-              values: ["true"]
+        - matchLabels:
+            io.cilium.k8s.namespace.labels.network-policy.homelab/access-postgres: "true"
       toPorts:
         - ports:
             - port: "5432"

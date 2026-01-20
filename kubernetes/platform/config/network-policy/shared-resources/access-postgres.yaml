@@ -8,12 +8,10 @@ spec:
   description: >-
     Allow namespaces with postgres access label to egress to PostgreSQL in database namespace.
     Corresponding ingress rule is in the database namespace CNP.
-    Usage: Add label access.network-policy.homelab/postgres=true to namespace.
+    Usage: Add label network-policy.homelab/access-postgres=true to namespace.
   endpointSelector:
-    matchExpressions:
-      - key: io.cilium.k8s.namespace.labels.access\.network-policy\.homelab/postgres
-        operator: In
-        values: ["true"]
+    matchLabels:
+      io.cilium.k8s.namespace.labels.network-policy.homelab/access-postgres: "true"
   egress:
     - toEndpoints:
         - matchLabels:

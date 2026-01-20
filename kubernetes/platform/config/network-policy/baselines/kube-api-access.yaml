@@ -5,12 +5,10 @@ kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: baseline-kube-api-access
 spec:
-  description: "Allow pods with kube-api access label to reach the Kubernetes API server"
+  description: "Allow pods in namespaces with kube-api access label to reach the Kubernetes API server"
   endpointSelector:
-    matchExpressions:
-      - key: io.cilium.k8s.namespace.labels.access\.network-policy\.homelab/kube-api
-        operator: In
-        values: ["true"]
+    matchLabels:
+      io.cilium.k8s.namespace.labels.network-policy.homelab/access-kube-api: "true"
   egress:
     # Allow access to Kubernetes API server
     - toEntities:

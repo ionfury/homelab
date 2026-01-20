@@ -29,7 +29,7 @@ spec:
           - spegel
           - kromgo
       # Escape hatch: exclude namespaces with enforcement disabled
-      - key: io.cilium.k8s.namespace.labels.network-policy\.homelab/enforcement
+      - key: io.cilium.k8s.namespace.labels.network-policy.homelab/enforcement
         operator: NotIn
         values: ["disabled"]
   # Empty ingress list = no ingress allowed by this policy

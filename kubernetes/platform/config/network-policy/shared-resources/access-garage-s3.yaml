@@ -8,12 +8,10 @@ spec:
   description: >-
     Allow namespaces with garage-s3 access label to egress to Garage S3 API in garage namespace.
     Corresponding ingress rule is in the garage namespace CNP.
-    Usage: Add label access.network-policy.homelab/garage-s3=true to namespace.
+    Usage: Add label network-policy.homelab/access-garage-s3=true to namespace.
   endpointSelector:
-    matchExpressions:
-      - key: io.cilium.k8s.namespace.labels.access\.network-policy\.homelab/garage-s3
-        operator: In
-        values: ["true"]
+    matchLabels:
+      io.cilium.k8s.namespace.labels.network-policy.homelab/access-garage-s3: "true"
   egress:
     - toEndpoints:
         - matchLabels:
