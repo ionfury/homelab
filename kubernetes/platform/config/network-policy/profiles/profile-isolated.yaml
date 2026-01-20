@@ -8,11 +8,28 @@ spec:
   description: >-
     Isolated profile: No external ingress, no internet egress.
     For batch jobs and internal processors with no network needs beyond DNS and metrics.
-    DNS egress and Prometheus scrape ingress handled by baseline CCNPs.
+    This policy explicitly allows only baseline capabilities (DNS egress, Prometheus ingress).
+    Combined with default-deny CCNP, this restricts isolated workloads to internal-only communication.
   endpointSelector:
     matchLabels:
       io.cilium.k8s.namespace.labels.network-policy.homelab/profile: isolated
-  # No additional ingress allowed (baselines handle Prometheus scrape)
-  ingress: []
-  # No additional egress allowed (baselines handle DNS)
-  egress: []
+  # Explicit allow for baseline capabilities (Cilium 1.18+ requires non-empty rules)
+  # These match what baseline CCNPs already allow, making behavior explicit
+  ingress:
+    # Allow Prometheus scraping (matches baseline-prometheus-scrape)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+  egress:
+    # Allow DNS resolution (matches baseline-dns-egress)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP

@@ -29,12 +29,14 @@ spec:
           - spegel
           - kromgo
       # Escape hatch: exclude namespaces with enforcement disabled
-      - key: io.cilium.k8s.namespace.labels.network-policy\.homelab/enforcement
+      - key: io.cilium.k8s.namespace.labels.network-policy.homelab/enforcement
         operator: NotIn
         values: ["disabled"]
-  # Empty ingress list = no ingress allowed by this policy
-  # Other CCNPs (baselines, profiles) add allow rules for these endpoints
-  ingress: []
-  # Empty egress list = no egress allowed by this policy
-  # Baseline DNS CCNP adds DNS egress for all pods
-  egress: []
+  # Explicit deny rules required in Cilium 1.18+ (empty arrays are invalid)
+  # Other CCNPs (baselines, profiles) add allow rules for matching endpoints
+  ingressDeny:
+    - fromEntities:
+        - all
+  egressDeny:
+    - toEntities:
+        - all

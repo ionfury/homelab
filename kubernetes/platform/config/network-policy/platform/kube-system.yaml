@@ -10,8 +10,9 @@ spec:
   endpointSelector: { }
   ingress:
     # Allow DNS queries from all cluster pods
+    # Note: empty matchLabels {} means "any endpoint in the cluster"
     - fromEndpoints:
-        - { }
+        - matchLabels: { }
       toPorts:
         - ports:
             - port: "53"
@@ -40,7 +41,7 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
   egress:
-    # Allow DNS resolution
+    # Allow DNS resolution (internal)
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
@@ -49,6 +50,15 @@ spec:
         - ports:
             - port: "53"
               protocol: UDP
+    # Allow CoreDNS to reach node-local upstream DNS (Talos host DNS forwarder)
+    - toEntities:
+        - host
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
     # Allow NTP for time sync (world egress on UDP 123)
     - toEntities:
         - world
@@ -70,3 +80,10 @@ spec:
     # Allow health checks to all cluster pods (Cilium)
     - toEntities:
         - cluster
+    # Allow Hubble relay to reach Cilium agents on nodes (host network)
+    - toEntities:
+        - host
+      toPorts:
+        - ports:
+            - port: "4244"
+              protocol: TCP

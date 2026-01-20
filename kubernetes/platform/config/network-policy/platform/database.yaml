@@ -12,7 +12,7 @@ spec:
     # Allow PostgreSQL connections from namespaces with postgres access label
     - fromEndpoints:
         - matchExpressions:
-            - key: io.cilium.k8s.namespace.labels.access\.network-policy\.homelab/postgres
+            - key: io.cilium.k8s.namespace.labels.access.network-policy.homelab/postgres
               operator: In
               values: ["true"]
       toPorts:
