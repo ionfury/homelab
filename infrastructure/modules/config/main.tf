@@ -6,12 +6,14 @@ locals {
       garage_meta = "10Gi"
       database    = "20Gi"
       loki        = "50Gi"
+      prometheus  = "50Gi"
     }
     minimal = {
       garage_data = "10Gi"
       garage_meta = "2Gi"
       database    = "5Gi"
       loki        = "10Gi"
+      prometheus  = "10Gi"
     }
   }
 
@@ -301,6 +303,7 @@ locals {
     { name = "garage_meta_volume_size", value = local.selected_sizes.garage_meta },
     { name = "database_volume_size", value = local.selected_sizes.database },
     { name = "loki_volume_size", value = local.selected_sizes.loki },
+    { name = "prometheus_volume_size", value = local.selected_sizes.prometheus },
   ]
 
   # Version environment variables for flux post-build substitution
