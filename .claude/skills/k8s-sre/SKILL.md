@@ -14,6 +14,11 @@ description: |
   "deployment not working", "helm install failed", "flux not reconciling"
 ---
 
+# ACCESSING CLUSTERS
+
+ALWAYS USE `export KUBECONFIG=~/kube/<cluster>.yaml && kubectl ...` WHEN EXECUTING KUBE COMMANDS TO CONNECT TO THE CLUSTER.
+
+
 # Debugging Kubernetes Incidents
 
 ## Core Principles
