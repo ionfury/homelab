@@ -75,24 +75,35 @@ All changes flow through pull requests:
 
 ## Environment Promotion Pipeline
 
-The `main` branch represents the desired state for production. Merging to `main` triggers a staged rollout:
+The `main` branch represents the desired state for production. Merging to `main` triggers OCI artifact-based promotion:
 
 ```
 PR merged to main
        ↓
-  integration cluster
-  (automated deployment)
+  GHA builds OCI artifact
+  (packages kubernetes/)
        ↓
-  1-hour soak period
-  (validation must remain green)
+  integration cluster
+  (auto-deploys via ImagePolicy)
+       ↓
+  canary-checker validation
+  (Flux health + platform checks)
+       ↓
+  GHA tags artifact as validated
        ↓
   live cluster
-  (automated promotion)
+  (auto-deploys via ImagePolicy)
 ```
 
-1. **Integration deployment**: Changes apply to `integration` immediately after merge
-2. **Soak period**: Minimum 1-hour validation window on `integration`
-3. **Automatic promotion**: If validation remains green after soak, changes automatically promote to `live`
+1. **Artifact build**: GHA packages `kubernetes/` directory as OCI artifact, tags as `integration-<sha>`
+2. **Integration deployment**: Flux ImagePolicy auto-deploys artifacts matching `integration-*` pattern
+3. **Validation**: canary-checker runs Flux health checks and platform smoke tests
+4. **Promotion tag**: On validation success, GHA re-tags artifact as `validated-<sha>`
+5. **Live deployment**: Flux ImagePolicy auto-deploys artifacts matching `validated-*` pattern
+
+**Source types by cluster:**
+- **dev**: Git-based (GitRepository) - for manual experimentation
+- **integration/live**: OCI artifact-based (OCIRepository) - immutable promotion
 
 ## Infrastructure Recovery
 
@@ -100,6 +111,71 @@ All machines are configured to PXE boot into Talos maintenance mode when no OS i
 - **Full cluster rebuilds**: Any cluster can be recreated from git state
 - **Disaster recovery**: Failed nodes automatically enter recovery mode
 - **Consistent provisioning**: No manual OS installation required
+
+## Pre-Commit Validation
+
+**ALWAYS run validation before committing changes.** This catches issues locally before CI runs.
+
+```bash
+# For Kubernetes changes (kubernetes/, .github/workflows/)
+task k8s:validate
+
+# For infrastructure changes (infrastructure/)
+task tg:fmt
+task tg:test-<module>          # If you modified a module
+task tg:validate-<stack>       # For the affected stack
+
+# For Renovate config changes
+task renovate:validate
+```
+
+**Validation is mandatory** - PRs will fail CI if validation doesn't pass. Running locally saves time and prevents broken commits.
+
+---
+
+# DEV CLUSTER OPERATIONS
+
+The `dev` cluster is a sandbox environment for testing infrastructure changes. Claude has expanded permissions for dev cluster operations to facilitate testing workflows.
+
+## Allowed Operations (dev cluster only)
+
+```bash
+# Status checks (run freely)
+task inv:hosts                     # List all hosts
+task inv:power-status              # Check power state of all hosts
+task inv:status-<host>             # Check specific host IPMI status
+task talos:maint                   # Check maintenance mode for all hosts
+task talos:maint-<host>            # Check specific host maintenance mode
+
+# Infrastructure operations (require confirmation)
+task tg:plan-dev                   # Plan dev cluster changes
+task tg:apply-dev                  # Apply dev cluster changes
+task tg:gen-dev                    # Generate dev stack
+task tg:clean-dev                  # Clean dev stack cache
+```
+
+## Pre-Flight Checks
+
+Before running infrastructure operations on dev, verify cluster readiness:
+
+1. **Check host power**: `task inv:status-node45` (node45 is the dev cluster host)
+2. **Check maintenance mode**: `task talos:maint-node45`
+
+## Confirmation Required
+
+**ALWAYS use AskUserQuestion before:**
+- `task tg:apply-dev` (creates/modifies infrastructure)
+- Any operation that destroys or recreates resources
+
+This ensures the human operator is aware and approves state-changing operations, even on the dev cluster.
+
+## Scope Boundaries
+
+| Cluster | Claude Permissions |
+|---------|-------------------|
+| `dev` | Plan, apply, destroy (with confirmation) |
+| `integration` | Read-only, validation only |
+| `live` | Read-only, validation only |
 
 ---
 
@@ -136,8 +212,36 @@ All machines are configured to PXE boot into Talos maintenance mode when no OS i
 ## Verification
 
 - **NEVER** guess resource names, strings, IPs, or values - VERIFY against source files
-- **NEVER** skip validation steps (`task tg:fmt`, `task tg:validate-<stack>`) before committing
+- **NEVER** skip validation steps before committing (see Pre-Commit Validation below)
 - **NEVER** ignore deprecation warnings - implement migrations immediately
+
+## Test Failures
+
+**Tests must be green. A skipped test is a broken test.**
+
+When a test or validation fails:
+
+1. **NEVER** skip, ignore, or disable a test to make it pass
+2. **NEVER** add `-skip`, `-ignore`, or similar flags as a first response
+3. **ALWAYS** investigate the root cause using the "5 Whys" technique:
+   - Why did the test fail? → Schema validation error
+   - Why was the schema invalid? → Wrong field structure
+   - Why was the structure wrong? → Misunderstood API spec
+   - Why was it misunderstood? → Documentation unclear
+   - Why? → Fix the actual code, not the test
+
+4. **Fix the code, not the test** - if a test catches a real issue, the code is wrong
+5. **Only as a LAST RESORT**: If after thorough investigation you believe the test itself is flawed (e.g., external schema is incorrect), use `AskUserQuestion` to get explicit approval before skipping
+
+**Valid reasons to skip (require user approval):**
+- External schema is demonstrably incorrect (provide evidence)
+- Test infrastructure bug outside our control
+- Temporary skip with tracked issue for follow-up
+
+**Invalid reasons to skip:**
+- "It works in the cluster"
+- "The test is too strict"
+- "It's just a warning"
 
 ## Documentation
 
@@ -179,6 +283,33 @@ brew bundle
 - **CI parity**: Tools used in CI workflows should have Brewfile equivalents for local development
 - **No manual installs**: Never install CLI tools manually - always go through Brewfile
 
+## Tool Version Management
+
+Tool versions are managed by [mise](https://mise.jdx.dev/) via `.mise.toml`. This ensures CI and local development use identical versions.
+
+### Setup
+
+```bash
+brew bundle              # Installs mise
+mise trust               # Trust the .mise.toml config
+mise install             # Install all tools at specified versions
+eval "$(mise activate)"  # Add to shell profile for auto-activation
+```
+
+### Verify versions
+
+```bash
+mise current             # Show active tool versions
+mise doctor              # Diagnose environment issues
+```
+
+### How it works
+
+- `.mise.toml` defines pinned versions for development tools (helm, kustomize, kubeconform, yq, yamllint, task)
+- Infrastructure tools (opentofu, terragrunt) defer to `.opentofu-version` and `.terragrunt-version` files
+- CI workflows use `jdx/mise-action` to install the same versions
+- Renovate auto-updates versions via the mise manager
+
 ---
 
 # DIRECTORY-SPECIFIC DOCUMENTATION
@@ -205,6 +336,7 @@ Invoke these skills for detailed procedural guidance:
 | `kubesearch` | Researching Helm chart configurations |
 | `k8s-sre` | Debugging Kubernetes incidents |
 | `taskfiles` | Taskfile syntax and patterns |
+| `sync-claude` | Validate and sync Claude docs before commits |
 
 ---
 
@@ -276,6 +408,9 @@ Operational runbooks for common procedures are in `docs/runbooks/`:
 | `resize-volume.md` | Resize Longhorn volumes when automatic expansion fails |
 | `supermicro-machine-setup.md` | Initial BIOS/IPMI configuration for new hardware |
 | `longhorn-disaster-recovery.md` | Complete cluster recovery from S3 backups |
+| `network-policy-escape-hatch.md` | Disable network policies in emergencies |
+| `network-policy-verification.md` | Verify network policy enforcement |
+| `terragrunt-validation-state-issues.md` | Troubleshoot Terragrunt state validation failures |
 
 **Knowledge types:**
 - **Runbooks**: Procedural knowledge (step-by-step)

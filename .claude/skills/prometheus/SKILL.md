@@ -17,7 +17,7 @@ KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometh
 
 ## Quick Queries
 
-Use the bundled script at `scripts/promql.sh`:
+Use the bundled script at `.claude/skills/prometheus/scripts/promql.sh`:
 
 ```bash
 # Set URL (default: localhost:9090)

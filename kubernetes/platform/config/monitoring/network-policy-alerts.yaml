@@ -1,0 +1,39 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: network-policy-alerts
+  labels:
+    app.kubernetes.io/name: network-policy
+spec:
+  groups:
+    - name: network-policy.rules
+      rules:
+        - alert: NetworkPolicyEnforcementDisabled
+          expr: |
+            kube_namespace_labels{label_network_policy_homelab_enforcement="disabled"} == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Network policy enforcement disabled for namespace {{ $labels.namespace }}"
+            description: >-
+              Namespace {{ $labels.namespace }} has network policy enforcement disabled.
+              This is an escape hatch for incident recovery and should be temporary.
+              Re-enable enforcement after resolving the underlying issue.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/network-policy-escape-hatch.md"
+
+        - alert: NetworkPolicyEnforcementDisabledLong
+          expr: |
+            kube_namespace_labels{label_network_policy_homelab_enforcement="disabled"} == 1
+          for: 24h
+          labels:
+            severity: critical
+          annotations:
+            summary: "Network policy enforcement disabled for >24h in namespace {{ $labels.namespace }}"
+            description: >-
+              Namespace {{ $labels.namespace }} has had network policy enforcement disabled
+              for more than 24 hours. This significantly increases the attack surface.
+              Investigate and re-enable enforcement immediately.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/network-policy-escape-hatch.md"

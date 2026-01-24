@@ -54,20 +54,34 @@ variables {
     }
   }
 
+  # Minimal Cilium values template for testing
+  cilium_values_template = <<-EOT
+    cluster:
+      name: $${cluster_name}
+    ipv4NativeRoutingCIDR: $${cluster_pod_subnet}
+    hubble:
+      ui:
+        ingress:
+          hosts:
+            - hubble.$${internal_domain}
+  EOT
+
   # Default test machine - inherited by all run blocks
   machines = {
     node1 = {
       cluster = "test-cluster"
       type    = "controlplane"
       install = { selector = "disk.model = *" }
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:01"
-        addresses    = [{ ip = "192.168.10.101" }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+        addresses          = ["192.168.10.101"]
       }]
     }
   }
 }
+
+# Helper: join all configs for searching across documents
+# Note: Each assertion uses join("\n", m.configs) to search across all documents
 
 # Cluster endpoint from internal TLD
 run "talos_cluster_endpoint" {
@@ -80,7 +94,7 @@ run "talos_cluster_endpoint" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "endpoint: https://k8s.internal.test.local:6443")
+      strcontains(join("\n", m.configs), "endpoint: https://k8s.internal.test.local:6443")
     ])
     error_message = "Cluster endpoint should be https://k8s.{internal_tld}:6443"
   }
@@ -97,7 +111,7 @@ run "talos_cluster_name" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "clusterName: test-cluster")
+      strcontains(join("\n", m.configs), "clusterName: test-cluster")
     ])
     error_message = "Cluster name should match var.name"
   }
@@ -114,8 +128,8 @@ run "talos_pod_subnet" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "podSubnets:") &&
-      strcontains(m.config, "172.18.0.0/16")
+      strcontains(join("\n", m.configs), "podSubnets:") &&
+      strcontains(join("\n", m.configs), "172.18.0.0/16")
     ])
     error_message = "Pod subnet should be configured from networking.pod_subnet"
   }
@@ -132,8 +146,8 @@ run "talos_service_subnet" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "serviceSubnets:") &&
-      strcontains(m.config, "172.19.0.0/16")
+      strcontains(join("\n", m.configs), "serviceSubnets:") &&
+      strcontains(join("\n", m.configs), "172.19.0.0/16")
     ])
     error_message = "Service subnet should be configured from networking.service_subnet"
   }
@@ -150,8 +164,8 @@ run "talos_proxy_disabled" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "proxy:") &&
-      strcontains(m.config, "disabled: true")
+      strcontains(join("\n", m.configs), "proxy:") &&
+      strcontains(join("\n", m.configs), "disabled: true")
     ])
     error_message = "Kube-proxy should be disabled (Cilium replaces it)"
   }
@@ -168,8 +182,8 @@ run "talos_cni_none" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "cni:") &&
-      strcontains(m.config, "name: none")
+      strcontains(join("\n", m.configs), "cni:") &&
+      strcontains(join("\n", m.configs), "name: none")
     ])
     error_message = "CNI should be set to none (Cilium is installed separately)"
   }
@@ -186,7 +200,7 @@ run "talos_machine_type_controlplane" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "type: controlplane")
+      strcontains(join("\n", m.configs), "type: controlplane")
     ])
     error_message = "Machine type should be controlplane"
   }
@@ -203,10 +217,9 @@ run "talos_machine_type_worker" {
         cluster = "test-cluster"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -215,13 +228,13 @@ run "talos_machine_type_worker" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "type: worker")
+      strcontains(join("\n", m.configs), "type: worker")
     ])
     error_message = "Machine type should be worker"
   }
 }
 
-# Machine hostname from machine name
+# Machine hostname from HostnameConfig document
 run "talos_hostname" {
   command = plan
 
@@ -232,10 +245,9 @@ run "talos_hostname" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -244,14 +256,15 @@ run "talos_hostname" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "hostname: my-special-node")
+      strcontains(join("\n", m.configs), "kind: HostnameConfig") &&
+      strcontains(join("\n", m.configs), "hostname: my-special-node")
     ])
-    error_message = "Hostname should match machine name"
+    error_message = "HostnameConfig should contain machine name"
   }
 }
 
-# Network interface IP addresses
-run "talos_interface_addresses" {
+# Bond configuration with addresses
+run "talos_bond_config" {
   command = plan
 
   variables {
@@ -261,14 +274,22 @@ run "talos_interface_addresses" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "192.168.10.101/24")
+      strcontains(join("\n", m.configs), "kind: BondConfig")
     ])
-    error_message = "Interface IP should be in config with /24 CIDR"
+    error_message = "BondConfig should be present"
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "address: 192.168.10.101/24")
+    ])
+    error_message = "Bond should have address with /24 CIDR"
   }
 }
 
-# Hardware address in config
-run "talos_hardware_address" {
+# Link alias config with MAC address
+run "talos_link_alias" {
   command = plan
 
   variables {
@@ -278,13 +299,21 @@ run "talos_hardware_address" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "hardwareAddr: \"aa:bb:cc:dd:ee:01\"")
+      strcontains(join("\n", m.configs), "kind: LinkAliasConfig")
     ])
-    error_message = "Hardware address should be in config"
+    error_message = "LinkAliasConfig should be present"
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "aa:bb:cc:dd:ee:01")
+    ])
+    error_message = "LinkAliasConfig should contain MAC address"
   }
 }
 
-# VIP only on controlplane nodes
+# VIP only on controlplane nodes via Layer2VIPConfig
 run "talos_vip_controlplane_only" {
   command = plan
 
@@ -295,48 +324,47 @@ run "talos_vip_controlplane_only" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
     }
   }
 
-  # Find the controlplane config - should have VIP
+  # Find the controlplane config - should have Layer2VIPConfig
+  # Note: In Talos 1.12, the VIP address is the resource name (no separate address field)
   assert {
     condition = anytrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "type: controlplane") &&
-      strcontains(m.config, "vip:") &&
-      strcontains(m.config, "ip: 192.168.10.20")
+      strcontains(join("\n", m.configs), "type: controlplane") &&
+      strcontains(join("\n", m.configs), "kind: Layer2VIPConfig") &&
+      strcontains(join("\n", m.configs), "name: 192.168.10.20")
     ])
-    error_message = "Controlplane should have VIP configured"
+    error_message = "Controlplane should have Layer2VIPConfig with VIP as name"
   }
 
-  # Worker config should not have vip section
+  # Worker config should not have Layer2VIPConfig
   assert {
     condition = anytrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "type: worker") &&
-      !strcontains(m.config, "vip:")
+      strcontains(join("\n", m.configs), "type: worker") &&
+      !strcontains(join("\n", m.configs), "kind: Layer2VIPConfig")
     ])
-    error_message = "Worker should not have VIP configured"
+    error_message = "Worker should not have Layer2VIPConfig"
   }
 }
 
-# Nameservers from networking
+# Nameservers via ResolverConfig document
 run "talos_nameservers" {
   command = plan
 
@@ -344,18 +372,28 @@ run "talos_nameservers" {
     features = []
   }
 
+  # ResolverConfig document should be present
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "nameservers:") &&
-      strcontains(m.config, "192.168.10.1") &&
-      strcontains(m.config, "8.8.8.8")
+      anytrue([for c in m.configs : strcontains(c, "kind: ResolverConfig")])
+    ])
+    error_message = "ResolverConfig document should be present in configs"
+  }
+
+  # Nameservers should be in the config
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "nameservers:") &&
+      strcontains(join("\n", m.configs), "192.168.10.1") &&
+      strcontains(join("\n", m.configs), "8.8.8.8")
     ])
     error_message = "Both nameservers should be in config"
   }
 }
 
-# Timeservers from networking
+# Timeservers via TimeSyncConfig document
 run "talos_timeservers" {
   command = plan
 
@@ -363,18 +401,28 @@ run "talos_timeservers" {
     features = []
   }
 
+  # TimeSyncConfig document should be present
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "servers:") &&
-      strcontains(m.config, "0.pool.ntp.org") &&
-      strcontains(m.config, "1.pool.ntp.org")
+      anytrue([for c in m.configs : strcontains(c, "kind: TimeSyncConfig")])
+    ])
+    error_message = "TimeSyncConfig document should be present in configs"
+  }
+
+  # Timeservers should be in the config
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "servers:") &&
+      strcontains(join("\n", m.configs), "0.pool.ntp.org") &&
+      strcontains(join("\n", m.configs), "1.pool.ntp.org")
     ])
     error_message = "Both timeservers should be in config"
   }
 }
 
-# Performance kernel args
+# Performance kernel args (in install block for schematic, not in configs YAML)
 run "talos_kernel_args" {
   command = plan
 
@@ -385,15 +433,15 @@ run "talos_kernel_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "extraKernelArgs:")
+      length(m.install.extra_kernel_args) > 0
     ])
-    error_message = "extraKernelArgs section should be present"
+    error_message = "extra_kernel_args should be present in install block"
   }
 
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "mitigations=off")
+      contains(m.install.extra_kernel_args, "mitigations=off")
     ])
     error_message = "Performance kernel arg mitigations=off should be set"
   }
@@ -401,7 +449,7 @@ run "talos_kernel_args" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "apparmor=0")
+      contains(m.install.extra_kernel_args, "apparmor=0")
     ])
     error_message = "Performance kernel arg apparmor=0 should be set"
   }
@@ -418,7 +466,7 @@ run "talos_install_wipe" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "wipe: true")
+      strcontains(join("\n", m.configs), "wipe: true")
     ])
     error_message = "Install wipe should default to true"
   }
@@ -435,9 +483,9 @@ run "talos_kubelet_node_ip" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "nodeIP:") &&
-      strcontains(m.config, "validSubnets:") &&
-      strcontains(m.config, "192.168.10.0/24")
+      strcontains(join("\n", m.configs), "nodeIP:") &&
+      strcontains(join("\n", m.configs), "validSubnets:") &&
+      strcontains(join("\n", m.configs), "192.168.10.0/24")
     ])
     error_message = "Kubelet nodeIP validSubnets should match node_subnet"
   }
@@ -454,8 +502,8 @@ run "talos_host_dns" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "hostDNS:") &&
-      strcontains(m.config, "enabled: true")
+      strcontains(join("\n", m.configs), "hostDNS:") &&
+      strcontains(join("\n", m.configs), "enabled: true")
     ])
     error_message = "hostDNS should be enabled"
   }
@@ -463,7 +511,7 @@ run "talos_host_dns" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "forwardKubeDNSToHost: true")
+      strcontains(join("\n", m.configs), "forwardKubeDNSToHost: true")
     ])
     error_message = "forwardKubeDNSToHost should be true"
   }
@@ -471,14 +519,14 @@ run "talos_host_dns" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "resolveMemberNames: true")
+      strcontains(join("\n", m.configs), "resolveMemberNames: true")
     ])
     error_message = "resolveMemberNames should be true"
   }
 }
 
-# Disk configuration for explicit disks
-run "talos_disk_partitions" {
+# Volume configuration via UserVolumeConfig
+run "talos_volume_config" {
   command = plan
 
   variables {
@@ -488,17 +536,15 @@ run "talos_disk_partitions" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        disks = [
-          {
-            device     = "/dev/sdb"
-            mountpoint = "/var/mnt/data"
-            tags       = ["data"]
-          }
-        ]
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        volumes = [{
+          name     = "data"
+          selector = "disk.dev_path == '/dev/sdb'"
+          maxSize  = "100%"
+          tags     = ["data"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -507,11 +553,12 @@ run "talos_disk_partitions" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "disks:") &&
-      strcontains(m.config, "device: /dev/sdb") &&
-      strcontains(m.config, "mountpoint: /var/mnt/data")
+      strcontains(join("\n", m.configs), "kind: UserVolumeConfig") &&
+      strcontains(join("\n", m.configs), "name: data") &&
+      strcontains(join("\n", m.configs), "disk.dev_path == '/dev/sdb'") &&
+      strcontains(join("\n", m.configs), "maxSize: 100%")
     ])
-    error_message = "Disk configuration should include device and mountpoint"
+    error_message = "UserVolumeConfig should include volume name, selector, and maxSize"
   }
 }
 
@@ -530,10 +577,9 @@ run "talos_image_architecture" {
           architecture = "amd64"
           platform     = "metal"
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -562,10 +608,9 @@ run "talos_image_platform" {
           selector = "disk.model = *"
           platform = "metal"
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -591,7 +636,7 @@ run "talos_allow_scheduling_controlplane" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "allowSchedulingOnControlPlanes: true")
+      strcontains(join("\n", m.configs), "allowSchedulingOnControlPlanes: true")
     ])
     error_message = "allowSchedulingOnControlPlanes should be true"
   }
@@ -608,10 +653,76 @@ run "talos_api_server_psp_disabled" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "apiServer:") &&
-      strcontains(m.config, "disablePodSecurityPolicy: true")
+      strcontains(join("\n", m.configs), "apiServer:") &&
+      strcontains(join("\n", m.configs), "disablePodSecurityPolicy: true")
     ])
     error_message = "API server pod security policy should be disabled"
   }
 }
 
+# DHCPv4Config present for each bond
+run "talos_dhcp_config" {
+  command = plan
+
+  variables {
+    features = []
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "kind: DHCPv4Config")
+    ])
+    error_message = "DHCPv4Config should be present for bonds"
+  }
+}
+
+# Multi-link bond configuration
+run "talos_multi_link_bond" {
+  command = plan
+
+  variables {
+    features = []
+    machines = {
+      node1 = {
+        cluster = "test-cluster"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.101"]
+          mode               = "802.3ad"
+        }]
+      }
+    }
+  }
+
+  # Should have 2 LinkAliasConfig documents
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      length([for c in m.configs : c if strcontains(c, "kind: LinkAliasConfig")]) == 2
+    ])
+    error_message = "Should have 2 LinkAliasConfig documents for 2-link bond"
+  }
+
+  # Bond should reference both links
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "- link0_0") &&
+      strcontains(join("\n", m.configs), "- link0_1")
+    ])
+    error_message = "BondConfig should reference both links"
+  }
+
+  # 802.3ad bond should have LACP settings
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "bondMode: 802.3ad") &&
+      strcontains(join("\n", m.configs), "lacpRate: slow")
+    ])
+    error_message = "802.3ad bond should have LACP settings"
+  }
+}

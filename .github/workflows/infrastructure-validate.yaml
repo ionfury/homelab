@@ -7,6 +7,7 @@ on:
     paths:
       - "infrastructure/**"
       - ".github/workflows/infrastructure-validate.yaml"
+      - ".mise.toml"
   workflow_dispatch:
 
 jobs:
@@ -14,20 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6.0.2
 
-      - name: Install OpenTofu
-        run: |
-          TOFU_VERSION=$(cat .opentofu-version)
-          curl -sSL "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_amd64.tar.gz" | tar xz
-          sudo mv tofu /usr/local/bin/
-
-      - name: Install Terragrunt
-        run: |
-          TG_VERSION=$(cat .terragrunt-version)
-          curl -sSL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64" -o terragrunt
-          chmod +x terragrunt
-          sudo mv terragrunt /usr/local/bin/
+      - name: Setup tools
+        uses: jdx/mise-action@v2
 
       - name: Check OpenTofu formatting
         run: tofu fmt -check -recursive -diff infrastructure/
@@ -45,13 +36,10 @@ jobs:
         module: [aws-set-params, bootstrap, config, talos]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6.0.2
 
-      - name: Install OpenTofu
-        run: |
-          TOFU_VERSION=$(cat .opentofu-version)
-          curl -sSL "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_amd64.tar.gz" | tar xz
-          sudo mv tofu /usr/local/bin/
+      - name: Setup tools
+        uses: jdx/mise-action@v2
 
       - name: Initialize module
         working-directory: infrastructure/modules/${{ matrix.module }}

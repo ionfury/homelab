@@ -1,0 +1,61 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: spegel-default
+  namespace: spegel
+spec:
+  description: "Allow spegel: cluster-local OCI registry mirror for container images"
+  endpointSelector: { }
+  ingress:
+    # Allow image pulls from all cluster pods (registry mirror)
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP
+    # Allow Prometheus scraping
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+    # Allow intra-namespace/inter-node communication for registry sync
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: spegel
+  egress:
+    # Allow DNS resolution
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Allow Kubernetes API for node discovery
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    # Allow egress to external registries for cache misses (HTTPS)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Allow intra-namespace/inter-node communication for registry sync
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: spegel

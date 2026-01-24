@@ -1,0 +1,73 @@
+---
+name: Tag Validated Artifact
+
+on:
+  repository_dispatch:
+    types: [artifact-validated]
+  workflow_dispatch:
+    inputs:
+      artifact_sha:
+        description: "Short SHA to tag as validated (leave empty to auto-detect latest)"
+        required: false
+
+env:
+  REGISTRY: ghcr.io
+  ARTIFACT_REPO: ${{ github.repository }}/platform
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - uses: fluxcd/flux2/action@main
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine artifact SHA
+        id: sha
+        env:
+          # Use environment variables to prevent command injection
+          INPUT_SHA: ${{ inputs.artifact_sha }}
+          PAYLOAD_SHA: ${{ github.event.client_payload.artifact_sha }}
+        run: |
+          SHA="${INPUT_SHA:-$PAYLOAD_SHA}"
+
+          if [ -z "$SHA" ]; then
+            echo "No SHA provided, discovering latest integration tag..."
+            # List tags and find the most recent integration-* tag
+            LATEST_TAG=$(flux list artifact oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }} 2>/dev/null | \
+              grep 'integration-' | \
+              head -1 | \
+              awk '{print $1}' | \
+              sed 's/integration-//')
+
+            if [ -z "$LATEST_TAG" ]; then
+              echo "::error::No integration tags found in GHCR"
+              exit 1
+            fi
+            SHA="$LATEST_TAG"
+            echo "Discovered latest integration SHA: $SHA"
+          fi
+
+          # Validate SHA is a valid short git hash (7 hex chars)
+          if ! echo "$SHA" | grep -qE '^[a-f0-9]{7}$'; then
+            echo "::error::Invalid SHA format: $SHA (expected 7 hex characters)"
+            exit 1
+          fi
+
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Tag as validated
+        env:
+          SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          echo "Tagging integration-${SHA} as validated-${SHA}"
+          flux tag artifact \
+            "oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:integration-${SHA}" \
+            --tag "validated-${SHA}"

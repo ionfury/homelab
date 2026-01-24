@@ -28,16 +28,16 @@ variables {
         selector     = "disk.model = *"
         architecture = "amd64"
         platform     = "metal"
-        data = {
-          enabled = true
-          tags    = ["fast", "ssd"]
-        }
       }
-      disks = []
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:01"
-        addresses    = [{ ip = "192.168.10.101" }]
+      volumes = [{
+        name     = "longhorn"
+        selector = "system_disk == true"
+        maxSize  = "50%"
+        tags     = ["fast", "ssd"]
+      }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+        addresses          = ["192.168.10.101"]
       }]
     }
     node2 = {
@@ -47,32 +47,25 @@ variables {
         selector     = "disk.model = *"
         architecture = "amd64"
         platform     = "metal"
-        data = {
-          enabled = false
-          tags    = []
-        }
       }
-      disks = [
-        {
-          device     = "/dev/sda"
-          mountpoint = "/var/mnt/disk1"
-          tags       = ["fast", "ssd"]
-        }
-      ]
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:02"
-        addresses    = [{ ip = "192.168.10.102" }]
+      volumes = [{
+        name     = "data"
+        selector = "disk.dev_path == '/dev/sda'"
+        maxSize  = "100%"
+        tags     = ["fast", "ssd"]
+      }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+        addresses          = ["192.168.10.102"]
       }]
     }
     node3 = {
       cluster = "other-cluster"
       type    = "controlplane"
       install = { selector = "disk.model = *" }
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:03"
-        addresses    = [{ ip = "192.168.10.103" }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:03"]
+        addresses          = ["192.168.10.103"]
       }]
     }
   }
@@ -111,6 +104,18 @@ variables {
       api_key_store = "/homelab/infrastructure/accounts/healthchecksio/api-key"
     }
   }
+
+  # Minimal Cilium values template for testing
+  cilium_values_template = <<-EOT
+    cluster:
+      name: $${cluster_name}
+    ipv4NativeRoutingCIDR: $${cluster_pod_subnet}
+    hubble:
+      ui:
+        ingress:
+          hosts:
+            - hubble.$${internal_domain}
+  EOT
 }
 
 # Machine filtering - only machines matching cluster name should be included
@@ -323,5 +328,54 @@ run "version_vars_content" {
       for v in output.version_vars : v.name == "kubernetes_version" && v.value == "1.32.0"
     ])
     error_message = "kubernetes_version env var should match versions.kubernetes"
+  }
+}
+
+# Talos 1.12 configs array structure
+run "talos_configs_array_structure" {
+  command = plan
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      length(m.configs) >= 4
+    ])
+    error_message = "Each machine should have at least 4 config documents (main, hostname, link_alias, bond, dhcp)"
+  }
+
+  # First config should be the main machine config
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(m.configs[0], "clusterName: test-cluster")
+    ])
+    error_message = "First config document should be main machine config with cluster name"
+  }
+
+  # HostnameConfig document should be present
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      anytrue([for c in m.configs : strcontains(c, "kind: HostnameConfig")])
+    ])
+    error_message = "HostnameConfig document should be present in configs"
+  }
+
+  # ResolverConfig document should be present (nameservers)
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      anytrue([for c in m.configs : strcontains(c, "kind: ResolverConfig")])
+    ])
+    error_message = "ResolverConfig document should be present in configs"
+  }
+
+  # TimeSyncConfig document should be present (timeservers)
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      anytrue([for c in m.configs : strcontains(c, "kind: TimeSyncConfig")])
+    ])
+    error_message = "TimeSyncConfig document should be present in configs"
   }
 }

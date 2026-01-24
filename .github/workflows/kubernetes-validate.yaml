@@ -8,76 +8,19 @@ on:
       - "kubernetes/**"
       - ".github/workflows/kubernetes-validate.yaml"
       - ".yamllint.yaml"
-      - ".github/actions/**"
+      - ".taskfiles/kubernetes/**"
+      - ".mise.toml"
   workflow_dispatch:
 
 jobs:
-  validate-kustomize:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6.0.2
 
-      - name: Install yamllint
-        run: pip install yamllint
+      - name: Setup tools
+        uses: jdx/mise-action@v2
 
-      - name: Lint YAML files
-        run: |
-          yamllint --strict kubernetes/
-          yamllint --strict .github/workflows/
-
-      - name: Setup validation tools
-        uses: ./.github/actions/setup-validation-tools
-
-      - name: Build kustomizations
-        run: |
-          mkdir -p /tmp/manifests
-
-          # Find and build each kustomization
-          find kubernetes/platform/config -name "kustomization.yaml" -exec dirname {} \; | while read -r dir; do
-            name=$(echo "$dir" | sed 's|kubernetes/platform/config/||; s|/|-|g')
-            echo "Building kustomization: $dir"
-            kustomize build "$dir" > "/tmp/manifests/${name}.yaml"
-          done
-
-      - name: Substitute Flux variables
-        run: |
-          # Export variables from dev cluster config
-          set -a
-          # shellcheck source=/dev/null
-          source kubernetes/clusters/dev/.cluster-vars.env
-          set +a
-
-          # Substitute variables in all manifests
-          for manifest in /tmp/manifests/*.yaml; do
-            envsubst < "$manifest" > "${manifest}.tmp"
-            mv "${manifest}.tmp" "$manifest"
-          done
-
-          # Fix StorageClass parameters to be strings (envsubst produces unquoted numbers)
-          for manifest in /tmp/manifests/*.yaml; do
-            yq -i '(select(.kind == "StorageClass") | .parameters.numberOfReplicas) |= . tag = "!!str"' "$manifest"
-          done
-
-      - name: Validate schemas with kubeconform
-        run: |
-          kubeconform \
-            -schema-location default \
-            -schema-location 'https://kubernetes-schemas.pages.dev/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
-            -skip ResourceSet \
-            -ignore-missing-schemas \
-            -summary \
-            -output text \
-            /tmp/manifests/*.yaml
-
-  validate-helm:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
-
-      - name: Setup validation tools
-        uses: ./.github/actions/setup-validation-tools
-
-      - name: Validate Helm charts
-        uses: ./.github/actions/validate-helm-charts
+      - name: Validate Kubernetes manifests and Helm charts
+        run: task k8s:validate

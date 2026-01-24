@@ -10,6 +10,7 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 
 | Namespace | Directory | Purpose |
 |-----------|-----------|---------|
+| `k8s:` | `kubernetes/` | Kubernetes manifest validation |
 | `tg:` | `terragrunt/` | Infrastructure provisioning with OpenTofu |
 | `inv:` | `inventory/` | Hardware IPMI management |
 | `talos:` | `talos/` | Talos Linux cluster operations |
@@ -20,7 +21,15 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 
 ## Quick Reference
 
-### Validation (tg:)
+### Kubernetes Validation (k8s:)
+
+```bash
+task k8s:validate              # Full validation (lint, ResourceSets, all charts, kubeconform)
+task k8s:dry-run-dev           # Server-side dry-run against dev cluster
+task k8s:apply-dev             # Apply to dev cluster (with confirmation)
+```
+
+### Infrastructure Validation (tg:)
 
 ```bash
 task tg:fmt                        # Format all HCL files
@@ -92,3 +101,30 @@ For infrastructure changes, always follow this sequence:
 2. `task tg:validate-<stack>` - Validate configuration
 3. `task tg:plan-<stack>` - Review planned changes
 4. `task tg:apply-<stack>` - Apply (requires human approval)
+
+---
+
+## Claude Dev Cluster Permissions
+
+Claude has expanded permissions for the **dev cluster only**:
+
+### Status Checks (run freely)
+```bash
+task inv:hosts                     # List all hosts
+task inv:power-status              # Power status for all hosts
+task inv:status-<host>             # IPMI status for specific host
+task talos:maint                   # Maintenance mode for all hosts
+task talos:maint-<host>            # Maintenance mode for specific host
+```
+
+### Infrastructure Operations (require AskUserQuestion confirmation)
+```bash
+task tg:plan-dev                   # Plan dev cluster changes
+task tg:apply-dev                  # Apply dev cluster changes
+task tg:gen-dev                    # Generate dev stack
+task tg:clean-dev                  # Clean dev stack cache
+```
+
+**Pre-flight checks before dev operations:**
+1. `task inv:status-node45` - Verify host is powered on
+2. `task talos:maint-node45` - Check if in maintenance mode

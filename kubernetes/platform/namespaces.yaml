@@ -12,47 +12,76 @@ spec:
     - name: cert-manager
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: external-secrets
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: kube-system
       dataplane: standard
       security: privileged
+      networkPolicy: false
     - name: longhorn-system
       dataplane: standard
       security: privileged
+      networkPolicy: false
     - name: istio-system
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: istio-gateway
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: monitoring
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: system
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: garage
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: database
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: kromgo
       dataplane: ambient
       security: privileged
+      networkPolicy: false
     - name: spegel
       dataplane: standard
       security: privileged
+      networkPolicy: false
   resourcesTemplate: |
     ---
     apiVersion: v1
     kind: Namespace
     metadata:
       name: << inputs.name >>
+      <<- if inputs.networkPolicy >>
+      annotations:
+        <<- if inputs.networkPolicy.profile >>
+        network-policy.homelab/profile: << inputs.networkPolicy.profile >>
+        <<- end >>
+        <<- if inputs.networkPolicy.enforcement >>
+        network-policy.homelab/enforcement: << inputs.networkPolicy.enforcement >>
+        <<- end >>
+      <<- end >>
       labels:
         istio.io/dataplane-mode: << inputs.dataplane >>
+        <<- if inputs.networkPolicy >>
+        <<- if inputs.networkPolicy.profile >>
+        network-policy.homelab/profile: << inputs.networkPolicy.profile >>
+        <<- end >>
+        <<- if inputs.networkPolicy.enforcement >>
+        network-policy.homelab/enforcement: << inputs.networkPolicy.enforcement >>
+        <<- end >>
+        <<- end >>
         <<- if eq inputs.security "restricted" >>
         pod-security.kubernetes.io/enforce: restricted
         pod-security.kubernetes.io/audit: restricted

@@ -12,8 +12,7 @@ data:
 
     replication_factor = ${default_replica_count}
 
-    [rpc]
-    bind_addr = "[::]:3901"
+    rpc_bind_addr = "[::]:3901"
     # RPC secret injected via GARAGE_RPC_SECRET env var
 
     [s3_api]

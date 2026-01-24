@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: access-garage-s3-egress
+spec:
+  description: >-
+    Allow namespaces with garage-s3 access label to egress to Garage S3 API in garage namespace.
+    Corresponding ingress rule is in the garage namespace CNP.
+    Usage: Add label access.network-policy.homelab/garage-s3=true to namespace.
+  endpointSelector:
+    matchExpressions:
+      - key: io.cilium.k8s.namespace.labels.access.network-policy.homelab/garage-s3
+        operator: In
+        values: ["true"]
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: garage
+      toPorts:
+        - ports:
+            - port: "3900"
+              protocol: TCP

@@ -93,6 +93,11 @@
   ],
   "packageRules": [
     {
+      "matchManagers": ["mise"],
+      "groupName": "mise tools",
+      "schedule": ["before 9am on monday"]
+    },
+    {
       // Disable hashicorp/terraform lookups - we use OpenTofu
       // The actual OpenTofu version is tracked via .opentofu-version custom manager
       "matchDatasources": ["github-releases"],

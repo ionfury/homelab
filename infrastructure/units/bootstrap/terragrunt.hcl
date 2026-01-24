@@ -1,5 +1,9 @@
 locals {
   accounts_vars = read_terragrunt_config(find_in_parent_folders("accounts.hcl"))
+
+  # OCI artifact configuration for non-dev clusters
+  github_org  = local.accounts_vars.locals.accounts.github.org
+  github_repo = local.accounts_vars.locals.accounts.github.repository
 }
 
 include "root" {
@@ -34,6 +38,7 @@ dependency "talos" {
     kubeconfig_cluster_ca_certificate = "mock"
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
+  mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
 inputs = {
@@ -50,4 +55,9 @@ inputs = {
     client_key             = dependency.talos.outputs.kubeconfig_client_key
     cluster_ca_certificate = dependency.talos.outputs.kubeconfig_cluster_ca_certificate
   }
+
+  # OCI artifact promotion - dev uses git, integration/live use OCI artifacts
+  source_type     = dependency.config.outputs.bootstrap.cluster_name == "dev" ? "git" : "oci"
+  oci_url         = dependency.config.outputs.bootstrap.cluster_name != "dev" ? "oci://ghcr.io/${local.github_org}/${local.github_repo}/platform" : ""
+  oci_tag_pattern = dependency.config.outputs.bootstrap.cluster_name == "integration" ? "integration-*" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? "validated-*" : "")
 }

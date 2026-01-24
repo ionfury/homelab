@@ -54,16 +54,27 @@ variables {
     }
   }
 
+  # Minimal Cilium values template for testing
+  cilium_values_template = <<-EOT
+    cluster:
+      name: $${cluster_name}
+    ipv4NativeRoutingCIDR: $${cluster_pod_subnet}
+    hubble:
+      ui:
+        ingress:
+          hosts:
+            - hubble.$${internal_domain}
+  EOT
+
   # Default test machine - inherited by all run blocks
   machines = {
     node1 = {
       cluster = "test-cluster"
       type    = "controlplane"
       install = { selector = "disk.model = *" }
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:01"
-        addresses    = [{ ip = "192.168.10.101" }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+        addresses          = ["192.168.10.101"]
       }]
     }
   }
@@ -155,7 +166,7 @@ run "spegel_in_talos_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "files:")
+      strcontains(join("\n", m.configs), "files:")
     ])
     error_message = "Talos config should contain files section"
   }
@@ -163,7 +174,7 @@ run "spegel_in_talos_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "/etc/cri/conf.d/20-customization.part")
+      strcontains(join("\n", m.configs), "/etc/cri/conf.d/20-customization.part")
     ])
     error_message = "Talos config should contain spegel file path"
   }
@@ -171,7 +182,7 @@ run "spegel_in_talos_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "discard_unpacked_layers")
+      strcontains(join("\n", m.configs), "discard_unpacked_layers")
     ])
     error_message = "Talos config should contain spegel config content"
   }
@@ -188,20 +199,18 @@ run "spegel_all_machines" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
     }
@@ -249,7 +258,7 @@ run "no_spegel_no_files_in_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "/etc/cri/conf.d/20-customization.part")
+      !strcontains(join("\n", m.configs), "/etc/cri/conf.d/20-customization.part")
     ])
     error_message = "Talos config should not contain spegel file path without feature"
   }
@@ -282,4 +291,3 @@ run "spegel_with_longhorn" {
     error_message = "Longhorn extensions should be present alongside spegel"
   }
 }
-

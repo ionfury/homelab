@@ -167,7 +167,7 @@ unit "config" {
 
 3. Add cluster to `networking.hcl`
 4. Add machines to `inventory.hcl` with `cluster = "new-cluster"`
-5. Validate: `task tg:validate`
+5. Validate: `task tg:validate-new-cluster`
 6. Plan: `task tg:plan-new-cluster`
 
 ## Stack Limitations

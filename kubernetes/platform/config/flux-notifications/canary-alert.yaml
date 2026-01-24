@@ -1,0 +1,30 @@
+---
+# Flux Notification Controller Alert for promotion triggering
+#
+# NOTE: This Alert watches the platform Kustomization, not canary-checker's Canary CRD.
+# Flux Alert only supports watching Flux-native resources. The flow is:
+# 1. Platform Kustomization becomes Ready after all HelmReleases deploy
+# 2. Alert triggers GitHub repository_dispatch
+# 3. tag-validated-artifact workflow tags the OCI artifact
+#
+# For deeper health validation, canary-checker performs additional checks.
+# A future enhancement could have canary-checker directly call GitHub API
+# when all health checks pass.
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: validation-success
+  namespace: flux-system
+spec:
+  providerRef:
+    name: github-dispatch
+  eventSeverity: info
+  eventSources:
+    # Watch the platform Kustomization for Ready status
+    - kind: Kustomization
+      name: platform
+      namespace: flux-system
+  inclusionList:
+    - ".*Reconciliation finished.*"
+  eventMetadata:
+    event_type: artifact-validated

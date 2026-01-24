@@ -15,19 +15,34 @@ run "single_controlplane" {
         install = {
           selector = "disk.model = *"
         }
-        config = <<EOT
-cluster:
-  clusterName: talos.local
-  controlPlane:
-    endpoint: https://talos.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: talos.local
+            controlPlane:
+              endpoint: https://talos.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -109,8 +124,8 @@ EOT
   #}
 
   assert {
-    condition     = strcontains(data.talos_machine_configuration.this["host1"].config_patches[0], "hostname: host1")
-    error_message = "hostname missing from host1 each.value.config patch!"
+    condition     = strcontains(data.talos_machine_configuration.this["host1"].config_patches[1], "hostname: host1")
+    error_message = "hostname missing from host1 HostnameConfig patch!"
   }
 }
 
@@ -121,51 +136,96 @@ run "multi_node_cluster" {
     talos_machines = [
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: multi-node.local
-  controlPlane:
-    endpoint: https://multi-node.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: cp1
-    interfaces:
-      - addresses:
-        - 10.10.10.11/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: multi-node.local
+            controlPlane:
+              endpoint: https://multi-node.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: cp1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.11/24
+          EOT
+        ]
       },
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: multi-node.local
-  controlPlane:
-    endpoint: https://multi-node.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: cp2
-    interfaces:
-      - addresses:
-        - 10.10.10.12/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: multi-node.local
+            controlPlane:
+              endpoint: https://multi-node.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: cp2
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.12/24
+          EOT
+        ]
       },
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: multi-node.local
-  controlPlane:
-    endpoint: https://multi-node.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: cp3
-    interfaces:
-      - addresses:
-        - 10.10.10.13/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: multi-node.local
+            controlPlane:
+              endpoint: https://multi-node.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: cp3
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.13/24
+          EOT
+        ]
       }
     ]
   }
@@ -198,51 +258,96 @@ run "mixed_controlplane_worker" {
     talos_machines = [
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: mixed.local
-  controlPlane:
-    endpoint: https://mixed.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: cp1
-    interfaces:
-      - addresses:
-        - 10.10.10.20/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: mixed.local
+            controlPlane:
+              endpoint: https://mixed.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: cp1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.20/24
+          EOT
+        ]
       },
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: mixed.local
-  controlPlane:
-    endpoint: https://mixed.local:6443
-machine:
-  type: worker
-  network:
-    hostname: worker1
-    interfaces:
-      - addresses:
-        - 10.10.10.21/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: mixed.local
+            controlPlane:
+              endpoint: https://mixed.local:6443
+          machine:
+            type: worker
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: worker1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.21/24
+          EOT
+        ]
       },
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: mixed.local
-  controlPlane:
-    endpoint: https://mixed.local:6443
-machine:
-  type: worker
-  network:
-    hostname: worker2
-    interfaces:
-      - addresses:
-        - 10.10.10.22/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: mixed.local
+            controlPlane:
+              endpoint: https://mixed.local:6443
+          machine:
+            type: worker
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: worker2
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.22/24
+          EOT
+        ]
       }
     ]
   }
@@ -292,35 +397,65 @@ run "worker_only" {
     talos_machines = [
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: worker-only.local
-  controlPlane:
-    endpoint: https://worker-only.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: minimal-cp
-    interfaces:
-      - addresses:
-        - 10.10.10.30/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: worker-only.local
+            controlPlane:
+              endpoint: https://worker-only.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: minimal-cp
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.30/24
+          EOT
+        ]
       },
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: worker-only.local
-  controlPlane:
-    endpoint: https://worker-only.local:6443
-machine:
-  type: worker
-  network:
-    hostname: worker1
-    interfaces:
-      - addresses:
-        - 10.10.10.31/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: worker-only.local
+            controlPlane:
+              endpoint: https://worker-only.local:6443
+          machine:
+            type: worker
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: worker1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.31/24
+          EOT
+        ]
       }
     ]
   }
@@ -340,19 +475,34 @@ run "version_propagation" {
     talos_machines = [
       {
         install = { selector = "disk.model = *" }
-        config  = <<EOT
-cluster:
-  clusterName: version-test.local
-  controlPlane:
-    endpoint: https://version-test.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.40/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: version-test.local
+            controlPlane:
+              endpoint: https://version-test.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.40/24
+          EOT
+        ]
       }
     ]
   }
@@ -372,4 +522,3 @@ EOT
     error_message = "Machine secrets should use specified Talos version"
   }
 }
-

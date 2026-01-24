@@ -17,19 +17,34 @@ run "amd64_metal_default" {
           architecture = "amd64"
           platform     = "metal"
         }
-        config = <<EOT
-cluster:
-  clusterName: amd64.local
-  controlPlane:
-    endpoint: https://amd64.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: amd64.local
+            controlPlane:
+              endpoint: https://amd64.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -56,19 +71,34 @@ run "arm64_architecture" {
           architecture = "arm64"
           platform     = "metal"
         }
-        config = <<EOT
-cluster:
-  clusterName: arm64.local
-  controlPlane:
-    endpoint: https://arm64.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: rpi1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: arm64.local
+            controlPlane:
+              endpoint: https://arm64.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: rpi1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -91,19 +121,34 @@ run "sbc_platform_rpi" {
           platform     = ""
           sbc          = "rpi_generic"
         }
-        config = <<EOT
-cluster:
-  clusterName: sbc.local
-  controlPlane:
-    endpoint: https://sbc.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: rpi1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: sbc.local
+            controlPlane:
+              endpoint: https://sbc.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: rpi1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -129,19 +174,34 @@ run "secureboot_enabled" {
           selector   = "disk.model = *"
           secureboot = true
         }
-        config = <<EOT
-cluster:
-  clusterName: secureboot.local
-  controlPlane:
-    endpoint: https://secureboot.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: secure1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: secureboot.local
+            controlPlane:
+              endpoint: https://secureboot.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: secure1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -162,19 +222,34 @@ run "secureboot_disabled_default" {
         install = {
           selector = "disk.model = *"
         }
-        config = <<EOT
-cluster:
-  clusterName: nosecure.local
-  controlPlane:
-    endpoint: https://nosecure.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: nosecure.local
+            controlPlane:
+              endpoint: https://nosecure.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -195,19 +270,34 @@ run "with_extensions" {
           selector   = "disk.model = *"
           extensions = ["siderolabs/iscsi-tools", "siderolabs/util-linux-tools"]
         }
-        config = <<EOT
-cluster:
-  clusterName: extensions.local
-  controlPlane:
-    endpoint: https://extensions.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: extensions.local
+            controlPlane:
+              endpoint: https://extensions.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -228,19 +318,34 @@ run "extra_kernel_args" {
           selector          = "disk.model = *"
           extra_kernel_args = ["console=ttyS0", "nomodeset"]
         }
-        config = <<EOT
-cluster:
-  clusterName: kernelargs.local
-  controlPlane:
-    endpoint: https://kernelargs.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: host1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: kernelargs.local
+            controlPlane:
+              endpoint: https://kernelargs.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       }
     ]
   }
@@ -262,19 +367,34 @@ run "mixed_architectures" {
           architecture = "amd64"
           platform     = "metal"
         }
-        config = <<EOT
-cluster:
-  clusterName: mixed-arch.local
-  controlPlane:
-    endpoint: https://mixed-arch.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: x86-cp
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: mixed-arch.local
+            controlPlane:
+              endpoint: https://mixed-arch.local:6443
+          machine:
+            type: controlplane
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: x86-cp
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
       },
       {
         install = {
@@ -283,19 +403,34 @@ EOT
           platform     = ""
           sbc          = "rpi_generic"
         }
-        config = <<EOT
-cluster:
-  clusterName: mixed-arch.local
-  controlPlane:
-    endpoint: https://mixed-arch.local:6443
-machine:
-  type: worker
-  network:
-    hostname: rpi-worker
-    interfaces:
-      - addresses:
-        - 10.10.10.11/24
-EOT
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: mixed-arch.local
+            controlPlane:
+              endpoint: https://mixed-arch.local:6443
+          machine:
+            type: worker
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: rpi-worker
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.11/24
+          EOT
+        ]
       }
     ]
   }

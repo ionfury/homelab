@@ -67,3 +67,25 @@ variable "healthchecksio" {
     api_key_store = string
   })
 }
+
+variable "source_type" {
+  description = "Flux sync source: 'git' or 'oci'"
+  type        = string
+  default     = "git"
+  validation {
+    condition     = contains(["git", "oci"], var.source_type)
+    error_message = "source_type must be 'git' or 'oci'"
+  }
+}
+
+variable "oci_url" {
+  description = "OCI artifact URL (required when source_type = 'oci')"
+  type        = string
+  default     = ""
+}
+
+variable "oci_tag_pattern" {
+  description = "Tag pattern for ImagePolicy (e.g., 'integration-*')"
+  type        = string
+  default     = ""
+}

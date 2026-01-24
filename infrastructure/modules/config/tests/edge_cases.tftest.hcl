@@ -54,16 +54,27 @@ variables {
     }
   }
 
+  # Minimal Cilium values template for testing
+  cilium_values_template = <<-EOT
+    cluster:
+      name: $${cluster_name}
+    ipv4NativeRoutingCIDR: $${cluster_pod_subnet}
+    hubble:
+      ui:
+        ingress:
+          hosts:
+            - hubble.$${internal_domain}
+  EOT
+
   # Default test machine - inherited by all run blocks
   machines = {
     node1 = {
       cluster = "test-cluster"
       type    = "controlplane"
       install = { selector = "disk.model = *" }
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:01"
-        addresses    = [{ ip = "192.168.10.101" }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+        addresses          = ["192.168.10.101"]
       }]
     }
   }
@@ -106,7 +117,7 @@ run "no_features_clean_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "extraManifests:")
+      !strcontains(join("\n", m.configs), "extraManifests:")
     ])
     error_message = "No extraManifests without features"
   }
@@ -115,7 +126,7 @@ run "no_features_clean_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "controllerManager:")
+      !strcontains(join("\n", m.configs), "controllerManager:")
     ])
     error_message = "No controllerManager section without prometheus"
   }
@@ -154,30 +165,27 @@ run "three_node_replica_count" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       cp2 = {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
       cp3 = {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:03"
-          addresses    = [{ ip = "192.168.10.103" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:03"]
+          addresses          = ["192.168.10.103"]
         }]
       }
     }
@@ -203,50 +211,45 @@ run "five_node_replica_count_capped" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       cp2 = {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
       cp3 = {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:03"
-          addresses    = [{ ip = "192.168.10.103" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:03"]
+          addresses          = ["192.168.10.103"]
         }]
       }
       worker1 = {
         cluster = "test-cluster"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:04"
-          addresses    = [{ ip = "192.168.10.104" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:04"]
+          addresses          = ["192.168.10.104"]
         }]
       }
       worker2 = {
         cluster = "test-cluster"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:05"
-          addresses    = [{ ip = "192.168.10.105" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:05"]
+          addresses          = ["192.168.10.105"]
         }]
       }
     }
@@ -272,10 +275,9 @@ run "worker_only_no_vip" {
         cluster = "test-cluster"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -284,9 +286,9 @@ run "worker_only_no_vip" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "vip:")
+      !strcontains(join("\n", m.configs), "kind: Layer2VIPConfig")
     ])
-    error_message = "Worker nodes should not have VIP"
+    error_message = "Worker nodes should not have Layer2VIPConfig"
   }
 
   # No DNS records for workers
@@ -318,10 +320,9 @@ run "arm64_architecture" {
           platform     = ""
           sbc          = "rpi_generic"
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -351,10 +352,9 @@ run "sbc_platform" {
           architecture = "arm64"
           sbc          = "rpi_generic"
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -383,10 +383,9 @@ run "secureboot_enabled" {
           selector   = "disk.model = *"
           secureboot = true
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -428,17 +427,16 @@ run "all_features_combined" {
       node1 = {
         cluster = "test-cluster"
         type    = "controlplane"
-        install = {
-          selector = "disk.model = *"
-          data = {
-            enabled = true
-            tags    = ["fast"]
-          }
-        }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        install = { selector = "disk.model = *" }
+        volumes = [{
+          name     = "data"
+          selector = "system_disk == true"
+          maxSize  = "50%"
+          tags     = ["fast"]
+        }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -476,7 +474,7 @@ run "all_features_combined" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "listen-metrics-urls")
+      strcontains(join("\n", m.configs), "listen-metrics-urls")
     ])
     error_message = "Prometheus etcd config should be present"
   }
@@ -485,7 +483,7 @@ run "all_features_combined" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.configs), "experimental-install.yaml")
     ])
     error_message = "Gateway API manifest should be present"
   }
@@ -494,15 +492,15 @@ run "all_features_combined" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "crd-servicemonitors.yaml") &&
-      strcontains(m.config, "experimental-install.yaml")
+      strcontains(join("\n", m.configs), "crd-servicemonitors.yaml") &&
+      strcontains(join("\n", m.configs), "experimental-install.yaml")
     ])
     error_message = "Both prometheus and gateway-api manifests should be present"
   }
 }
 
-# Multi-interface machine
-run "multi_interface_machine" {
+# Multi-bond machine
+run "multi_bond_machine" {
   command = plan
 
   variables {
@@ -512,42 +510,41 @@ run "multi_interface_machine" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [
+        bonds = [
           {
-            id           = "eth0"
-            hardwareAddr = "aa:bb:cc:dd:ee:01"
-            addresses    = [{ ip = "192.168.10.101" }]
+            link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+            addresses          = ["192.168.10.101"]
           },
           {
-            id           = "eth1"
-            hardwareAddr = "aa:bb:cc:dd:ee:02"
-            addresses    = [{ ip = "10.0.0.101" }]
+            link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+            addresses          = ["10.0.0.101"]
           }
         ]
       }
     }
   }
 
+  # Should have 2 BondConfig documents
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "192.168.10.101") &&
-      strcontains(m.config, "10.0.0.101")
+      length([for c in m.configs : c if strcontains(c, "kind: BondConfig")]) == 2
     ])
-    error_message = "Both interface IPs should be in config"
+    error_message = "Should have 2 BondConfig documents"
   }
 
+  # Should have addresses from both bonds
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(m.config, "aa:bb:cc:dd:ee:01") &&
-      strcontains(m.config, "aa:bb:cc:dd:ee:02")
+      strcontains(join("\n", m.configs), "192.168.10.101") &&
+      strcontains(join("\n", m.configs), "10.0.0.101")
     ])
-    error_message = "Both interface MACs should be in config"
+    error_message = "Both bond addresses should be in config"
   }
 }
 
-# L2 interfaces collected for cluster env vars
+# L2 interfaces collected for cluster env vars (should be bond names now)
 run "l2_interfaces_env_var" {
   command = plan
 
@@ -558,22 +555,18 @@ run "l2_interfaces_env_var" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       node2 = {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          id           = "enp0s3"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
     }
@@ -583,10 +576,9 @@ run "l2_interfaces_env_var" {
     condition = anytrue([
       for v in output.cluster_vars :
       v.name == "cluster_l2_interfaces" &&
-      strcontains(v.value, "eth0") &&
-      strcontains(v.value, "enp0s3")
+      strcontains(v.value, "bond0")
     ])
-    error_message = "cluster_l2_interfaces should contain both interface IDs"
+    error_message = "cluster_l2_interfaces should contain bond0"
   }
 }
 
@@ -601,30 +593,27 @@ run "other_cluster_machines_excluded" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       other-node = {
         cluster = "production"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
       another-node = {
         cluster = "staging"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:03"
-          addresses    = [{ ip = "192.168.10.103" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:03"]
+          addresses          = ["192.168.10.103"]
         }]
       }
     }
@@ -651,9 +640,8 @@ run "other_cluster_machines_excluded" {
   }
 }
 
-
-# Empty disks array - no disks section in config
-run "empty_disks_no_section" {
+# Empty volumes array - no UserVolumeConfig section in config
+run "empty_volumes_no_section" {
   command = plan
 
   variables {
@@ -663,11 +651,10 @@ run "empty_disks_no_section" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        disks   = []
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        volumes = []
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -676,9 +663,9 @@ run "empty_disks_no_section" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(m.config, "disks:")
+      !strcontains(join("\n", m.configs), "kind: UserVolumeConfig")
     ])
-    error_message = "Empty disks array should not create disks section"
+    error_message = "Empty volumes array should not create UserVolumeConfig section"
   }
 }
 
@@ -698,10 +685,9 @@ run "on_destroy_config" {
         cluster = "test-cluster"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
     }
@@ -723,3 +709,43 @@ run "on_destroy_config" {
   }
 }
 
+# Multi-link bond with 802.3ad mode
+run "multi_link_bond_802_3ad" {
+  command = plan
+
+  variables {
+    features = []
+    machines = {
+      node1 = {
+        cluster = "test-cluster"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.101"]
+          mode               = "802.3ad"
+          mtu                = 9000
+        }]
+      }
+    }
+  }
+
+  # Should have LACP settings
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "lacpRate: slow") &&
+      strcontains(join("\n", m.configs), "xmitHashPolicy: layer3+4")
+    ])
+    error_message = "802.3ad bond should have LACP settings"
+  }
+
+  # Should have correct MTU
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "mtu: 9000")
+    ])
+    error_message = "Bond MTU should be 9000"
+  }
+}

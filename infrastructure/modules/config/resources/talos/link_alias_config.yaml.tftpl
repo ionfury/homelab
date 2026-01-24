@@ -1,0 +1,6 @@
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: ${link.name}
+selector:
+  match: mac(link.permanent_addr) == "${link.permanent_addr}"

@@ -54,15 +54,26 @@ variables {
     }
   }
 
+  # Minimal Cilium values template for testing
+  cilium_values_template = <<-EOT
+    cluster:
+      name: $${cluster_name}
+    ipv4NativeRoutingCIDR: $${cluster_pod_subnet}
+    hubble:
+      ui:
+        ingress:
+          hosts:
+            - hubble.$${internal_domain}
+  EOT
+
   machines = {
     node1 = {
       cluster = "validation-test"
       type    = "controlplane"
       install = { selector = "disk.model = *" }
-      interfaces = [{
-        id           = "eth0"
-        hardwareAddr = "aa:bb:cc:dd:ee:01"
-        addresses    = [{ ip = "192.168.10.101" }]
+      bonds = [{
+        link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+        addresses          = ["192.168.10.101"]
       }]
     }
   }
@@ -374,20 +385,18 @@ run "valid_machine_types" {
         cluster = "validation-test"
         type    = "controlplane"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       worker1 = {
         cluster = "validation-test"
         type    = "worker"
         install = { selector = "disk.model = *" }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
     }
@@ -413,10 +422,9 @@ run "valid_architectures" {
           architecture = "amd64"
           platform     = "metal"
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:01"
-          addresses    = [{ ip = "192.168.10.101" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
         }]
       }
       arm64node = {
@@ -427,10 +435,9 @@ run "valid_architectures" {
           architecture = "arm64"
           sbc          = "rpi_generic"
         }
-        interfaces = [{
-          id           = "eth0"
-          hardwareAddr = "aa:bb:cc:dd:ee:02"
-          addresses    = [{ ip = "192.168.10.102" }]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
         }]
       }
     }
@@ -439,5 +446,99 @@ run "valid_architectures" {
   assert {
     condition     = length(output.machines) == 2
     error_message = "Both amd64 and arm64 architectures should be valid"
+  }
+}
+
+# Bonds validation - multi-link bond
+run "valid_multi_link_bond" {
+  command = plan
+
+  variables {
+    machines = {
+      node1 = {
+        cluster = "validation-test"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.101"]
+          mode               = "802.3ad"
+          mtu                = 9000
+        }]
+      }
+    }
+  }
+
+  assert {
+    condition     = length(output.machines) == 1
+    error_message = "Multi-link bond should be valid"
+  }
+}
+
+# Bonds validation - multiple bonds
+run "valid_multiple_bonds" {
+  command = plan
+
+  variables {
+    machines = {
+      node1 = {
+        cluster = "validation-test"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        bonds = [
+          {
+            link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+            addresses          = ["192.168.10.101"]
+          },
+          {
+            link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+            addresses          = ["10.0.0.101"]
+          }
+        ]
+      }
+    }
+  }
+
+  assert {
+    condition     = length(output.machines) == 1
+    error_message = "Multiple bonds should be valid"
+  }
+}
+
+# Volumes validation
+run "valid_volumes" {
+  command = plan
+
+  variables {
+    machines = {
+      node1 = {
+        cluster = "validation-test"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        volumes = [
+          {
+            name     = "system"
+            selector = "system_disk == true"
+            maxSize  = "50%"
+            tags     = ["fast", "nvme"]
+          },
+          {
+            name     = "data"
+            selector = "disk.dev_path == '/dev/sdb'"
+            maxSize  = "100%"
+            tags     = ["slow", "hdd"]
+          }
+        ]
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
+  }
+
+  assert {
+    condition     = length(output.machines) == 1
+    error_message = "Multiple volumes should be valid"
   }
 }

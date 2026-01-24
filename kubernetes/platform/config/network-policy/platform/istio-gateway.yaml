@@ -1,0 +1,76 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: istio-gateway-default
+  namespace: istio-gateway
+spec:
+  description: "Allow Istio gateway: ingress from world, egress to backend services"
+  endpointSelector: { }
+  ingress:
+    # Allow external traffic (world) on HTTP/HTTPS
+    - fromEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+    # Allow Prometheus scraping
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "15020"
+              protocol: TCP
+    # Allow xDS from istiod
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-system
+      toPorts:
+        - ports:
+            - port: "15008"
+              protocol: TCP
+            - port: "15006"
+              protocol: TCP
+    # Allow intra-namespace communication
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-gateway
+  egress:
+    # Allow DNS resolution
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Allow traffic to backend services in cluster (all namespaces)
+    - toEntities:
+        - cluster
+    # Allow xDS to istiod
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-system
+      toPorts:
+        - ports:
+            - port: "15010"
+              protocol: TCP
+            - port: "15012"
+              protocol: TCP
+    # Allow intra-namespace communication
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-gateway

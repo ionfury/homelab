@@ -11,10 +11,10 @@ tasks:
       WORKTREE_PATH: "{{.ROOT_DIR}}/../{{.REPO_NAME}}-{{.NAME}}"
     cmds:
       - git worktree add "{{.WORKTREE_PATH}}" -b "{{.NAME}}"
-      - |
-        echo "Worktree created at {{.WORKTREE_PATH}}"
-        echo "Starting Claude Code..."
-        cd "{{.WORKTREE_PATH}}" && claude
+      - echo "Worktree created at {{.WORKTREE_PATH}}"
+      - echo "Starting Claude Code..."
+      - cmd: claude
+        dir: "{{.WORKTREE_PATH}}"
     preconditions:
       - sh: test -n "{{.CLI_ARGS}}"
         msg: "Usage: task wt:new -- <worktree-name>"
@@ -51,7 +51,7 @@ tasks:
         sh: basename "{{.ROOT_DIR}}"
       WORKTREE_PATH: "{{.ROOT_DIR}}/../{{.REPO_NAME}}-{{.NAME}}"
     cmds:
-      - git worktree remove "{{.WORKTREE_PATH}}"
+      - git worktree remove "{{.WORKTREE_PATH}}" --force
     preconditions:
       - sh: test -n "{{.CLI_ARGS}}"
         msg: "Usage: task wt:remove -- <worktree-name>"

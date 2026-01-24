@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.100.0"
+      version = "6.28.0"
     }
     talos = {
       source  = "siderolabs/talos"
@@ -19,7 +19,7 @@ terraform {
     }
     time = {
       source  = "hashicorp/time"
-      version = "0.12.1"
+      version = "0.13.1"
     }
     null = {
       source  = "hashicorp/null"
