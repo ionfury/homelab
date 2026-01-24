@@ -9,6 +9,7 @@ on:
       - ".github/workflows/kubernetes-validate.yaml"
       - ".yamllint.yaml"
       - ".taskfiles/kubernetes/**"
+      - ".mise.toml"
   workflow_dispatch:
 
 jobs:
@@ -18,21 +19,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-
-      - name: Install yamllint
-        run: pip install yamllint
-
-      - name: Setup validation tools
-        uses: ./.github/actions/setup-validation-tools
-
-      - name: Setup Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.16.0
+      - name: Setup tools
+        uses: jdx/mise-action@v2
 
       - name: Validate Kubernetes manifests and Helm charts
         run: task k8s:validate
