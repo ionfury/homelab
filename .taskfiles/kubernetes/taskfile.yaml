@@ -8,188 +8,174 @@ vars:
   CHARTS_DIR: "{{.ROOT_DIR}}/kubernetes/platform/charts"
   HELM_CHARTS_FILE: "{{.ROOT_DIR}}/kubernetes/platform/helm-charts.yaml"
   CLUSTER_VARS: "{{.ROOT_DIR}}/kubernetes/clusters/dev/.cluster-vars.env"
-  # Critical charts to template - these are complex and catch the most issues
-  CRITICAL_CHARTS: "cilium,kube-prometheus-stack,grafana"
   MANIFESTS_DIR: "/tmp/homelab-manifests"
+  PLATFORM_DIR: "{{.ROOT_DIR}}/kubernetes/platform"
+  RESOURCESETS: "namespaces.yaml helm-charts.yaml config.yaml"
+  STATIC_PROVIDER: "{{.PLATFORM_DIR}}/.static-provider.yaml"
+  EXPANDED_DIR: "/tmp/homelab-expanded"
+  DEV_KUBECONFIG: "~/.kube/dev.yaml"
+  # Test variables for Flux substitution (used by helm templating)
+  TEST_CLUSTER_NAME: ci-test
+  TEST_POD_SUBNET: "10.244.0.0/16"
+  TEST_INTERNAL_DOMAIN: internal.ci.example.com
+  TEST_EXTERNAL_DOMAIN: external.ci.example.com
+  TEST_REPLICA_COUNT: "1"
+  TEST_GARAGE_DATA_SIZE: "10Gi"
+  TEST_GARAGE_META_SIZE: "1Gi"
+  TEST_LOKI_SIZE: "10Gi"
+  TEST_PROMETHEUS_SIZE: "10Gi"
 
 tasks:
-  validate:
-    desc: Run all Kubernetes validation (lint, kustomize, helm)
-    cmds:
-      - task: lint
-      - task: validate-kustomize
-      - task: validate-helm
+  # =============================================================================
+  # User-Facing Tasks
+  # =============================================================================
 
-  lint:
-    desc: Lint YAML files with yamllint
+  validate:
+    desc: Full Kubernetes validation (lint, ResourceSets, all charts, kubeconform)
+    cmds:
+      - task: _lint
+      - task: _expand-resourcesets
+      - task: _build-manifests
+      - task: _substitute-vars
+      - task: _template-all-charts
+      - task: _validate-kubeconform
+
+  dry-run-dev:
+    desc: Server-side dry-run against dev cluster
+    deps: [validate]
+    cmds:
+      - |
+        echo "Running server-side dry-run against dev cluster..."
+        echo ""
+        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+          echo "Dry-run: $(basename $manifest)"
+          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl apply --dry-run=server -f "$manifest"
+        done
+        echo ""
+        echo "Server-side dry-run completed successfully"
+    preconditions:
+      - which kubectl
+      - test -f {{.DEV_KUBECONFIG}}
+      - test -d {{.EXPANDED_DIR}}/resourcesets
+
+  apply-dev:
+    desc: Apply manifests to dev cluster (REQUIRES CONFIRMATION)
+    deps: [validate]
+    prompt: This will apply manifests to the dev cluster. Continue?
+    cmds:
+      - |
+        echo "Applying to dev cluster..."
+        echo ""
+        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+          echo "Applying: $(basename $manifest)"
+          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl apply -f "$manifest"
+        done
+        echo ""
+        echo "Applied to dev cluster successfully"
+    preconditions:
+      - which kubectl
+      - test -f {{.DEV_KUBECONFIG}}
+      - test -d {{.EXPANDED_DIR}}/resourcesets
+
+  # =============================================================================
+  # Internal Tasks (hidden from task --list)
+  # =============================================================================
+
+  _lint:
+    internal: true
     cmds:
       - yamllint --strict kubernetes/
       - yamllint --strict .github/workflows/
     preconditions:
       - which yamllint
 
-  build-manifests:
-    desc: Build all kustomizations to manifests directory
+  _build-manifests:
+    internal: true
+    env:
+      MANIFESTS_DIR: "{{.MANIFESTS_DIR}}"
+      PLATFORM_DIR: "{{.PLATFORM_DIR}}"
     cmds:
       - rm -rf {{.MANIFESTS_DIR}} && mkdir -p {{.MANIFESTS_DIR}}
-      - |
-        find kubernetes/platform/config -name "kustomization.yaml" -exec dirname {} \; | while read -r dir; do
-          name=$(echo "$dir" | sed 's|kubernetes/platform/config/||; s|/|-|g')
-          echo "Building kustomization: $dir"
-          kustomize build "$dir" > "{{.MANIFESTS_DIR}}/${name}.yaml"
-        done
+      - "{{.TASKFILE_DIR}}/scripts/build-manifests.sh"
     preconditions:
       - which kustomize
 
-  substitute-vars:
-    desc: Substitute Flux variables in built manifests
-    deps: [build-manifests]
+  _substitute-vars:
+    internal: true
+    deps: [_build-manifests, _expand-resourcesets]
+    env:
+      CLUSTER_VARS: "{{.CLUSTER_VARS}}"
+      MANIFESTS_DIR: "{{.MANIFESTS_DIR}}"
     cmds:
+      - "{{.TASKFILE_DIR}}/scripts/substitute-vars.sh"
+      # Also substitute vars in expanded ResourceSets for validation
       - |
-        # Source cluster variables
-        set -a
-        source {{.CLUSTER_VARS}}
-        set +a
-
-        # Substitute variables in all manifests
-        for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
+        set -a && source "{{.CLUSTER_VARS}}" && set +a
+        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
           envsubst < "$manifest" > "${manifest}.tmp"
           mv "${manifest}.tmp" "$manifest"
         done
+    preconditions:
+      - which envsubst yq
 
-        # Fix StorageClass parameters to be strings (envsubst produces unquoted numbers)
-        for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
-          yq -i '(select(.kind == "StorageClass") | .parameters.numberOfReplicas) |= . tag = "!!str"' "$manifest"
+  _expand-resourcesets:
+    internal: true
+    cmds:
+      - rm -rf {{.EXPANDED_DIR}}/resourcesets && mkdir -p {{.EXPANDED_DIR}}/resourcesets
+      - |
+        for rset in {{.RESOURCESETS}}; do
+          echo "Expanding ResourceSet: $rset"
+          flux-operator build rset \
+            -f "{{.PLATFORM_DIR}}/$rset" \
+            --inputs-from-provider "{{.STATIC_PROVIDER}}" \
+            > "{{.EXPANDED_DIR}}/resourcesets/${rset}"
         done
     preconditions:
-      - which envsubst
-      - which yq
+      - which flux-operator
+      - test -f {{.STATIC_PROVIDER}}
 
-  validate-kustomize:
-    desc: Build kustomizations and validate with kubeconform
-    deps: [substitute-vars]
+  _template-all-charts:
+    internal: true
+    deps: [_expand-resourcesets]
+    env:
+      CHARTS_DIR: "{{.CHARTS_DIR}}"
+      HELM_CHARTS_FILE: "{{.HELM_CHARTS_FILE}}"
+      EXPANDED_DIR: "{{.EXPANDED_DIR}}"
+      cluster_name: "{{.TEST_CLUSTER_NAME}}"
+      cluster_pod_subnet: "{{.TEST_POD_SUBNET}}"
+      internal_domain: "{{.TEST_INTERNAL_DOMAIN}}"
+      external_domain: "{{.TEST_EXTERNAL_DOMAIN}}"
+      default_replica_count: "{{.TEST_REPLICA_COUNT}}"
+      garage_data_volume_size: "{{.TEST_GARAGE_DATA_SIZE}}"
+      garage_meta_volume_size: "{{.TEST_GARAGE_META_SIZE}}"
+      loki_volume_size: "{{.TEST_LOKI_SIZE}}"
+      prometheus_volume_size: "{{.TEST_PROMETHEUS_SIZE}}"
     cmds:
-      - |
-        kubeconform \
-          -schema-location default \
-          -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json' \
-          -skip ResourceSet \
-          -ignore-missing-schemas \
-          -summary \
-          -output text \
-          {{.MANIFESTS_DIR}}/*.yaml
+      - mkdir -p {{.EXPANDED_DIR}}/helm
+      - "{{.TASKFILE_DIR}}/scripts/template-all-charts.sh"
+    preconditions:
+      - which helm yq jq envsubst
+
+  _validate-kubeconform:
+    internal: true
+    deps: [_template-all-charts, _substitute-vars]
+    vars:
+      KUBECONFORM_ARGS: >-
+        -schema-location default
+        -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
+        -ignore-missing-schemas
+        -summary
+        -output text
+    cmds:
+      - echo "Validating expanded ResourceSets..."
+      - kubeconform {{.KUBECONFORM_ARGS}} {{.EXPANDED_DIR}}/resourcesets/*.yaml
+      - echo ""
+      - echo "Validating templated Helm charts..."
+      - kubeconform {{.KUBECONFORM_ARGS}} {{.EXPANDED_DIR}}/helm/*.yaml
+      - echo ""
+      - echo "Validating kustomize manifests..."
+      - kubeconform {{.KUBECONFORM_ARGS}} -skip ResourceSet {{.MANIFESTS_DIR}}/*.yaml
     preconditions:
       - which kubeconform
-
-  validate-helm:
-    desc: Validate Helm chart values and template critical charts
-    cmds:
-      - task: validate-helm-yaml
-      - task: template-helm
-
-  validate-helm-yaml:
-    desc: Validate Helm values YAML syntax
-    cmds:
-      - |
-        echo "Validating Helm values YAML files..."
-        for file in {{.CHARTS_DIR}}/*.yaml; do
-          if yq eval '.' "$file" > /dev/null 2>&1; then
-            echo "✓ $(basename $file)"
-          else
-            echo "✗ $(basename $file)"
-            yq eval '.' "$file"
-            exit 1
-          fi
-        done
-    preconditions:
-      - which yq
-
-  template-helm:
-    desc: Template critical Helm charts to verify values
-    vars:
-      # Test variables for substitution (mirrors CI values)
-      TEST_CLUSTER_NAME: ci-test
-      TEST_POD_SUBNET: "10.244.0.0/16"
-      TEST_INTERNAL_DOMAIN: internal.ci.example.com
-      TEST_EXTERNAL_DOMAIN: external.ci.example.com
-      TEST_REPLICA_COUNT: "1"
-    cmds:
-      - |
-        set -e
-
-        # Export test variables for envsubst
-        export cluster_name="{{.TEST_CLUSTER_NAME}}"
-        export cluster_pod_subnet="{{.TEST_POD_SUBNET}}"
-        export internal_domain="{{.TEST_INTERNAL_DOMAIN}}"
-        export external_domain="{{.TEST_EXTERNAL_DOMAIN}}"
-        export default_replica_count="{{.TEST_REPLICA_COUNT}}"
-
-        # Parse helm-charts.yaml to get chart definitions
-        charts_json=$(yq '.spec.inputs' {{.HELM_CHARTS_FILE}} -o=json)
-
-        # Track added repos in a temp file (POSIX-compatible)
-        added_repos_file=$(mktemp)
-        trap "rm -f $added_repos_file" EXIT
-
-        # Pre-add all required repos before templating
-        for chart_name in $(echo "{{.CRITICAL_CHARTS}}" | tr ',' ' '); do
-          chart_info=$(echo "$charts_json" | jq -r ".[] | select(.name == \"$chart_name\")")
-          chart_url=$(echo "$chart_info" | jq -r '.chart.url')
-          case "$chart_url" in
-            oci://*) continue ;;
-          esac
-          repo_name=$(echo "$chart_name" | tr '-' '_')
-          if ! grep -q "^${chart_url}$" "$added_repos_file" 2>/dev/null; then
-            helm repo add "$repo_name" "$chart_url" 2>/dev/null || true
-            echo "$chart_url" >> "$added_repos_file"
-          fi
-        done
-        helm repo update 2>/dev/null || true
-
-        # Iterate over comma-separated list (POSIX-compatible)
-        for chart_name in $(echo "{{.CRITICAL_CHARTS}}" | tr ',' ' '); do
-          # Get chart info from helm-charts.yaml
-          chart_info=$(echo "$charts_json" | jq -r ".[] | select(.name == \"$chart_name\")")
-          if [ -z "$chart_info" ] || [ "$chart_info" = "null" ]; then
-            echo "✗ Chart '$chart_name' not found in helm-charts.yaml"
-            exit 1
-          fi
-
-          chart_helm_name=$(echo "$chart_info" | jq -r '.chart.name')
-          chart_version=$(echo "$chart_info" | jq -r '.chart.version')
-          chart_url=$(echo "$chart_info" | jq -r '.chart.url')
-
-          # Skip OCI registries (not supported by helm repo add)
-          case "$chart_url" in
-            oci://*)
-              echo "⊘ Skipping $chart_name (OCI registry)"
-              continue
-              ;;
-          esac
-
-          # Get sanitized repo name
-          repo_name=$(echo "$chart_name" | tr '-' '_')
-
-          # Substitute variables in values file
-          values_file="{{.CHARTS_DIR}}/${chart_name}.yaml"
-          tmp_values="/tmp/${chart_name}-values.yaml"
-          envsubst < "$values_file" > "$tmp_values"
-
-          # Template the chart
-          echo ""
-          echo "Templating: $chart_name ($repo_name/$chart_helm_name:$chart_version)"
-          if helm template "$chart_name" "$repo_name/$chart_helm_name" \
-            --version "$chart_version" \
-            --values "$tmp_values" \
-            --namespace test > /dev/null; then
-            echo "✓ $chart_name templated successfully"
-          else
-            echo "✗ $chart_name failed to template"
-            exit 1
-          fi
-        done
-    preconditions:
-      - which helm
-      - which yq
-      - which jq
-      - which envsubst
+      - test -d {{.EXPANDED_DIR}}/resourcesets
+      - test -d {{.EXPANDED_DIR}}/helm

@@ -25,6 +25,8 @@ controllers:
         env:
           TZ: UTC
           PROMETHEUS_URL: http://prometheus-operated.monitoring.svc.cluster.local:9090
+          # Health server port must match probe configuration
+          HEALTH_PORT: "8080"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

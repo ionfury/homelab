@@ -1,7 +1,7 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: "Setup Validation Tools"
-description: "Install kustomize, kubeconform, and yq for Kubernetes manifest validation"
+description: "Install tools for Kubernetes manifest validation"
 
 inputs:
   kustomize-version:
@@ -13,6 +13,9 @@ inputs:
   yq-version:
     description: "yq version"
     default: "4.44.1"
+  flux-operator-version:
+    description: "Flux Operator version"
+    default: "0.40.0"
 
 runs:
   using: "composite"
@@ -34,3 +37,9 @@ runs:
         curl -sSL "https://github.com/mikefarah/yq/releases/download/v${{ inputs.yq-version }}/yq_linux_amd64" -o yq
         chmod +x yq
         sudo mv yq /usr/local/bin/
+
+    - name: Install flux-operator
+      shell: bash
+      run: |
+        curl -sSL "https://github.com/controlplaneio-fluxcd/flux-operator/releases/download/v${{ inputs.flux-operator-version }}/flux-operator_${{ inputs.flux-operator-version }}_linux_amd64.tar.gz" | tar xz
+        sudo mv flux-operator /usr/local/bin/

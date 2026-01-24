@@ -215,6 +215,34 @@ This ensures the human operator is aware and approves state-changing operations,
 - **NEVER** skip validation steps before committing (see Pre-Commit Validation below)
 - **NEVER** ignore deprecation warnings - implement migrations immediately
 
+## Test Failures
+
+**Tests must be green. A skipped test is a broken test.**
+
+When a test or validation fails:
+
+1. **NEVER** skip, ignore, or disable a test to make it pass
+2. **NEVER** add `-skip`, `-ignore`, or similar flags as a first response
+3. **ALWAYS** investigate the root cause using the "5 Whys" technique:
+   - Why did the test fail? → Schema validation error
+   - Why was the schema invalid? → Wrong field structure
+   - Why was the structure wrong? → Misunderstood API spec
+   - Why was it misunderstood? → Documentation unclear
+   - Why? → Fix the actual code, not the test
+
+4. **Fix the code, not the test** - if a test catches a real issue, the code is wrong
+5. **Only as a LAST RESORT**: If after thorough investigation you believe the test itself is flawed (e.g., external schema is incorrect), use `AskUserQuestion` to get explicit approval before skipping
+
+**Valid reasons to skip (require user approval):**
+- External schema is demonstrably incorrect (provide evidence)
+- Test infrastructure bug outside our control
+- Temporary skip with tracked issue for follow-up
+
+**Invalid reasons to skip:**
+- "It works in the cluster"
+- "The test is too strict"
+- "It's just a warning"
+
 ## Documentation
 
 - **NEVER** leave documentation stale after completing tasks - update CLAUDE.md, README, or runbooks as needed
