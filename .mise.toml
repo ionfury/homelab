@@ -9,7 +9,14 @@ kustomize = "5.4.1"
 kubeconform = "0.6.7"
 yq = "4.44.1"
 yamllint = "1.35.1"
-"aqua:controlplaneio-fluxcd/flux-operator" = "0.40.0"
+# flux-operator: use asset_pattern to select CLI (not MCP variant)
+[tools."github:controlplaneio-fluxcd/flux-operator"]
+version = "0.40.0"
+
+[tools."github:controlplaneio-fluxcd/flux-operator".platforms]
+linux-x64 = { asset_pattern = "flux-operator_*_linux_amd64.tar.gz" }
+macos-arm64 = { asset_pattern = "flux-operator_*_darwin_arm64.tar.gz" }
+macos-x64 = { asset_pattern = "flux-operator_*_darwin_amd64.tar.gz" }
 
 # Task runner
 task = "3.40.0"
