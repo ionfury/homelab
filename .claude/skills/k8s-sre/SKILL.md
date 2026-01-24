@@ -130,6 +130,8 @@ Apply 5 Whys analysis. Validate:
 
 ### Phase 5: Remediation
 
+Use **AskUserQuestion** tool to present fix options when multiple valid approaches exist.
+
 Provide recommendations only (read-only investigation):
 - **Immediate**: Rollback, scale, restart
 - **Permanent**: Code/config fixes
@@ -212,6 +214,9 @@ Task tool:
 
 ❌ Investigate without confirming cluster
 ✅ ALWAYS confirm cluster before any kubectl command
+
+❌ Use `helm list` to check Helm release status
+✅ Use `kubectl get helmrelease -A` - Flux manages releases via CRDs, not Helm CLI
 
 ## Keywords
 

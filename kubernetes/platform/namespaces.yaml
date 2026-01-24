@@ -12,39 +12,51 @@ spec:
     - name: cert-manager
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: external-secrets
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: kube-system
       dataplane: standard
       security: privileged
+      networkPolicy: null
     - name: longhorn-system
       dataplane: standard
       security: privileged
+      networkPolicy: null
     - name: istio-system
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: istio-gateway
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: monitoring
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: system
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: garage
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: database
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: kromgo
       dataplane: ambient
       security: privileged
+      networkPolicy: null
     - name: spegel
       dataplane: standard
       security: privileged
+      networkPolicy: null
   resourcesTemplate: |
     ---
     apiVersion: v1
