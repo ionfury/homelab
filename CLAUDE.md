@@ -283,6 +283,33 @@ brew bundle
 - **CI parity**: Tools used in CI workflows should have Brewfile equivalents for local development
 - **No manual installs**: Never install CLI tools manually - always go through Brewfile
 
+## Tool Version Management
+
+Tool versions are managed by [mise](https://mise.jdx.dev/) via `.mise.toml`. This ensures CI and local development use identical versions.
+
+### Setup
+
+```bash
+brew bundle              # Installs mise
+mise trust               # Trust the .mise.toml config
+mise install             # Install all tools at specified versions
+eval "$(mise activate)"  # Add to shell profile for auto-activation
+```
+
+### Verify versions
+
+```bash
+mise current             # Show active tool versions
+mise doctor              # Diagnose environment issues
+```
+
+### How it works
+
+- `.mise.toml` defines pinned versions for development tools (helm, kustomize, kubeconform, yq, yamllint, task)
+- Infrastructure tools (opentofu, terragrunt) defer to `.opentofu-version` and `.terragrunt-version` files
+- CI workflows use `jdx/mise-action` to install the same versions
+- Renovate auto-updates versions via the mise manager
+
 ---
 
 # DIRECTORY-SPECIFIC DOCUMENTATION
