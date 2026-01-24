@@ -102,12 +102,19 @@ tasks:
 
   _substitute-vars:
     internal: true
-    deps: [_build-manifests]
+    deps: [_build-manifests, _expand-resourcesets]
     env:
       CLUSTER_VARS: "{{.CLUSTER_VARS}}"
       MANIFESTS_DIR: "{{.MANIFESTS_DIR}}"
     cmds:
       - "{{.TASKFILE_DIR}}/scripts/substitute-vars.sh"
+      # Also substitute vars in expanded ResourceSets for validation
+      - |
+        set -a && source "{{.CLUSTER_VARS}}" && set +a
+        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+          envsubst < "$manifest" > "${manifest}.tmp"
+          mv "${manifest}.tmp" "$manifest"
+        done
     preconditions:
       - which envsubst yq
 

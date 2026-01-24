@@ -86,8 +86,8 @@ PR merged to main
   integration cluster
   (auto-deploys via ImagePolicy)
        ↓
-  Flagger validation
-  (Flux health + smoke tests)
+  canary-checker validation
+  (Flux health + platform checks)
        ↓
   GHA tags artifact as validated
        ↓
@@ -97,11 +97,13 @@ PR merged to main
 
 1. **Artifact build**: GHA packages `kubernetes/` directory as OCI artifact, tags as `integration-<sha>`
 2. **Integration deployment**: Flux ImagePolicy auto-deploys artifacts matching `integration-*` pattern
-3. **Validation**: Flagger runs Flux health checks and smoke tests on integration cluster
+3. **Validation**: canary-checker runs Flux health checks and platform smoke tests
 4. **Promotion tag**: On validation success, GHA re-tags artifact as `validated-<sha>`
 5. **Live deployment**: Flux ImagePolicy auto-deploys artifacts matching `validated-*` pattern
 
-See `docs/plans/oci-artifact-promotion.md` for implementation details.
+**Source types by cluster:**
+- **dev**: Git-based (GitRepository) - for manual experimentation
+- **integration/live**: OCI artifact-based (OCIRepository) - immutable promotion
 
 ## Infrastructure Recovery
 

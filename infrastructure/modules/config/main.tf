@@ -304,6 +304,8 @@ locals {
     { name = "database_volume_size", value = local.selected_sizes.database },
     { name = "loki_volume_size", value = local.selected_sizes.loki },
     { name = "prometheus_volume_size", value = local.selected_sizes.prometheus },
+    # Flux source kind for ResourceSet Kustomizations (GitRepository for dev, OCIRepository for integration/live)
+    { name = "source_kind", value = var.name == "dev" ? "GitRepository" : "OCIRepository" },
   ]
 
   # Version environment variables for flux post-build substitution

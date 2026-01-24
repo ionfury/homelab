@@ -1,0 +1,46 @@
+---
+name: Build Platform Artifact
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kubernetes/**"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  ARTIFACT_REPO: ${{ github.repository }}/platform
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: fluxcd/flux2/action@main
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push artifact
+        run: |
+          SHORT_SHA="${{ github.sha }}"
+          SHORT_SHA="${SHORT_SHA:0:7}"
+
+          flux push artifact \
+            oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:sha-${SHORT_SHA} \
+            --path=./kubernetes \
+            --source="https://github.com/${{ github.repository }}" \
+            --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
+
+          flux tag artifact \
+            oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:sha-${SHORT_SHA} \
+            --tag integration-${SHORT_SHA}

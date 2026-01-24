@@ -20,19 +20,6 @@ resource "github_repository_file" "versions" {
   overwrite_on_create = true
 }
 
-resource "github_repository_file" "kustomization" {
-  repository          = data.github_repository.this.name
-  file                = "${local.github_repository_cluster_directory}/kustomization.yaml"
-  content             = templatefile("${path.module}/resources/kustomization.yaml.tftpl", {})
-  overwrite_on_create = true
-}
-
-resource "github_repository_file" "platform" {
-  repository          = data.github_repository.this.name
-  file                = "${local.github_repository_cluster_directory}/platform.yaml"
-  content             = templatefile("${path.module}/resources/platform.yaml.tftpl", {})
-  overwrite_on_create = true
-}
 
 resource "kubernetes_namespace" "flux_system" {
   metadata {
@@ -70,8 +57,6 @@ resource "helm_release" "flux_operator" {
     data.github_repository.this,
     github_repository_file.cluster_vars,
     github_repository_file.versions,
-    github_repository_file.kustomization,
-    github_repository_file.platform,
   ]
 
   name       = "flux-operator"
@@ -93,12 +78,17 @@ resource "helm_release" "flux_instance" {
   timeout    = 300
 
   values = [
-    templatefile("${path.module}/resources/instance.yaml.tftpl", {
+    var.source_type == "git" ? templatefile("${path.module}/resources/instance.yaml.tftpl", {
       cluster_name           = var.cluster_name
       github_org             = var.github.org
       github_repository      = var.github.repository
       github_repository_path = var.github.repository_path
       flux_version           = var.flux_version
+      }) : templatefile("${path.module}/resources/instance-oci.yaml.tftpl", {
+      cluster_name    = var.cluster_name
+      oci_url         = var.oci_url
+      oci_tag_pattern = var.oci_tag_pattern
+      flux_version    = var.flux_version
     })
   ]
 }
