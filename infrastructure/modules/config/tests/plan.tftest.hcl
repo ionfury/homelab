@@ -104,6 +104,18 @@ variables {
       api_key_store = "/homelab/infrastructure/accounts/healthchecksio/api-key"
     }
   }
+
+  # Minimal Cilium values template for testing
+  cilium_values_template = <<-EOT
+    cluster:
+      name: $${cluster_name}
+    ipv4NativeRoutingCIDR: $${cluster_pod_subnet}
+    hubble:
+      ui:
+        ingress:
+          hosts:
+            - hubble.$${internal_domain}
+  EOT
 }
 
 # Machine filtering - only machines matching cluster name should be included

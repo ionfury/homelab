@@ -3,6 +3,7 @@ version: "3"
 
 includes:
   inv: .taskfiles/inventory
+  k8s: .taskfiles/kubernetes
   talos: .taskfiles/talos
   tg: .taskfiles/terragrunt
   wt: .taskfiles/worktree

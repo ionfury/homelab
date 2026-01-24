@@ -43,9 +43,8 @@ The `config` unit is the brain—reads all `.hcl` config files and outputs struc
 ```bash
 # Validation (run in order)
 task tg:fmt                    # Format HCL files
-task tg:test                   # Run all module tests
 task tg:test-<module>          # Test specific module (e.g., task tg:test-config)
-task tg:validate               # Validate all stacks
+task tg:validate-<stack>       # Validate stack (e.g., task tg:validate-integration)
 
 # Operations
 task tg:list                   # List available stacks
