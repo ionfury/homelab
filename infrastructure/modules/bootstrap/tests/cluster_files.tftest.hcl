@@ -115,57 +115,9 @@ run "creates_versions_file" {
   }
 }
 
-run "creates_kustomization_file" {
-  command = plan
-  providers = {
-    github         = github.mock
-    kubernetes     = kubernetes.mock
-    helm           = helm.mock
-    healthchecksio = healthchecksio.mock
-    aws            = aws.mock
-  }
-
-  assert {
-    condition     = github_repository_file.kustomization.file == "kubernetes/clusters/test-cluster/kustomization.yaml"
-    error_message = "kustomization file path incorrect"
-  }
-
-  assert {
-    condition     = can(regex("kind: Kustomization", github_repository_file.kustomization.content))
-    error_message = "kustomization content should contain kind: Kustomization"
-  }
-
-  assert {
-    condition     = can(regex("configMapGenerator:", github_repository_file.kustomization.content))
-    error_message = "kustomization content should contain configMapGenerator"
-  }
-}
-
-run "creates_platform_file" {
-  command = plan
-  providers = {
-    github         = github.mock
-    kubernetes     = kubernetes.mock
-    helm           = helm.mock
-    healthchecksio = healthchecksio.mock
-    aws            = aws.mock
-  }
-
-  assert {
-    condition     = github_repository_file.platform.file == "kubernetes/clusters/test-cluster/platform.yaml"
-    error_message = "platform file path incorrect"
-  }
-
-  assert {
-    condition     = can(regex("name: platform", github_repository_file.platform.content))
-    error_message = "platform content should contain name: platform"
-  }
-
-  assert {
-    condition     = can(regex("path: kubernetes/platform", github_repository_file.platform.content))
-    error_message = "platform content should contain path: kubernetes/platform"
-  }
-}
+# NOTE: kustomization.yaml and platform.yaml are now static files committed to git
+# rather than Terraform-managed resources. See kubernetes/clusters/{integration,live}/
+# These tests were removed as part of the OCI artifact promotion implementation.
 
 run "empty_vars_still_creates_files" {
   command = plan
@@ -190,15 +142,5 @@ run "empty_vars_still_creates_files" {
   assert {
     condition     = github_repository_file.versions.file == "kubernetes/clusters/test-cluster/.versions.env"
     error_message = "versions file should be created even with empty vars"
-  }
-
-  assert {
-    condition     = github_repository_file.kustomization.file == "kubernetes/clusters/test-cluster/kustomization.yaml"
-    error_message = "kustomization file should be created even with empty vars"
-  }
-
-  assert {
-    condition     = github_repository_file.platform.file == "kubernetes/clusters/test-cluster/platform.yaml"
-    error_message = "platform file should be created even with empty vars"
   }
 }
