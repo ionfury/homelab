@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: Setup tools
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v3
 
       - name: Check OpenTofu formatting
         run: tofu fmt -check -recursive -diff infrastructure/
@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: Setup tools
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v3
 
       - name: Initialize module
         working-directory: infrastructure/modules/${{ matrix.module }}

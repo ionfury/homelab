@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: Setup tools
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v3
 
       - name: Validate Kubernetes manifests and Helm charts
         run: task k8s:validate
