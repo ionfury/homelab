@@ -10,6 +10,7 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 
 | Namespace | Directory | Purpose |
 |-----------|-----------|---------|
+| `k8s:` | `kubernetes/` | Kubernetes manifest validation |
 | `tg:` | `terragrunt/` | Infrastructure provisioning with OpenTofu |
 | `inv:` | `inventory/` | Hardware IPMI management |
 | `talos:` | `talos/` | Talos Linux cluster operations |
@@ -20,7 +21,16 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 
 ## Quick Reference
 
-### Validation (tg:)
+### Kubernetes Validation (k8s:)
+
+```bash
+task k8s:validate              # Run all Kubernetes validation
+task k8s:lint                  # Lint YAML with yamllint
+task k8s:validate-kustomize    # Build and validate kustomizations
+task k8s:validate-helm         # Validate Helm values and template charts
+```
+
+### Infrastructure Validation (tg:)
 
 ```bash
 task tg:fmt                        # Format all HCL files

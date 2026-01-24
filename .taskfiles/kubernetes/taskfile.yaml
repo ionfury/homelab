@@ -1,0 +1,195 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+set: [pipefail]
+
+vars:
+  CHARTS_DIR: "{{.ROOT_DIR}}/kubernetes/platform/charts"
+  HELM_CHARTS_FILE: "{{.ROOT_DIR}}/kubernetes/platform/helm-charts.yaml"
+  CLUSTER_VARS: "{{.ROOT_DIR}}/kubernetes/clusters/dev/.cluster-vars.env"
+  # Critical charts to template - these are complex and catch the most issues
+  CRITICAL_CHARTS: "cilium,kube-prometheus-stack,grafana"
+  MANIFESTS_DIR: "/tmp/homelab-manifests"
+
+tasks:
+  validate:
+    desc: Run all Kubernetes validation (lint, kustomize, helm)
+    cmds:
+      - task: lint
+      - task: validate-kustomize
+      - task: validate-helm
+
+  lint:
+    desc: Lint YAML files with yamllint
+    cmds:
+      - yamllint --strict kubernetes/
+      - yamllint --strict .github/workflows/
+    preconditions:
+      - which yamllint
+
+  build-manifests:
+    desc: Build all kustomizations to manifests directory
+    cmds:
+      - rm -rf {{.MANIFESTS_DIR}} && mkdir -p {{.MANIFESTS_DIR}}
+      - |
+        find kubernetes/platform/config -name "kustomization.yaml" -exec dirname {} \; | while read -r dir; do
+          name=$(echo "$dir" | sed 's|kubernetes/platform/config/||; s|/|-|g')
+          echo "Building kustomization: $dir"
+          kustomize build "$dir" > "{{.MANIFESTS_DIR}}/${name}.yaml"
+        done
+    preconditions:
+      - which kustomize
+
+  substitute-vars:
+    desc: Substitute Flux variables in built manifests
+    deps: [build-manifests]
+    cmds:
+      - |
+        # Source cluster variables
+        set -a
+        source {{.CLUSTER_VARS}}
+        set +a
+
+        # Substitute variables in all manifests
+        for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
+          envsubst < "$manifest" > "${manifest}.tmp"
+          mv "${manifest}.tmp" "$manifest"
+        done
+
+        # Fix StorageClass parameters to be strings (envsubst produces unquoted numbers)
+        for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
+          yq -i '(select(.kind == "StorageClass") | .parameters.numberOfReplicas) |= . tag = "!!str"' "$manifest"
+        done
+    preconditions:
+      - which envsubst
+      - which yq
+
+  validate-kustomize:
+    desc: Build kustomizations and validate with kubeconform
+    deps: [substitute-vars]
+    cmds:
+      - |
+        kubeconform \
+          -schema-location default \
+          -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json' \
+          -skip ResourceSet \
+          -ignore-missing-schemas \
+          -summary \
+          -output text \
+          {{.MANIFESTS_DIR}}/*.yaml
+    preconditions:
+      - which kubeconform
+
+  validate-helm:
+    desc: Validate Helm chart values and template critical charts
+    cmds:
+      - task: validate-helm-yaml
+      - task: template-helm
+
+  validate-helm-yaml:
+    desc: Validate Helm values YAML syntax
+    cmds:
+      - |
+        echo "Validating Helm values YAML files..."
+        for file in {{.CHARTS_DIR}}/*.yaml; do
+          if yq eval '.' "$file" > /dev/null 2>&1; then
+            echo "✓ $(basename $file)"
+          else
+            echo "✗ $(basename $file)"
+            yq eval '.' "$file"
+            exit 1
+          fi
+        done
+    preconditions:
+      - which yq
+
+  template-helm:
+    desc: Template critical Helm charts to verify values
+    vars:
+      # Test variables for substitution (mirrors CI values)
+      TEST_CLUSTER_NAME: ci-test
+      TEST_POD_SUBNET: "10.244.0.0/16"
+      TEST_INTERNAL_DOMAIN: internal.ci.example.com
+      TEST_EXTERNAL_DOMAIN: external.ci.example.com
+      TEST_REPLICA_COUNT: "1"
+    cmds:
+      - |
+        set -e
+
+        # Export test variables for envsubst
+        export cluster_name="{{.TEST_CLUSTER_NAME}}"
+        export cluster_pod_subnet="{{.TEST_POD_SUBNET}}"
+        export internal_domain="{{.TEST_INTERNAL_DOMAIN}}"
+        export external_domain="{{.TEST_EXTERNAL_DOMAIN}}"
+        export default_replica_count="{{.TEST_REPLICA_COUNT}}"
+
+        # Parse helm-charts.yaml to get chart definitions
+        charts_json=$(yq '.spec.inputs' {{.HELM_CHARTS_FILE}} -o=json)
+
+        # Track added repos in a temp file (POSIX-compatible)
+        added_repos_file=$(mktemp)
+        trap "rm -f $added_repos_file" EXIT
+
+        # Pre-add all required repos before templating
+        for chart_name in $(echo "{{.CRITICAL_CHARTS}}" | tr ',' ' '); do
+          chart_info=$(echo "$charts_json" | jq -r ".[] | select(.name == \"$chart_name\")")
+          chart_url=$(echo "$chart_info" | jq -r '.chart.url')
+          case "$chart_url" in
+            oci://*) continue ;;
+          esac
+          repo_name=$(echo "$chart_name" | tr '-' '_')
+          if ! grep -q "^${chart_url}$" "$added_repos_file" 2>/dev/null; then
+            helm repo add "$repo_name" "$chart_url" 2>/dev/null || true
+            echo "$chart_url" >> "$added_repos_file"
+          fi
+        done
+        helm repo update 2>/dev/null || true
+
+        # Iterate over comma-separated list (POSIX-compatible)
+        for chart_name in $(echo "{{.CRITICAL_CHARTS}}" | tr ',' ' '); do
+          # Get chart info from helm-charts.yaml
+          chart_info=$(echo "$charts_json" | jq -r ".[] | select(.name == \"$chart_name\")")
+          if [ -z "$chart_info" ] || [ "$chart_info" = "null" ]; then
+            echo "✗ Chart '$chart_name' not found in helm-charts.yaml"
+            exit 1
+          fi
+
+          chart_helm_name=$(echo "$chart_info" | jq -r '.chart.name')
+          chart_version=$(echo "$chart_info" | jq -r '.chart.version')
+          chart_url=$(echo "$chart_info" | jq -r '.chart.url')
+
+          # Skip OCI registries (not supported by helm repo add)
+          case "$chart_url" in
+            oci://*)
+              echo "⊘ Skipping $chart_name (OCI registry)"
+              continue
+              ;;
+          esac
+
+          # Get sanitized repo name
+          repo_name=$(echo "$chart_name" | tr '-' '_')
+
+          # Substitute variables in values file
+          values_file="{{.CHARTS_DIR}}/${chart_name}.yaml"
+          tmp_values="/tmp/${chart_name}-values.yaml"
+          envsubst < "$values_file" > "$tmp_values"
+
+          # Template the chart
+          echo ""
+          echo "Templating: $chart_name ($repo_name/$chart_helm_name:$chart_version)"
+          if helm template "$chart_name" "$repo_name/$chart_helm_name" \
+            --version "$chart_version" \
+            --values "$tmp_values" \
+            --namespace test > /dev/null; then
+            echo "✓ $chart_name templated successfully"
+          else
+            echo "✗ $chart_name failed to template"
+            exit 1
+          fi
+        done
+    preconditions:
+      - which helm
+      - which yq
+      - which jq
+      - which envsubst

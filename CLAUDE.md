@@ -101,6 +101,25 @@ All machines are configured to PXE boot into Talos maintenance mode when no OS i
 - **Disaster recovery**: Failed nodes automatically enter recovery mode
 - **Consistent provisioning**: No manual OS installation required
 
+## Pre-Commit Validation
+
+**ALWAYS run validation before committing changes.** This catches issues locally before CI runs.
+
+```bash
+# For Kubernetes changes (kubernetes/, .github/workflows/)
+task k8s:validate
+
+# For infrastructure changes (infrastructure/)
+task tg:fmt
+task tg:test-<module>          # If you modified a module
+task tg:validate-<stack>       # For the affected stack
+
+# For Renovate config changes
+task renovate:validate
+```
+
+**Validation is mandatory** - PRs will fail CI if validation doesn't pass. Running locally saves time and prevents broken commits.
+
 ---
 
 # DEV CLUSTER OPERATIONS
@@ -182,7 +201,7 @@ This ensures the human operator is aware and approves state-changing operations,
 ## Verification
 
 - **NEVER** guess resource names, strings, IPs, or values - VERIFY against source files
-- **NEVER** skip validation steps (`task tg:fmt`, `task tg:validate-<stack>`) before committing
+- **NEVER** skip validation steps before committing (see Pre-Commit Validation below)
 - **NEVER** ignore deprecation warnings - implement migrations immediately
 
 ## Documentation
