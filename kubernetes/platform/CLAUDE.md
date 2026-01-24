@@ -182,3 +182,62 @@ When bootstrapping a new cluster, populate these SSM parameters before the clust
 | Helm release name | kebab-case, matches chart | `kube-prometheus-stack` |
 | Namespace | kebab-case | `longhorn-system` |
 | Chart values file | kebab-case, matches release | `charts/grafana.yaml` |
+
+---
+
+## Local Validation
+
+Comprehensive local validation expands ResourceSets and templates ALL Helm charts (including OCI registries) before pushing to git.
+
+### Quick Start
+
+```bash
+# Full validation pipeline (recommended before commits)
+task k8s:validate-full
+
+# If dev cluster is running, add server-side validation
+task k8s:dry-run-dev
+```
+
+### Validation Pipeline
+
+The `validate-full` task runs these steps in order:
+
+1. **lint** - YAML syntax validation with yamllint
+2. **expand-resourcesets** - Expands 3 ResourceSets using `flux-operator build rset`
+3. **build-manifests** - Builds kustomizations from `config/` directory
+4. **substitute-vars** - Substitutes Flux variables (${internal_domain}, etc.)
+5. **template-all-charts** - Templates ALL 22 Helm charts with test values
+6. **validate-expanded** - Validates all output with kubeconform
+
+### Output Structure
+
+```
+/tmp/homelab-expanded/
+├── resourcesets/
+│   ├── namespaces.yaml      # 11 Namespace resources
+│   ├── helm-charts.yaml     # 22 HelmRepository + 22 HelmRelease
+│   └── config.yaml          # 10 Kustomization resources
+└── helm/
+    ├── cilium.yaml
+    ├── garage.yaml          # OCI chart
+    ├── kromgo.yaml          # OCI chart
+    ├── spegel.yaml          # OCI chart
+    └── ... (22 total)
+```
+
+### OCI Registry Support
+
+Three charts use OCI registries and are handled differently:
+
+| Chart | Registry |
+|-------|----------|
+| `garage` | `oci://ghcr.io/bjw-s/helm` |
+| `kromgo` | `oci://ghcr.io/bjw-s/helm` |
+| `spegel` | `oci://ghcr.io/spegel-org/helm-charts` |
+
+The `template-all-charts` task automatically detects OCI URLs and uses direct `helm template` commands instead of `helm repo add`.
+
+### Static Input Provider
+
+The `.static-provider.yaml` file provides `inputs.provider.namespace` for local ResourceSet expansion. In the cluster, this comes from the Flux ResourceSetInputProvider.

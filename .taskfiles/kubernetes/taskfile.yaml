@@ -11,6 +11,12 @@ vars:
   # Critical charts to template - these are complex and catch the most issues
   CRITICAL_CHARTS: "cilium,kube-prometheus-stack,grafana"
   MANIFESTS_DIR: "/tmp/homelab-manifests"
+  # Local validation with ResourceSet expansion
+  PLATFORM_DIR: "{{.ROOT_DIR}}/kubernetes/platform"
+  RESOURCESETS: "namespaces.yaml helm-charts.yaml config.yaml"
+  STATIC_PROVIDER: "{{.PLATFORM_DIR}}/.static-provider.yaml"
+  EXPANDED_DIR: "/tmp/homelab-expanded"
+  DEV_KUBECONFIG: "~/.kube/dev.yaml"
 
 tasks:
   validate:
@@ -193,3 +199,222 @@ tasks:
       - which yq
       - which jq
       - which envsubst
+
+  # =============================================================================
+  # Local Validation with ResourceSet Expansion
+  # =============================================================================
+
+  expand-resourcesets:
+    desc: Expand ResourceSets using flux-operator build rset
+    cmds:
+      - rm -rf {{.EXPANDED_DIR}}/resourcesets && mkdir -p {{.EXPANDED_DIR}}/resourcesets
+      - |
+        for rset in {{.RESOURCESETS}}; do
+          echo "Expanding ResourceSet: $rset"
+          flux-operator build rset \
+            -f "{{.PLATFORM_DIR}}/$rset" \
+            --inputs-from-provider "{{.STATIC_PROVIDER}}" \
+            > "{{.EXPANDED_DIR}}/resourcesets/${rset}"
+        done
+    preconditions:
+      - which flux-operator
+      - test -f {{.STATIC_PROVIDER}}
+
+  template-all-charts:
+    desc: Template ALL Helm charts including OCI registries
+    deps: [expand-resourcesets]
+    vars:
+      # Test variables for substitution (mirrors CI values)
+      TEST_CLUSTER_NAME: ci-test
+      TEST_POD_SUBNET: "10.244.0.0/16"
+      TEST_INTERNAL_DOMAIN: internal.ci.example.com
+      TEST_EXTERNAL_DOMAIN: external.ci.example.com
+      TEST_REPLICA_COUNT: "1"
+      # Volume sizes used by various charts
+      TEST_GARAGE_DATA_SIZE: "10Gi"
+      TEST_GARAGE_META_SIZE: "1Gi"
+      TEST_LOKI_SIZE: "10Gi"
+    cmds:
+      - mkdir -p {{.EXPANDED_DIR}}/helm
+      - |
+        set -e
+
+        # Export test variables for envsubst
+        export cluster_name="{{.TEST_CLUSTER_NAME}}"
+        export cluster_pod_subnet="{{.TEST_POD_SUBNET}}"
+        export internal_domain="{{.TEST_INTERNAL_DOMAIN}}"
+        export external_domain="{{.TEST_EXTERNAL_DOMAIN}}"
+        export default_replica_count="{{.TEST_REPLICA_COUNT}}"
+        export garage_data_volume_size="{{.TEST_GARAGE_DATA_SIZE}}"
+        export garage_meta_volume_size="{{.TEST_GARAGE_META_SIZE}}"
+        export loki_volume_size="{{.TEST_LOKI_SIZE}}"
+
+        # Parse helm-charts.yaml to get chart definitions
+        charts_json=$(yq '.spec.inputs' {{.HELM_CHARTS_FILE}} -o=json)
+
+        # Track added repos: URL -> repo_name mapping (POSIX-compatible)
+        repo_mapping_file=$(mktemp)
+        trap "rm -f $repo_mapping_file" EXIT
+
+        # Pre-add all HTTP repos before templating
+        # Use sanitized URL as repo name for consistency when multiple charts share a repo
+        echo "$charts_json" | jq -r '.[] | select(.chart.url | startswith("oci://") | not) | .chart.url' | sort -u | while read -r chart_url; do
+          # Create consistent repo name from URL (remove protocol, replace special chars)
+          repo_name=$(echo "$chart_url" | sed 's|https://||; s|http://||; s|[./:-]|_|g')
+          helm repo add "$repo_name" "$chart_url" 2>/dev/null || true
+          echo "${chart_url}|${repo_name}" >> "$repo_mapping_file"
+        done
+        helm repo update 2>/dev/null || true
+
+        # Template each chart
+        chart_count=$(echo "$charts_json" | jq -r '. | length')
+        echo ""
+        echo "Templating $chart_count charts..."
+        echo ""
+
+        for chart_name in $(echo "$charts_json" | jq -r '.[].name'); do
+          chart_info=$(echo "$charts_json" | jq -r ".[] | select(.name == \"$chart_name\")")
+          chart_helm_name=$(echo "$chart_info" | jq -r '.chart.name')
+          chart_version=$(echo "$chart_info" | jq -r '.chart.version')
+          chart_url=$(echo "$chart_info" | jq -r '.chart.url')
+
+          # Substitute variables in values file
+          values_file="{{.CHARTS_DIR}}/${chart_name}.yaml"
+          tmp_values="/tmp/${chart_name}-values.yaml"
+          envsubst < "$values_file" > "$tmp_values"
+
+          # Handle OCI vs HTTP registries differently
+          case "$chart_url" in
+            oci://*)
+              # OCI: Direct template from registry URL
+              echo "Templating (OCI): $chart_name"
+              if helm template "$chart_name" "${chart_url}/${chart_helm_name}" \
+                --version "$chart_version" \
+                --values "$tmp_values" \
+                --namespace test > "{{.EXPANDED_DIR}}/helm/${chart_name}.yaml"; then
+                echo "✓ $chart_name"
+              else
+                echo "✗ $chart_name failed to template"
+                exit 1
+              fi
+              ;;
+            *)
+              # HTTP: Look up repo name from mapping file
+              repo_name=$(grep "^${chart_url}|" "$repo_mapping_file" | cut -d'|' -f2)
+              echo "Templating (HTTP): $chart_name"
+              if helm template "$chart_name" "$repo_name/$chart_helm_name" \
+                --version "$chart_version" \
+                --values "$tmp_values" \
+                --namespace test > "{{.EXPANDED_DIR}}/helm/${chart_name}.yaml"; then
+                echo "✓ $chart_name"
+              else
+                echo "✗ $chart_name failed to template"
+                exit 1
+              fi
+              ;;
+          esac
+        done
+
+        echo ""
+        echo "Successfully templated $chart_count charts"
+    preconditions:
+      - which helm
+      - which yq
+      - which jq
+      - which envsubst
+
+  validate-expanded:
+    desc: Validate all expanded manifests with kubeconform
+    deps: [template-all-charts, substitute-vars]
+    cmds:
+      - |
+        echo "Validating expanded ResourceSets..."
+        kubeconform \
+          -schema-location default \
+          -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json' \
+          -ignore-missing-schemas \
+          -summary \
+          -output text \
+          {{.EXPANDED_DIR}}/resourcesets/*.yaml
+
+        echo ""
+        echo "Validating templated Helm charts..."
+        kubeconform \
+          -schema-location default \
+          -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json' \
+          -ignore-missing-schemas \
+          -summary \
+          -output text \
+          {{.EXPANDED_DIR}}/helm/*.yaml
+
+        echo ""
+        echo "Validating kustomize manifests..."
+        kubeconform \
+          -schema-location default \
+          -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json' \
+          -skip ResourceSet \
+          -ignore-missing-schemas \
+          -summary \
+          -output text \
+          {{.MANIFESTS_DIR}}/*.yaml
+    preconditions:
+      - which kubeconform
+      - test -d {{.EXPANDED_DIR}}/resourcesets
+      - test -d {{.EXPANDED_DIR}}/helm
+
+  validate-full:
+    desc: Complete local validation pipeline (lint, expand, template, validate)
+    cmds:
+      - task: lint
+      - task: expand-resourcesets
+      - task: build-manifests
+      - task: substitute-vars
+      - task: template-all-charts
+      - task: validate-expanded
+
+  # =============================================================================
+  # Dev Cluster Integration
+  # =============================================================================
+
+  dry-run-dev:
+    desc: Server-side dry-run against dev cluster (requires running cluster)
+    deps: [validate-full]
+    cmds:
+      - |
+        echo "Running server-side dry-run against dev cluster..."
+        echo ""
+
+        # Dry-run expanded ResourceSets
+        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+          echo "Dry-run: $(basename $manifest)"
+          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl apply --dry-run=server -f "$manifest"
+        done
+
+        echo ""
+        echo "Server-side dry-run completed successfully"
+    preconditions:
+      - which kubectl
+      - test -f {{.DEV_KUBECONFIG}}
+      - test -d {{.EXPANDED_DIR}}/resourcesets
+
+  apply-dev:
+    desc: Apply expanded manifests to dev cluster (REQUIRES CONFIRMATION)
+    deps: [validate-full]
+    prompt: This will apply manifests to the dev cluster. Continue?
+    cmds:
+      - |
+        echo "Applying to dev cluster..."
+        echo ""
+
+        # Apply expanded ResourceSets
+        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+          echo "Applying: $(basename $manifest)"
+          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl apply -f "$manifest"
+        done
+
+        echo ""
+        echo "Applied to dev cluster successfully"
+    preconditions:
+      - which kubectl
+      - test -f {{.DEV_KUBECONFIG}}
+      - test -d {{.EXPANDED_DIR}}/resourcesets
