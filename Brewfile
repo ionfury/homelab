@@ -22,6 +22,10 @@ brew "yamllint"
 tap "fluxcd/tap"
 brew "fluxcd/tap/flux"
 
+# Flux Operator (for local ResourceSet expansion)
+tap "controlplaneio-fluxcd/tap"
+brew "controlplaneio-fluxcd/tap/flux-operator"
+
 # Cloudflare
 tap "cloudflare/cloudflare"
 brew "cloudflare/cloudflare/cf-terraforming"

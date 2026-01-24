@@ -182,3 +182,26 @@ When bootstrapping a new cluster, populate these SSM parameters before the clust
 | Helm release name | kebab-case, matches chart | `kube-prometheus-stack` |
 | Namespace | kebab-case | `longhorn-system` |
 | Chart values file | kebab-case, matches release | `charts/grafana.yaml` |
+
+---
+
+## Local Validation
+
+Run `task k8s:validate` before committing. This validates:
+
+1. **YAML syntax** - yamllint strict mode
+2. **ResourceSet expansion** - Expands all 3 ResourceSets using `flux-operator build rset`
+3. **Helm chart templating** - Templates ALL 22 charts (including OCI registries)
+4. **Schema validation** - kubeconform validates all generated manifests
+
+```bash
+# Full validation (same as CI)
+task k8s:validate
+
+# With dev cluster dry-run
+task k8s:dry-run-dev
+```
+
+### Static Input Provider
+
+The `.static-provider.yaml` file provides `inputs.provider.namespace` for local ResourceSet expansion. In the cluster, this comes from the Flux ResourceSetInputProvider.

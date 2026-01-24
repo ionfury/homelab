@@ -92,16 +92,20 @@ KUBECONFIG=~/.kube/live.yaml kubectl describe pod -n monitoring prometheus-0
 ```
         dev (manual)              PR merged to main
              ↓                           ↓
-    Create PR when ready    →    integration (auto)
+    Create PR when ready    →    GHA builds OCI artifact
                                          ↓
-                                 1-hour soak period
+                                 integration (auto-deploy)
                                          ↓
-                                   live (auto)
+                                 Flagger validation
+                                         ↓
+                                 validated tag applied
+                                         ↓
+                                   live (auto-deploy)
 ```
 
-- **dev**: Manual experimentation space - use to validate changes before creating a PR
-- **integration**: Receives changes automatically when PRs merge to `main`
-- **live**: Receives changes automatically after integration passes 1-hour validation soak
+- **dev**: Git-based for fast iteration - use to validate changes before creating a PR
+- **integration**: OCI artifact-based, auto-deploys `integration-*` tagged artifacts via ImagePolicy
+- **live**: OCI artifact-based, auto-deploys `validated-*` tagged artifacts after Flagger validation passes
 
 ---
 

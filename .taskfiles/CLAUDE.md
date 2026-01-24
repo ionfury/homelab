@@ -24,10 +24,9 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 ### Kubernetes Validation (k8s:)
 
 ```bash
-task k8s:validate              # Run all Kubernetes validation
-task k8s:lint                  # Lint YAML with yamllint
-task k8s:validate-kustomize    # Build and validate kustomizations
-task k8s:validate-helm         # Validate Helm values and template charts
+task k8s:validate              # Full validation (lint, ResourceSets, all charts, kubeconform)
+task k8s:dry-run-dev           # Server-side dry-run against dev cluster
+task k8s:apply-dev             # Apply to dev cluster (with confirmation)
 ```
 
 ### Infrastructure Validation (tg:)
