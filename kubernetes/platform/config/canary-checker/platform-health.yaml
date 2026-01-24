@@ -30,6 +30,7 @@ spec:
       namespaceSelector:
         matchNames:
           - flux-system
-      labelSelector: app.kubernetes.io/part-of=flux
+      resource:
+        labelSelector: app.kubernetes.io/part-of=flux
       test:
         expr: all(results, {.status.phase == "Running"})
