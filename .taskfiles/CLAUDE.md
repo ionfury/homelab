@@ -92,3 +92,30 @@ For infrastructure changes, always follow this sequence:
 2. `task tg:validate-<stack>` - Validate configuration
 3. `task tg:plan-<stack>` - Review planned changes
 4. `task tg:apply-<stack>` - Apply (requires human approval)
+
+---
+
+## Claude Dev Cluster Permissions
+
+Claude has expanded permissions for the **dev cluster only**:
+
+### Status Checks (run freely)
+```bash
+task inv:hosts                     # List all hosts
+task inv:power-status              # Power status for all hosts
+task inv:status-<host>             # IPMI status for specific host
+task talos:maint                   # Maintenance mode for all hosts
+task talos:maint-<host>            # Maintenance mode for specific host
+```
+
+### Infrastructure Operations (require AskUserQuestion confirmation)
+```bash
+task tg:plan-dev                   # Plan dev cluster changes
+task tg:apply-dev                  # Apply dev cluster changes
+task tg:gen-dev                    # Generate dev stack
+task tg:clean-dev                  # Clean dev stack cache
+```
+
+**Pre-flight checks before dev operations:**
+1. `task inv:status-node45` - Verify host is powered on
+2. `task talos:maint-node45` - Check if in maintenance mode

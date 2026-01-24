@@ -220,3 +220,8 @@ variable "on_destroy" {
     reset    = true
   }
 }
+
+variable "cilium_values_template" {
+  description = "Cilium Helm values template content from kubernetes platform (single source of truth)."
+  type        = string
+}

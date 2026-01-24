@@ -24,11 +24,11 @@ enableIPv4BIGTCP: true
 endpointRoutes:
   enabled: false
 envoy:
-  enabled: true
+  enabled: false
 externalIPs:
   enabled: false
 gatewayAPI:
-  enabled: true
+  enabled: false
 hubble:
   enabled: true
   dropEventEmitter:

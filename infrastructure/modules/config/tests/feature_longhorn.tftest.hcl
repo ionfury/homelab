@@ -54,6 +54,18 @@ variables {
     }
   }
 
+  # Minimal Cilium values template for testing
+  cilium_values_template = <<-EOT
+    cluster:
+      name: $${cluster_name}
+    ipv4NativeRoutingCIDR: $${cluster_pod_subnet}
+    hubble:
+      ui:
+        ingress:
+          hosts:
+            - hubble.$${internal_domain}
+  EOT
+
   # Default test machine - inherited by all run blocks
   machines = {
     node1 = {

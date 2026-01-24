@@ -267,8 +267,8 @@ locals {
     }
   ]
 
-  # Cilium values for bootstrap
-  cilium_values = templatefile("${path.module}/resources/cilium_values.yaml.tftpl", {
+  # Cilium values for bootstrap - uses kubernetes platform as single source of truth
+  cilium_values = templatestring(var.cilium_values_template, {
     cluster_name       = var.name
     cluster_pod_subnet = var.networking.pod_subnet
     internal_domain    = var.networking.internal_tld

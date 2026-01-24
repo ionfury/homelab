@@ -406,7 +406,7 @@ For this homelab, app-template deploys via Flux ResourceSet. Add to `kubernetes/
   dependsOn: [cilium]
 ```
 
-Values go in `kubernetes/platform/values/my-app.yaml`.
+Values go in `kubernetes/platform/charts/my-app.yaml`.
 
 ## Common Patterns
 
