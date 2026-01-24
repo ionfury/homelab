@@ -40,6 +40,12 @@ spec:
     - name: kromgo-config
       namespace: kromgo
       path: kubernetes/platform/config/kromgo
+    - name: canary-checker-config
+      namespace: monitoring
+      path: kubernetes/platform/config/canary-checker
+    - name: flux-notifications-config
+      namespace: flux-system
+      path: kubernetes/platform/config/flux-notifications
   # NOTE: network-policy-config disabled - does not work currently
   resourcesTemplate: |
     ---
@@ -53,7 +59,7 @@ spec:
       path: << inputs.path >>
       prune: true
       sourceRef:
-        kind: GitRepository
+        kind: ${source_kind:=GitRepository}
         name: flux-system
       targetNamespace: << inputs.namespace >>
       postBuild:

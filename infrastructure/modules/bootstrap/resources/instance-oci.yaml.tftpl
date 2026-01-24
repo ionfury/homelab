@@ -1,0 +1,20 @@
+instance:
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+    - image-reflector-controller
+    - image-automation-controller
+  distribution:
+    version: ${flux_version}
+  cluster:
+    size: small
+  sync:
+    kind: OCIRepository
+    url: ${oci_url}
+    path: clusters/${cluster_name}
+    ref: ${oci_tag_pattern}
+    provider: generic
+healthcheck:
+  enabled: true

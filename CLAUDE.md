@@ -75,24 +75,35 @@ All changes flow through pull requests:
 
 ## Environment Promotion Pipeline
 
-The `main` branch represents the desired state for production. Merging to `main` triggers a staged rollout:
+The `main` branch represents the desired state for production. Merging to `main` triggers OCI artifact-based promotion:
 
 ```
 PR merged to main
        ↓
-  integration cluster
-  (automated deployment)
+  GHA builds OCI artifact
+  (packages kubernetes/)
        ↓
-  1-hour soak period
-  (validation must remain green)
+  integration cluster
+  (auto-deploys via ImagePolicy)
+       ↓
+  canary-checker validation
+  (Flux health + platform checks)
+       ↓
+  GHA tags artifact as validated
        ↓
   live cluster
-  (automated promotion)
+  (auto-deploys via ImagePolicy)
 ```
 
-1. **Integration deployment**: Changes apply to `integration` immediately after merge
-2. **Soak period**: Minimum 1-hour validation window on `integration`
-3. **Automatic promotion**: If validation remains green after soak, changes automatically promote to `live`
+1. **Artifact build**: GHA packages `kubernetes/` directory as OCI artifact, tags as `integration-<sha>`
+2. **Integration deployment**: Flux ImagePolicy auto-deploys artifacts matching `integration-*` pattern
+3. **Validation**: canary-checker runs Flux health checks and platform smoke tests
+4. **Promotion tag**: On validation success, GHA re-tags artifact as `validated-<sha>`
+5. **Live deployment**: Flux ImagePolicy auto-deploys artifacts matching `validated-*` pattern
+
+**Source types by cluster:**
+- **dev**: Git-based (GitRepository) - for manual experimentation
+- **integration/live**: OCI artifact-based (OCIRepository) - immutable promotion
 
 ## Infrastructure Recovery
 
