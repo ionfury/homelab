@@ -75,24 +75,33 @@ All changes flow through pull requests:
 
 ## Environment Promotion Pipeline
 
-The `main` branch represents the desired state for production. Merging to `main` triggers a staged rollout:
+The `main` branch represents the desired state for production. Merging to `main` triggers OCI artifact-based promotion:
 
 ```
 PR merged to main
        ↓
-  integration cluster
-  (automated deployment)
+  GHA builds OCI artifact
+  (packages kubernetes/)
        ↓
-  1-hour soak period
-  (validation must remain green)
+  integration cluster
+  (auto-deploys via ImagePolicy)
+       ↓
+  Flagger validation
+  (Flux health + smoke tests)
+       ↓
+  GHA tags artifact as validated
        ↓
   live cluster
-  (automated promotion)
+  (auto-deploys via ImagePolicy)
 ```
 
-1. **Integration deployment**: Changes apply to `integration` immediately after merge
-2. **Soak period**: Minimum 1-hour validation window on `integration`
-3. **Automatic promotion**: If validation remains green after soak, changes automatically promote to `live`
+1. **Artifact build**: GHA packages `kubernetes/` directory as OCI artifact, tags as `integration-<sha>`
+2. **Integration deployment**: Flux ImagePolicy auto-deploys artifacts matching `integration-*` pattern
+3. **Validation**: Flagger runs Flux health checks and smoke tests on integration cluster
+4. **Promotion tag**: On validation success, GHA re-tags artifact as `validated-<sha>`
+5. **Live deployment**: Flux ImagePolicy auto-deploys artifacts matching `validated-*` pattern
+
+See `docs/plans/oci-artifact-promotion.md` for implementation details.
 
 ## Infrastructure Recovery
 
@@ -203,6 +212,34 @@ This ensures the human operator is aware and approves state-changing operations,
 - **NEVER** guess resource names, strings, IPs, or values - VERIFY against source files
 - **NEVER** skip validation steps before committing (see Pre-Commit Validation below)
 - **NEVER** ignore deprecation warnings - implement migrations immediately
+
+## Test Failures
+
+**Tests must be green. A skipped test is a broken test.**
+
+When a test or validation fails:
+
+1. **NEVER** skip, ignore, or disable a test to make it pass
+2. **NEVER** add `-skip`, `-ignore`, or similar flags as a first response
+3. **ALWAYS** investigate the root cause using the "5 Whys" technique:
+   - Why did the test fail? → Schema validation error
+   - Why was the schema invalid? → Wrong field structure
+   - Why was the structure wrong? → Misunderstood API spec
+   - Why was it misunderstood? → Documentation unclear
+   - Why? → Fix the actual code, not the test
+
+4. **Fix the code, not the test** - if a test catches a real issue, the code is wrong
+5. **Only as a LAST RESORT**: If after thorough investigation you believe the test itself is flawed (e.g., external schema is incorrect), use `AskUserQuestion` to get explicit approval before skipping
+
+**Valid reasons to skip (require user approval):**
+- External schema is demonstrably incorrect (provide evidence)
+- Test infrastructure bug outside our control
+- Temporary skip with tracked issue for follow-up
+
+**Invalid reasons to skip:**
+- "It works in the cluster"
+- "The test is too strict"
+- "It's just a warning"
 
 ## Documentation
 

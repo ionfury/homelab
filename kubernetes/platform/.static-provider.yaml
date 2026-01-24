@@ -1,0 +1,12 @@
+---
+# Static input provider for local ResourceSet validation
+# Provides inputs.provider.namespace used in ResourceSet templates
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: static-inputs
+  namespace: flux-system
+spec:
+  type: Static
+  defaultValues:
+    namespace: flux-system
