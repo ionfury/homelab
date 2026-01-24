@@ -15,7 +15,7 @@ inputs:
     default: "4.44.1"
   flux-operator-version:
     description: "Flux Operator version"
-    default: "0.14.0"
+    default: "0.40.0"
 
 runs:
   using: "composite"
