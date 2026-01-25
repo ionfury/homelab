@@ -1,5 +1,5 @@
 ---
-apiVersion: tuppr.home-operations/v1alpha1
+apiVersion: tuppr.home-operations.com/v1alpha1
 kind: KubernetesUpgrade
 metadata:
   name: kubernetes
