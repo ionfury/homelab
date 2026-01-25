@@ -290,6 +290,71 @@ When bootstrapping a new cluster, populate these SSM parameters before the clust
 
 ---
 
+## Istio Mesh PKI (istio-csr)
+
+Istio mesh mTLS certificates are issued by cert-manager via [istio-csr](https://github.com/cert-manager/istio-csr), providing unified PKI management across both ingress TLS and service mesh identity.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Self-Signed ClusterIssuer (istio-mesh-selfsigned)          │
+│         │                                                    │
+│         ▼                                                    │
+│  Root CA Certificate (istio-mesh-root-ca)                   │
+│         │                                                    │
+│         ▼                                                    │
+│  CA ClusterIssuer (istio-mesh-ca)                           │
+│         │                                                    │
+│         ▼                                                    │
+│  istio-csr (cert-manager namespace)                         │
+│         │                                                    │
+│    ┌────┴────┐                                              │
+│    ▼         ▼                                              │
+│  istiod   ztunnel ──► workload SPIFFE identities            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Key Configuration
+
+| Setting | Value | Rationale |
+|---------|-------|-----------|
+| CA type | Self-signed, ephemeral | Regenerated on cluster rebuild, unique per cluster |
+| Certificate validity | 24 hours | Balance between security and renewal overhead |
+| Renewal window | 12 hours | Renew at 50% lifetime |
+| CA validity | 10 years | Long-lived root, short-lived workload certs |
+
+### How It Works
+
+1. **istio-csr** replaces Istio's built-in CA (`ENABLE_CA_SERVER: "false"` in istiod)
+2. **istiod and ztunnel** request certificates from `cert-manager-istio-csr.cert-manager.svc:443`
+3. **ztunnel** (Ambient mode) authenticates with its own identity but requests certs for workloads via `caTrustedNodeAccounts`
+4. **cert-manager** issues certificates using the `istio-mesh-ca` ClusterIssuer
+
+### Files
+
+| Path | Purpose |
+|------|---------|
+| `config/issuers/istio-mesh-ca/` | Self-signed root CA and CA ClusterIssuer |
+| `charts/istio-csr.yaml` | istio-csr Helm values |
+| `charts/istiod.yaml` | Disabled built-in CA, points to istio-csr |
+| `charts/istio-ztunnel.yaml` | CA address for Ambient mode |
+
+### Verifying Certificate Issuance
+
+```bash
+# Check istio-csr is running
+kubectl -n cert-manager get pods -l app=cert-manager-istio-csr
+
+# Check CertificateRequests are being fulfilled
+kubectl get certificaterequests -n istio-system
+
+# Check root CA certificate
+kubectl -n cert-manager get certificate istio-mesh-root-ca
+```
+
+---
+
 ## Code Style (YAML/Kubernetes)
 
 - Include schema comment: `# yaml-language-server: $schema=...`

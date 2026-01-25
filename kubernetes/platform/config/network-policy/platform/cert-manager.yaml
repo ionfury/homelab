@@ -6,7 +6,7 @@ metadata:
   name: cert-manager-default
   namespace: cert-manager
 spec:
-  description: "Allow cert-manager: ACME challenges, DNS providers, K8s API"
+  description: "Allow cert-manager: ACME challenges, DNS providers, K8s API, istio-csr"
   endpointSelector: { }
   ingress:
     # Allow Prometheus scraping
@@ -24,6 +24,14 @@ spec:
       toPorts:
         - ports:
             - port: "10250"
+              protocol: TCP
+    # Allow istio-csr certificate requests from istiod and ztunnel
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-system
+      toPorts:
+        - ports:
+            - port: "6443"
               protocol: TCP
     # Allow intra-namespace communication
     - fromEndpoints:

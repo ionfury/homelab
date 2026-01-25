@@ -1,0 +1,9 @@
+---
+# Self-signed issuer used only to bootstrap the mesh root CA certificate.
+# This issuer is NOT used directly by istio-csr.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: istio-mesh-selfsigned
+spec:
+  selfSigned: { }
