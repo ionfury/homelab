@@ -23,6 +23,9 @@ spec:
   database:
     engine: lmdb
 
+  security:
+    allowWorldReadableSecrets: true
+
   network:
     rpcBindPort: 3901
     service:
