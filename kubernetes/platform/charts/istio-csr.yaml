@@ -46,10 +46,14 @@ app:
     revisions: []
 
 # Mount the root CA secret for istio-csr to distribute
+# Project tls.crt as ca.pem for istio-csr's expected path
 volumes:
   - name: root-ca
     secret:
       secretName: istio-mesh-root-ca
+      items:
+        - key: tls.crt
+          path: ca.pem
 
 volumeMounts:
   - name: root-ca
