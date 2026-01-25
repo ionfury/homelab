@@ -5,3 +5,6 @@ kind: Kustomization
 resources:
   - internal-gateway.yaml
   - external-gateway.yaml
+  - coraza-wasm-plugin.yaml
+  - coraza-config.yaml
+  - coraza-waf-rules.yaml

@@ -420,3 +420,60 @@ flux reconcile kustomization platform --with-source
 - CorazaWAFDegraded alert fires when WAF is in fail-open state
 - False positive rate < 0.1% of legitimate traffic after tuning
 - Cluster operations (destroy, provision) succeed with WAF deployed
+
+---
+
+## Implementation Learnings
+
+**Added after dev cluster validation testing (January 2026)**
+
+### Correct WASM Image Digest
+
+The coraza-proxy-wasm image digest must be verified at deployment time. The actual digest for v0.6.0 is:
+
+```
+sha256:65d6009b9da2e8965e592a08b74a86725435fc01aa39c756dce0bd5ea64b3f4e
+```
+
+> **Warning**: If the digest is wrong, Istio logs: `module downloaded has checksum X, which does not match Y`. The FAIL_OPEN strategy allows traffic but WAF is not filtering.
+
+### Actual Metrics (vs. Documented)
+
+The plan originally referenced metrics like `waf_requests_total` and `waf_blocked_total`. Actual Coraza metrics exported:
+
+| Documented | Actual |
+|------------|--------|
+| `waf_requests_total` | Use `istio_requests_total{source_workload=~"external-istio"}` |
+| `waf_blocked_total` | Use `istio_requests_total{..., response_code="403"}` |
+| `waf_rule_hits_total{rule_id}` | `waf_filter_tx_interruptions_ruleid_<RULE_ID>_phase_<PHASE>` |
+| `waf_latency_seconds` | Use `istio_request_duration_milliseconds` |
+
+**Recommendation**: Use standard Istio metrics for alerting (always present), supplement with Coraza-specific `waf_filter_tx_*` metrics for rule debugging.
+
+### SNI Requirement for Testing
+
+Istio's gateway listener uses SNI (Server Name Indication) matching. Testing with raw IP addresses fails:
+
+```bash
+# WRONG - no SNI, connection reset
+curl -kI "https://192.168.10.53/"
+
+# CORRECT - SNI sent via --resolve
+curl -kI --resolve "kromgo.external.dev.tomnowak.work:443:192.168.10.53" \
+  "https://kromgo.external.dev.tomnowak.work/"
+```
+
+### Validated Test Results
+
+From dev cluster testing:
+
+| Test | Expected | Actual |
+|------|----------|--------|
+| SQLi (`?id=1' OR '1'='1`) | 403 | ✅ 403 |
+| XSS (`?q=<script>alert(1)`) | 403 | ✅ 403 |
+| Command Injection (`?cmd=;cat /etc/passwd`) | 403 | ✅ 403 |
+| Normal request | 200 | ✅ 200 |
+| Internal gateway (SQLi) | Not 403 | ✅ 404 (no WAF) |
+| WAF deleted → traffic flows | 200 | ✅ 200 |
+| Invalid SHA → FAIL_OPEN | 200 | ✅ 200 |
+| p99 latency | < 50ms | ✅ 29ms |
