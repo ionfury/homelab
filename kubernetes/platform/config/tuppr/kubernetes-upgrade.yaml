@@ -5,10 +5,12 @@ metadata:
   name: kubernetes
 spec:
   kubernetes:
-    version: ${kubernetes_version}
+    version: v${kubernetes_version}
   healthChecks:
-    - name: all-nodes-ready
+    - apiVersion: v1
+      kind: Node
+      description: All nodes must be Ready
+      expr: |
+        object.status.conditions.exists(c,
+          c.type == 'Ready' && c.status == 'True')
       timeout: 10m
-      expression: |
-        nodes.items.all(n, n.status.conditions.exists(c,
-          c.type == 'Ready' && c.status == 'True'))
