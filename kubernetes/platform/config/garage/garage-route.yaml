@@ -12,5 +12,5 @@ spec:
     - "garage.${internal_domain}"
   rules:
     - backendRefs:
-        - name: garage-app
+        - name: garage
           port: 3903
