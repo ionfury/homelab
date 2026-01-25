@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: coraza-waf
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: coraza-waf
+      rules:
+        # Alert if external gateway returns no 403s when we expect WAF to be active
+        # Uses standard Istio metrics which are always present
+        - alert: CorazaWAFDegraded
+          expr: |
+            absent(
+              istio_requests_total{
+                source_workload=~"external-istio",
+                reporter="source"
+              }
+            ) == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Coraza WAF metrics absent on external gateway"
+            description: "No Istio request metrics from external gateway. The gateway may not be processing traffic."
+
+        # Alert on sustained high block rate (>10% of requests returning 403)
+        - alert: CorazaWAFHighBlockRate
+          expr: |
+            (
+              sum(rate(istio_requests_total{source_workload=~"external-istio", response_code="403", reporter="source"}[5m]))
+              /
+              sum(rate(istio_requests_total{source_workload=~"external-istio", reporter="source"}[5m]))
+            ) > 0.1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Coraza WAF blocking >10% of external traffic"
+            description: "High 403 rate may indicate attack or WAF false positives. Check waf_filter_tx_interruptions_ruleid_* metrics for triggered rules."
+
+        # Alert if gateway latency is impacting user experience
+        - alert: CorazaWAFHighLatency
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(istio_request_duration_milliseconds_bucket{
+                source_workload=~"external-istio",
+                reporter="source"
+              }[5m])) by (le)
+            ) > 50
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "External gateway p99 latency >50ms"
+            description: "Gateway processing overhead is high. Consider WAF rule optimization or increasing paranoia level exclusions."

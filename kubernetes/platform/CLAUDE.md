@@ -205,3 +205,58 @@ task k8s:dry-run-dev
 ### Static Input Provider
 
 The `.static-provider.yaml` file provides `inputs.provider.namespace` for local ResourceSet expansion. In the cluster, this comes from the Flux ResourceSetInputProvider.
+
+---
+
+## Testing WAF-Protected Endpoints
+
+The external gateway uses Coraza WAF (via Istio WasmPlugin). Testing requires SNI-aware requests.
+
+### SNI Requirement
+
+Istio's gateway listener matches on SNI (Server Name Indication). Raw IP requests fail:
+
+```bash
+# WRONG - no SNI, connection reset by peer
+curl -kI "https://192.168.10.53/"
+
+# CORRECT - use --resolve to send proper SNI
+curl -kI --resolve "app.external.dev.tomnowak.work:443:<GATEWAY_IP>" \
+  "https://app.external.dev.tomnowak.work/"
+```
+
+### Attack Pattern Testing
+
+Test that WAF blocks common exploits (expect 403):
+
+```bash
+# SQL Injection
+curl -k --resolve "app.external.dev.tomnowak.work:443:<IP>" \
+  "https://app.external.dev.tomnowak.work/?id=1'%20OR%20'1'='1"
+
+# XSS
+curl -k --resolve "app.external.dev.tomnowak.work:443:<IP>" \
+  "https://app.external.dev.tomnowak.work/?q=<script>alert(1)</script>"
+
+# Command Injection
+curl -k --resolve "app.external.dev.tomnowak.work:443:<IP>" \
+  "https://app.external.dev.tomnowak.work/?cmd=;cat%20/etc/passwd"
+```
+
+### WAF Metrics
+
+Coraza metrics follow this naming pattern:
+
+| Metric | Purpose |
+|--------|---------|
+| `istio_requests_total{response_code="403"}` | Total blocked requests |
+| `waf_filter_tx_interruptions_ruleid_<ID>_phase_<PHASE>` | Per-rule block counts |
+
+### FAIL_OPEN Behavior
+
+The WAF uses `failStrategy: FAIL_OPEN` - if WASM fails to load (wrong digest, image unavailable), traffic flows unfiltered. Check gateway logs for:
+
+```
+error in converting the wasm config to local: cannot fetch Wasm module...
+applying allow RBAC filter
+```
