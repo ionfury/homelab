@@ -11,40 +11,50 @@ spec:
   groups:
     - name: coraza-waf
       rules:
-        # Alert if WAF metrics disappear (indicates WAF not processing traffic)
+        # Alert if external gateway returns no 403s when we expect WAF to be active
+        # Uses standard Istio metrics which are always present
         - alert: CorazaWAFDegraded
           expr: |
-            absent(waf_filter_tx_total{pod=~"external-.*"}) == 1
+            absent(
+              istio_requests_total{
+                source_workload=~"external-istio",
+                reporter="source"
+              }
+            ) == 1
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Coraza WAF is degraded on external gateway"
-            description: "WAF metrics are absent. The WAF filter may not be loaded or processing traffic."
+            summary: "Coraza WAF metrics absent on external gateway"
+            description: "No Istio request metrics from external gateway. The gateway may not be processing traffic."
 
-        # Alert on sustained high block rate (potential attack or false positives)
+        # Alert on sustained high block rate (>10% of requests returning 403)
         - alert: CorazaWAFHighBlockRate
           expr: |
             (
-              sum(rate(waf_filter_tx_interruptions{pod=~"external-.*"}[5m]))
-              / sum(rate(waf_filter_tx_total{pod=~"external-.*"}[5m]))
+              sum(rate(istio_requests_total{source_workload=~"external-istio", response_code="403", reporter="source"}[5m]))
+              /
+              sum(rate(istio_requests_total{source_workload=~"external-istio", reporter="source"}[5m]))
             ) > 0.1
           for: 10m
           labels:
             severity: warning
           annotations:
-            summary: "Coraza WAF blocking >10% of traffic"
-            description: "High block rate may indicate attack or false positives. Review waf_rule_hits_total for top triggered rules."
+            summary: "Coraza WAF blocking >10% of external traffic"
+            description: "High 403 rate may indicate attack or WAF false positives. Check waf_filter_tx_interruptions_ruleid_* metrics for triggered rules."
 
         # Alert if gateway latency is impacting user experience
         - alert: CorazaWAFHighLatency
           expr: |
             histogram_quantile(0.99,
-              sum(rate(istio_request_duration_milliseconds_bucket{destination_workload=~"external-.*", reporter="destination"}[5m])) by (le)
+              sum(rate(istio_request_duration_milliseconds_bucket{
+                source_workload=~"external-istio",
+                reporter="source"
+              }[5m])) by (le)
             ) > 50
           for: 5m
           labels:
             severity: warning
           annotations:
             summary: "External gateway p99 latency >50ms"
-            description: "Gateway processing overhead is high. Consider rule optimization or increasing paranoia level exclusions."
+            description: "Gateway processing overhead is high. Consider WAF rule optimization or increasing paranoia level exclusions."
