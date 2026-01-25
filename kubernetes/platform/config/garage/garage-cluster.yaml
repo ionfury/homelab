@@ -14,11 +14,14 @@ spec:
 
   storage:
     metadata:
-      storageClass: fast
+      storageClassName: fast
       size: ${garage_meta_volume_size}
     data:
-      storageClass: fast
-      size: ${garage_data_volume_size}
+      paths:
+        - path: /var/lib/garage/data
+          volume:
+            storageClassName: fast
+            size: ${garage_data_volume_size}
 
   database:
     engine: lmdb
