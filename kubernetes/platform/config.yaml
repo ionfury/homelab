@@ -71,5 +71,5 @@ spec:
             name: cluster-vars
             optional: false
           - kind: ConfigMap
-            name: versions
-            optional: false
+            name: platform-versions
+            optional: true

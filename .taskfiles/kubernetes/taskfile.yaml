@@ -8,6 +8,7 @@ vars:
   CHARTS_DIR: "{{.ROOT_DIR}}/kubernetes/platform/charts"
   HELM_CHARTS_FILE: "{{.ROOT_DIR}}/kubernetes/platform/helm-charts.yaml"
   CLUSTER_VARS: "{{.ROOT_DIR}}/kubernetes/clusters/dev/.cluster-vars.env"
+  VERSION_VARS: "{{.ROOT_DIR}}/kubernetes/platform/versions.env"
   MANIFESTS_DIR: "/tmp/homelab-manifests"
   PLATFORM_DIR: "{{.ROOT_DIR}}/kubernetes/platform"
   RESOURCESETS: "namespaces.yaml helm-charts.yaml config.yaml"
@@ -105,14 +106,19 @@ tasks:
     deps: [_build-manifests, _expand-resourcesets]
     env:
       CLUSTER_VARS: "{{.CLUSTER_VARS}}"
+      VERSION_VARS: "{{.VERSION_VARS}}"
       MANIFESTS_DIR: "{{.MANIFESTS_DIR}}"
     cmds:
       - "{{.TASKFILE_DIR}}/scripts/substitute-vars.sh"
       # Also substitute vars in expanded ResourceSets for validation
+      # Use perl to handle ${var:-default} syntax, then envsubst for simple patterns
       - |
-        set -a && source "{{.CLUSTER_VARS}}" && set +a
+        set -a && source "{{.CLUSTER_VARS}}" && source "{{.VERSION_VARS}}" && set +a
         for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
-          envsubst < "$manifest" > "${manifest}.tmp"
+          perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+            my $var = $1; my $default = $2; my $val = $ENV{$var};
+            defined($val) && $val ne "" ? $val : $default;
+          /gex' "$manifest" | envsubst > "${manifest}.tmp"
           mv "${manifest}.tmp" "$manifest"
         done
     preconditions:
@@ -140,6 +146,7 @@ tasks:
     env:
       CHARTS_DIR: "{{.CHARTS_DIR}}"
       HELM_CHARTS_FILE: "{{.HELM_CHARTS_FILE}}"
+      VERSION_VARS: "{{.VERSION_VARS}}"
       EXPANDED_DIR: "{{.EXPANDED_DIR}}"
       cluster_name: "{{.TEST_CLUSTER_NAME}}"
       cluster_pod_subnet: "{{.TEST_POD_SUBNET}}"
