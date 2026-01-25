@@ -1,0 +1,62 @@
+---
+apiVersion: garage.rajsingh.info/v1alpha1
+kind: GarageCluster
+metadata:
+  name: garage
+spec:
+  image: dxflrs/garage:v2.1.0
+  replicas: ${default_replica_count}
+  zone: ${cluster_name}
+
+  replication:
+    factor: ${default_replica_count}
+    consistencyMode: consistent
+
+  storage:
+    metadata:
+      storageClassName: fast
+      size: ${garage_meta_volume_size}
+    data:
+      storageClassName: fast
+      size: ${garage_data_volume_size}
+
+  database:
+    engine: lmdb
+
+  security:
+    allowWorldReadableSecrets: true
+
+  network:
+    rpcBindPort: 3901
+    service:
+      type: ClusterIP
+
+  s3Api:
+    enabled: true
+    bindPort: 3900
+    region: garage
+    rootDomain: .s3.${internal_domain}
+
+  webApi:
+    enabled: true
+    bindPort: 3902
+    rootDomain: .web.${internal_domain}
+
+  admin:
+    enabled: true
+    bindPort: 3903
+    adminTokenSecretRef:
+      name: garage-admin-token
+      key: admin-token
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000

@@ -140,13 +140,13 @@ spec:
         version: 1.28.1
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni]
-    - name: garage
+    - name: garage-operator
       namespace: garage
       chart:
-        name: app-template
-        version: 3.6.1
-        url: oci://ghcr.io/bjw-s/helm
-      dependsOn: [longhorn, secret-generator]
+        name: garage-operator
+        version: 0.0.24
+        url: oci://ghcr.io/rajsinghtech/charts
+      dependsOn: [cilium]
     - name: cloudnative-pg
       namespace: database
       chart:

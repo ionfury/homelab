@@ -18,7 +18,7 @@ configMapGenerator:
       - cloudnative-pg.yaml=charts/cloudnative-pg.yaml
       - descheduler.yaml=charts/descheduler.yaml
       - external-secrets.yaml=charts/external-secrets.yaml
-      - garage.yaml=charts/garage.yaml
+      - garage-operator.yaml=charts/garage-operator.yaml
       - grafana-loki-single-binary.yaml=charts/grafana-loki-single-binary.yaml
       - grafana.yaml=charts/grafana.yaml
       - istio-base.yaml=charts/istio-base.yaml

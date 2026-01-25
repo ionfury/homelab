@@ -1,0 +1,14 @@
+---
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+metrics:
+  enabled: true
+
+serviceMonitor:
+  enabled: true
+  interval: 60s
