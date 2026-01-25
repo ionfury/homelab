@@ -57,6 +57,10 @@ spec:
       dataplane: standard
       security: privileged
       networkPolicy: false
+    - name: system-upgrade
+      dataplane: ambient
+      security: privileged
+      networkPolicy: false
   resourcesTemplate: |
     ---
     apiVersion: v1

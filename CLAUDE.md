@@ -256,7 +256,7 @@ This repository pushes the boundaries of "infrastructure as code" - starting fro
 - **Declarative**: No manual steps, no imperative scripts
 - **Reproducible**: Any cluster can be rebuilt from scratch in minutes
 - **GitOps-driven**: Git is the source of truth, Flux reconciles state
-- **Hands-off**: Once deployed, the system self-heals and self-updates
+- **Hands-off**: Once deployed, the system self-heals, self-updates, and self-upgrades (via Tuppr)
 - **Observable**: If you can't measure it, you can't improve it
 
 ## Repository Structure

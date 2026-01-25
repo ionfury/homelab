@@ -46,6 +46,9 @@ spec:
     - name: flux-notifications-config
       namespace: flux-system
       path: kubernetes/platform/config/flux-notifications
+    - name: tuppr-config
+      namespace: system-upgrade
+      path: kubernetes/platform/config/tuppr
   # NOTE: network-policy-config disabled - does not work currently
   resourcesTemplate: |
     ---
@@ -67,3 +70,6 @@ spec:
           - kind: ConfigMap
             name: cluster-vars
             optional: false
+          - kind: ConfigMap
+            name: platform-versions
+            optional: true

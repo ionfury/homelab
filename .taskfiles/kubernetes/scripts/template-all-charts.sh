@@ -5,12 +5,24 @@ set -euo pipefail
 # Inputs:
 #   - CHARTS_DIR: Path to chart values files
 #   - HELM_CHARTS_FILE: Path to helm-charts.yaml
+#   - VERSION_VARS: Path to versions.env file (for substituting version variables)
 #   - EXPANDED_DIR: Output directory for templated charts
 #   - cluster_name, cluster_pod_subnet, internal_domain, external_domain: Flux substitution vars
 #   - default_replica_count, garage_data_volume_size, garage_meta_volume_size, loki_volume_size, prometheus_volume_size: Flux vars
 
+# Source version variables
+set -a
+# shellcheck source=/dev/null
+source "$VERSION_VARS"
+set +a
+
 # Parse helm-charts.yaml to get chart definitions
-charts_json=$(yq '.spec.inputs' "$HELM_CHARTS_FILE" -o=json)
+# First substitute ${var:-default} patterns with variable values or defaults
+charts_yaml=$(perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+  my $var = $1; my $default = $2; my $val = $ENV{$var};
+  defined($val) && $val ne "" ? $val : $default;
+/gex' "$HELM_CHARTS_FILE")
+charts_json=$(echo "$charts_yaml" | yq '.spec.inputs' -o=json)
 
 # Track added repos: URL -> repo_name mapping
 repo_mapping_file=$(mktemp)

@@ -21,10 +21,10 @@ resource "null_resource" "talos_cluster_health" {
 */
 
 # Hack: https://github.com/siderolabs/terraform-provider-talos/issues/140
-# This upgrades the cluster
+# This triggers upgrades when version or schematic changes.
+# Idempotent: if node is already at desired version, no action is taken.
+# Tuppr can also upgrade nodes in-cluster; both systems converge on the same version.
 resource "null_resource" "talos_upgrade_trigger" {
-  #depends_on = [null_resource.talos_cluster_health]
-
   depends_on = [talos_machine_bootstrap.this, talos_machine_configuration_apply.machines]
   for_each   = local.machines
 

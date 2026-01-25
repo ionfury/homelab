@@ -15,9 +15,10 @@ infrastructure/
 ├── modules/           # OpenTofu modules (provisioning logic)
 ├── inventory.hcl      # Hardware inventory (hosts, IPs, MACs, disks)
 ├── networking.hcl     # Network topology (VLANs, subnets, gateways)
-├── versions.hcl       # Pinned tool versions (Talos, Kubernetes, Cilium, etc.)
 └── accounts.hcl       # External service credentials references
 ```
+
+**Note:** Infrastructure versions (Talos, Kubernetes, Cilium, etc.) are read from `kubernetes/platform/versions.env` - the single source of truth for all platform versions. See `kubernetes/platform/CLAUDE.md` for details.
 
 ---
 

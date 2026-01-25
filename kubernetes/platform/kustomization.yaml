@@ -34,3 +34,7 @@ configMapGenerator:
       - secret-generator.yaml=charts/secret-generator.yaml
       - kromgo.yaml=charts/kromgo.yaml
       - spegel.yaml=charts/spegel.yaml
+      - tuppr.yaml=charts/tuppr.yaml
+  - name: platform-versions
+    envs:
+      - versions.env

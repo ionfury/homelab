@@ -15,10 +15,11 @@ The Kubernetes platform uses **Flux ResourceSets** for centralized, declarative 
 
 | File | Purpose |
 |------|---------|
+| `versions.env` | **Single source of truth** for ALL platform versions (infrastructure + Helm charts) |
 | `helm-charts.yaml` | ResourceSet defining all Helm releases with versions and dependencies |
 | `namespaces.yaml` | ResourceSet defining all namespaces |
 | `config.yaml` | ResourceSet for config Kustomizations (non-Helm resources) |
-| `kustomization.yaml` | Generates ConfigMap from chart values for Flux substitution |
+| `kustomization.yaml` | Generates ConfigMaps from chart values and versions.env for Flux substitution |
 | `charts/` | Helm values for each chart (one `.yaml` file per release) |
 | `config/` | Non-Helm resources organized by subsystem |
 
@@ -38,6 +39,7 @@ The `config/` directory organizes non-Helm resources by concern:
 | `longhorn/` | Longhorn backup and storage configs |
 | `monitoring/` | Prometheus rules, Grafana dashboards |
 | `secrets/` | Secret generator resources |
+| `tuppr/` | Tuppr upgrade CRs (TalosUpgrade, KubernetesUpgrade) |
 
 ---
 
@@ -59,13 +61,13 @@ inputs:
     namespace: "monitoring"
     chart:
       name: "grafana"
-      version: "8.8.5"
+      version: "${grafana_version:-8.8.5}"    # Variable with default fallback
       url: "https://grafana.github.io/helm-charts"
     dependsOn: [kube-prometheus-stack]
 ```
 
 **Conventions:**
-- Chart versions are defined in `helm-charts.yaml`, NOT in values files
+- Chart versions use `${var:-default}` pattern (variable from `platform-versions` ConfigMap with fallback)
 - Dependencies between releases use `dependsOn` arrays
 - Values files contain only Helm chart configuration
 
@@ -90,6 +92,126 @@ cluster: ${cluster_name}
 - `${cluster_id}` - Numeric cluster ID
 
 **Opinion**: Never hardcode domains or cluster names. Always use substitution.
+
+---
+
+## Version Management
+
+The `versions.env` file is the **single source of truth** for ALL platform versions. This enables:
+
+- **Terragrunt** reads infrastructure versions for bootstrap (talos, kubernetes, cilium, flux)
+- **Flux** deploys as `platform-versions` ConfigMap and substitutes into helm-charts.yaml
+- **Tuppr** reads Talos/Kubernetes versions for in-cluster upgrades
+- **Renovate** updates ONE file - changes flow through the promotion pipeline
+
+### versions.env Structure
+
+```env
+# Infrastructure versions (Terragrunt + Tuppr)
+talos_version=v1.12.1
+kubernetes_version=1.35.0
+cilium_version=1.18.6
+gateway_api_version=v1.4.1
+flux_version=v2.7.5
+prometheus_version=26.0.0
+
+# Helm chart versions (Flux substitution)
+cert_manager_version=1.17.1
+external_secrets_version=0.13.0
+grafana_version=8.8.5
+# ... all chart versions
+```
+
+### Natural Convergence
+
+Terragrunt and Tuppr both read from `versions.env`, ensuring no drift:
+
+```
+Scenario: Version Upgrade via PR
+──────────────────────────────────
+1. PR updates versions.env → talos_version=v1.12.2
+2. PR merges, Flux syncs new ConfigMap to cluster
+3. Tuppr sees mismatch → executes upgrade to v1.12.2
+4. Node now at v1.12.2
+5. Next Terragrunt run reads versions.env → v1.12.2
+6. Terragrunt sees node already at v1.12.2 → NO-OP
+```
+
+### Adding/Updating Versions
+
+1. Edit `versions.env` with the new version
+2. If adding a new Helm chart, update `helm-charts.yaml` with `${new_chart_version:-X.Y.Z}`
+3. Run `task k8s:validate` to verify substitution works
+
+---
+
+## Tuppr Upgrades
+
+Tuppr is a Kubernetes controller that executes Talos and Kubernetes upgrades from within the cluster, enabling GitOps-driven infrastructure upgrades.
+
+### How It Works
+
+1. Tuppr reads desired versions from `platform-versions` ConfigMap
+2. Compares against actual node versions
+3. Executes rolling upgrades (one node at a time)
+4. Validates health before proceeding to next node
+
+### Upgrade CRs
+
+```yaml
+# config/tuppr/talos-upgrade.yaml
+apiVersion: tuppr.home-operations/v1alpha1
+kind: TalosUpgrade
+metadata:
+  name: talos
+spec:
+  talos:
+    version: ${talos_version}    # Substituted from platform-versions
+
+# config/tuppr/kubernetes-upgrade.yaml
+apiVersion: tuppr.home-operations/v1alpha1
+kind: KubernetesUpgrade
+metadata:
+  name: kubernetes
+spec:
+  kubernetes:
+    version: ${kubernetes_version}
+```
+
+### Triggering Upgrades
+
+To upgrade Talos or Kubernetes:
+
+1. Update version in `kubernetes/platform/versions.env`
+2. Commit and push (or merge PR to main)
+3. Flux syncs updated `platform-versions` ConfigMap
+4. Tuppr detects version mismatch and executes upgrade
+5. Monitor with: `kubectl -n system-upgrade logs -f -l app.kubernetes.io/name=tuppr`
+
+### Talos API Access
+
+Tuppr requires in-cluster API access to Talos nodes. This is enabled via `kubernetesTalosAPIAccess` in the Talos machine config:
+
+```yaml
+machine:
+  features:
+    kubernetesTalosAPIAccess:
+      enabled: true
+      allowedRoles:
+        - os:admin
+      allowedKubernetesNamespaces:
+        - system-upgrade
+```
+
+### Separation of Concerns
+
+| Component | Responsibility |
+|-----------|----------------|
+| `versions.env` | Single source of truth for ALL versions |
+| Terragrunt | Initial cluster provisioning, reads from versions.env |
+| Flux | Deploys charts at versions from ConfigMap |
+| Tuppr | Runtime Talos/K8s upgrades |
+| Renovate | Updates versions.env (single file) |
 
 ---
 
