@@ -34,8 +34,8 @@ resource "aws_ssm_parameter" "ca" {
   type        = "SecureString"
 
   value = jsonencode({
-    "tls.crt" = base64encode(tls_self_signed_cert.ca.cert_pem)
-    "tls.key" = base64encode(tls_private_key.ca.private_key_pem)
+    "tls.crt" = tls_self_signed_cert.ca.cert_pem
+    "tls.key" = tls_private_key.ca.private_key_pem
   })
 
   tags = {
@@ -60,8 +60,8 @@ resource "local_sensitive_file" "ca_backup" {
     ssm_path     = var.ssm_parameter_path
     generated_at = timestamp()
     expires_at   = timeadd(timestamp(), "${var.validity_days * 24}h")
-    "tls.crt"    = base64encode(tls_self_signed_cert.ca.cert_pem)
-    "tls.key"    = base64encode(tls_private_key.ca.private_key_pem)
+    "tls.crt"    = tls_self_signed_cert.ca.cert_pem
+    "tls.key"    = tls_private_key.ca.private_key_pem
   })
 
   file_permission = "0600"
