@@ -11,6 +11,7 @@ on:
 env:
   REGISTRY: ghcr.io
   ARTIFACT_REPO: ${{ github.repository }}/platform
+  BASE_VERSION: "0.1.0"
 
 jobs:
   build:
@@ -34,15 +35,19 @@ jobs:
         run: |
           SHORT_SHA="${{ github.sha }}"
           SHORT_SHA="${SHORT_SHA:0:7}"
+          SEMVER="${{ env.BASE_VERSION }}-rc.${{ github.run_number }}"
 
           # Push from repo root so paths match GitRepository structure
-          # (kubernetes/platform/* paths work the same for Git and OCI sources)
           flux push artifact \
-            oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:sha-${SHORT_SHA} \
+            oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:${SEMVER} \
             --path=. \
             --source="https://github.com/${{ github.repository }}" \
             --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
 
           flux tag artifact \
-            oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:sha-${SHORT_SHA} \
+            oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:${SEMVER} \
+            --tag sha-${SHORT_SHA}
+
+          flux tag artifact \
+            oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:${SEMVER} \
             --tag integration-${SHORT_SHA}
