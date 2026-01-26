@@ -3,3 +3,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/helm-values.json
 
 profile: ambient
+
+# Point to istio-csr for certificate requests (Ambient mode)
+# ztunnel authenticates with its own identity but requests certs for workloads on its node
+caAddress: cert-manager-istio-csr.cert-manager.svc:443

@@ -1,0 +1,72 @@
+---
+# https://github.com/cert-manager/istio-csr/blob/main/deploy/charts/istio-csr/values.yaml
+# yaml-language-server: $schema=https://json.schemastore.org/helm-values.json
+
+# Replaces Istio's built-in CA with cert-manager for unified PKI management.
+# Enables workload identity certificates to be issued by the istio-mesh-ca ClusterIssuer.
+
+replicaCount: 1
+
+image:
+  repository: quay.io/jetstack/cert-manager-istio-csr
+  pullPolicy: IfNotPresent
+
+app:
+  certmanager:
+    # ClusterIssuer created in config/issuers/istio-mesh-ca/
+    issuer:
+      name: istio-mesh-ca
+      kind: ClusterIssuer
+      group: cert-manager.io
+    # Don't preserve CertificateRequests in production
+    preserveCertificateRequests: false
+
+  tls:
+    # Workload certificate validity (24h)
+    certificateDuration: 24h
+    # istiod serving certificate (24h with 12h rotation)
+    istiodCertificateDuration: 24h
+    istiodCertificateRenewBefore: 12h
+    istiodCertificateEnable: true
+    # Mount root CA for distribution to namespaces
+    rootCAFile: /var/run/secrets/istio-csr/ca.pem
+
+  server:
+    # Ambient mode: allow ztunnel to request certificates on behalf of workloads
+    caTrustedNodeAccounts: istio-system/ztunnel
+    # Address for Istio components to connect
+    serving:
+      address: 0.0.0.0
+      port: 6443
+
+  istio:
+    # Must match Istio installation namespace
+    namespace: istio-system
+    # Enable revision support if using canary upgrades
+    revisions: []
+
+# Mount the root CA secret for istio-csr to distribute
+# Project tls.crt as ca.pem for istio-csr's expected path
+volumes:
+  - name: root-ca
+    secret:
+      secretName: istio-mesh-root-ca
+      items:
+        - key: tls.crt
+          path: ca.pem
+
+volumeMounts:
+  - name: root-ca
+    mountPath: /var/run/secrets/istio-csr
+
+# Network policy labels for platform integration
+podLabels:
+  networking/allow-ingress-prometheus: "true"
+  networking/allow-cluster-egress: "true"
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi

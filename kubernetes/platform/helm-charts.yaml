@@ -112,6 +112,13 @@ spec:
         version: "${prometheus_version:-26.0.0}"
         url: "https://prometheus-community.github.io/helm-charts"
       dependsOn: []
+    - name: "istio-csr"
+      namespace: "cert-manager"
+      chart:
+        name: "cert-manager-istio-csr"
+        version: "${istio_csr_version:-0.15.0}"
+        url: "https://charts.jetstack.io"
+      dependsOn: [cert-manager]
     - name: "istio-base"
       namespace: "istio-system"
       chart:
@@ -125,7 +132,7 @@ spec:
         name: "istiod"
         version: "${istio_version:-1.28.1}"
         url: "https://istio-release.storage.googleapis.com/charts"
-      dependsOn: [istio-base]
+      dependsOn: [istio-base, istio-csr]
     - name: istio-cni
       namespace: istio-system
       chart:

@@ -1,9 +1,16 @@
 ---
 # https://raw.githubusercontent.com/istio/istio/master/manifests/charts/istio-control/istio-discovery/values.yaml
-# yaml-language-server: $schema=https://json.schemastore.org/helm-chart-lock.json
+# yaml-language-server: $schema=https://json.schemastore.org/helm-values.json
 profile: ambient
 
+# Disable built-in CA - certificates are issued by istio-csr via cert-manager
+pilot:
+  env:
+    ENABLE_CA_SERVER: "false"
+
 global:
+  # Point to istio-csr for certificate requests
+  caAddress: cert-manager-istio-csr.cert-manager.svc:443
   logAsJson: true
   defaultResources:
     resources:
