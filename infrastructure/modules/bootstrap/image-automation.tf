@@ -1,6 +1,6 @@
 # Image automation resources for OCI artifact-based promotion
 # Only created when source_type = "oci"
-
+/*
 resource "kubernetes_manifest" "image_repository" {
   count      = var.source_type == "oci" ? 1 : 0
   depends_on = [helm_release.flux_instance]
@@ -41,3 +41,4 @@ resource "kubernetes_manifest" "image_policy" {
     }
   }
 }
+*/

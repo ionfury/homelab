@@ -1,3 +1,4 @@
+# https://github.com/controlplaneio-fluxcd/charts/blob/main/charts/flux-instance/values.yaml
 instance:
   components:
     - source-controller
@@ -14,7 +15,18 @@ instance:
     kind: OCIRepository
     url: ${oci_url}
     path: clusters/${cluster_name}
-    ref: ${oci_tag_pattern}
+    ref: ${oci_semver}
     provider: generic
+  kustomize:
+    patches:
+      - target:
+          kind: OCIRepository
+          patch: |
+            - op: replace
+              path: /spec/ref
+              value:
+                semver: ${oci_semver}
+                semverFilter: ${oci_semver_filter}
 healthcheck:
   enabled: true
+

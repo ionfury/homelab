@@ -85,10 +85,12 @@ resource "helm_release" "flux_instance" {
       github_repository_path = var.github.repository_path
       flux_version           = var.flux_version
       }) : templatefile("${path.module}/resources/instance-oci.yaml.tftpl", {
-      cluster_name    = var.cluster_name
-      oci_url         = var.oci_url
-      oci_tag_pattern = var.oci_tag_pattern
-      flux_version    = var.flux_version
+      cluster_name      = var.cluster_name
+      oci_url           = var.oci_url
+      oci_tag_pattern   = var.oci_tag_pattern
+      oci_semver        = var.oci_semver
+      oci_semver_filter = var.oci_semver_filter
+      flux_version      = var.flux_version
     })
   ]
 }

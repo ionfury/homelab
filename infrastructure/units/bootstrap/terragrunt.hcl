@@ -57,7 +57,9 @@ inputs = {
   }
 
   # OCI artifact promotion - dev uses git, integration/live use OCI artifacts
-  source_type     = dependency.config.outputs.bootstrap.cluster_name == "dev" ? "git" : "oci"
-  oci_url         = dependency.config.outputs.bootstrap.cluster_name != "dev" ? "oci://ghcr.io/${local.github_org}/${local.github_repo}/platform" : ""
-  oci_tag_pattern = dependency.config.outputs.bootstrap.cluster_name == "integration" ? "integration-*" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? "validated-*" : "")
+  source_type       = dependency.config.outputs.bootstrap.cluster_name == "dev" ? "git" : "oci"
+  oci_url           = dependency.config.outputs.bootstrap.cluster_name != "dev" ? "oci://ghcr.io/${local.github_org}/${local.github_repo}/platform" : ""
+  oci_tag_pattern   = dependency.config.outputs.bootstrap.cluster_name == "integration" ? "latest" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? "validated-*" : "")
+  oci_semver        = dependency.config.outputs.bootstrap.cluster_name == "integration" ? ">= 0.0.0-0" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? ">= 0.0.0" : "")
+  oci_semver_filter = dependency.config.outputs.bootstrap.cluster_name == "integration" ? ".*-rc\\\\..*" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? ".*" : "")
 }

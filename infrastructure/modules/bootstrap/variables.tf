@@ -89,3 +89,15 @@ variable "oci_tag_pattern" {
   type        = string
   default     = ""
 }
+
+variable "oci_semver" {
+  description = "Semver constraint for ImagePolicy (e.g., '>= 0.0.0-0')"
+  type        = string
+  default     = ""
+}
+
+variable "oci_semver_filter" {
+  description = "Semver filter for ImagePolicy (e.g., '.*-rc\\\\..*')"
+  type        = string
+  default     = ""
+}
