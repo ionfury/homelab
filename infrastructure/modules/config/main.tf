@@ -20,6 +20,31 @@ locals {
   selected_sizes = local.storage_sizes[var.storage_provisioning]
 }
 
+# OCI artifact configuration by cluster
+# - dev: uses git sync, no OCI artifacts
+# - integration: accepts pre-release versions (rc builds)
+# - live: stable releases only
+locals {
+  oci_config = {
+    dev = {
+      semver        = ""
+      semver_filter = ""
+    }
+    integration = {
+      semver        = ">= 0.0.0-0"
+      semver_filter = ".*-rc\\..*"
+    }
+    live = {
+      semver        = ">= 0.0.0"
+      semver_filter = ""
+    }
+  }
+
+  # Default to empty strings for unknown clusters (same as dev behavior)
+  oci_semver        = lookup(local.oci_config, var.name, local.oci_config["dev"]).semver
+  oci_semver_filter = lookup(local.oci_config, var.name, local.oci_config["dev"]).semver_filter
+}
+
 locals {
   cluster_endpoint = "k8s.${var.networking.internal_tld}"
   cluster_path     = "${var.accounts.github.repository_path}/${var.name}"

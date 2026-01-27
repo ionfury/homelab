@@ -32,10 +32,12 @@ output "talos" {
 output "bootstrap" {
   description = "Bootstrap module configuration."
   value = {
-    cluster_name = var.name
-    flux_version = var.versions.flux
-    cluster_vars = local.cluster_vars
-    version_vars = local.version_vars
+    cluster_name      = var.name
+    flux_version      = var.versions.flux
+    cluster_vars      = local.cluster_vars
+    version_vars      = local.version_vars
+    oci_semver        = local.oci_semver
+    oci_semver_filter = local.oci_semver_filter
   }
   sensitive = true
 }
