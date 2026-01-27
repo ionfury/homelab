@@ -1,9 +1,5 @@
 locals {
   accounts_vars = read_terragrunt_config(find_in_parent_folders("accounts.hcl"))
-
-  # OCI artifact configuration for non-dev clusters
-  github_org  = local.accounts_vars.locals.accounts.github.org
-  github_repo = local.accounts_vars.locals.accounts.github.repository
 }
 
 include "root" {
@@ -23,6 +19,9 @@ dependency "config" {
       flux_version      = "v2.4.0"
       cluster_vars      = []
       version_vars      = []
+      source_type       = "git"
+      oci_url           = ""
+      oci_tag_pattern   = ""
       oci_semver        = ""
       oci_semver_filter = ""
     }
@@ -59,10 +58,10 @@ inputs = {
     cluster_ca_certificate = dependency.talos.outputs.kubeconfig_cluster_ca_certificate
   }
 
-  # OCI artifact promotion - dev uses git, integration/live use OCI artifacts
-  source_type       = dependency.config.outputs.bootstrap.cluster_name == "dev" ? "git" : "oci"
-  oci_url           = dependency.config.outputs.bootstrap.cluster_name != "dev" ? "oci://ghcr.io/${local.github_org}/${local.github_repo}/platform" : ""
-  oci_tag_pattern   = dependency.config.outputs.bootstrap.cluster_name == "integration" ? "latest" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? "validated-*" : "")
+  # OCI artifact promotion - all config comes from config module
+  source_type       = dependency.config.outputs.bootstrap.source_type
+  oci_url           = dependency.config.outputs.bootstrap.oci_url
+  oci_tag_pattern   = dependency.config.outputs.bootstrap.oci_tag_pattern
   oci_semver        = dependency.config.outputs.bootstrap.oci_semver
   oci_semver_filter = dependency.config.outputs.bootstrap.oci_semver_filter
 }

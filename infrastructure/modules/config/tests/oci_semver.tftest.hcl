@@ -82,6 +82,21 @@ run "dev_cluster_oci_config" {
   }
 
   assert {
+    condition     = output.bootstrap.source_type == "git"
+    error_message = "Dev cluster should use git source type"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_url == ""
+    error_message = "Dev cluster should have empty oci_url (uses git sync)"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_tag_pattern == ""
+    error_message = "Dev cluster should have empty oci_tag_pattern (uses git sync)"
+  }
+
+  assert {
     condition     = output.bootstrap.oci_semver == ""
     error_message = "Dev cluster should have empty oci_semver (uses git sync)"
   }
@@ -110,6 +125,21 @@ run "integration_cluster_oci_config" {
         }]
       }
     }
+  }
+
+  assert {
+    condition     = output.bootstrap.source_type == "oci"
+    error_message = "Integration cluster should use oci source type"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_url == "oci://ghcr.io/testorg/testrepo/platform"
+    error_message = "Integration cluster should have oci_url pointing to GHCR"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_tag_pattern == "latest"
+    error_message = "Integration cluster should use 'latest' tag pattern"
   }
 
   assert {
@@ -144,6 +174,21 @@ run "live_cluster_oci_config" {
   }
 
   assert {
+    condition     = output.bootstrap.source_type == "oci"
+    error_message = "Live cluster should use oci source type"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_url == "oci://ghcr.io/testorg/testrepo/platform"
+    error_message = "Live cluster should have oci_url pointing to GHCR"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_tag_pattern == "validated-*"
+    error_message = "Live cluster should use 'validated-*' tag pattern for promoted artifacts"
+  }
+
+  assert {
     condition     = output.bootstrap.oci_semver == ">= 0.0.0"
     error_message = "Live cluster should have oci_semver '>= 0.0.0' for stable releases"
   }
@@ -172,6 +217,21 @@ run "unknown_cluster_oci_config" {
         }]
       }
     }
+  }
+
+  assert {
+    condition     = output.bootstrap.source_type == "git"
+    error_message = "Unknown cluster should default to git source type (same as dev)"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_url == ""
+    error_message = "Unknown cluster should have empty oci_url (same as dev)"
+  }
+
+  assert {
+    condition     = output.bootstrap.oci_tag_pattern == ""
+    error_message = "Unknown cluster should have empty oci_tag_pattern (same as dev)"
   }
 
   assert {

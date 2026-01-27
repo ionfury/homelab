@@ -27,22 +27,33 @@ locals {
 locals {
   oci_config = {
     dev = {
+      source_type   = "git"
       semver        = ""
       semver_filter = ""
+      tag_pattern   = ""
     }
     integration = {
+      source_type   = "oci"
       semver        = ">= 0.0.0-0"
       semver_filter = ".*-rc\\..*"
+      tag_pattern   = "latest"
     }
     live = {
+      source_type   = "oci"
       semver        = ">= 0.0.0"
       semver_filter = ""
+      tag_pattern   = "validated-*"
     }
   }
 
-  # Default to empty strings for unknown clusters (same as dev behavior)
-  oci_semver        = lookup(local.oci_config, var.name, local.oci_config["dev"]).semver
-  oci_semver_filter = lookup(local.oci_config, var.name, local.oci_config["dev"]).semver_filter
+  # Default to dev behavior for unknown clusters
+  _oci_cluster_config = lookup(local.oci_config, var.name, local.oci_config["dev"])
+
+  oci_source_type   = local._oci_cluster_config.source_type
+  oci_semver        = local._oci_cluster_config.semver
+  oci_semver_filter = local._oci_cluster_config.semver_filter
+  oci_tag_pattern   = local._oci_cluster_config.tag_pattern
+  oci_url           = local.oci_source_type == "oci" ? "oci://ghcr.io/${var.accounts.github.org}/${var.accounts.github.repository}/platform" : ""
 }
 
 locals {
