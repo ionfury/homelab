@@ -27,6 +27,44 @@ spec:
     storageClass: fast
     size: ${database_volume_size}
 
+  # S3 backup via Barman - enables continuous WAL archiving and scheduled base backups
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://homelab-cnpg-backup-${cluster_name}@us-east-2/"
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-s3-backup-credentials
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: cnpg-s3-backup-credentials
+          key: ACCESS_SECRET_KEY
+      wal:
+        compression: gzip
+        maxParallel: 4
+      retentionPolicy: "30d"
+
+  # Recovery source for disaster recovery - CNPG uses this on cluster creation
+  # to restore from the latest backup if one exists in S3
+  externalClusters:
+    - name: backup-source
+      barmanObjectStore:
+        destinationPath: "s3://homelab-cnpg-backup-${cluster_name}@us-east-2/"
+        s3Credentials:
+          accessKeyId:
+            name: cnpg-s3-backup-credentials
+            key: ACCESS_KEY_ID
+          secretAccessKey:
+            name: cnpg-s3-backup-credentials
+            key: ACCESS_SECRET_KEY
+        wal:
+          maxParallel: 4
+
+  # Bootstrap from recovery - restores from latest backup on cluster creation.
+  # If no backup exists, CNPG initializes a fresh database instead.
+  bootstrap:
+    recovery:
+      source: backup-source
+
   resources:
     requests:
       cpu: 100m
