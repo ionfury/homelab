@@ -4,6 +4,11 @@ variables {
   name     = "test-cluster"
   features = ["gateway-api", "longhorn", "prometheus", "spegel"]
 
+  bgp = {
+    router_ip  = "192.168.10.1"
+    router_asn = 64512
+  }
+
   networking = {
     id                  = 1
     internal_tld        = "internal.test.local"
@@ -16,6 +21,7 @@ variables {
     internal_ingress_ip = "192.168.10.22"
     external_ingress_ip = "192.168.10.23"
     ip_pool_stop        = "192.168.10.29"
+    bgp_asn             = 64513
     nameservers         = ["192.168.10.1"]
     timeservers         = ["0.pool.ntp.org", "1.pool.ntp.org"]
   }

@@ -7,7 +7,7 @@ bandwidthManager:
   bbr: true
   enabled: true
 bgpControlPlane:
-  enabled: false
+  enabled: true
 ipam:
   mode: kubernetes
 cgroup:
