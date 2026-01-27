@@ -306,6 +306,10 @@ locals {
     { name = "prometheus_volume_size", value = local.selected_sizes.prometheus },
     # Flux source kind for ResourceSet Kustomizations (GitRepository for dev, OCIRepository for integration/live)
     { name = "source_kind", value = var.name == "dev" ? "GitRepository" : "OCIRepository" },
+    # BGP configuration for Cilium BGP control plane
+    { name = "bgp_cluster_asn", value = tostring(var.networking.bgp_asn) },
+    { name = "bgp_router_asn", value = tostring(var.bgp.router_asn) },
+    { name = "bgp_router_ip", value = var.bgp.router_ip },
   ]
 
   # Version environment variables for flux post-build substitution

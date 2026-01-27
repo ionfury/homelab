@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgppeerconfig_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeerConfig
+metadata:
+  name: unifi-router
+spec:
+  # Aggressive timers for fast failover (approved: holdTime=9s, keepAlive=3s)
+  timers:
+    holdTimeSeconds: 9
+    keepAliveTimeSeconds: 3
+    connectRetryTimeSeconds: 5
+  # Graceful restart prevents traffic disruption during Cilium agent restarts
+  gracefulRestart:
+    enabled: true
+    restartTimeSeconds: 120
+  # eBGP requires TTL=1 for directly connected peers
+  ebgpMultihop: 1
+  # Transport settings - use standard BGP port
+  transport:
+    peerPort: 179
