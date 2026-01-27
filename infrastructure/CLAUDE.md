@@ -22,6 +22,71 @@ infrastructure/
 
 ---
 
+## Architecture: Units vs Modules
+
+The infrastructure follows a clear separation of concerns between units and modules:
+
+### Units Should Be Dumb
+
+**Units (`infrastructure/units/`) are thin wiring layers.** They:
+- Wire dependencies between modules
+- Pass through configuration from the `config` module
+- Contain no business logic or conditional expressions
+
+### Config Module Centralizes Logic
+
+**The `config` module (`infrastructure/modules/config/`) is the brain.** It:
+- Computes all environment-specific configuration
+- Handles conditional logic based on cluster name (dev/integration/live)
+- Exposes structured outputs consumed by other modules via units
+
+### Example: OCI Artifact Configuration
+
+The config module defines cluster-specific OCI artifact settings:
+
+```hcl
+# infrastructure/modules/config/main.tf
+locals {
+  oci_config = {
+    dev = {
+      source_type   = "git"      # Dev uses GitRepository sync
+      semver        = ""
+      semver_filter = ""
+    }
+    integration = {
+      source_type   = "oci"      # Integration uses OCIRepository
+      semver        = ">= 0.0.0-0"  # Accept pre-releases
+      semver_filter = ".*-rc\\..*"  # Filter for rc builds
+    }
+    live = {
+      source_type   = "oci"      # Live uses OCIRepository
+      semver        = ">= 0.0.0"    # Stable releases only
+      semver_filter = ""            # No filter = stable only
+    }
+  }
+}
+```
+
+The bootstrap unit then simply passes through:
+
+```hcl
+# infrastructure/units/bootstrap/terragrunt.hcl
+inputs = {
+  source_type       = dependency.config.outputs.bootstrap.source_type
+  oci_semver        = dependency.config.outputs.bootstrap.oci_semver
+  oci_semver_filter = dependency.config.outputs.bootstrap.oci_semver_filter
+}
+```
+
+### Why This Pattern?
+
+1. **Testability**: Config module logic is tested via `tofu test` with assertions
+2. **Single source of truth**: All environment differences live in one place
+3. **Maintainability**: Adding a new cluster only requires updating the config module
+4. **Visibility**: Easy to audit what differs between environments
+
+---
+
 ## Testing & Validation
 
 Testing is non-negotiable. Every change must pass validation before being considered ready.
