@@ -1,20 +1,20 @@
 [tools]
 # Infrastructure
-opentofu = "1.11.2"
+opentofu = "1.11.4"
 terragrunt = "0.98.0"
 
 # Kubernetes validation
-helm = "3.16.0"
-kustomize = "5.4.1"
+helm = "3.20.0"
+kustomize = "5.8.0"
 kubeconform = "0.6.7"
-yq = "4.44.1"
-yamllint = "1.35.1"
+yq = "4.50.1"
+yamllint = "1.38.0"
 
 # Task runner
 task = "3.40.0"
 
 # Cluster operations
-talosctl = "1.12.1"
+talosctl = "1.12.2"
 "aqua:cilium/cilium-cli" = "0.19.0"
 
 # Node.js (for renovate validation)
