@@ -20,6 +20,43 @@ locals {
   selected_sizes = local.storage_sizes[var.storage_provisioning]
 }
 
+# OCI artifact configuration by cluster
+# - dev: uses git sync, no OCI artifacts
+# - integration: accepts pre-release versions (>= 0.0.0-0 includes rc builds)
+# - live: stable releases only (>= 0.0.0 excludes pre-releases)
+#
+# Note: semverFilter is NOT supported by flux-operator kustomize patches.
+# The semver constraint alone handles version filtering:
+#   ">= 0.0.0-0" includes pre-releases (the -0 suffix)
+#   ">= 0.0.0" excludes pre-releases
+locals {
+  oci_config = {
+    dev = {
+      source_type = "git"
+      semver      = ""
+      tag_pattern = ""
+    }
+    integration = {
+      source_type = "oci"
+      semver      = ">= 0.0.0-0" # Includes pre-releases (rc builds)
+      tag_pattern = "latest"
+    }
+    live = {
+      source_type = "oci"
+      semver      = ">= 0.0.0" # Stable releases only
+      tag_pattern = "validated-*"
+    }
+  }
+
+  # Default to dev behavior for unknown clusters
+  _oci_cluster_config = lookup(local.oci_config, var.name, local.oci_config["dev"])
+
+  oci_source_type = local._oci_cluster_config.source_type
+  oci_semver      = local._oci_cluster_config.semver
+  oci_tag_pattern = local._oci_cluster_config.tag_pattern
+  oci_url         = local.oci_source_type == "oci" ? "oci://ghcr.io/${var.accounts.github.org}/${var.accounts.github.repository}/platform" : ""
+}
+
 locals {
   cluster_endpoint = "k8s.${var.networking.internal_tld}"
   cluster_path     = "${var.accounts.github.repository_path}/${var.name}"
