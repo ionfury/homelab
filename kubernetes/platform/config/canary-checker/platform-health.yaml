@@ -28,8 +28,7 @@ spec:
     - name: flux-pods-healthy
       kind: Pod
       namespaceSelector:
-        matchNames:
-          - flux-system
+        name: flux-system
       resource:
         labelSelector: app.kubernetes.io/part-of=flux
       test:
