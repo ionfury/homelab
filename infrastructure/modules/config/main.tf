@@ -141,13 +141,15 @@ locals {
   machine_kubelet_mounts = {
     for name, machine in local.cluster_machines :
     name => concat(
-      # System disk volume gets /var/lib/longhorn mount
-      local.longhorn_enabled && anytrue([for v in lookup(machine, "volumes", []) : v.selector == "system_disk == true"]) ? [{
-        destination = "/var/lib/longhorn"
-        type        = "bind"
-        source      = "/var/lib/longhorn"
-        options     = ["bind", "rshared", "rw"]
-      }] : [],
+      # System disk volume gets /var/lib/longhorn mount (from user volume at /var/mnt/<name>)
+      local.longhorn_enabled && anytrue([for v in lookup(machine, "volumes", []) : v.selector == "system_disk == true"]) ? [
+        for vol in lookup(machine, "volumes", []) : {
+          destination = "/var/lib/longhorn"
+          type        = "bind"
+          source      = "/var/mnt/${vol.name}"
+          options     = ["bind", "rshared", "rw"]
+        } if vol.selector == "system_disk == true"
+      ] : [],
       # Non-system volumes get mounts at /var/mnt/<name>
       [for vol in lookup(machine, "volumes", []) : {
         destination = "/var/mnt/${vol.name}"

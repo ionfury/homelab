@@ -171,11 +171,11 @@ run "longhorn_kubelet_mount_system_disk" {
       anytrue([
         for mount in m.kubelet_extraMounts :
         mount.destination == "/var/lib/longhorn" &&
-        mount.source == "/var/lib/longhorn" &&
+        mount.source == "/var/mnt/longhorn" &&
         mount.type == "bind"
       ])
     ])
-    error_message = "Longhorn kubelet mount should be configured at /var/lib/longhorn for system_disk volume"
+    error_message = "Longhorn kubelet mount should bind user volume (/var/mnt/longhorn) to /var/lib/longhorn"
   }
 
   assert {
