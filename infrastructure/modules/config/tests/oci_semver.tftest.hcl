@@ -100,11 +100,6 @@ run "dev_cluster_oci_config" {
     condition     = output.bootstrap.oci_semver == ""
     error_message = "Dev cluster should have empty oci_semver (uses git sync)"
   }
-
-  assert {
-    condition     = output.bootstrap.oci_semver_filter == ""
-    error_message = "Dev cluster should have empty oci_semver_filter (uses git sync)"
-  }
 }
 
 # Integration cluster accepts pre-release versions (rc builds)
@@ -145,11 +140,6 @@ run "integration_cluster_oci_config" {
   assert {
     condition     = output.bootstrap.oci_semver == ">= 0.0.0-0"
     error_message = "Integration cluster should have oci_semver '>= 0.0.0-0' to accept pre-releases"
-  }
-
-  assert {
-    condition     = output.bootstrap.oci_semver_filter == ".*-rc\\..*"
-    error_message = "Integration cluster should filter for rc builds with '.*-rc\\..*'"
   }
 }
 
@@ -192,11 +182,6 @@ run "live_cluster_oci_config" {
     condition     = output.bootstrap.oci_semver == ">= 0.0.0"
     error_message = "Live cluster should have oci_semver '>= 0.0.0' for stable releases"
   }
-
-  assert {
-    condition     = output.bootstrap.oci_semver_filter == ""
-    error_message = "Live cluster should have empty oci_semver_filter (no filtering = stable only)"
-  }
 }
 
 # Unknown cluster defaults to dev behavior (empty config)
@@ -237,10 +222,5 @@ run "unknown_cluster_oci_config" {
   assert {
     condition     = output.bootstrap.oci_semver == ""
     error_message = "Unknown cluster should default to empty oci_semver (same as dev)"
-  }
-
-  assert {
-    condition     = output.bootstrap.oci_semver_filter == ""
-    error_message = "Unknown cluster should default to empty oci_semver_filter (same as dev)"
   }
 }

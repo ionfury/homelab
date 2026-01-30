@@ -15,15 +15,14 @@ dependency "config" {
 
   mock_outputs = {
     bootstrap = {
-      cluster_name      = "mock"
-      flux_version      = "v2.4.0"
-      cluster_vars      = []
-      version_vars      = []
-      source_type       = "git"
-      oci_url           = ""
-      oci_tag_pattern   = ""
-      oci_semver        = ""
-      oci_semver_filter = ""
+      cluster_name    = "mock"
+      flux_version    = "v2.4.0"
+      cluster_vars    = []
+      version_vars    = []
+      source_type     = "git"
+      oci_url         = ""
+      oci_tag_pattern = ""
+      oci_semver      = ""
     }
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
@@ -59,9 +58,8 @@ inputs = {
   }
 
   # OCI artifact promotion - all config comes from config module
-  source_type       = dependency.config.outputs.bootstrap.source_type
-  oci_url           = dependency.config.outputs.bootstrap.oci_url
-  oci_tag_pattern   = dependency.config.outputs.bootstrap.oci_tag_pattern
-  oci_semver        = dependency.config.outputs.bootstrap.oci_semver
-  oci_semver_filter = dependency.config.outputs.bootstrap.oci_semver_filter
+  source_type     = dependency.config.outputs.bootstrap.source_type
+  oci_url         = dependency.config.outputs.bootstrap.oci_url
+  oci_tag_pattern = dependency.config.outputs.bootstrap.oci_tag_pattern
+  oci_semver      = dependency.config.outputs.bootstrap.oci_semver
 }

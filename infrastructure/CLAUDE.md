@@ -49,32 +49,30 @@ The config module defines cluster-specific OCI artifact settings:
 locals {
   oci_config = {
     dev = {
-      source_type   = "git"      # Dev uses GitRepository sync
-      semver        = ""
-      semver_filter = ""
+      source_type = "git"        # Dev uses GitRepository sync
+      semver      = ""
     }
     integration = {
-      source_type   = "oci"      # Integration uses OCIRepository
-      semver        = ">= 0.0.0-0"  # Accept pre-releases
-      semver_filter = ".*-rc\\..*"  # Filter for rc builds
+      source_type = "oci"        # Integration uses OCIRepository
+      semver      = ">= 0.0.0-0" # Accept pre-releases (the -0 suffix)
     }
     live = {
-      source_type   = "oci"      # Live uses OCIRepository
-      semver        = ">= 0.0.0"    # Stable releases only
-      semver_filter = ""            # No filter = stable only
+      source_type = "oci"        # Live uses OCIRepository
+      semver      = ">= 0.0.0"   # Stable releases only
     }
   }
 }
 ```
+
+**Note:** The semver constraint alone handles version filtering. `>= 0.0.0-0` includes pre-releases (the `-0` suffix), while `>= 0.0.0` excludes them. The flux-operator does not support `semverFilter` in kustomize patches.
 
 The bootstrap unit then simply passes through:
 
 ```hcl
 # infrastructure/units/bootstrap/terragrunt.hcl
 inputs = {
-  source_type       = dependency.config.outputs.bootstrap.source_type
-  oci_semver        = dependency.config.outputs.bootstrap.oci_semver
-  oci_semver_filter = dependency.config.outputs.bootstrap.oci_semver_filter
+  source_type = dependency.config.outputs.bootstrap.source_type
+  oci_semver  = dependency.config.outputs.bootstrap.oci_semver
 }
 ```
 
