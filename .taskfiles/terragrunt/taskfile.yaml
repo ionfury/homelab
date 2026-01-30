@@ -11,8 +11,9 @@ env:
 
 tasks:
   use:
-    desc: Uses tgenv to set up the Terragrunt environment.
+    desc: Uses tgenv to set up the Terragrunt environment, installing if needed.
     cmds:
+      - tgenv install
       - tgenv use
     preconditions:
       - which tgenv
