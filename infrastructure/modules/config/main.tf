@@ -137,25 +137,18 @@ locals {
     ])
   }
 
-  # Build kubelet mounts per machine: longhorn root + any additional volumes
+  # Build kubelet mounts per machine for volume access with mount propagation
+  # Talos mounts user volumes at /var/mnt/<name>; these mounts ensure rshared propagation
   machine_kubelet_mounts = {
     for name, machine in local.cluster_machines :
-    name => concat(
-      # System disk volume gets /var/lib/longhorn mount
-      local.longhorn_enabled && anytrue([for v in lookup(machine, "volumes", []) : v.selector == "system_disk == true"]) ? [{
-        destination = "/var/lib/longhorn"
-        type        = "bind"
-        source      = "/var/lib/longhorn"
-        options     = ["bind", "rshared", "rw"]
-      }] : [],
-      # Non-system volumes get mounts at /var/mnt/<name>
-      [for vol in lookup(machine, "volumes", []) : {
+    name => [
+      for vol in lookup(machine, "volumes", []) : {
         destination = "/var/mnt/${vol.name}"
         type        = "bind"
         source      = "/var/mnt/${vol.name}"
         options     = ["bind", "rshared", "rw"]
-      } if vol.selector != "system_disk == true"]
-    )
+      }
+    ]
   }
 
   # Build longhorn disk annotations per machine from volumes
@@ -166,7 +159,7 @@ locals {
       value = "'${jsonencode([
         for vol in machine.volumes : {
           name            = vol.name
-          path            = vol.selector == "system_disk == true" ? "/var/lib/longhorn" : "/var/mnt/${vol.name}"
+          path            = "/var/mnt/${vol.name}"
           storageReserved = 0
           allowScheduling = true
           tags            = vol.tags
