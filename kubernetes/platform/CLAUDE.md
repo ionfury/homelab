@@ -73,6 +73,63 @@ inputs:
 
 ---
 
+## Config Kustomization Dependencies
+
+The `config.yaml` ResourceSet generates Kustomizations for non-Helm resources. These Kustomizations **must** declare `dependsOn` to ensure CRDs exist before resources are created.
+
+### Why Dependencies Matter
+
+Without `dependsOn`, Flux reconciles Kustomizations in parallel. This causes race conditions:
+1. `issuers` Kustomization tries to create ExternalSecret before External Secrets CRDs exist
+2. `external-secrets-stores` fails because ClusterSecretStore CRD doesn't exist yet
+3. Downstream resources (istio-csr, istiod) block waiting for secrets
+
+With proper dependencies, reconciliation happens in order:
+`external-secrets` → `external-secrets-stores` → `issuers` → `istio-csr` → `istiod`
+
+### Adding a Config Kustomization
+
+When adding a new entry to `config.yaml`, always specify `dependsOn`:
+
+```yaml
+# In config.yaml
+inputs:
+  - name: my-config
+    namespace: my-namespace
+    path: kubernetes/platform/config/my-config
+    dependsOn: [required-chart, another-chart]  # CRD providers
+```
+
+### Dependency Reference
+
+| Kustomization | dependsOn | Why |
+|---------------|-----------|-----|
+| `cilium-config` | `cilium`, `canary-checker` | CiliumNetworkPolicy + Canary CRDs |
+| `external-secrets-stores` | `external-secrets` | ExternalSecret/ClusterSecretStore CRDs |
+| `issuers` | `cert-manager`, `external-secrets-stores` | Certificate CRD + ClusterSecretStore must exist |
+| `certificates` | `cert-manager`, `istiod` | Certificate CRD + Gateway for TLS |
+| `longhorn-storage` | `longhorn` | RecurringJob CRD |
+| `database-config` | `cloudnative-pg`, `canary-checker` | Cluster/Pooler CRDs + Canary |
+| `garage-config` | `garage-operator`, `canary-checker` | Garage CRDs + Canary |
+| `gateway` | `istiod` | WasmPlugin CRD |
+| `monitoring-config` | `kube-prometheus-stack`, `canary-checker` | PrometheusRule + Canary CRDs |
+| `canary-checker-config` | `canary-checker` | Canary CRD |
+| `tuppr-config` | `tuppr` | TalosUpgrade/KubernetesUpgrade CRDs |
+| `kromgo-config` | `kromgo` | App deployment must exist |
+| `flux-notifications-config` | *(none)* | Uses only core Flux CRDs (always present) |
+
+### Finding CRD Providers
+
+To determine dependencies for a new config Kustomization:
+
+1. **List the CRDs your resources use**: `kubectl explain <resource>` or check `apiVersion`
+2. **Find which HelmRelease provides the CRD**: Check `helm-charts.yaml` for the operator/controller
+3. **Add transitive dependencies**: If your config depends on another config's resources, add that too
+
+Example: `issuers` creates ExternalSecret (from `external-secrets`) referencing ClusterSecretStore (created by `external-secrets-stores`), so it depends on both.
+
+---
+
 ## Variable Substitution
 
 Flux performs variable substitution at reconciliation time. Use these patterns:
