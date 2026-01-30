@@ -170,20 +170,20 @@ run "longhorn_kubelet_mount_system_disk" {
       for name, m in output.machines :
       anytrue([
         for mount in m.kubelet_extraMounts :
-        mount.destination == "/var/lib/longhorn" &&
+        mount.destination == "/var/mnt/longhorn" &&
         mount.source == "/var/mnt/longhorn" &&
         mount.type == "bind"
       ])
     ])
-    error_message = "Longhorn kubelet mount should bind user volume (/var/mnt/longhorn) to /var/lib/longhorn"
+    error_message = "Longhorn kubelet mount should be at /var/mnt/longhorn (user volume path)"
   }
 
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(join("\n", m.configs), "/var/lib/longhorn")
+      strcontains(join("\n", m.configs), "/var/mnt/longhorn")
     ])
-    error_message = "Talos config should contain longhorn mount path"
+    error_message = "Talos config should contain user volume mount path"
   }
 }
 
@@ -328,20 +328,20 @@ run "longhorn_combined_volume_sources" {
       anytrue([
         for a in m.annotations :
         a.key == "node.longhorn.io/default-disks-config" &&
-        strcontains(a.value, "longhorn") &&
+        strcontains(a.value, "/var/mnt/primary") &&
         strcontains(a.value, "/var/mnt/extra")
       ])
     ])
-    error_message = "Disk annotation should contain both system and explicit volume paths"
+    error_message = "Disk annotation should contain both volume paths at /var/mnt/<name>"
   }
 
-  # Should have 2 mounts: longhorn + extra volume
+  # Should have 2 mounts: primary + extra volume
   assert {
     condition = alltrue([
       for name, m in output.machines :
       length(m.kubelet_extraMounts) == 2
     ])
-    error_message = "Should have 2 kubelet mounts (longhorn + explicit volume)"
+    error_message = "Should have 2 kubelet mounts (primary + extra volume)"
   }
 }
 
