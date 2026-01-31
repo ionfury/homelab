@@ -39,6 +39,7 @@ inputs = {
   name                   = values.name
   features               = values.features
   storage_provisioning   = values.storage_provisioning
+  bgp                    = local.networking_vars.locals.bgp
   networking             = local.networking_vars.locals.clusters[values.name]
   machines               = local.inventory_vars.locals.hosts
   versions               = local.versions
