@@ -178,6 +178,43 @@ KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile kustomization <name>
 KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile helmrelease <name> -n <namespace>
 ```
 
+## Kickstarting Stalled HelmReleases
+
+HelmReleases can get stuck in a `Stalled` state with `RetriesExceeded` even after the underlying issue is resolved. This happens because:
+
+1. The HR hit its retry limit (default: 4 attempts)
+2. The failure counter persists even if pods are now healthy
+3. Flux won't auto-retry once `Stalled` condition is set
+
+**Symptoms:**
+```
+STATUS: Stalled
+MESSAGE: Failed to install after 4 attempt(s)
+REASON: RetriesExceeded
+```
+
+**Diagnosis:** Check if the underlying resources are actually healthy:
+```bash
+# HR shows Failed, but check if pods are running
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl get pods -n <namespace> -l app.kubernetes.io/name=<app>
+
+# If pods are Running but HR is Stalled, the HR just needs a reset
+```
+
+**Fix:** Suspend and resume to reset the failure counter:
+```bash
+KUBECONFIG=~/.kube/<cluster>.yaml flux suspend helmrelease <name> -n flux-system
+KUBECONFIG=~/.kube/<cluster>.yaml flux resume helmrelease <name> -n flux-system
+```
+
+**Common causes of initial failure (that may have self-healed):**
+- Missing Secret/ConfigMap (ExternalSecret eventually created it)
+- Missing CRD (operator finished installing)
+- Transient network issues during image pull
+- Resource quota temporarily exceeded
+
+**Prevention:** Ensure proper `dependsOn` ordering so prerequisites are ready before HelmRelease installs.
+
 ## Researching Unfamiliar Services
 
 When investigating unknown services, spawn a haiku agent to research documentation:
