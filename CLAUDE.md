@@ -154,6 +154,20 @@ task tg:gen-dev                    # Generate dev stack
 task tg:clean-dev                  # Clean dev stack cache
 ```
 
+## AWS Credentials
+
+Infrastructure operations require AWS credentials for remote state and Parameter Store access:
+
+```bash
+export AWS_PROFILE=terragrunt
+export AWS_REGION=us-east-2
+```
+
+Verify credentials before running Terragrunt:
+```bash
+aws sts get-caller-identity
+```
+
 ## Pre-Flight Checks
 
 Before running infrastructure operations on dev, verify cluster readiness:
