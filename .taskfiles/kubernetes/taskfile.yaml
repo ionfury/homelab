@@ -25,6 +25,13 @@ vars:
   TEST_GARAGE_META_SIZE: "1Gi"
   TEST_LOKI_SIZE: "10Gi"
   TEST_PROMETHEUS_SIZE: "10Gi"
+  # Common kubeconform arguments (double-brace escaping for kubeconform templates)
+  KUBECONFORM_ARGS: >-
+    -schema-location default
+    -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
+    -ignore-missing-schemas
+    -summary
+    -output text
 
 tasks:
   # =============================================================================
@@ -32,14 +39,53 @@ tasks:
   # =============================================================================
 
   validate:
-    desc: Full Kubernetes validation (lint, ResourceSets, all charts, kubeconform)
+    desc: Cluster-independent validation (lint, ResourceSets, Helm charts, base kubeconform)
     cmds:
       - task: _lint
       - task: _expand-resourcesets
       - task: _build-manifests
-      - task: _substitute-vars
       - task: _template-all-charts
-      - task: _validate-kubeconform
+      - task: _validate-kubeconform-base
+
+  validate-*:
+    desc: Validate manifests for a specific cluster
+    vars:
+      CLUSTER: "{{index .MATCH 0}}"
+      CLUSTER_VARS: "{{.CLUSTERS_DIR}}/{{.CLUSTER}}/.cluster-vars.env"
+      CLUSTER_OUTPUT_DIR: "{{.EXPANDED_DIR}}/clusters/{{.CLUSTER}}"
+    label: validate-{{.CLUSTER}}
+    deps: [_build-manifests, _expand-resourcesets]
+    cmds:
+      - task: _substitute-vars-cluster
+        vars:
+          CLUSTER: "{{.CLUSTER}}"
+          CLUSTER_VARS: "{{.CLUSTER_VARS}}"
+          CLUSTER_OUTPUT_DIR: "{{.CLUSTER_OUTPUT_DIR}}"
+      - task: _validate-kubeconform-cluster
+        vars:
+          CLUSTER: "{{.CLUSTER}}"
+          CLUSTER_OUTPUT_DIR: "{{.CLUSTER_OUTPUT_DIR}}"
+    preconditions:
+      - sh: test -d "{{.CLUSTERS_DIR}}/{{.CLUSTER}}"
+        msg: "Cluster '{{.CLUSTER}}' does not exist in {{.CLUSTERS_DIR}}"
+      - sh: test -f "{{.CLUSTER_VARS}}"
+        msg: "Cluster '{{.CLUSTER}}' has no .cluster-vars.env file"
+
+  validate-all:
+    desc: Full validation (cluster-independent + all discovered clusters)
+    cmds:
+      - task: validate
+      - task: _validate-all-clusters
+
+  list-clusters:
+    desc: List clusters with .cluster-vars.env files (JSON for CI)
+    silent: true
+    cmds:
+      - |
+        find "{{.CLUSTERS_DIR}}" -name ".cluster-vars.env" -exec dirname {} \; 2>/dev/null | \
+          xargs -I{} basename {} | \
+          sort | \
+          jq -R -s -c 'split("\n") | map(select(. != ""))'
 
   dry-run-dev:
     desc: Server-side dry-run against dev cluster
@@ -79,7 +125,7 @@ tasks:
       - test -d {{.EXPANDED_DIR}}/resourcesets
 
   # =============================================================================
-  # Internal Tasks (hidden from task --list)
+  # Internal Tasks
   # =============================================================================
 
   _lint:
@@ -100,90 +146,6 @@ tasks:
       - "{{.TASKFILE_DIR}}/scripts/build-manifests.sh"
     preconditions:
       - which kustomize
-
-  _substitute-vars:
-    internal: true
-    deps: [_build-manifests, _expand-resourcesets]
-    desc: Substitute variables in manifests for each available cluster (or use defaults if none)
-    env:
-      VERSION_VARS: "{{.VERSION_VARS}}"
-      MANIFESTS_DIR: "{{.MANIFESTS_DIR}}"
-      CLUSTERS_DIR: "{{.CLUSTERS_DIR}}"
-      EXPANDED_DIR: "{{.EXPANDED_DIR}}"
-    cmds:
-      # Detect available clusters and substitute vars for each
-      # If no clusters have vars, just apply version defaults
-      - |
-        CLUSTER_VARS_FILES=$(find "{{.CLUSTERS_DIR}}" -name ".cluster-vars.env" 2>/dev/null || true)
-
-        if [ -z "$CLUSTER_VARS_FILES" ]; then
-          echo "No cluster vars found - using version defaults only"
-          # Apply only VERSION_VARS (${var:-default} patterns use defaults)
-          set -a && source "{{.VERSION_VARS}}" && set +a
-
-          # Substitute in kustomize manifests
-          for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
-            [ -f "$manifest" ] || continue
-            perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
-              my $var = $1; my $default = $2; my $val = $ENV{$var};
-              defined($val) && $val ne "" ? $val : $default;
-            /gex' "$manifest" | envsubst > "${manifest}.tmp"
-            mv "${manifest}.tmp" "$manifest"
-          done
-
-          # Substitute in ResourceSets
-          for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
-            [ -f "$manifest" ] || continue
-            perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
-              my $var = $1; my $default = $2; my $val = $ENV{$var};
-              defined($val) && $val ne "" ? $val : $default;
-            /gex' "$manifest" | envsubst > "${manifest}.tmp"
-            mv "${manifest}.tmp" "$manifest"
-          done
-        else
-          echo "Found cluster vars:"
-          echo "$CLUSTER_VARS_FILES" | while read -r f; do echo "  - $f"; done
-          echo ""
-
-          # Validate with each cluster's vars (validates manifests work for all clusters)
-          for CLUSTER_VARS in $CLUSTER_VARS_FILES; do
-            CLUSTER_NAME=$(dirname "$CLUSTER_VARS" | xargs basename)
-            echo "Substituting vars for cluster: $CLUSTER_NAME"
-
-            set -a && source "$CLUSTER_VARS" && source "{{.VERSION_VARS}}" && set +a
-
-            # Substitute in kustomize manifests
-            for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
-              [ -f "$manifest" ] || continue
-              perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
-                my $var = $1; my $default = $2; my $val = $ENV{$var};
-                defined($val) && $val ne "" ? $val : $default;
-              /gex' "$manifest" | envsubst > "${manifest}.tmp"
-              mv "${manifest}.tmp" "$manifest"
-            done
-
-            # Substitute in ResourceSets
-            for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
-              [ -f "$manifest" ] || continue
-              perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
-                my $var = $1; my $default = $2; my $val = $ENV{$var};
-                defined($val) && $val ne "" ? $val : $default;
-              /gex' "$manifest" | envsubst > "${manifest}.tmp"
-              mv "${manifest}.tmp" "$manifest"
-            done
-
-            # Only need to validate with one cluster's vars (they should all produce valid YAML)
-            break
-          done
-        fi
-      # Fix StorageClass parameters to be strings (envsubst produces unquoted numbers)
-      - |
-        for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
-          [ -f "$manifest" ] || continue
-          yq -i '(select(.kind == "StorageClass") | .parameters.numberOfReplicas) |= . tag = "!!str"' "$manifest"
-        done
-    preconditions:
-      - which envsubst yq
 
   _expand-resourcesets:
     internal: true
@@ -224,26 +186,93 @@ tasks:
     preconditions:
       - which helm yq jq envsubst
 
-  _validate-kubeconform:
+  _substitute-vars-cluster:
     internal: true
-    deps: [_template-all-charts, _substitute-vars]
-    vars:
-      KUBECONFORM_ARGS: >-
-        -schema-location default
-        -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
-        -ignore-missing-schemas
-        -summary
-        -output text
+    desc: Substitute variables for a specific cluster
+    requires:
+      vars: [CLUSTER, CLUSTER_VARS, CLUSTER_OUTPUT_DIR]
+    env:
+      VERSION_VARS: "{{.VERSION_VARS}}"
     cmds:
-      - echo "Validating expanded ResourceSets..."
-      - kubeconform {{.KUBECONFORM_ARGS}} {{.EXPANDED_DIR}}/resourcesets/*.yaml
+      - mkdir -p "{{.CLUSTER_OUTPUT_DIR}}/manifests" "{{.CLUSTER_OUTPUT_DIR}}/resourcesets"
+      - |
+        echo "Substituting vars for cluster: {{.CLUSTER}}"
+        set -a && source "{{.CLUSTER_VARS}}" && source "{{.VERSION_VARS}}" && set +a
+
+        # Substitute in kustomize manifests
+        for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
+          [ -f "$manifest" ] || continue
+          outfile="{{.CLUSTER_OUTPUT_DIR}}/manifests/$(basename "$manifest")"
+          perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+            my $var = $1; my $default = $2; my $val = $ENV{$var};
+            defined($val) && $val ne "" ? $val : $default;
+          /gex' "$manifest" | envsubst > "$outfile"
+        done
+
+        # Substitute in ResourceSets
+        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+          [ -f "$manifest" ] || continue
+          outfile="{{.CLUSTER_OUTPUT_DIR}}/resourcesets/$(basename "$manifest")"
+          perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+            my $var = $1; my $default = $2; my $val = $ENV{$var};
+            defined($val) && $val ne "" ? $val : $default;
+          /gex' "$manifest" | envsubst > "$outfile"
+        done
+      # Fix StorageClass parameters to be strings
+      - |
+        for manifest in {{.CLUSTER_OUTPUT_DIR}}/manifests/*.yaml; do
+          [ -f "$manifest" ] || continue
+          yq -i '(select(.kind == "StorageClass") | .parameters.numberOfReplicas) |= . tag = "!!str"' "$manifest"
+        done
+    preconditions:
+      - which envsubst yq perl
+      - test -f "{{.CLUSTER_VARS}}"
+      - test -d "{{.MANIFESTS_DIR}}"
+      - test -d "{{.EXPANDED_DIR}}/resourcesets"
+
+  _validate-kubeconform-base:
+    internal: true
+    desc: Validate non-cluster-specific outputs (Helm charts, ResourceSets with defaults)
+    deps: [_template-all-charts, _expand-resourcesets]
+    cmds:
+      # Skip Kustomization in ResourceSets - they contain ${source_kind} which is cluster-specific
+      # Full Kustomization validation happens in validate-* with proper cluster vars
+      - echo "Validating expanded ResourceSets (skipping Kustomizations with cluster-specific vars)..."
+      - kubeconform {{.KUBECONFORM_ARGS}} -skip Kustomization {{.EXPANDED_DIR}}/resourcesets/*.yaml
       - echo ""
       - echo "Validating templated Helm charts..."
       - kubeconform {{.KUBECONFORM_ARGS}} {{.EXPANDED_DIR}}/helm/*.yaml
-      - echo ""
-      - echo "Validating kustomize manifests..."
-      - kubeconform {{.KUBECONFORM_ARGS}} -skip ResourceSet {{.MANIFESTS_DIR}}/*.yaml
     preconditions:
       - which kubeconform
       - test -d {{.EXPANDED_DIR}}/resourcesets
       - test -d {{.EXPANDED_DIR}}/helm
+
+  _validate-kubeconform-cluster:
+    internal: true
+    desc: Validate cluster-substituted manifests
+    requires:
+      vars: [CLUSTER, CLUSTER_OUTPUT_DIR]
+    cmds:
+      - echo "Validating substituted manifests for cluster {{.CLUSTER}}..."
+      - kubeconform {{.KUBECONFORM_ARGS}} {{.CLUSTER_OUTPUT_DIR}}/resourcesets/*.yaml
+      - echo ""
+      - kubeconform {{.KUBECONFORM_ARGS}} -skip ResourceSet {{.CLUSTER_OUTPUT_DIR}}/manifests/*.yaml
+    preconditions:
+      - which kubeconform
+      - test -d "{{.CLUSTER_OUTPUT_DIR}}/resourcesets"
+      - test -d "{{.CLUSTER_OUTPUT_DIR}}/manifests"
+
+  _validate-all-clusters:
+    internal: true
+    desc: Validate all discovered clusters
+    vars:
+      CLUSTERS:
+        sh: find "{{.CLUSTERS_DIR}}" -name ".cluster-vars.env" -exec dirname {} \; 2>/dev/null | xargs -I{} basename {} | sort || true
+    cmds:
+      - |
+        if [ -z "{{.CLUSTERS}}" ]; then
+          echo "No clusters with .cluster-vars.env found - skipping cluster-specific validation"
+          exit 0
+        fi
+      - for: {var: CLUSTERS}
+        task: validate-{{.ITEM}}
