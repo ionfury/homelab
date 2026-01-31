@@ -115,7 +115,7 @@ inputs:
 | `monitoring-config` | `kube-prometheus-stack`, `canary-checker` | PrometheusRule + Canary CRDs |
 | `canary-checker-config` | `canary-checker` | Canary CRD |
 | `tuppr-config` | `tuppr` | TalosUpgrade/KubernetesUpgrade CRDs |
-| `kromgo-config` | `kromgo` | App deployment must exist |
+| `kromgo-config` | *(none)* | ConfigMap must exist BEFORE app deployment |
 | `flux-notifications-config` | *(none)* | Uses only core Flux CRDs (always present) |
 
 ### Finding CRD Providers

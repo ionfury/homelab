@@ -25,8 +25,8 @@ controllers:
         env:
           TZ: UTC
           PROMETHEUS_URL: http://prometheus-operated.monitoring.svc.cluster.local:9090
-          # Health server port must match probe configuration
-          HEALTH_PORT: "8080"
+          # Health server runs on separate port from main app (8080)
+          HEALTH_PORT: "8081"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -45,7 +45,7 @@ controllers:
             spec:
               httpGet:
                 path: /readyz
-                port: 8080
+                port: 8081
               initialDelaySeconds: 5
               periodSeconds: 30
           readiness:
@@ -54,7 +54,7 @@ controllers:
             spec:
               httpGet:
                 path: /readyz
-                port: 8080
+                port: 8081
               initialDelaySeconds: 5
               periodSeconds: 10
 
