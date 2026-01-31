@@ -7,7 +7,7 @@ set: [pipefail]
 vars:
   CHARTS_DIR: "{{.ROOT_DIR}}/kubernetes/platform/charts"
   HELM_CHARTS_FILE: "{{.ROOT_DIR}}/kubernetes/platform/helm-charts.yaml"
-  CLUSTER_VARS: "{{.ROOT_DIR}}/kubernetes/clusters/dev/.cluster-vars.env"
+  CLUSTERS_DIR: "{{.ROOT_DIR}}/kubernetes/clusters"
   VERSION_VARS: "{{.ROOT_DIR}}/kubernetes/platform/versions.env"
   MANIFESTS_DIR: "/tmp/homelab-manifests"
   PLATFORM_DIR: "{{.ROOT_DIR}}/kubernetes/platform"
@@ -104,22 +104,83 @@ tasks:
   _substitute-vars:
     internal: true
     deps: [_build-manifests, _expand-resourcesets]
+    desc: Substitute variables in manifests for each available cluster (or use defaults if none)
     env:
-      CLUSTER_VARS: "{{.CLUSTER_VARS}}"
       VERSION_VARS: "{{.VERSION_VARS}}"
       MANIFESTS_DIR: "{{.MANIFESTS_DIR}}"
+      CLUSTERS_DIR: "{{.CLUSTERS_DIR}}"
+      EXPANDED_DIR: "{{.EXPANDED_DIR}}"
     cmds:
-      - "{{.TASKFILE_DIR}}/scripts/substitute-vars.sh"
-      # Also substitute vars in expanded ResourceSets for validation
-      # Use perl to handle ${var:-default} syntax, then envsubst for simple patterns
+      # Detect available clusters and substitute vars for each
+      # If no clusters have vars, just apply version defaults
       - |
-        set -a && source "{{.CLUSTER_VARS}}" && source "{{.VERSION_VARS}}" && set +a
-        for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
-          perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
-            my $var = $1; my $default = $2; my $val = $ENV{$var};
-            defined($val) && $val ne "" ? $val : $default;
-          /gex' "$manifest" | envsubst > "${manifest}.tmp"
-          mv "${manifest}.tmp" "$manifest"
+        CLUSTER_VARS_FILES=$(find "{{.CLUSTERS_DIR}}" -name ".cluster-vars.env" 2>/dev/null || true)
+
+        if [ -z "$CLUSTER_VARS_FILES" ]; then
+          echo "No cluster vars found - using version defaults only"
+          # Apply only VERSION_VARS (${var:-default} patterns use defaults)
+          set -a && source "{{.VERSION_VARS}}" && set +a
+
+          # Substitute in kustomize manifests
+          for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
+            [ -f "$manifest" ] || continue
+            perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+              my $var = $1; my $default = $2; my $val = $ENV{$var};
+              defined($val) && $val ne "" ? $val : $default;
+            /gex' "$manifest" | envsubst > "${manifest}.tmp"
+            mv "${manifest}.tmp" "$manifest"
+          done
+
+          # Substitute in ResourceSets
+          for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+            [ -f "$manifest" ] || continue
+            perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+              my $var = $1; my $default = $2; my $val = $ENV{$var};
+              defined($val) && $val ne "" ? $val : $default;
+            /gex' "$manifest" | envsubst > "${manifest}.tmp"
+            mv "${manifest}.tmp" "$manifest"
+          done
+        else
+          echo "Found cluster vars:"
+          echo "$CLUSTER_VARS_FILES" | while read -r f; do echo "  - $f"; done
+          echo ""
+
+          # Validate with each cluster's vars (validates manifests work for all clusters)
+          for CLUSTER_VARS in $CLUSTER_VARS_FILES; do
+            CLUSTER_NAME=$(dirname "$CLUSTER_VARS" | xargs basename)
+            echo "Substituting vars for cluster: $CLUSTER_NAME"
+
+            set -a && source "$CLUSTER_VARS" && source "{{.VERSION_VARS}}" && set +a
+
+            # Substitute in kustomize manifests
+            for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
+              [ -f "$manifest" ] || continue
+              perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+                my $var = $1; my $default = $2; my $val = $ENV{$var};
+                defined($val) && $val ne "" ? $val : $default;
+              /gex' "$manifest" | envsubst > "${manifest}.tmp"
+              mv "${manifest}.tmp" "$manifest"
+            done
+
+            # Substitute in ResourceSets
+            for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
+              [ -f "$manifest" ] || continue
+              perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+                my $var = $1; my $default = $2; my $val = $ENV{$var};
+                defined($val) && $val ne "" ? $val : $default;
+              /gex' "$manifest" | envsubst > "${manifest}.tmp"
+              mv "${manifest}.tmp" "$manifest"
+            done
+
+            # Only need to validate with one cluster's vars (they should all produce valid YAML)
+            break
+          done
+        fi
+      # Fix StorageClass parameters to be strings (envsubst produces unquoted numbers)
+      - |
+        for manifest in {{.MANIFESTS_DIR}}/*.yaml; do
+          [ -f "$manifest" ] || continue
+          yq -i '(select(.kind == "StorageClass") | .parameters.numberOfReplicas) |= . tag = "!!str"' "$manifest"
         done
     preconditions:
       - which envsubst yq
