@@ -2,11 +2,13 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: platform
+  name: cluster-config
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: platform
   interval: 10m
-  path: kubernetes/platform
+  path: kubernetes/clusters/${cluster_name}/config
   postBuild:
     substituteFrom:
       - kind: ConfigMap
@@ -17,6 +19,6 @@ spec:
         optional: true
   prune: true
   sourceRef:
-    kind: OCIRepository
+    kind: GitRepository
     name: flux-system
     namespace: flux-system

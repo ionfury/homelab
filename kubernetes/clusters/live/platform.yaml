@@ -11,8 +11,10 @@ spec:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-vars
+        optional: false
       - kind: ConfigMap
-        name: versions
+        name: platform-versions
+        optional: true
   prune: true
   sourceRef:
     kind: OCIRepository
