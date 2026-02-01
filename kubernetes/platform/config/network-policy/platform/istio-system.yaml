@@ -78,6 +78,14 @@ spec:
             # ztunnel outbound
             - port: "15001"
               protocol: TCP
+    # Allow certificate requests to istio-csr (ztunnel requests workload certs)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cert-manager
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
     # Allow intra-namespace communication
     - toEndpoints:
         - matchLabels:
