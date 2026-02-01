@@ -182,6 +182,13 @@ spec:
         version: "${tuppr_version:-0.0.52}"
         url: oci://ghcr.io/home-operations/charts
       dependsOn: [cilium, kube-prometheus-stack-crds]
+    - name: silence-operator
+      namespace: monitoring
+      chart:
+        name: silence-operator
+        version: "${silence_operator_version:-0.20.0}"
+        url: oci://gsoci.azurecr.io/charts/giantswarm
+      dependsOn: [kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
