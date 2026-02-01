@@ -1,7 +1,7 @@
 [tools]
 # Infrastructure
 opentofu = "1.11.4"
-terragrunt = "0.98.0"
+terragrunt = "0.99.0"
 
 # Kubernetes validation
 helm = "4.1.0"
