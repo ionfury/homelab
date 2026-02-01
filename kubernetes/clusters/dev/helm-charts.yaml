@@ -1,0 +1,96 @@
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: cluster-resources
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcile: "enabled"
+    fluxcd.controlplane.io/reconcileEvery: "30m"
+    fluxcd.controlplane.io/reconcileTimeout: "10m"
+spec:
+  dependsOn:
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      name: platform
+      namespace: flux-system
+  inputs: []
+  resourcesTemplate: |
+    ---
+    apiVersion: source.toolkit.fluxcd.io/v1
+    kind: HelmRepository
+    metadata:
+      name: << inputs.name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      interval: 10m
+      <<- if hasPrefix "oci://" inputs.chart.url >>
+      type: oci
+      <<- end >>
+      url: << inputs.chart.url >>
+    ---
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: << inputs.name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      <<- if inputs.dependsOn >>
+      dependsOn:
+      <<- range $dep := inputs.dependsOn >>
+        - name: << $dep >>
+      <<- end >>
+      <<- end >>
+      chart:
+        spec:
+          chart: << inputs.chart.name >>
+          version: << inputs.chart.version >>
+          interval: 10m
+          sourceRef:
+            kind: HelmRepository
+            name: << inputs.name >>
+      install:
+        createNamespace: false
+        remediation:
+          retries: 3
+        timeout: 10m
+      interval: 10m
+      maxHistory: 3
+      releaseName: << inputs.name >>
+      targetNamespace: << inputs.namespace >>
+      uninstall:
+        keepHistory: false
+      upgrade:
+        crds: CreateReplace
+        remediation:
+          retries: 3
+        timeout: 10m
+      valuesFrom:
+        - kind: ConfigMap
+          name: cluster-values
+          valuesKey: << inputs.name >>.yaml
+    ---
+    # Wrapper Kustomization enables config Kustomizations to dependsOn this HelmRelease
+    apiVersion: kustomize.toolkit.fluxcd.io/v1
+    kind: Kustomization
+    metadata:
+      name: << inputs.name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      <<- if inputs.dependsOn >>
+      dependsOn:
+      <<- range $dep := inputs.dependsOn >>
+        - name: << $dep >>
+      <<- end >>
+      <<- end >>
+      interval: 10m
+      path: kubernetes/clusters/${cluster_name}/stubs/empty
+      prune: false
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+      healthChecks:
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          name: << inputs.name >>
+          namespace: << inputs.provider.namespace >>

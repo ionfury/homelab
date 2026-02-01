@@ -62,10 +62,6 @@ spec:
       namespace: system-upgrade
       path: kubernetes/platform/config/tuppr
       dependsOn: [tuppr]
-    - name: silences-config
-      namespace: monitoring
-      path: kubernetes/platform/config/silences
-      dependsOn: [silence-operator]
   # NOTE: network-policy-config disabled - does not work currently
   resourcesTemplate: |
     ---

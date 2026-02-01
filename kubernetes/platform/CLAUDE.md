@@ -39,8 +39,9 @@ The `config/` directory organizes non-Helm resources by concern:
 | `longhorn/` | Longhorn backup and storage configs |
 | `monitoring/` | Prometheus rules, Grafana dashboards |
 | `secrets/` | Secret generator resources |
-| `silences/` | Alertmanager silences (via silence-operator CRDs) |
 | `tuppr/` | Tuppr upgrade CRs (TalosUpgrade, KubernetesUpgrade) |
+
+**Note**: Alertmanager silences use the per-cluster pattern - see `kubernetes/clusters/CLAUDE.md`.
 
 ---
 
@@ -150,7 +151,6 @@ inputs:
 | `monitoring-config` | `kube-prometheus-stack`, `canary-checker` | PrometheusRule + Canary CRDs |
 | `canary-checker-config` | `canary-checker` | Canary CRD |
 | `tuppr-config` | `tuppr` | TalosUpgrade/KubernetesUpgrade CRDs |
-| `silences-config` | `silence-operator` | Silence CRD |
 | `kromgo-config` | *(none)* | ConfigMap must exist BEFORE app deployment |
 | `flux-notifications-config` | *(none)* | Uses only core Flux CRDs (always present) |
 
