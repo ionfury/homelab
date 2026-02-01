@@ -34,6 +34,7 @@ configMapGenerator:
       - replicator.yaml=charts/replicator.yaml
       - secret-generator.yaml=charts/secret-generator.yaml
       - kromgo.yaml=charts/kromgo.yaml
+      - silence-operator.yaml=charts/silence-operator.yaml
       - spegel.yaml=charts/spegel.yaml
       - tuppr.yaml=charts/tuppr.yaml
   - name: platform-versions
