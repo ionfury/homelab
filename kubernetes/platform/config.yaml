@@ -62,7 +62,10 @@ spec:
       namespace: system-upgrade
       path: kubernetes/platform/config/tuppr
       dependsOn: [tuppr]
-  # NOTE: network-policy-config disabled - does not work currently
+    - name: network-policy-config
+      namespace: kube-system
+      path: kubernetes/platform/config/network-policy
+      dependsOn: [cilium]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

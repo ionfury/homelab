@@ -15,3 +15,5 @@ resources:
   - garage.yaml
   - system.yaml
   - spegel.yaml
+  - system-upgrade.yaml
+  - kromgo.yaml
