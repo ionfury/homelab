@@ -84,7 +84,7 @@ spec:
       <<- end >>
       <<- end >>
       interval: 10m
-      path: kubernetes/clusters/${cluster_name}/stubs/empty
+      path: kubernetes/clusters/dev/stubs/empty
       prune: false
       sourceRef:
         kind: GitRepository

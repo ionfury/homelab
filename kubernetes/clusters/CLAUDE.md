@@ -55,11 +55,13 @@ metadata:
 spec:
   dependsOn:
     - name: platform  # Ensures CRDs exist
-  path: kubernetes/clusters/${cluster_name}/config
+  path: kubernetes/clusters/<cluster>/config  # Hardcoded per cluster
   sourceRef:
     kind: GitRepository  # or OCIRepository for integration/live
     name: flux-system
 ```
+
+**Note**: The `path` field must be hardcoded per cluster - Flux variable substitution only applies to resources *inside* the path, not to the Kustomization spec itself.
 
 **Adding cluster-specific config:**
 1. Create subdirectory in `config/` (e.g., `config/silences/`)
