@@ -218,14 +218,14 @@
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://charts.jetstack.io"
     },
-    // garage-operator (OCI registry)
+    // garage-operator (OCI registry: oci://ghcr.io/rajsinghtech/charts)
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
       "matchStrings": ["garage_operator_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
       "depNameTemplate": "garage-operator",
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/clevyr/garage-operator"
+      "packageNameTemplate": "ghcr.io/rajsinghtech/charts/garage-operator"
     },
     // cloudnative-pg
     {
@@ -236,14 +236,14 @@
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://cloudnative-pg.github.io/charts"
     },
-    // app-template
+    // app-template (OCI registry: oci://ghcr.io/bjw-s/helm)
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
       "matchStrings": ["app_template_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
       "depNameTemplate": "app-template",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://bjw-s.github.io/helm-charts"
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/bjw-s/helm/app-template"
     },
     // spegel (OCI registry)
     {
@@ -254,14 +254,14 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "ghcr.io/spegel-org/helm-charts/spegel"
     },
-    // tuppr (OCI registry)
+    // tuppr (OCI registry: oci://ghcr.io/home-operations/charts)
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
       "matchStrings": ["tuppr_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
       "depNameTemplate": "tuppr",
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/tuppr-io/helm-charts/tuppr"
+      "packageNameTemplate": "ghcr.io/home-operations/charts/tuppr"
     }
   ],
   "ignorePaths": [
