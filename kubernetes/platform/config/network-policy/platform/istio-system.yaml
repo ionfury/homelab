@@ -9,9 +9,9 @@ spec:
   description: "Allow Istio control plane: xDS to data plane, K8s API, webhook traffic"
   endpointSelector: { }
   ingress:
-    # Allow xDS requests from data plane (ztunnel, waypoints)
-    - fromEndpoints:
-        - { }
+    # Allow xDS requests from data plane (ztunnel in kube-system, waypoints)
+    - fromEntities:
+        - cluster
       toPorts:
         - ports:
             # istiod gRPC port

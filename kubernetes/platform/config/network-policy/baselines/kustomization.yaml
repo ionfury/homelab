@@ -6,3 +6,4 @@ resources:
   - dns-egress.yaml
   - prometheus-scrape.yaml
   - kube-api-access.yaml
+  - health-probes.yaml

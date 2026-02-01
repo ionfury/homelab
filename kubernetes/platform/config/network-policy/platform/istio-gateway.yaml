@@ -31,6 +31,17 @@ spec:
         - ports:
             - port: "15020"
               protocol: TCP
+    # Allow canary-checker health checks
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: canary-checker
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
     # Allow xDS from istiod
     - fromEndpoints:
         - matchLabels:
@@ -69,6 +80,13 @@ spec:
             - port: "15010"
               protocol: TCP
             - port: "15012"
+              protocol: TCP
+    # Allow external HTTPS (JWKS fetch for OAuth/OIDC authentication)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
               protocol: TCP
     # Allow intra-namespace communication
     - toEndpoints:

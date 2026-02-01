@@ -3,10 +3,10 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: cert-manager-default
-  namespace: cert-manager
+  name: system-upgrade-default
+  namespace: system-upgrade
 spec:
-  description: "Allow cert-manager: ACME challenges, DNS providers, K8s API, istio-csr"
+  description: "Allow Tuppr: Talos/Kubernetes upgrade controller requiring Talos API access"
   endpointSelector: { }
   ingress:
     # Allow Prometheus scraping
@@ -16,29 +16,12 @@ spec:
             app.kubernetes.io/name: prometheus
       toPorts:
         - ports:
-            - port: "9402"
-              protocol: TCP
-    # Allow webhooks from K8s API server
-    - fromEntities:
-        - kube-apiserver
-      toPorts:
-        - ports:
-            - port: "10250"
-              protocol: TCP
-    # Allow istio-csr certificate requests from istiod, ztunnel, and gateways
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: istio-system
-        - matchLabels:
-            io.kubernetes.pod.namespace: istio-gateway
-      toPorts:
-        - ports:
-            - port: "6443"
+            - port: "8080"
               protocol: TCP
     # Allow intra-namespace communication
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: cert-manager
+            io.kubernetes.pod.namespace: system-upgrade
   egress:
     # Allow DNS resolution
     - toEndpoints:
@@ -51,23 +34,22 @@ spec:
               protocol: UDP
             - port: "53"
               protocol: TCP
-    # Allow Kubernetes API access
+    # Allow Kubernetes API access (watch TalosUpgrade/KubernetesUpgrade CRs, update node status)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
               protocol: TCP
-    # Allow ACME providers (Let's Encrypt, ZeroSSL) and DNS providers (Cloudflare)
+    # Allow Talos API access to nodes (for executing upgrades)
+    # Talos API runs on port 50000 on each node
     - toEntities:
-        - world
+        - host
       toPorts:
         - ports:
-            - port: "443"
-              protocol: TCP
-            - port: "80"
+            - port: "50000"
               protocol: TCP
     # Allow intra-namespace communication
     - toEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: cert-manager
+            io.kubernetes.pod.namespace: system-upgrade

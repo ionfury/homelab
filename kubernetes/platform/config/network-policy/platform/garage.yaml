@@ -54,6 +54,13 @@ spec:
         - ports:
             - port: "3903"
               protocol: TCP
+    # Allow HBONE mesh traffic (Istio ambient mode)
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "15008"
+              protocol: TCP
   egress:
     # Allow DNS resolution
     - toEndpoints:

@@ -10,8 +10,8 @@ spec:
   endpointSelector: { }
   ingress:
     # Allow CSI driver requests from all namespaces (pods mounting volumes)
-    - fromEndpoints:
-        - { }
+    - fromEntities:
+        - cluster
       toPorts:
         - ports:
             - port: "9500"
