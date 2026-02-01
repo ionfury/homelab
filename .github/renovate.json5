@@ -92,14 +92,15 @@
     // ============================================================
     // Helm chart versions (kubernetes/platform/versions.env)
     // ============================================================
-    // cert-manager
+    // cert-manager (chart versions are v-prefixed, we store without v)
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
       "matchStrings": ["cert_manager_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
       "depNameTemplate": "cert-manager",
       "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://charts.jetstack.io"
+      "registryUrlTemplate": "https://charts.jetstack.io",
+      "extractVersionTemplate": "^v(?<version>.*)$"
     },
     // external-secrets
     {
@@ -119,20 +120,20 @@
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://kubernetes-sigs.github.io/descheduler"
     },
-    // longhorn (v-prefixed)
+    // longhorn (chart versions are unprefixed)
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["longhorn_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "matchStrings": ["longhorn_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
       "depNameTemplate": "longhorn",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://charts.longhorn.io"
     },
-    // reloader (v-prefixed)
+    // reloader (chart versions are unprefixed)
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["reloader_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "matchStrings": ["reloader_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
       "depNameTemplate": "reloader",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://stakater.github.io/stakater-charts"
@@ -265,6 +266,7 @@
     }
   ],
   "ignorePaths": [
+    "kubernetes/.old/**",
     "kubernetes/clusters/*/flux-system/**",
     "kubernetes/clusters/generated-cluster-vars.env"
   ],
