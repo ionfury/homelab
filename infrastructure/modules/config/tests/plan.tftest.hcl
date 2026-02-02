@@ -162,9 +162,10 @@ run "cluster_endpoint" {
 run "unifi_output_structure" {
   command = plan
 
+  # 2 controlplane records + 2 wildcard ingress records (internal + external)
   assert {
-    condition     = length(output.unifi.dns_records) == 2
-    error_message = "Expected 2 DNS records (one per controlplane node)"
+    condition     = length(output.unifi.dns_records) == 4
+    error_message = "Expected 4 DNS records (2 controlplane + 2 wildcard ingress)"
   }
 
   assert {

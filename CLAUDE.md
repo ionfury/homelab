@@ -58,6 +58,34 @@ Documentation and skills are living artifacts. Improve them proactively:
 - Anti-patterns encountered that should be warned against
 - Workflow improvements that benefit future tasks
 
+## Agent Orchestration
+
+The main Claude agent operates as an **orchestrator**, not a direct executor. This maximizes context window efficiency and enables parallel work:
+
+- **Delegate aggressively**: Use the Task tool to spawn specialized sub-agents for exploration, code review, architecture analysis, and implementation tasks
+- **Preserve context**: The orchestrator's context is precious - offload research, file exploration, and deep dives to sub-agents
+- **Use task lists**: For multi-step work, create a task list (TaskCreate) to track progress and maintain visibility
+- **Clarify proactively**: Use AskUserQuestion liberally to validate assumptions, confirm approaches, and gather requirements before proceeding
+- **Parallel execution**: Launch multiple sub-agents simultaneously when tasks are independent
+
+**When to delegate vs execute directly:**
+
+| Delegate to Sub-Agent | Execute Directly |
+|-----------------------|------------------|
+| Codebase exploration ("find all usages of X") | Single file reads you know the path to |
+| Multi-file search patterns | Simple edits with clear requirements |
+| Architecture investigation | Running known task commands |
+| Code review | Quick validations |
+| Implementation of isolated components | Clarification questions to user |
+
+**Clarification is not overhead** - asking questions via AskUserQuestion saves context and prevents wasted work. When uncertain about:
+- Which approach the user prefers
+- Scope boundaries of a task
+- Priority between competing options
+- Acceptability of trade-offs
+
+...ask first, then proceed with confidence.
+
 ---
 
 # CHANGE MANAGEMENT & DEPLOYMENT

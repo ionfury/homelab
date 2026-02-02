@@ -347,15 +347,29 @@ locals {
     { name = "kubernetes_version", value = var.versions.kubernetes },
   ]
 
-  # DNS records for control plane nodes
-  dns_records = {
-    for name, machine in local.machines :
-    name => {
-      name   = local.cluster_endpoint
-      record = machine.bonds[0].addresses[0]
+  # DNS records for control plane nodes AND wildcard ingress
+  dns_records = merge(
+    # Controlplane records (k8s API endpoint)
+    {
+      for name, machine in local.machines :
+      name => {
+        name   = local.cluster_endpoint
+        record = machine.bonds[0].addresses[0]
+      }
+      if machine.type == "controlplane"
+    },
+    # Wildcard ingress records
+    {
+      "internal-ingress-wildcard" = {
+        name   = "*.${var.networking.internal_tld}"
+        record = var.networking.internal_ingress_ip
+      }
+      "external-ingress-wildcard" = {
+        name   = "*.${var.networking.external_tld}"
+        record = var.networking.external_ingress_ip
+      }
     }
-    if machine.type == "controlplane"
-  }
+  )
 
   # DHCP reservations for all cluster machines
   dhcp_reservations = {

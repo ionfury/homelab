@@ -291,10 +291,19 @@ run "worker_only_no_vip" {
     error_message = "Worker nodes should not have Layer2VIPConfig"
   }
 
-  # No DNS records for workers
+  # Workers don't create controlplane DNS records, but wildcard ingress records still exist
   assert {
-    condition     = length(output.unifi.dns_records) == 0
-    error_message = "Workers should not create DNS records"
+    condition     = length(output.unifi.dns_records) == 2
+    error_message = "Workers should only have wildcard ingress DNS records (internal + external)"
+  }
+
+  # Verify no controlplane DNS records exist (only wildcards)
+  assert {
+    condition = alltrue([
+      for key, record in output.unifi.dns_records :
+      startswith(record.name, "*.")
+    ])
+    error_message = "Workers should only have wildcard DNS records, not controlplane records"
   }
 
   # DHCP still created for workers
