@@ -130,13 +130,13 @@ locals {
       }
       volumes = [
         { # 1920GB Kingston SSD
-          name     = "kingston_ssd_1920gb_0"
+          name     = "kingston-ssd-1920gb-0"
           selector = "disk.dev_path == '/dev/sda'"
           maxSize  = "100%"
           tags     = ["fast", "ssd", "any"]
         },
         { # 20TB Seagate HDD
-          name     = "seagate_hdd_20tb_0"
+          name     = "seagate-hdd-20tb-0"
           selector = "disk.dev_path == '/dev/sdb'"
           maxSize  = "100%"
           tags     = ["slow", "hdd", "any"]
@@ -157,20 +157,14 @@ locals {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
       volumes = [
-        {
-          name     = "longhorn"
-          selector = "system_disk == true"
-          maxSize  = "50%"
-          tags     = ["fast", "ssd", "any"]
-        },
         { # 1920GB Kingston SSD
-          name     = "kingston_ssd_1920gb_0"
+          name     = "kingston-ssd-1920gb-0"
           selector = "disk.dev_path == '/dev/sda'"
           maxSize  = "100%"
           tags     = ["fast", "ssd", "any"]
         },
         { # 20TB Seagate HDD
-          name     = "seagate_hdd_20tb_0"
+          name     = "seagate-hdd-20tb-0"
           selector = "disk.dev_path == '/dev/sdb'"
           maxSize  = "100%"
           tags     = ["slow", "hdd", "any"]
@@ -190,20 +184,15 @@ locals {
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
-      volumes = [{
-        name     = "longhorn"
-        selector = "system_disk == true"
-        maxSize  = "50%"
-        tags     = ["fast", "ssd", "any"]
-        },
+      volumes = [
         { # 1TB Crucial SSD
-          name     = "crucial_ssd_1tb_0"
+          name     = "crucial-ssd-1tb-0"
           selector = "disk.dev_path == '/dev/sda'"
           maxSize  = "100%"
           tags     = ["fast", "ssd", "any"]
         },
         { # 1TB Crucial SSD
-          name     = "crucial_ssd_1tb_1"
+          name     = "crucial-ssd-1tb-1"
           selector = "disk.dev_path == '/dev/sdb'"
           maxSize  = "100%"
           tags     = ["fast", "ssd", "any"]
@@ -224,13 +213,13 @@ locals {
       }
       volumes = [
         { # 480GB Kingston SSD
-          name     = "kingston_ssd_480gb_0"
+          name     = "kingston-ssd-480gb-0"
           selector = "disk.dev_path == '/dev/sda'"
           maxSize  = "100%"
           tags     = ["fast", "ssd", "any"]
         },
         { # 480GB Kingston SSD
-          name     = "kingston_ssd_480gb_1"
+          name     = "kingston-ssd-480gb-1"
           selector = "disk.dev_path == '/dev/sdb'"
           maxSize  = "100%"
           tags     = ["fast", "ssd", "any"]
