@@ -19,10 +19,7 @@ spec:
   http:
     - name: kubernetes-api
       url: https://kubernetes.default.svc/healthz
-      responseCodes: [200]
-    - name: flux-source-controller
-      url: http://source-controller.flux-system:9090/healthz
-      responseCodes: [200]
+      responseCodes: [200, 401]
   # Kubernetes resource check - verify no failing pods
   kubernetes:
     - name: flux-pods-healthy

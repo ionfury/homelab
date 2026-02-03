@@ -8,7 +8,7 @@ spec:
   schedule: "@every 1m"
   http:
     - name: external-gateway-health
-      url: https://kromgo.${external_domain}
+      url: https://kromgo.${external_domain}/node_count
       responseCodes: [200]
       maxSSLExpiry: 7
       thresholdMillis: 5000

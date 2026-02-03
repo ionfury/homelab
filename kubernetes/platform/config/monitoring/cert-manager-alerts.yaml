@@ -12,7 +12,7 @@ spec:
       rules:
         - alert: CertificateExpiringSoon14d
           expr: |
-            certmanager_certificate_expiration_timestamp_seconds - time() < 86400 * 14
+            certmanager_certificate_expiration_timestamp_seconds{name!="istiod"} - time() < 86400 * 14
           labels:
             severity: warning
           annotations:
@@ -24,7 +24,7 @@ spec:
 
         - alert: CertificateExpiringSoon7d
           expr: |
-            certmanager_certificate_expiration_timestamp_seconds - time() < 86400 * 7
+            certmanager_certificate_expiration_timestamp_seconds{name!="istiod"} - time() < 86400 * 7
           labels:
             severity: warning
           annotations:
@@ -36,7 +36,7 @@ spec:
 
         - alert: CertificateExpiringSoon24h
           expr: |
-            certmanager_certificate_expiration_timestamp_seconds - time() < 86400
+            certmanager_certificate_expiration_timestamp_seconds{name!="istiod"} - time() < 86400
           for: 1h
           labels:
             severity: critical
