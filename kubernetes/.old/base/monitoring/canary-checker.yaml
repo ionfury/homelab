@@ -1,9 +1,0 @@
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: canary-checker
-spec:
-  path: kubernetes/manifests/helm-release/canary-checker
-  postBuild:
-    substitute:
-      HELM_CHART_VERSION: 1.1.1
