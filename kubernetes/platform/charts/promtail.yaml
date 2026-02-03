@@ -20,3 +20,30 @@ config:
             regex: ^loki$
 serviceMonitor:
   enabled: true
+prometheusRule:
+  enabled: true
+  rules:
+    - alert: PromtailDroppedEntries
+      expr: rate(promtail_dropped_entries_total[5m]) > 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Promtail dropping log entries"
+        description: "Promtail is dropping {{ $value | humanize }} entries/second. This may indicate Loki is unavailable or overloaded."
+    - alert: PromtailRequestErrors
+      expr: rate(promtail_request_duration_seconds_count{status_code=~"5.."}[5m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Promtail requests failing"
+        description: "Promtail is experiencing errors sending logs to Loki."
+    - alert: PromtailFileLagging
+      expr: promtail_file_bytes_total - promtail_read_bytes_total > 1e9
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Promtail falling behind"
+        description: "Promtail has over 1GB of logs to process, indicating it cannot keep up with log volume."
