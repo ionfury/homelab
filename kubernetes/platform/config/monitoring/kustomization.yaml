@@ -13,3 +13,5 @@ resources:
   - prometheus-route.yaml
   - prometheus-canary.yaml
   - network-policy-alerts.yaml
+  - istio-servicemonitors.yaml
+  - istio-alerts.yaml
