@@ -12,4 +12,5 @@ resources:
   - grafana-canary.yaml
   - prometheus-route.yaml
   - prometheus-canary.yaml
+  - cert-manager-alerts.yaml
   - network-policy-alerts.yaml
