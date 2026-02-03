@@ -1,7 +1,0 @@
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: prometheus-ipmi-exporter-supermicro-rules
-spec:
-  path: kubernetes/manifests/common/resources/prometheus-ipmi-exporter-supermico-rules
