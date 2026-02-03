@@ -13,3 +13,4 @@ resources:
   - prometheus-route.yaml
   - prometheus-canary.yaml
   - network-policy-alerts.yaml
+  - external-secrets-alerts.yaml
