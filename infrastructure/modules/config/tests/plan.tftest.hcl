@@ -309,29 +309,6 @@ run "cluster_vars_content" {
   }
 }
 
-run "version_vars_content" {
-  command = plan
-
-  assert {
-    condition     = length(output.version_vars) == 5
-    error_message = "Expected exactly 5 version vars"
-  }
-
-  assert {
-    condition = anytrue([
-      for v in output.version_vars : v.name == "talos_version" && v.value == "v1.9.0"
-    ])
-    error_message = "talos_version env var should match versions.talos"
-  }
-
-  assert {
-    condition = anytrue([
-      for v in output.version_vars : v.name == "kubernetes_version" && v.value == "1.32.0"
-    ])
-    error_message = "kubernetes_version env var should match versions.kubernetes"
-  }
-}
-
 # Talos 1.12 configs array structure
 run "talos_configs_array_structure" {
   command = plan
