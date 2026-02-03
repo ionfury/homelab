@@ -177,14 +177,16 @@ spec:
               mesh workloads. Check cert-manager logs and istio-mesh-ca ClusterIssuer.
 
         # istio-csr certificate expiry approaching
+        # Note: istiod certs have 24h validity and renew at 50% lifetime (12h).
+        # Alert only if < 6h remaining (renewal should have happened by now).
         - alert: IstioCSRCertificateExpiringSoon
           expr: |
-            certmanager_certificate_expiration_timestamp_seconds{name=~"istiod.*"} - time() < 86400 * 2
-          for: 1h
+            certmanager_certificate_expiration_timestamp_seconds{name=~"istiod.*"} - time() < 21600
+          for: 30m
           labels:
             severity: warning
           annotations:
-            summary: "Istio component certificate expiring in < 2 days"
+            summary: "Istio component certificate expiring in < 6 hours"
             description: >-
               Certificate {{ $labels.name }} expires in {{ $value | humanizeDuration }}.
-              Check cert-manager renewal status.
+              Renewal should have occurred at 12h remaining. Check cert-manager and istio-csr health.

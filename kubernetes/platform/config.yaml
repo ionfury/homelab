@@ -57,7 +57,7 @@ spec:
     - name: flux-notifications-config
       namespace: flux-system
       path: kubernetes/platform/config/flux-notifications
-      dependsOn: []
+      dependsOn: [external-secrets-stores]
     - name: tuppr-config
       namespace: system-upgrade
       path: kubernetes/platform/config/tuppr
