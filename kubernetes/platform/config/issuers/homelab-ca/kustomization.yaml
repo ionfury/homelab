@@ -3,6 +3,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - cloudflare-issuer
-  - homelab-ca
-  - istio-mesh-ca
+  - external-secret.yaml
+  - ca-issuer.yaml
