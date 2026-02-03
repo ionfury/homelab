@@ -1,7 +1,11 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: flux-system
 resources:
   - github-provider.yaml
   - canary-alert.yaml
+  - discord-secret.yaml
+  - discord-provider.yaml
+  - reconciliation-failure-alert.yaml
