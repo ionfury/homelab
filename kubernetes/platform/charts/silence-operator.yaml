@@ -17,9 +17,11 @@ podMonitor:
   enabled: true
 
 # Resource requests/limits
+# Chart defaults to cpu limit of 50m which causes throttling and liveness probe failures
 resources:
   requests:
     cpu: 10m
     memory: 32Mi
   limits:
+    cpu: 200m
     memory: 64Mi

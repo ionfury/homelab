@@ -1,0 +1,117 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: loki-mixin-alerts
+  labels:
+    app.kubernetes.io/name: loki
+spec:
+  groups:
+    - name: loki-alerts
+      rules:
+        - alert: LokiRequestErrors
+          expr: |
+            100 * sum(rate(loki_request_duration_seconds_count{status_code=~"5.."}[5m])) by (namespace, job, route)
+            /
+            sum(rate(loki_request_duration_seconds_count[5m])) by (namespace, job, route)
+            > 10
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Loki request error rate is high"
+            description: >-
+              Loki {{ $labels.route }} in {{ $labels.namespace }} is experiencing
+              {{ printf "%.2f" $value }}% errors.
+
+        - alert: LokiRequestLatency
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(loki_request_duration_seconds_bucket[5m])) by (le, namespace, job, route)
+            ) > 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Loki request latency is high"
+            description: >-
+              Loki {{ $labels.route }} in {{ $labels.namespace }} p99 latency
+              is {{ printf "%.2f" $value }}s.
+
+        - alert: LokiIngesterUnhealthy
+          expr: |
+            loki_ring_members{state="Unhealthy", name="ingester"} > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Loki ingester is unhealthy"
+            description: >-
+              Loki ingester ring in {{ $labels.namespace }} has {{ $value }}
+              unhealthy member(s).
+
+        - alert: LokiDistributorSpanErrors
+          expr: |
+            100 * sum(rate(loki_distributor_bytes_received_total{status_code=~"5.."}[5m])) by (namespace, job)
+            /
+            sum(rate(loki_distributor_bytes_received_total[5m])) by (namespace, job)
+            > 10
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Loki distributor is experiencing high error rate"
+            description: >-
+              Loki distributor in {{ $labels.namespace }} is experiencing
+              {{ printf "%.2f" $value }}% span errors.
+
+        - alert: LokiQueryFrontendQueriesSlowOrFailing
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(loki_request_duration_seconds_bucket{route=~"loki_api_v1_query.*"}[5m])) by (le, namespace, job)
+            ) > 10
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Loki query performance is degraded"
+            description: >-
+              Loki queries in {{ $labels.namespace }} have p99 latency
+              of {{ printf "%.2f" $value }}s.
+
+        - alert: LokiTooManyCompactorsRunning
+          expr: |
+            sum(loki_boltdb_shipper_compactor_running) by (namespace) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Too many Loki compactors running"
+            description: >-
+              {{ $value }} compactors are running in {{ $labels.namespace }}.
+              Only one compactor should be active at a time.
+
+        - alert: LokiCompactorNotRunning
+          expr: |
+            sum(loki_boltdb_shipper_compactor_running) by (namespace) == 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Loki compactor is not running"
+            description: >-
+              No Loki compactor is running in {{ $labels.namespace }}.
+              Log retention and index optimization will not occur.
+
+        - alert: LokiStreamLimitReached
+          expr: |
+            sum(rate(loki_distributor_lines_received_total{status_code="429"}[5m])) by (namespace, job) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Loki stream limit reached"
+            description: >-
+              Loki in {{ $labels.namespace }} is rejecting logs due to
+              stream limits. Some logs may be lost.
