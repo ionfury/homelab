@@ -1,0 +1,272 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: garage-alerts
+  labels:
+    app.kubernetes.io/name: garage
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: garage-cluster
+      rules:
+        # Cluster health
+        - alert: GarageClusterUnhealthy
+          expr: cluster_healthy{job=~".*garage.*"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Garage cluster is unhealthy"
+            description: >-
+              Garage cluster reports unhealthy state. Not all storage nodes
+              are connected. S3 requests may fail or return stale data.
+
+        - alert: GarageClusterDegraded
+          expr: cluster_available{job=~".*garage.*"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Garage cluster cannot serve requests"
+            description: >-
+              Garage cluster cannot serve all requests because too many
+              storage nodes are disconnected. S3 operations will fail.
+
+        # Storage node connectivity
+        - alert: GarageStorageNodeDown
+          expr: |
+            cluster_storage_nodes_ok{job=~".*garage.*"}
+            < cluster_storage_nodes{job=~".*garage.*"}
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage storage node disconnected"
+            description: >-
+              {{ $value }} storage nodes are disconnected from the cluster.
+              Data redundancy is reduced until nodes reconnect.
+
+        # Partition quorum
+        - alert: GaragePartitionQuorumLoss
+          expr: |
+            cluster_partitions_quorum{job=~".*garage.*"}
+            < cluster_partitions{job=~".*garage.*"}
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Garage partitions losing quorum"
+            description: >-
+              {{ $value }} partitions have lost quorum. Writes to affected
+              partitions will fail. Check node connectivity immediately.
+
+        - alert: GaragePartitionsDegraded
+          expr: |
+            cluster_partitions_all_ok{job=~".*garage.*"}
+            < cluster_partitions{job=~".*garage.*"}
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage partitions degraded"
+            description: >-
+              Not all partitions have full replica connectivity.
+              {{ $value }} partitions have all nodes connected out of 256.
+
+    - name: garage-disk
+      rules:
+        # Disk space critical
+        - alert: GarageDiskSpaceCritical
+          expr: |
+            (garage_local_disk_avail{role="data", job=~".*garage.*"}
+            / garage_local_disk_total{role="data", job=~".*garage.*"}) < 0.1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Garage data disk < 10% free on {{ $labels.instance }}"
+            description: >-
+              Garage data disk on {{ $labels.instance }} has only
+              {{ $value | humanizePercentage }} free space. Writes will
+              fail when disk is full.
+
+        - alert: GarageDiskSpaceWarning
+          expr: |
+            (garage_local_disk_avail{role="data", job=~".*garage.*"}
+            / garage_local_disk_total{role="data", job=~".*garage.*"}) < 0.2
+            and
+            (garage_local_disk_avail{role="data", job=~".*garage.*"}
+            / garage_local_disk_total{role="data", job=~".*garage.*"}) >= 0.1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage data disk < 20% free on {{ $labels.instance }}"
+            description: >-
+              Garage data disk on {{ $labels.instance }} has only
+              {{ $value | humanizePercentage }} free space. Plan capacity expansion.
+
+        # Metadata disk
+        - alert: GarageMetadataDiskSpaceCritical
+          expr: |
+            (garage_local_disk_avail{role="metadata", job=~".*garage.*"}
+            / garage_local_disk_total{role="metadata", job=~".*garage.*"}) < 0.1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Garage metadata disk < 10% free on {{ $labels.instance }}"
+            description: >-
+              Garage metadata disk on {{ $labels.instance }} is nearly full.
+              Metadata exhaustion will cause cluster-wide failures.
+
+    - name: garage-api
+      rules:
+        # S3 API errors
+        - alert: GarageS3ErrorRateHigh
+          expr: |
+            (
+              sum by (instance) (rate(api_s3_error_counter{job=~".*garage.*"}[5m]))
+              /
+              sum by (instance) (rate(api_s3_request_counter{job=~".*garage.*"}[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage S3 API error rate > 5%"
+            description: >-
+              Garage S3 API on {{ $labels.instance }} has
+              {{ $value | humanizePercentage }} error rate.
+              Check application requests and cluster health.
+
+        - alert: GarageS3ErrorRateCritical
+          expr: |
+            (
+              sum by (instance) (rate(api_s3_error_counter{job=~".*garage.*"}[5m]))
+              /
+              sum by (instance) (rate(api_s3_request_counter{job=~".*garage.*"}[5m]))
+            ) > 0.2
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Garage S3 API error rate > 20%"
+            description: >-
+              Garage S3 API on {{ $labels.instance }} has critically high
+              error rate of {{ $value | humanizePercentage }}. S3 operations
+              are largely failing.
+
+        # S3 latency
+        - alert: GarageS3LatencyHigh
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(api_s3_request_duration_bucket{job=~".*garage.*"}[5m])) by (le, instance)
+            ) > 5
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage S3 API p99 latency > 5s"
+            description: >-
+              S3 request latency p99 on {{ $labels.instance }} is
+              {{ $value | humanizeDuration }}. Check disk I/O and network.
+
+    - name: garage-resync
+      rules:
+        # Block resync errors (critical - data not replicating)
+        - alert: GarageBlockResyncErrors
+          expr: block_resync_errored_blocks{job=~".*garage.*"} > 0
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Garage blocks failing to resync"
+            description: >-
+              {{ $value }} blocks on {{ $labels.instance }} are failing to
+              resync. Data replication is broken. Check disk health and
+              network connectivity between nodes.
+
+        # Large resync backlog
+        - alert: GarageResyncBacklogHigh
+          expr: block_resync_queue_length{job=~".*garage.*"} > 10000
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage resync queue backlog > 10k blocks"
+            description: >-
+              Garage on {{ $labels.instance }} has {{ $value }} blocks
+              queued for resync. Large backlogs indicate node recovery
+              or network issues.
+
+    - name: garage-rpc
+      rules:
+        # RPC timeouts
+        - alert: GarageRPCTimeoutsHigh
+          expr: rate(rpc_timeout_counter{job=~".*garage.*"}[5m]) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage RPC timeouts increasing"
+            description: >-
+              Garage on {{ $labels.instance }} is experiencing
+              {{ $value | humanize }}/s RPC timeouts. Inter-node
+              communication is degraded.
+
+        # RPC errors
+        - alert: GarageRPCErrorsHigh
+          expr: rate(rpc_netapp_error_counter{job=~".*garage.*"}[5m]) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage RPC errors increasing"
+            description: >-
+              Garage on {{ $labels.instance }} has {{ $value | humanize }}/s
+              RPC communication errors. Check network between nodes.
+
+        # RPC latency
+        - alert: GarageRPCLatencyHigh
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(rpc_duration_bucket{job=~".*garage.*"}[5m])) by (le, instance)
+            ) > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage inter-node RPC p99 latency > 1s"
+            description: >-
+              Internal RPC latency p99 is {{ $value | humanizeDuration }}.
+              Cluster operations will be slow. Check network latency.
+
+    - name: garage-tables
+      rules:
+        # Merkle tree updater backlog
+        - alert: GarageMerkleUpdaterBacklog
+          expr: table_merkle_updater_todo_queue_length{job=~".*garage.*"} > 10000
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage merkle tree updater backlog high"
+            description: >-
+              Merkle tree updater on {{ $labels.instance }} has {{ $value }}
+              pending updates for table {{ $labels.table_name }}. May indicate
+              high write load or slow disk.
+
+        # GC queue buildup
+        - alert: GarageGCQueueHigh
+          expr: table_gc_todo_queue_length{job=~".*garage.*"} > 50000
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage table GC queue high"
+            description: >-
+              Garbage collector queue on {{ $labels.instance }} has {{ $value }}
+              items for table {{ $labels.table_name }}. GC may be falling behind.
