@@ -51,3 +51,5 @@ lokiCanary:
   enabled: false
 test:
   enabled: false
+serviceMonitor:
+  enabled: true
