@@ -1,0 +1,65 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: grafana-alerts
+  labels:
+    app.kubernetes.io/name: grafana
+spec:
+  groups:
+    - name: grafana.rules
+      rules:
+        - alert: GrafanaDatasourceUnhealthy
+          expr: |
+            sum by (datasource_name) (rate(grafana_datasource_request_total{status="5xx"}[5m])) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Grafana datasource {{ $labels.datasource_name }} returning errors"
+            description: >-
+              Datasource {{ $labels.datasource_name }} has been returning 5xx errors
+              for more than 10 minutes. Dashboard panels using this datasource may be
+              failing to load data.
+
+        - alert: GrafanaHighErrorRate
+          expr: |
+            (
+              sum(rate(grafana_http_request_total{status=~"5.."}[5m]))
+              /
+              sum(rate(grafana_http_request_total[5m]))
+            ) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Grafana HTTP error rate above 5%"
+            description: >-
+              Grafana is returning HTTP 5xx errors at a rate above 5% for the last
+              10 minutes. This indicates potential service degradation affecting
+              dashboard availability and API consumers.
+
+        - alert: GrafanaPluginLoadFailure
+          expr: |
+            increase(grafana_plugin_load_failures_total[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Grafana plugin failed to load"
+            description: >-
+              One or more Grafana plugins have failed to load in the last 5 minutes.
+              This may cause certain panels or datasources to be unavailable.
+
+        - alert: GrafanaDown
+          expr: |
+            up{job=~".*grafana.*"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Grafana is unavailable"
+            description: >-
+              Grafana has been unreachable for more than 5 minutes. Dashboard access
+              and alerting through Grafana are unavailable.
