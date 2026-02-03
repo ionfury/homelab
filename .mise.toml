@@ -7,6 +7,7 @@ terragrunt = "0.99.0"
 helm = "4.1.0"
 kustomize = "5.8.0"
 kubeconform = "0.6.7"
+"aqua:FairwindsOps/pluto" = "5.21.0"  # API deprecation checker
 yq = "4.50.1"
 yamllint = "1.38.0"
 
