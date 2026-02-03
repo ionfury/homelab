@@ -24,7 +24,8 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 ### Kubernetes Validation (k8s:)
 
 ```bash
-task k8s:validate              # Full validation (lint, ResourceSets, all charts, kubeconform)
+task k8s:validate              # Full validation (lint, ResourceSets, charts, kubeconform, deprecations)
+task k8s:deprecations          # Show all deprecated APIs (informational - doesn't fail)
 task k8s:dry-run-dev           # Server-side dry-run against dev cluster
 task k8s:apply-dev             # Apply to dev cluster (with confirmation)
 ```

@@ -1,0 +1,132 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: longhorn-alerts
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: longhorn.rules
+      rules:
+        # Volume Health - Critical
+        - alert: LonghornVolumeStatusCritical
+          expr: longhorn_volume_robustness == 3
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is faulted"
+            description: "Volume {{ $labels.volume }} in namespace {{ $labels.pvc_namespace }} has robustness state 'faulted'. Data may be at risk. Immediate attention required."
+
+        # Volume Health - Warning
+        - alert: LonghornVolumeStatusDegraded
+          expr: longhorn_volume_robustness == 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is degraded"
+            description: "Volume {{ $labels.volume }} in namespace {{ $labels.pvc_namespace }} has robustness state 'degraded'. Replica count is below desired. Check node health and disk availability."
+
+        # Volume Space - Per Volume
+        - alert: LonghornVolumeActualSpaceUsedWarning
+          expr: (longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes) * 100 > 90
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} actual space > 90%"
+            description: "Volume {{ $labels.volume }} actual used space is {{ $value | printf \"%.1f\" }}% of capacity. Consider expanding the volume or cleaning up data."
+
+        # Node Storage
+        - alert: LonghornNodeStorageWarning
+          expr: (longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100 > 70
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn node {{ $labels.node }} storage usage > 70%"
+            description: "Node {{ $labels.node }} storage usage is at {{ $value | printf \"%.1f\" }}%. Consider adding capacity or migrating volumes."
+
+        # Disk Storage
+        - alert: LonghornDiskStorageWarning
+          expr: (longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) * 100 > 70
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn disk {{ $labels.disk }} storage usage > 70%"
+            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} is at {{ $value | printf \"%.1f\" }}% capacity."
+
+        # Node Down - Critical
+        - alert: LonghornNodeDown
+          expr: (avg(longhorn_node_count_total) or on() vector(0)) - (count(longhorn_node_status{condition="ready"} == 1) or on() vector(0)) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn node(s) offline"
+            description: "One or more Longhorn nodes are not ready. This affects volume scheduling and may degrade existing volumes."
+
+        # Instance Manager CPU
+        - alert: LonghornInstanceManagerCPUUsageWarning
+          expr: (longhorn_instance_manager_cpu_usage_millicpu / longhorn_instance_manager_cpu_requests_millicpu) * 100 > 300
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn instance manager CPU > 300% of request"
+            description: "Instance manager {{ $labels.instance_manager }} is consuming {{ $value | printf \"%.0f\" }}% of requested CPU. This may indicate I/O pressure or volume issues."
+
+        # Node CPU
+        - alert: LonghornNodeCPUUsageWarning
+          expr: (longhorn_node_cpu_usage_millicpu / longhorn_node_cpu_capacity_millicpu) * 100 > 90
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn node {{ $labels.node }} CPU > 90%"
+            description: "Node {{ $labels.node }} Longhorn CPU usage is at {{ $value | printf \"%.1f\" }}%. High CPU pressure can impact storage performance."
+
+        # Backup State - Error
+        - alert: LonghornBackupFailed
+          expr: longhorn_backup_state == 3
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn backup {{ $labels.backup }} failed"
+            description: "Backup {{ $labels.backup }} for volume {{ $labels.volume }} is in error state. Check backup target connectivity and available space."
+
+        # Snapshot Space Warning
+        - alert: LonghornSnapshotSpaceWarning
+          expr: longhorn_snapshot_actual_size_bytes > 10737418240
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn snapshot {{ $labels.snapshot }} > 10GB"
+            description: "Snapshot {{ $labels.snapshot }} on volume {{ $labels.volume }} is {{ $value | humanize1024 }}. Consider pruning old snapshots."
+
+        # Volume Read-Only (filesystem issue)
+        - alert: LonghornVolumeReadOnly
+          expr: longhorn_volume_file_system_read_only == 1
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is read-only"
+            description: "Volume {{ $labels.volume }} filesystem is in read-only mode. This typically indicates corruption or disk errors. Immediate investigation required."
+
+        # Replica rebuild in progress (informational, longer duration = problem)
+        - alert: LonghornRebuildStalled
+          expr: longhorn_engine_rebuild_progress > 0 and longhorn_engine_rebuild_progress < 100
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn replica rebuild stalled on {{ $labels.volume }}"
+            description: "Volume {{ $labels.volume }} has been rebuilding for over 30 minutes at {{ $value }}%. This may indicate disk I/O issues or network problems."
