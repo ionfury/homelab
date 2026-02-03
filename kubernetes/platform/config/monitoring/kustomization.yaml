@@ -14,10 +14,10 @@ resources:
   - prometheus-canary.yaml
   - cert-manager-alerts.yaml
   - network-policy-alerts.yaml
-  - cilium-alerts.yaml\
+  - cilium-alerts.yaml
   - istio-servicemonitors.yaml
   - istio-alerts.yaml
   - external-secrets-alerts.yaml
   - grafana-alerts.yaml
   - loki-mixin-alerts.yaml
-  - loki-mixin-recording-rules.yaml\
+  - loki-mixin-recording-rules.yaml
