@@ -18,6 +18,9 @@ brew "fluxcd/tap/flux"
 tap "controlplaneio-fluxcd/tap"
 brew "controlplaneio-fluxcd/tap/flux-operator"
 
+# Kubernetes Deprecation Checker (required by task k8s:validate)
+brew "pluto"
+
 # Utilities
 brew "jq"
 brew "hcl2json"
