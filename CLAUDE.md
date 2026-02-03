@@ -379,6 +379,7 @@ Invoke these skills for detailed procedural guidance:
 | `k8s-sre` | Debugging Kubernetes incidents |
 | `taskfiles` | Taskfile syntax and patterns |
 | `sync-claude` | Validate and sync Claude docs before commits |
+| `self-improvement` | Capture feedback to enhance documentation and skills |
 
 ---
 
