@@ -210,14 +210,18 @@ variable "ssm_output_path" {
 variable "on_destroy" {
   description = "Talos node destruction behavior."
   type = object({
-    graceful = bool
-    reboot   = bool
-    reset    = bool
+    graceful              = bool
+    reboot                = bool
+    reset                 = bool
+    system_labels_to_wipe = optional(list(string), ["STATE", "EPHEMERAL"])
+    user_disks_to_wipe    = optional(list(string), ["system_disk"])
   })
   default = {
-    graceful = false
-    reboot   = true
-    reset    = true
+    graceful              = false
+    reboot                = true
+    reset                 = true
+    system_labels_to_wipe = ["STATE", "EPHEMERAL"]
+    user_disks_to_wipe    = ["system_disk"]
   }
 }
 

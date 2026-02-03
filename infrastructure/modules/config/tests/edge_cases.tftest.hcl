@@ -685,9 +685,11 @@ run "on_destroy_config" {
   variables {
     features = []
     on_destroy = {
-      graceful = true
-      reboot   = false
-      reset    = false
+      graceful              = true
+      reboot                = false
+      reset                 = false
+      system_labels_to_wipe = []
+      user_disks_to_wipe    = []
     }
     machines = {
       node1 = {
@@ -715,6 +717,58 @@ run "on_destroy_config" {
   assert {
     condition     = output.talos.on_destroy.reset == false
     error_message = "on_destroy.reset should be false"
+  }
+
+  assert {
+    condition     = length(output.talos.on_destroy.system_labels_to_wipe) == 0
+    error_message = "on_destroy.system_labels_to_wipe should be empty"
+  }
+
+  assert {
+    condition     = length(output.talos.on_destroy.user_disks_to_wipe) == 0
+    error_message = "on_destroy.user_disks_to_wipe should be empty"
+  }
+}
+
+# On destroy with full wipe (default behavior)
+run "on_destroy_full_wipe" {
+  command = plan
+
+  variables {
+    features = []
+    on_destroy = {
+      graceful              = false
+      reboot                = true
+      reset                 = true
+      system_labels_to_wipe = ["STATE", "EPHEMERAL"]
+      user_disks_to_wipe    = ["system_disk"]
+    }
+    machines = {
+      node1 = {
+        cluster = "test-cluster"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
+  }
+
+  assert {
+    condition     = contains(output.talos.on_destroy.system_labels_to_wipe, "STATE")
+    error_message = "on_destroy.system_labels_to_wipe should contain STATE"
+  }
+
+  assert {
+    condition     = contains(output.talos.on_destroy.system_labels_to_wipe, "EPHEMERAL")
+    error_message = "on_destroy.system_labels_to_wipe should contain EPHEMERAL"
+  }
+
+  assert {
+    condition     = contains(output.talos.on_destroy.user_disks_to_wipe, "system_disk")
+    error_message = "on_destroy.user_disks_to_wipe should contain system_disk"
   }
 }
 

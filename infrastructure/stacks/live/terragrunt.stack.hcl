@@ -2,6 +2,15 @@ locals {
   name                 = "${basename(get_terragrunt_dir())}"
   features             = ["gateway-api", "longhorn", "prometheus", "spegel"]
   storage_provisioning = "normal"
+
+  # Full wipe on destroy for clean rebuilds
+  on_destroy = {
+    graceful              = false
+    reboot                = true
+    reset                 = true
+    system_labels_to_wipe = ["STATE", "EPHEMERAL"]
+    user_disks_to_wipe    = ["system_disk"]
+  }
 }
 
 unit "config" {
@@ -12,6 +21,7 @@ unit "config" {
     name                 = local.name
     features             = local.features
     storage_provisioning = local.storage_provisioning
+    on_destroy           = local.on_destroy
   }
 }
 

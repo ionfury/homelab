@@ -6,9 +6,11 @@ resource "talos_machine_configuration_apply" "machines" {
   node                        = local.addresses[each.key]
 
   on_destroy = {
-    graceful = var.on_destroy.graceful
-    reboot   = var.on_destroy.reboot
-    reset    = var.on_destroy.reset
+    graceful              = var.on_destroy.graceful
+    reboot                = var.on_destroy.reboot
+    reset                 = var.on_destroy.reset
+    system_labels_to_wipe = var.on_destroy.system_labels_to_wipe
+    user_disks_to_wipe    = var.on_destroy.user_disks_to_wipe
   }
 }
 

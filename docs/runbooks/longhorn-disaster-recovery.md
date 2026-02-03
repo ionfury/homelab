@@ -8,6 +8,35 @@ Complete cluster recovery from S3 backups when all data is lost.
 - `talosctl`, `kubectl`, `flux` CLI tools installed (via `brew bundle`)
 - Access to this git repository
 
+## Destroy Behavior
+
+When destroying a cluster with `task tg:destroy-<cluster>`, disks are **fully wiped by default**.
+This ensures clean partition layouts on rebuild, preventing issues like undersized Longhorn volumes
+caused by stale partitions from previous installations.
+
+**Default wipe behavior:**
+- `system_labels_to_wipe`: STATE, EPHEMERAL (Talos system partitions)
+- `user_disks_to_wipe`: system_disk (wipes user volumes like u-longhorn)
+
+**To preserve local replica data** (rarely needed since K8s metadata is lost anyway):
+
+Edit the stack's `terragrunt.stack.hcl` to disable wipe:
+
+```hcl
+locals {
+  on_destroy = {
+    graceful              = false
+    reboot                = true
+    reset                 = true
+    system_labels_to_wipe = []  # Empty = no system partition wipe
+    user_disks_to_wipe    = []  # Empty = no user disk wipe
+  }
+}
+```
+
+> **Note:** Even with preserved local data, volumes must still be restored from S3 backups
+> because PVC/Volume metadata is stored in etcd (which is always wiped).
+
 ## Indication
 
 Use this runbook when:

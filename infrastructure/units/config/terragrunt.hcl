@@ -39,6 +39,7 @@ inputs = {
   name                   = values.name
   features               = values.features
   storage_provisioning   = values.storage_provisioning
+  on_destroy             = try(values.on_destroy, null)
   networking             = local.networking_vars.locals.clusters[values.name]
   machines               = local.inventory_vars.locals.hosts
   versions               = local.versions

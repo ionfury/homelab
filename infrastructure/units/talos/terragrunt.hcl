@@ -47,7 +47,7 @@ dependency "config" {
           ]
         }
       ]
-      on_destroy             = { graceful = false, reboot = true, reset = true }
+      on_destroy             = { graceful = false, reboot = true, reset = true, system_labels_to_wipe = ["STATE", "EPHEMERAL"], user_disks_to_wipe = ["system_disk"] }
       talos_config_path      = "~/.talos"
       kubernetes_config_path = "~/.kube"
       talos_timeout          = "10m"
