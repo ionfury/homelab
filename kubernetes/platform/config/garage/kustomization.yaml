@@ -8,3 +8,4 @@ resources:
   - garage-s3-ingress.yaml
   - garage-route.yaml
   - garage-canary.yaml
+  - prometheus-rules.yaml
