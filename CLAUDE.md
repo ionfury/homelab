@@ -257,23 +257,27 @@ This ensures the human operator is aware and approves state-changing operations,
 - **NEVER** skip validation steps before committing (see Pre-Commit Validation below)
 - **NEVER** ignore deprecation warnings - implement migrations immediately
 
-## Test Failures
+## Test and Validation Failures
 
 **Tests must be green. A skipped test is a broken test.**
 
+**CRITICAL: NEVER dismiss ANY validation failure as "unrelated" or "minor".** Every failure has a cause that must be investigated. What appears unrelated often reveals tooling gaps, environment issues, or systemic problems.
+
 When a test or validation fails:
 
-1. **NEVER** skip, ignore, or disable a test to make it pass
+1. **NEVER** skip, ignore, dismiss, or hand-wave ANY failure - not even "minor" ones
 2. **NEVER** add `-skip`, `-ignore`, or similar flags as a first response
-3. **ALWAYS** investigate the root cause using the "5 Whys" technique:
+3. **NEVER** say a failure is "unrelated" without proving why and flagging it for follow-up
+4. **ALWAYS** investigate the root cause using the "5 Whys" technique:
    - Why did the test fail? → Schema validation error
    - Why was the schema invalid? → Wrong field structure
    - Why was the structure wrong? → Misunderstood API spec
    - Why was it misunderstood? → Documentation unclear
    - Why? → Fix the actual code, not the test
 
-4. **Fix the code, not the test** - if a test catches a real issue, the code is wrong
-5. **Only as a LAST RESORT**: If after thorough investigation you believe the test itself is flawed (e.g., external schema is incorrect), use `AskUserQuestion` to get explicit approval before skipping
+5. **Fix the code, not the test** - if a test catches a real issue, the code is wrong
+6. **Environment failures are still failures** - if a tool is missing, that's a Brewfile gap or setup issue that must be addressed
+7. **Only as a LAST RESORT**: If after thorough investigation you believe the test itself is flawed (e.g., external schema is incorrect), use `AskUserQuestion` to get explicit approval before skipping
 
 **Valid reasons to skip (require user approval):**
 - External schema is demonstrably incorrect (provide evidence)
@@ -284,6 +288,8 @@ When a test or validation fails:
 - "It works in the cluster"
 - "The test is too strict"
 - "It's just a warning"
+- "It's unrelated to my change"
+- "It's a minor issue"
 
 ## Documentation
 
