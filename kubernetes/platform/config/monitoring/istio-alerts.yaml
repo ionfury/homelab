@@ -153,7 +153,7 @@ spec:
       rules:
         # istio-csr availability
         - alert: IstioCSRDown
-          expr: absent(up{job="cert-manager-istio-csr"} == 1)
+          expr: absent(up{job="cert-manager-istio-csr-metrics"} == 1)
           for: 5m
           labels:
             severity: critical
