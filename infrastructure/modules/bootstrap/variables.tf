@@ -18,6 +18,15 @@ variable "cluster_vars" {
   default = []
 }
 
+variable "version_vars" {
+  description = "Version environment variables for flux post-build substitution."
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
+}
+
 variable "healthchecksio_replication_allowed_namespaces" {
   description = "Namespaces to allow replication for healthchecks.io.  See: https://github.com/mittwald/kubernetes-replicator?tab=readme-ov-file#pull-based-replication"
   type        = string

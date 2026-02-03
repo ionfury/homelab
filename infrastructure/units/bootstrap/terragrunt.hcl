@@ -18,6 +18,7 @@ dependency "config" {
       cluster_name    = "mock"
       flux_version    = "v2.4.0"
       cluster_vars    = []
+      version_vars    = []
       source_type     = "git"
       oci_url         = ""
       oci_tag_pattern = ""
@@ -45,6 +46,7 @@ inputs = {
   cluster_name     = dependency.config.outputs.bootstrap.cluster_name
   flux_version     = dependency.config.outputs.bootstrap.flux_version
   cluster_vars     = dependency.config.outputs.bootstrap.cluster_vars
+  version_vars     = dependency.config.outputs.bootstrap.version_vars
   github           = local.accounts_vars.locals.accounts.github
   external_secrets = local.accounts_vars.locals.accounts.external_secrets
   healthchecksio   = local.accounts_vars.locals.accounts.healthchecksio

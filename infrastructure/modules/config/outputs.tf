@@ -35,6 +35,7 @@ output "bootstrap" {
     cluster_name    = var.name
     flux_version    = var.versions.flux
     cluster_vars    = local.cluster_vars
+    version_vars    = local.version_vars
     source_type     = local.oci_source_type
     oci_url         = local.oci_url
     oci_tag_pattern = local.oci_tag_pattern
@@ -69,4 +70,9 @@ output "machines" {
 output "cluster_vars" {
   description = "Non-version flux post-build substitution variables."
   value       = local.cluster_vars
+}
+
+output "version_vars" {
+  description = "Version flux post-build substitution variables."
+  value       = local.version_vars
 }
