@@ -5,7 +5,7 @@ metadata:
 spec:
   secretName: internal-tls
   issuerRef:
-    name: cloudflare
+    name: ${tls_issuer}
     kind: ClusterIssuer
   commonName: ${internal_domain}
   dnsNames:

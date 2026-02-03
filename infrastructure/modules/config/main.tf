@@ -57,6 +57,20 @@ locals {
   oci_url         = local.oci_source_type == "oci" ? "oci://ghcr.io/${var.accounts.github.org}/${var.accounts.github.repository}/platform" : ""
 }
 
+# TLS issuer configuration by cluster
+# - dev/integration: use homelab-ca (self-signed, avoids Let's Encrypt rate limits)
+# - live: use cloudflare (Let's Encrypt via DNS-01 for browser trust)
+locals {
+  tls_issuer_config = {
+    dev         = "homelab-ca"
+    integration = "homelab-ca"
+    live        = "cloudflare"
+  }
+
+  # Default to cloudflare for unknown clusters (safe default - uses production issuer)
+  tls_issuer = lookup(local.tls_issuer_config, var.name, "cloudflare")
+}
+
 locals {
   cluster_endpoint = "k8s.${var.networking.internal_tld}"
   cluster_path     = "${var.accounts.github.repository_path}/${var.name}"
@@ -336,6 +350,8 @@ locals {
     { name = "prometheus_volume_size", value = local.selected_sizes.prometheus },
     # Flux source kind for ResourceSet Kustomizations (GitRepository for dev, OCIRepository for integration/live)
     { name = "source_kind", value = var.name == "dev" ? "GitRepository" : "OCIRepository" },
+    # TLS certificate issuer (homelab-ca for dev/integration, cloudflare for live)
+    { name = "tls_issuer", value = local.tls_issuer },
   ]
 
   # DNS records for control plane nodes AND wildcard ingress

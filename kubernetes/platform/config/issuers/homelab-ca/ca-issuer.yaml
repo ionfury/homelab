@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/clusterissuer_v1.json
+# CA issuer for homelab ingress certificates.
+# Used by dev/integration clusters instead of Let's Encrypt.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: homelab-ca
+spec:
+  ca:
+    secretName: homelab-ingress-root-ca

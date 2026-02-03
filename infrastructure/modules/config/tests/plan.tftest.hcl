@@ -307,6 +307,60 @@ run "cluster_vars_content" {
     ])
     error_message = "cluster_id env var should match networking.id"
   }
+
+  # tls_issuer should be present (defaults to cloudflare for unknown clusters)
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "cloudflare"
+    ])
+    error_message = "tls_issuer env var should default to cloudflare for unknown clusters"
+  }
+}
+
+# TLS issuer configuration per cluster type
+run "tls_issuer_dev_cluster" {
+  command = plan
+
+  variables {
+    name = "dev"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "homelab-ca"
+    ])
+    error_message = "Dev cluster should use homelab-ca issuer to avoid Let's Encrypt rate limits"
+  }
+}
+
+run "tls_issuer_integration_cluster" {
+  command = plan
+
+  variables {
+    name = "integration"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "homelab-ca"
+    ])
+    error_message = "Integration cluster should use homelab-ca issuer to avoid Let's Encrypt rate limits"
+  }
+}
+
+run "tls_issuer_live_cluster" {
+  command = plan
+
+  variables {
+    name = "live"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "cloudflare"
+    ])
+    error_message = "Live cluster should use cloudflare issuer for browser-trusted certificates"
+  }
 }
 
 # Talos 1.12 configs array structure
