@@ -341,7 +341,7 @@ Use ExternalSecret only when secrets MUST come from outside the cluster:
 - Secrets needed for disaster recovery bootstrapping
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: external-api-credentials
