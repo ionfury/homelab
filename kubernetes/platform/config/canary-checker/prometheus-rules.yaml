@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: canary-checker-alerts
+  labels:
+    app.kubernetes.io/name: canary-checker
+spec:
+  groups:
+    - name: canary-checker.rules
+      rules:
+        - alert: CanaryCheckFailure
+          expr: |
+            canary_check == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Canary check {{ $labels.name }} is failing"
+            description: >-
+              Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
+              {{ $labels.exported_namespace }} has been failing for more than 2 minutes.
+              This indicates a potential service degradation or outage.
+
+        - alert: CanaryCheckHighFailureRate
+          expr: |
+            (
+              sum by (name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+              /
+              (
+                sum by (name, exported_namespace, type) (increase(canary_check_success_count[15m]))
+                +
+                sum by (name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+              )
+            ) > 0.2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Canary check {{ $labels.name }} has high failure rate"
+            description: >-
+              Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
+              {{ $labels.exported_namespace }} has a failure rate above 20% over the
+              last 15 minutes. Investigate potential intermittent issues.
