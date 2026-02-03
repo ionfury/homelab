@@ -57,6 +57,15 @@ resource "helm_release" "flux_operator" {
   chart      = "flux-operator"
   wait       = true
   timeout    = 300
+
+  values = [yamlencode({
+    serviceMonitor = {
+      create = true
+      labels = {
+        release = "kube-prometheus-stack"
+      }
+    }
+  })]
 }
 
 resource "helm_release" "flux_instance" {
