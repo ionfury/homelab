@@ -14,6 +14,7 @@ resources:
   - prometheus-canary.yaml
   - cert-manager-alerts.yaml
   - network-policy-alerts.yaml
+  - cilium-alerts.yaml
   - istio-servicemonitors.yaml
   - istio-alerts.yaml
   - external-secrets-alerts.yaml
