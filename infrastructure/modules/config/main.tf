@@ -338,15 +338,6 @@ locals {
     { name = "source_kind", value = var.name == "dev" ? "GitRepository" : "OCIRepository" },
   ]
 
-  # Version environment variables for flux post-build substitution
-  version_vars = [
-    { name = "talos_version", value = var.versions.talos },
-    { name = "cilium_version", value = var.versions.cilium },
-    { name = "flux_version", value = var.versions.flux },
-    { name = "prometheus_version", value = var.versions.prometheus },
-    { name = "kubernetes_version", value = var.versions.kubernetes },
-  ]
-
   # DNS records for control plane nodes AND wildcard ingress
   dns_records = merge(
     # Controlplane records (k8s API endpoint)
