@@ -45,6 +45,13 @@ app:
     # Enable revision support if using canary upgrades
     revisions: []
 
+  metrics:
+    service:
+      servicemonitor:
+        enabled: true
+        labels:
+          release: kube-prometheus-stack
+
 # Mount the root CA secret for istio-csr to distribute
 # Project tls.crt as ca.pem for istio-csr's expected path
 volumes:
