@@ -7,21 +7,20 @@ alertmanagerAddress: "http://alertmanager-operated.monitoring.svc:9093"
 tenancy:
   enabled: false
 
-# Use Cilium network policy flavor
+# Chart's network policy is broken - it blocks kubelet health probe traffic to port 8081
+# while only allowing metrics scraping on port 8080. Disable until upstream fixes.
+# See: https://github.com/giantswarm/silence-operator/issues/XXX (TODO: file issue)
 networkPolicy:
-  enabled: true
-  flavor: cilium
+  enabled: false
 
 # Enable PodMonitor for self-monitoring
 podMonitor:
   enabled: true
 
 # Resource requests/limits
-# Chart defaults to cpu limit of 50m which causes throttling and liveness probe failures
 resources:
   requests:
     cpu: 10m
     memory: 32Mi
   limits:
-    cpu: 200m
     memory: 64Mi
