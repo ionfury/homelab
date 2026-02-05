@@ -105,27 +105,60 @@ For infrastructure changes, always follow this sequence:
 
 ---
 
-## Claude Dev Cluster Permissions
+## Dev Cluster Safety
 
-Claude has expanded permissions for the **dev cluster only**:
+The `dev` cluster is a sandbox environment for testing infrastructure changes. Claude has expanded permissions for dev cluster operations to facilitate testing workflows.
 
-### Status Checks (run freely)
+### Allowed Operations (dev cluster only)
+
 ```bash
+# Status checks (run freely)
 task inv:hosts                     # List all hosts
-task inv:power-status              # Power status for all hosts
-task inv:status-<host>             # IPMI status for specific host
-task talos:maint                   # Maintenance mode for all hosts
-task talos:maint-<host>            # Maintenance mode for specific host
-```
+task inv:power-status              # Check power state of all hosts
+task inv:status-<host>             # Check specific host IPMI status
+task talos:maint                   # Check maintenance mode for all hosts
+task talos:maint-<host>            # Check specific host maintenance mode
 
-### Infrastructure Operations (require AskUserQuestion confirmation)
-```bash
+# Infrastructure operations (require confirmation)
 task tg:plan-dev                   # Plan dev cluster changes
 task tg:apply-dev                  # Apply dev cluster changes
 task tg:gen-dev                    # Generate dev stack
 task tg:clean-dev                  # Clean dev stack cache
 ```
 
-**Pre-flight checks before dev operations:**
-1. `task inv:status-node45` - Verify host is powered on
-2. `task talos:maint-node45` - Check if in maintenance mode
+### AWS Credentials
+
+Infrastructure operations require AWS credentials for remote state and Parameter Store access:
+
+```bash
+export AWS_PROFILE=terragrunt
+export AWS_REGION=us-east-2
+```
+
+Verify credentials before running Terragrunt:
+```bash
+aws sts get-caller-identity
+```
+
+### Pre-Flight Checks
+
+Before running infrastructure operations on dev, verify cluster readiness:
+
+1. **Check host power**: `task inv:status-node45` (node45 is the dev cluster host)
+2. **Check maintenance mode**: `task talos:maint-node45`
+
+### Confirmation Required
+
+**ALWAYS use AskUserQuestion before:**
+- `task tg:apply-dev` (creates/modifies infrastructure)
+- Any operation that destroys or recreates resources
+
+This ensures the human operator is aware and approves state-changing operations, even on the dev cluster.
+
+### Scope Boundaries
+
+| Cluster | Claude Permissions |
+|---------|-------------------|
+| `dev` | Plan, apply, destroy (with confirmation) |
+| `integration` | Read-only, validation only |
+| `live` | Read-only, validation only |

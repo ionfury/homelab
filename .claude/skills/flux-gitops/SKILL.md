@@ -18,18 +18,9 @@ description: |
 
 The homelab Kubernetes platform uses Flux ResourceSets for centralized, declarative management of Helm releases and configurations.
 
-## Platform Files Overview
+For ResourceSet patterns, version management, and platform architecture, see [kubernetes/platform/CLAUDE.md](../../kubernetes/platform/CLAUDE.md).
 
-| File | Purpose |
-|------|---------|
-| `helm-charts.yaml` | ResourceSet defining all Helm releases |
-| `namespaces.yaml` | ResourceSet defining all namespaces |
-| `config.yaml` | ResourceSet for config Kustomizations |
-| `kustomization.yaml` | Generates ConfigMap from chart values |
-| `charts/` | Helm values files (one per release) |
-| `config/` | Non-Helm resources organized by subsystem |
-
-## Adding a New Helm Release
+## How to Add a New Helm Release
 
 ### Step 1: Add to helm-charts.yaml
 
@@ -124,23 +115,6 @@ resourcesTemplate: |
 - `<<- range $item := inputs.array >>` - Loop over array
 - `hasPrefix "oci://" inputs.chart.url` - String prefix check
 
-## Variable Substitution
-
-Flux substitutes variables from the `flux-system` ConfigMap:
-
-```yaml
-# In values file
-ingress:
-  hosts:
-    - host: grafana.${internal_domain}  # Substituted at reconciliation
-
-# Available variables
-${cluster_name}      # dev, integration, live
-${cluster_id}        # Numeric cluster ID
-${internal_domain}   # internal.dev.tomnowak.work
-${external_domain}   # External domain
-```
-
 ## Dependency Management
 
 ### Release Dependencies
@@ -198,14 +172,6 @@ flux reconcile kustomization flux-system -n flux-system
 | `values key not found` | Missing values file | Add to kustomization.yaml configMapGenerator |
 | `chart not found` | Wrong chart name/URL | Verify chart exists in repository |
 | `namespace not found` | Namespace not created | Add to namespaces.yaml |
-
-## Best Practices
-
-1. **Pin versions**: Always specify exact chart versions
-2. **Declare dependencies**: Use `dependsOn` to ensure ordering
-3. **Use substitution**: Never hardcode domains or cluster names
-4. **Values per release**: One values file per HelmRelease
-5. **Minimal values**: Only override what you need to change
 
 ## OCI Registry Specifics
 
