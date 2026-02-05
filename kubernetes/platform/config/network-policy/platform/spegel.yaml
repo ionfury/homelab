@@ -25,10 +25,6 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
-    # Allow intra-namespace/inter-node communication for registry sync
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: spegel
   egress:
     # Allow Kubernetes API for node discovery
     - toEntities:
@@ -44,7 +40,3 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
-    # Allow intra-namespace/inter-node communication for registry sync
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: spegel

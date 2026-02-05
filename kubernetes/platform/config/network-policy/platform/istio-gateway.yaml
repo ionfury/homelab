@@ -52,10 +52,6 @@ spec:
               protocol: TCP
             - port: "15006"
               protocol: TCP
-    # Allow intra-namespace communication
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: istio-gateway
   egress:
     # Allow traffic to backend services in cluster (all namespaces)
     - toEntities:
@@ -77,7 +73,3 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: istio-gateway

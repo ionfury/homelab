@@ -18,10 +18,6 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
-    # Allow intra-namespace communication
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: system-upgrade
   egress:
     # Allow Kubernetes API access (watch TalosUpgrade/KubernetesUpgrade CRs, update node status)
     - toEntities:
@@ -38,7 +34,3 @@ spec:
         - ports:
             - port: "50000"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: system-upgrade

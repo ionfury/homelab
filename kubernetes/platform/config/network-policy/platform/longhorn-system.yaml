@@ -48,10 +48,6 @@ spec:
         - ports:
             - port: "9443"
               protocol: TCP
-    # Allow intra-namespace communication (manager <-> engine <-> replica)
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: longhorn-system
   egress:
     # Allow Kubernetes API access
     - toEntities:
@@ -78,7 +74,3 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: longhorn-system

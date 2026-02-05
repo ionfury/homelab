@@ -35,10 +35,6 @@ spec:
         - ports:
             - port: "6443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: cert-manager
   egress:
     # Allow Kubernetes API access
     - toEntities:
@@ -56,7 +52,3 @@ spec:
               protocol: TCP
             - port: "80"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: cert-manager

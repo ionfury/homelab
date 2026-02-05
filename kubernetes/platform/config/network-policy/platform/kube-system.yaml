@@ -57,10 +57,6 @@ spec:
               protocol: TCP
             - port: "8081"
               protocol: TCP
-    # Allow intra-namespace communication (Cilium components)
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
   egress:
     # Allow CoreDNS to reach node-local upstream DNS (Talos host DNS forwarder at 169.254.116.108)
     - toCIDR:
@@ -85,10 +81,6 @@ spec:
         - ports:
             - port: "6443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
     # Allow health checks to all cluster pods (Cilium)
     - toEntities:
         - cluster

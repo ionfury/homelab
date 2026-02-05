@@ -9,3 +9,4 @@ resources:
   - health-probes.yaml
   - escape-hatch-allow-all.yaml
   - hbone-mesh.yaml
+  - intra-namespace.yaml
