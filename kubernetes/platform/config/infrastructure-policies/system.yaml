@@ -26,10 +26,12 @@ spec:
             - port: "10250"
               protocol: TCP
   egress:
-    # Allow Kubernetes API access (operators watch/modify resources)
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+            - port: "443"
               protocol: TCP

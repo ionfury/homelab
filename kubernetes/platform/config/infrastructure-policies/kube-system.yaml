@@ -74,12 +74,14 @@ spec:
         - ports:
             - port: "123"
               protocol: UDP
-    # Allow Kubernetes API access
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+            - port: "443"
               protocol: TCP
     # Allow health checks to all cluster pods (Cilium)
     - toEntities:

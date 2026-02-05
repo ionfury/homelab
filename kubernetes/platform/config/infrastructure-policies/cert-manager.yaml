@@ -36,12 +36,14 @@ spec:
             - port: "6443"
               protocol: TCP
   egress:
-    # Allow Kubernetes API access
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+            - port: "443"
               protocol: TCP
     # Allow ACME providers (Let's Encrypt, ZeroSSL) and DNS providers (Cloudflare)
     - toEntities:

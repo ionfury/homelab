@@ -26,12 +26,14 @@ spec:
             - port: "8080"
               protocol: TCP
   egress:
-    # Allow Kubernetes API for node discovery
+    # Allow Kubernetes API for node discovery (6443 for node IPs, 443 for ClusterIP service)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+            - port: "443"
               protocol: TCP
     # Allow egress to external registries for cache misses (HTTPS)
     - toEntities:

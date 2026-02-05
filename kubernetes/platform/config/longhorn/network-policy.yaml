@@ -49,12 +49,14 @@ spec:
             - port: "9443"
               protocol: TCP
   egress:
-    # Allow Kubernetes API access
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+            - port: "443"
               protocol: TCP
     # Allow inter-node storage replication (high ports)
     - toEntities:
