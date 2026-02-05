@@ -22,13 +22,6 @@ spec:
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: system-upgrade
-    # Allow HBONE mesh traffic (Istio ambient mode)
-    - fromEntities:
-        - cluster
-      toPorts:
-        - ports:
-            - port: "15008"
-              protocol: TCP
   egress:
     # Allow DNS resolution
     - toEndpoints:
@@ -60,10 +53,3 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: system-upgrade
-    # Allow HBONE mesh traffic (Istio ambient mode)
-    - toEntities:
-        - cluster
-      toPorts:
-        - ports:
-            - port: "15008"
-              protocol: TCP
