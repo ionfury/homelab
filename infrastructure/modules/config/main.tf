@@ -57,6 +57,20 @@ locals {
   oci_url         = local.oci_source_type == "oci" ? "oci://ghcr.io/${var.accounts.github.org}/${var.accounts.github.repository}/platform" : ""
 }
 
+# TLS issuer configuration by cluster
+# - dev/integration: use homelab-ca (self-signed, avoids Let's Encrypt rate limits)
+# - live: use cloudflare (Let's Encrypt via DNS-01 for browser trust)
+locals {
+  tls_issuer_config = {
+    dev         = "homelab-ca"
+    integration = "homelab-ca"
+    live        = "cloudflare"
+  }
+
+  # Default to cloudflare for unknown clusters (safe default - uses production issuer)
+  tls_issuer = lookup(local.tls_issuer_config, var.name, "cloudflare")
+}
+
 locals {
   cluster_endpoint = "k8s.${var.networking.internal_tld}"
   cluster_path     = "${var.accounts.github.repository_path}/${var.name}"
@@ -336,26 +350,33 @@ locals {
     { name = "prometheus_volume_size", value = local.selected_sizes.prometheus },
     # Flux source kind for ResourceSet Kustomizations (GitRepository for dev, OCIRepository for integration/live)
     { name = "source_kind", value = var.name == "dev" ? "GitRepository" : "OCIRepository" },
+    # TLS certificate issuer (homelab-ca for dev/integration, cloudflare for live)
+    { name = "tls_issuer", value = local.tls_issuer },
   ]
 
-  # Version environment variables for flux post-build substitution
-  version_vars = [
-    { name = "talos_version", value = var.versions.talos },
-    { name = "cilium_version", value = var.versions.cilium },
-    { name = "flux_version", value = var.versions.flux },
-    { name = "prometheus_version", value = var.versions.prometheus },
-    { name = "kubernetes_version", value = var.versions.kubernetes },
-  ]
-
-  # DNS records for control plane nodes
-  dns_records = {
-    for name, machine in local.machines :
-    name => {
-      name   = local.cluster_endpoint
-      record = machine.bonds[0].addresses[0]
+  # DNS records for control plane nodes AND wildcard ingress
+  dns_records = merge(
+    # Controlplane records (k8s API endpoint)
+    {
+      for name, machine in local.machines :
+      name => {
+        name   = local.cluster_endpoint
+        record = machine.bonds[0].addresses[0]
+      }
+      if machine.type == "controlplane"
+    },
+    # Wildcard ingress records
+    {
+      "internal-ingress-wildcard" = {
+        name   = "*.${var.networking.internal_tld}"
+        record = var.networking.internal_ingress_ip
+      }
+      "external-ingress-wildcard" = {
+        name   = "*.${var.networking.external_tld}"
+        record = var.networking.external_ingress_ip
+      }
     }
-    if machine.type == "controlplane"
-  }
+  )
 
   # DHCP reservations for all cluster machines
   dhcp_reservations = {

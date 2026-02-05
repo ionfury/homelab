@@ -39,13 +39,14 @@ tasks:
   # =============================================================================
 
   validate:
-    desc: Cluster-independent validation (lint, ResourceSets, Helm charts, base kubeconform)
+    desc: Cluster-independent validation (lint, ResourceSets, Helm charts, kubeconform, deprecations)
     cmds:
       - task: _lint
       - task: _expand-resourcesets
       - task: _build-manifests
       - task: _template-all-charts
       - task: _validate-kubeconform-base
+      - task: _validate-deprecations
 
   validate-*:
     desc: Validate manifests for a specific cluster
@@ -62,6 +63,10 @@ tasks:
           CLUSTER_VARS: "{{.CLUSTER_VARS}}"
           CLUSTER_OUTPUT_DIR: "{{.CLUSTER_OUTPUT_DIR}}"
       - task: _validate-kubeconform-cluster
+        vars:
+          CLUSTER: "{{.CLUSTER}}"
+          CLUSTER_OUTPUT_DIR: "{{.CLUSTER_OUTPUT_DIR}}"
+      - task: _validate-deprecations-cluster
         vars:
           CLUSTER: "{{.CLUSTER}}"
           CLUSTER_OUTPUT_DIR: "{{.CLUSTER_OUTPUT_DIR}}"
@@ -261,6 +266,71 @@ tasks:
       - which kubeconform
       - test -d "{{.CLUSTER_OUTPUT_DIR}}/resourcesets"
       - test -d "{{.CLUSTER_OUTPUT_DIR}}/manifests"
+
+  _validate-deprecations:
+    internal: true
+    desc: Check for removed Kubernetes APIs
+    deps: [_template-all-charts, _expand-resourcesets, _build-manifests]
+    vars:
+      K8S_VERSION:
+        sh: grep "^kubernetes_version=" "{{.VERSION_VARS}}" | cut -d= -f2
+    cmds:
+      - echo "Checking for removed Kubernetes APIs (target v{{.K8S_VERSION}})..."
+      - |
+        pluto detect-files \
+          -d {{.EXPANDED_DIR}}/resourcesets \
+          -d {{.EXPANDED_DIR}}/helm \
+          -d {{.MANIFESTS_DIR}} \
+          --target-versions "k8s=v{{.K8S_VERSION}}" \
+          --only-show-removed \
+          -o wide
+    preconditions:
+      - which pluto
+      - test -d {{.EXPANDED_DIR}}/resourcesets
+      - test -d {{.EXPANDED_DIR}}/helm
+      - test -d {{.MANIFESTS_DIR}}
+
+  _validate-deprecations-cluster:
+    internal: true
+    desc: Check for removed APIs in cluster-substituted manifests
+    requires:
+      vars: [CLUSTER, CLUSTER_OUTPUT_DIR]
+    vars:
+      K8S_VERSION:
+        sh: grep "^kubernetes_version=" "{{.VERSION_VARS}}" | cut -d= -f2
+    cmds:
+      - echo "Checking for removed APIs in cluster {{.CLUSTER}} (target v{{.K8S_VERSION}})..."
+      - |
+        pluto detect-files \
+          -d {{.CLUSTER_OUTPUT_DIR}}/resourcesets \
+          -d {{.CLUSTER_OUTPUT_DIR}}/manifests \
+          --target-versions "k8s=v{{.K8S_VERSION}}" \
+          --only-show-removed \
+          -o wide
+    preconditions:
+      - which pluto
+      - test -d "{{.CLUSTER_OUTPUT_DIR}}/resourcesets"
+      - test -d "{{.CLUSTER_OUTPUT_DIR}}/manifests"
+
+  deprecations:
+    desc: Show all deprecated APIs (informational - doesn't fail)
+    deps: [_expand-resourcesets, _build-manifests, _template-all-charts]
+    vars:
+      K8S_VERSION:
+        sh: grep "^kubernetes_version=" "{{.VERSION_VARS}}" | cut -d= -f2
+    cmds:
+      - |
+        echo "Scanning for deprecated APIs (target v{{.K8S_VERSION}})..."
+        pluto detect-files \
+          -d {{.EXPANDED_DIR}}/resourcesets \
+          -d {{.EXPANDED_DIR}}/helm \
+          -d {{.MANIFESTS_DIR}} \
+          --target-versions "k8s=v{{.K8S_VERSION}}" \
+          -o wide || true
+        echo ""
+        echo "Note: Only REMOVED APIs fail validation. Deprecated APIs shown above are warnings."
+    preconditions:
+      - which pluto
 
   _validate-all-clusters:
     internal: true

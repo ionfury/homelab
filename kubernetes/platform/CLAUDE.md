@@ -41,14 +41,50 @@ The `config/` directory organizes non-Helm resources by concern:
 | `secrets/` | Secret generator resources |
 | `tuppr/` | Tuppr upgrade CRs (TalosUpgrade, KubernetesUpgrade) |
 
+**Note**: Alertmanager silences use the per-cluster pattern - see `kubernetes/clusters/CLAUDE.md`.
+
 ---
 
 ## Adding a New Helm Release
 
-1. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
-2. Create `charts/<chart-name>.yaml` with Helm values
-3. Add the values file to `kustomization.yaml` configMapGenerator
-4. If the chart needs post-install resources, add to `config/` and reference in `config.yaml`
+1. Add version to `versions.env` (e.g., `new_chart_version=1.0.0`)
+2. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
+3. Create `charts/<chart-name>.yaml` with Helm values
+4. Add the values file to `kustomization.yaml` configMapGenerator
+5. **Add Renovate custom manager** to `.github/renovate.json5` (see below)
+6. If the chart needs post-install resources, add to `config/` and reference in `config.yaml`
+7. Run `task k8s:validate` and `task renovate:validate`
+
+### Renovate Configuration (Required)
+
+Renovate requires a custom regex manager for each version in `versions.env`. Add to `.github/renovate.json5`:
+
+```json5
+// For HTTP Helm repositories
+{
+  "customType": "regex",
+  "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+  "matchStrings": ["new_chart_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+  "depNameTemplate": "chart-name",
+  "datasourceTemplate": "helm",
+  "registryUrlTemplate": "https://charts.example.io"
+}
+
+// For OCI Helm registries (ghcr.io, etc.)
+{
+  "customType": "regex",
+  "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+  "matchStrings": ["new_chart_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+  "depNameTemplate": "chart-name",
+  "datasourceTemplate": "docker",
+  "packageNameTemplate": "ghcr.io/org/charts/chart-name"
+}
+```
+
+**Key differences:**
+- HTTP registries use `datasourceTemplate: "helm"` + `registryUrlTemplate`
+- OCI registries use `datasourceTemplate: "docker"` + `packageNameTemplate`
+- For v-prefixed versions, add `"extractVersionTemplate": "^v(?<version>.*)$"`
 
 ### ResourceSet Pattern
 
@@ -115,7 +151,7 @@ inputs:
 | `monitoring-config` | `kube-prometheus-stack`, `canary-checker` | PrometheusRule + Canary CRDs |
 | `canary-checker-config` | `canary-checker` | Canary CRD |
 | `tuppr-config` | `tuppr` | TalosUpgrade/KubernetesUpgrade CRDs |
-| `kromgo-config` | `kromgo` | App deployment must exist |
+| `kromgo-config` | *(none)* | ConfigMap must exist BEFORE app deployment |
 | `flux-notifications-config` | *(none)* | Uses only core Flux CRDs (always present) |
 
 ### Finding CRD Providers
@@ -305,7 +341,7 @@ Use ExternalSecret only when secrets MUST come from outside the cluster:
 - Secrets needed for disaster recovery bootstrapping
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: external-api-credentials

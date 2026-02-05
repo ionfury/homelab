@@ -1,5 +1,0 @@
-nameReference:
-  - kind: Secret
-    fieldSpecs:
-      - path: spec/secretRef/name
-        kind: GitRepository

@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/giantswarm/silence-operator/main/helm/silence-operator/values.schema.json
+---
+# Alertmanager service endpoint (kube-prometheus-stack default)
+alertmanagerAddress: "http://alertmanager-operated.monitoring.svc:9093"
+
+# Disable multi-tenancy - single Alertmanager instance
+tenancy:
+  enabled: false
+
+# Chart's network policy is broken - it blocks kubelet health probe traffic to port 8081
+# while only allowing metrics scraping on port 8080. Disable until upstream fixes.
+# See: https://github.com/giantswarm/silence-operator/issues/XXX (TODO: file issue)
+networkPolicy:
+  enabled: false
+
+# Enable PodMonitor for self-monitoring
+podMonitor:
+  enabled: true
+
+# Resource requests/limits
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 64Mi

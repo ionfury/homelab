@@ -13,13 +13,6 @@ resource "github_repository_file" "cluster_vars" {
   overwrite_on_create = true
 }
 
-resource "github_repository_file" "versions" {
-  repository          = data.github_repository.this.name
-  file                = "${local.github_repository_cluster_directory}/.versions.env"
-  content             = templatefile("${path.module}/resources/versions.env.tftpl", { version_vars = var.version_vars })
-  overwrite_on_create = true
-}
-
 
 resource "kubernetes_namespace" "flux_system" {
   metadata {
@@ -56,7 +49,6 @@ resource "helm_release" "flux_operator" {
     kubernetes_namespace.flux_system,
     data.github_repository.this,
     github_repository_file.cluster_vars,
-    github_repository_file.versions,
   ]
 
   name       = "flux-operator"
@@ -65,6 +57,15 @@ resource "helm_release" "flux_operator" {
   chart      = "flux-operator"
   wait       = true
   timeout    = 300
+
+  values = [yamlencode({
+    serviceMonitor = {
+      create = true
+      labels = {
+        release = "kube-prometheus-stack"
+      }
+    }
+  })]
 }
 
 resource "helm_release" "flux_instance" {

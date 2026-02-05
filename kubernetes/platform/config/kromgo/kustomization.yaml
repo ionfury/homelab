@@ -6,3 +6,4 @@ resources:
   - configmap.yaml
   - internal-route.yaml
   - external-route.yaml
+  - external-canary.yaml

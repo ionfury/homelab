@@ -1,0 +1,16 @@
+---
+# Spegel requires P2P peers for image caching. On single-node clusters,
+# pods crash because no peers are available. This is expected behavior.
+apiVersion: observability.giantswarm.io/v1alpha2
+kind: Silence
+metadata:
+  name: spegel-single-node
+  namespace: monitoring
+spec:
+  matchers:
+    - name: alertname
+      matchType: "=~"
+      value: "KubePodCrashLooping|KubeDaemonSetRolloutStuck"
+    - name: namespace
+      matchType: "="
+      value: spegel

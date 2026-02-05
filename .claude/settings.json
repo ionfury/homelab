@@ -23,6 +23,7 @@
       "Bash(task inv:status-*:*)",
       "Bash(task wt:*:*)",
       "Bash(task renovate:validate:*)",
+      "Bash(task k8s:validate:*)",
 
       "Bash(git status:*)",
       "Bash(git diff:*)",
@@ -38,6 +39,8 @@
       "Bash(kubectl config:*)",
       "Bash(kubectl explain:*)",
       "Bash(kubectl top:*)",
+      "Bash(kubectl wait:*)",
+      "Bash(kubectl port-forward:*)",
 
       "Bash(flux get:*)",
       "Bash(flux logs:*)",
@@ -47,10 +50,14 @@
       "Bash(helm repo:*)",
       "Bash(helm search:*)",
       "Bash(helm show:*)",
+      "Bash(helm install:*)",
+      "Bash(helm uninstall:*)",
+      "Bash(helm template:*)",
 
       "Bash(kustomize build:*)",
       "Bash(yq:*)",
       "Bash(jq:*)",
+      "Bash(curl:*)",
 
       "Bash(gh issue:*)",
       "Bash(gh pr:*)",
@@ -70,6 +77,7 @@
       "WebFetch(domain:gateway-api.sigs.k8s.io)",
       "WebFetch(domain:kubernetes.io)",
       "WebFetch(domain:fluxcd.io)",
+      "WebFetch(domain:grafana.com)",
 
       "Skill(kubesearch)",
       "Skill(terragrunt)",
@@ -79,7 +87,9 @@
       "Skill(taskfiles)",
       "Skill(opentofu-modules)",
       "Skill(gha-pipelines)",
-      "Skill(k8s-manifest-generator)"
+      "Skill(k8s-manifest-generator)",
+      "Skill(deploy-app)",
+      "Skill(self-improvement)"
     ]
   },
   "outputStyle": "Explanatory",

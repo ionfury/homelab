@@ -1,0 +1,259 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cilium-alerts
+  labels:
+    app.kubernetes.io/name: cilium
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: cilium-agent
+      rules:
+        # Agent availability
+        - alert: CiliumAgentDown
+          expr: up{job="cilium-agent"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cilium agent down on {{ $labels.instance }}"
+            description: >-
+              Cilium agent on {{ $labels.instance }} has been unreachable for 5+ minutes.
+              This affects all pod networking, network policies, and load balancing on the node.
+
+        # Health endpoint unreachable (from Deckhouse)
+        - alert: CiliumAgentUnreachableHealthEndpoints
+          expr: |
+            max by (namespace, pod) (cilium_unreachable_health_endpoints) > 0
+            unless on (namespace, pod) (
+              max by (namespace, pod) (
+                kube_pod_status_ready{condition="true"} offset 2m
+              ) == 0
+            )
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium agent {{ $labels.pod }} can't reach health endpoints"
+            description: >-
+              Agent {{ $labels.namespace }}/{{ $labels.pod }} cannot reach {{ $value }}
+              health endpoints. Check network connectivity between nodes.
+
+        # Unreachable nodes
+        - alert: CiliumUnreachableNodes
+          expr: cilium_unreachable_nodes > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cilium reports {{ $value }} unreachable nodes"
+            description: >-
+              {{ $labels.instance }} cannot reach {{ $value }} other nodes.
+              Cross-node pod communication and services are broken.
+              Check node health, network connectivity, and Cilium tunnel status.
+
+        # Endpoints not ready (from Deckhouse)
+        - alert: CiliumAgentEndpointsNotReady
+          expr: |
+            (
+              sum by (namespace, pod) (cilium_endpoint_state{state="ready"})
+              /
+              sum by (namespace, pod) (cilium_endpoint_state)
+            ) < 0.5
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium agent {{ $labels.pod }} has >50% endpoints not ready"
+            description: >-
+              Agent {{ $labels.namespace }}/{{ $labels.pod }} has less than 50% of
+              endpoints in ready state. Network policies may not be applied correctly.
+
+        # Endpoint regeneration failures
+        - alert: CiliumEndpointRegenerationFailures
+          expr: rate(cilium_endpoint_regenerations_total{outcome="fail"}[5m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium endpoint regeneration failures on {{ $labels.instance }}"
+            description: >-
+              Cilium is failing to regenerate endpoints on {{ $labels.instance }} at
+              {{ $value | humanize }}/s. Network policies may not be applied.
+              Check agent logs for policy compilation errors.
+
+        # Slow endpoint regeneration
+        - alert: CiliumEndpointRegenerationSlow
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(cilium_endpoint_regeneration_time_stats_seconds_bucket[5m])) by (le, instance)
+            ) > 30
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium endpoint regeneration p99 > 30s"
+            description: >-
+              Endpoint regeneration on {{ $labels.instance }} is taking {{ $value | humanizeDuration }}
+              (p99). This may indicate CPU pressure or complex policies.
+
+    - name: cilium-bpf
+      rules:
+        # BPF map pressure critical (from Deckhouse)
+        - alert: CiliumBPFMapPressureCritical
+          expr: cilium_bpf_map_pressure > 0.9
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cilium BPF map {{ $labels.map_name }} > 90% on {{ $labels.instance }}"
+            description: >-
+              BPF map {{ $labels.map_name }} on {{ $labels.instance }} is at
+              {{ $value | humanizePercentage }}. When BPF maps fill up, new connections
+              will fail and pods may become unreachable.
+
+        # BPF map pressure warning
+        - alert: CiliumBPFMapPressureWarning
+          expr: cilium_bpf_map_pressure > 0.7 and cilium_bpf_map_pressure <= 0.9
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium BPF map {{ $labels.map_name }} > 70% on {{ $labels.instance }}"
+            description: >-
+              BPF map {{ $labels.map_name }} on {{ $labels.instance }} is at
+              {{ $value | humanizePercentage }}. Consider increasing map sizes.
+
+        # BPF syscall errors
+        - alert: CiliumBPFSyscallErrors
+          expr: rate(cilium_bpf_map_ops_total{outcome="fail"}[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium BPF map operations failing on {{ $labels.instance }}"
+            description: >-
+              BPF map operations are failing at {{ $value | humanize }}/s.
+              This may indicate kernel issues or resource exhaustion.
+
+    - name: cilium-policy
+      rules:
+        # Policy import errors (from Deckhouse)
+        - alert: CiliumPolicyImportErrors
+          expr: rate(cilium_policy_import_errors_total[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium policy import errors on {{ $labels.instance }}"
+            description: >-
+              Cilium agent on {{ $labels.instance }} is failing to import policies.
+              Check for invalid CiliumNetworkPolicy resources.
+
+        # High policy drops (potential misconfiguration)
+        - alert: CiliumPolicyDropsHigh
+          expr: rate(cilium_drop_count_total{reason="Policy denied"}[5m]) > 100
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High Cilium policy drops on {{ $labels.instance }}"
+            description: >-
+              Cilium is dropping {{ $value | humanize }}/s due to policy denials.
+              This may indicate misconfigured network policies or attack attempts.
+
+        # Policy L7 denied requests
+        - alert: CiliumL7PolicyDenials
+          expr: rate(cilium_policy_l7_denied_total[5m]) > 10
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High L7 policy denials on {{ $labels.instance }}"
+            description: >-
+              L7 network policies are denying {{ $value | humanize }}/s requests.
+              Check application-level policy rules.
+
+    - name: cilium-network
+      rules:
+        # Connection tracking table full
+        - alert: CiliumConntrackTableFull
+          expr: |
+            cilium_datapath_conntrack_gc_entries{family="ipv4"}
+            / cilium_bpf_map_pressure{map_name="cilium_ct4_global"} > 0.9
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cilium connection tracking table > 90% full"
+            description: >-
+              Connection tracking table is nearly full. New connections may fail.
+              Consider increasing ct-map-size or investigating connection leaks.
+
+        # High drop rate (any reason)
+        - alert: CiliumHighDropRate
+          expr: |
+            sum by (instance, reason) (rate(cilium_drop_count_total[5m])) > 1000
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High packet drop rate on {{ $labels.instance }}"
+            description: >-
+              Cilium is dropping {{ $value | humanize }}/s packets for reason: {{ $labels.reason }}.
+              Investigate the drop reason.
+
+        # IPAM at capacity
+        - alert: CiliumIPAMAtCapacity
+          expr: cilium_ipam_nodes_at_capacity > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cilium IPAM at capacity"
+            description: >-
+              {{ $value }} nodes cannot allocate additional IP addresses.
+              New pods may fail to schedule. Check IPAM configuration.
+
+        # IPAM available IPs low
+        - alert: CiliumIPAMAvailableLow
+          expr: cilium_ipam_available < 10
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium IPAM available IPs low on {{ $labels.instance }}"
+            description: >-
+              Only {{ $value }} IP addresses available for allocation.
+              Consider expanding IPAM pool.
+
+    - name: cilium-errors
+      rules:
+        # General errors/warnings increasing
+        - alert: CiliumErrorsIncreasing
+          expr: rate(cilium_errors_warnings_total[5m]) > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium errors increasing on {{ $labels.instance }}"
+            description: >-
+              Cilium agent on {{ $labels.instance }} is logging errors at
+              {{ $value | humanize }}/s. Check agent logs for details.
+
+        # API processing slow
+        - alert: CiliumAPIProcessingSlow
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(cilium_agent_api_process_time_seconds_bucket[5m])) by (le, instance)
+            ) > 5
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cilium API processing p99 > 5s on {{ $labels.instance }}"
+            description: >-
+              API calls are taking {{ $value | humanizeDuration }} to process.
+              This may indicate agent overload.

@@ -1,0 +1,35 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/notification.toolkit.fluxcd.io/alert_v1beta3.json
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: reconciliation-failure
+  namespace: flux-system
+spec:
+  summary: "Flux reconciliation failure on ${cluster_name}"
+  providerRef:
+    name: discord
+  eventSeverity: error
+  eventSources:
+    # Watch all HelmReleases in all namespaces
+    - kind: HelmRelease
+      name: "*"
+      namespace: "*"
+    # Watch all Kustomizations in all namespaces
+    - kind: Kustomization
+      name: "*"
+      namespace: "*"
+    # Watch GitRepository/OCIRepository sources
+    - kind: GitRepository
+      name: "*"
+      namespace: "*"
+    - kind: OCIRepository
+      name: "*"
+      namespace: "*"
+    # Watch HelmRepositories and HelmCharts
+    - kind: HelmRepository
+      name: "*"
+      namespace: "*"
+    - kind: HelmChart
+      name: "*"
+      namespace: "*"

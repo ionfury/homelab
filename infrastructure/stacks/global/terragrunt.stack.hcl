@@ -19,3 +19,8 @@ unit "pki" {
   source = "../../units/pki"
   path   = "pki"
 }
+
+unit "ingress_pki" {
+  source = "../../units/ingress-pki"
+  path   = "ingress-pki"
+}
