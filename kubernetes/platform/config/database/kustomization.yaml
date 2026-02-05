@@ -7,3 +7,4 @@ resources:
   - cluster.yaml
   - pooler.yaml
   - prometheus-rules.yaml
+  - network-policy.yaml

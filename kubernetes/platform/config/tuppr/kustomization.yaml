@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - talos-upgrade.yaml
   - kubernetes-upgrade.yaml
+  - network-policy.yaml

@@ -9,3 +9,4 @@ resources:
   - garage-route.yaml
   - garage-canary.yaml
   - prometheus-rules.yaml
+  - network-policy.yaml
