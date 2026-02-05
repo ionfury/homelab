@@ -48,14 +48,12 @@ spec:
         - ports:
             - port: "8081"
               protocol: TCP
-    # Allow health checks from Cilium (169.254.x.x link-local)
+    # Allow Cilium health endpoint probes (reserved:health identity on port 4240)
     - fromEntities:
         - health
       toPorts:
         - ports:
-            - port: "8080"
-              protocol: TCP
-            - port: "8081"
+            - port: "4240"
               protocol: TCP
   egress:
     # Allow CoreDNS to reach node-local upstream DNS (Talos host DNS forwarder at 169.254.116.108)
