@@ -6,18 +6,21 @@ metadata:
   name: baseline-health-probes
 spec:
   description: >-
-    Allow kubelet health probes (liveness/readiness) from node-local addresses.
-    Kubelet uses 169.254.x.x link-local addresses for health checks in Cilium.
+    Allow health probes: kubelet liveness/readiness (169.254.x.x) and
+    Cilium cross-node health probes (host/remote-node entities).
   endpointSelector:
     matchExpressions:
       # Apply to all pods (no label restrictions)
       - key: reserved.none
         operator: DoesNotExist
   ingress:
-    # Allow health probe traffic from Cilium's health identity
+    # Allow health probe traffic from Cilium entities (local and remote nodes)
+    # Note: toPorts restriction doesn't work correctly with reserved entities
     - fromEntities:
         - health
-    # Allow health probe traffic from node-local addresses (169.254.0.0/16)
-    # This is needed because kubelet health probes appear as "world" in Cilium
+        - host
+        - remote-node
+        - kube-apiserver
+    # Allow kubelet health probes from node-local addresses (169.254.0.0/16)
     - fromCIDR:
         - 169.254.0.0/16
