@@ -10,16 +10,16 @@ spec:
   endpointSelector: { }
   ingress:
     # Allow DNS queries from all cluster pods
-    # Note: empty matchLabels {} means "any endpoint in the cluster"
-    - fromEndpoints:
-        - matchLabels: { }
+    # Note: fromEntities cluster allows from ANY pod in the cluster (not just kube-system)
+    - fromEntities:
+        - cluster
       toPorts:
         - ports:
             - port: "53"
               protocol: UDP
             - port: "53"
               protocol: TCP
-    # Allow Prometheus scraping
+    # Allow Prometheus scraping (CoreDNS 9153, Cilium 9962-9965, descheduler 10258)
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: monitoring
@@ -30,29 +30,37 @@ spec:
               protocol: TCP
             - port: "9100"
               protocol: TCP
+            - port: "9153"
+              protocol: TCP
             - port: "9962"
               protocol: TCP
             - port: "9963"
               protocol: TCP
             - port: "9965"
               protocol: TCP
-    # Allow intra-namespace communication (Cilium components)
+            - port: "10258"
+              protocol: TCP
+    # Allow Hubble UI access from gateway
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-  egress:
-    # Allow DNS resolution (internal)
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
+            io.kubernetes.pod.namespace: istio-gateway
       toPorts:
         - ports:
-            - port: "53"
-              protocol: UDP
-    # Allow CoreDNS to reach node-local upstream DNS (Talos host DNS forwarder)
-    - toEntities:
-        - host
+            - port: "8081"
+              protocol: TCP
+    # Allow health checks from Cilium (169.254.x.x link-local)
+    - fromEntities:
+        - health
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+            - port: "8081"
+              protocol: TCP
+  egress:
+    # Allow CoreDNS to reach node-local upstream DNS (Talos host DNS forwarder at 169.254.116.108)
+    - toCIDR:
+        - 169.254.116.108/32
       toPorts:
         - ports:
             - port: "53"
@@ -73,10 +81,6 @@ spec:
         - ports:
             - port: "6443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
     # Allow health checks to all cluster pods (Cilium)
     - toEntities:
         - cluster

@@ -3,18 +3,19 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: spegel-default
-  namespace: spegel
+  name: kromgo-default
+  namespace: kromgo
 spec:
-  description: "Allow spegel: cluster-local OCI registry mirror for container images"
+  description: "Allow Kromgo: status badge generator querying Prometheus"
   endpointSelector: { }
   ingress:
-    # Allow image pulls from all cluster pods (registry mirror)
-    - fromEntities:
-        - cluster
+    # Allow traffic from gateways (external badge requests)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-gateway
       toPorts:
         - ports:
-            - port: "5000"
+            - port: "8080"
               protocol: TCP
     # Allow Prometheus scraping
     - fromEndpoints:
@@ -26,17 +27,11 @@ spec:
             - port: "8080"
               protocol: TCP
   egress:
-    # Allow Kubernetes API for node discovery
-    - toEntities:
-        - kube-apiserver
+    # Allow Prometheus queries (fetch metrics for badge generation)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
       toPorts:
         - ports:
-            - port: "6443"
-              protocol: TCP
-    # Allow egress to external registries for cache misses (HTTPS)
-    - toEntities:
-        - world
-      toPorts:
-        - ports:
-            - port: "443"
+            - port: "9090"
               protocol: TCP

@@ -146,6 +146,9 @@ Provide recommendations only (read-only investigation):
 | `CrashLoopBackOff` | `logs --previous` | App error, missing config |
 | `OOMKilled` | Memory limits | Memory leak, limits too low |
 | `Unhealthy` | Probe config | Slow startup, wrong endpoint |
+| Service unreachable | Hubble dropped traffic | **Network policy blocking** |
+| Can't reach database | Hubble + namespace labels | Missing access label |
+| Gateway returns 503 | Hubble from istio-gateway | Missing profile label |
 
 ## Common Failure Chains
 
@@ -159,10 +162,72 @@ StorageClass missing → PVC Pending → Pod Pending → Helm timeout
 DNS failure → Service unreachable → Health check fails → Pod restarted
 ```
 
+**Network policy failures cascade:**
+```
+Missing namespace profile label → No ingress allowed → Service unreachable from gateway
+Missing access label → Can't reach database → App fails health checks → CrashLoopBackOff
+```
+
 **Secret failures cascade:**
 ```
 ExternalSecret fails → Secret missing → Pod CrashLoopBackOff
 ```
+
+## Network Policy Debugging (Cilium + Hubble)
+
+**Network policies are ENFORCED - all traffic is implicitly denied unless allowed.**
+
+### Check for Blocked Traffic
+
+```bash
+# Setup Hubble access (run once per session)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n kube-system svc/hubble-relay 4245:80 &
+
+# See dropped traffic in a namespace
+hubble observe --verdict DROPPED --namespace <namespace> --since 5m
+
+# See what's trying to reach a service
+hubble observe --to-namespace <namespace> --verdict DROPPED --since 5m
+
+# Check specific traffic flow
+hubble observe --from-namespace <source> --to-namespace <dest> --since 5m
+```
+
+### Common Network Policy Issues
+
+| Symptom | Check | Fix |
+|---------|-------|-----|
+| Service unreachable from gateway | `kubectl get ns <ns> --show-labels` | Add profile label |
+| Can't reach database | Check `access.network-policy.homelab/postgres` label | Add access label |
+| Pods can't resolve DNS | Hubble DNS drops (rare - baseline allows) | Check for custom egress blocking |
+| Inter-pod communication fails | Hubble intra-namespace drops | Baseline should allow - check for overrides |
+
+### Namespace Labels Checklist
+
+```bash
+# Check namespace has required labels
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl get ns <namespace> -o jsonpath='{.metadata.labels}' | jq
+
+# Required for app namespaces:
+# - network-policy.homelab/profile: standard|internal|internal-egress|isolated
+
+# Optional access labels:
+# - access.network-policy.homelab/postgres: "true"
+# - access.network-policy.homelab/garage-s3: "true"
+# - access.network-policy.homelab/kube-api: "true"
+```
+
+### Emergency: Disable Network Policies
+
+```bash
+# Escape hatch - disables enforcement for namespace (triggers alert after 5m)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl label namespace <ns> network-policy.homelab/enforcement=disabled
+
+# Re-enable after fixing
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl label namespace <ns> network-policy.homelab/enforcement-
+```
+
+See `docs/runbooks/network-policy-escape-hatch.md` for full procedure.
 
 ## Flux GitOps Commands
 

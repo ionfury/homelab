@@ -31,6 +31,17 @@ spec:
         - ports:
             - port: "15020"
               protocol: TCP
+    # Allow canary-checker health checks
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: canary-checker
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
     # Allow xDS from istiod
     - fromEndpoints:
         - matchLabels:
@@ -41,22 +52,7 @@ spec:
               protocol: TCP
             - port: "15006"
               protocol: TCP
-    # Allow intra-namespace communication
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: istio-gateway
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow traffic to backend services in cluster (all namespaces)
     - toEntities:
         - cluster
@@ -70,7 +66,10 @@ spec:
               protocol: TCP
             - port: "15012"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: istio-gateway
+    # Allow external HTTPS (JWKS fetch for OAuth/OIDC authentication)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

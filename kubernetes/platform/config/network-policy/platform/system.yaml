@@ -25,22 +25,7 @@ spec:
         - ports:
             - port: "10250"
               protocol: TCP
-    # Allow intra-namespace communication
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: system
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow Kubernetes API access (operators watch/modify resources)
     - toEntities:
         - kube-apiserver
@@ -48,7 +33,3 @@ spec:
         - ports:
             - port: "6443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: system

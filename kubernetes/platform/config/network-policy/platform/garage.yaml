@@ -37,11 +37,13 @@ spec:
         - ports:
             - port: "3901"
               protocol: TCP
-    # Allow Prometheus scraping
+    # Allow Prometheus scraping and operator admin API access
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: monitoring
             app.kubernetes.io/name: prometheus
+        - matchLabels:
+            io.kubernetes.pod.namespace: garage
       toPorts:
         - ports:
             - port: "3903"
@@ -55,24 +57,15 @@ spec:
             - port: "3903"
               protocol: TCP
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
-    # Allow inter-node RPC replication
+    # Allow inter-node RPC replication and operator admin API calls
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: garage
       toPorts:
         - ports:
             - port: "3901"
+              protocol: TCP
+            - port: "3903"
               protocol: TCP
     # Allow Kubernetes API access (for node discovery if using K8s discovery)
     - toEntities:

@@ -10,8 +10,8 @@ spec:
   endpointSelector: { }
   ingress:
     # Allow CSI driver requests from all namespaces (pods mounting volumes)
-    - fromEndpoints:
-        - { }
+    - fromEntities:
+        - cluster
       toPorts:
         - ports:
             - port: "9500"
@@ -48,22 +48,7 @@ spec:
         - ports:
             - port: "9443"
               protocol: TCP
-    # Allow intra-namespace communication (manager <-> engine <-> replica)
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: longhorn-system
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow Kubernetes API access
     - toEntities:
         - kube-apiserver
@@ -89,7 +74,3 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: longhorn-system

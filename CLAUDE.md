@@ -100,6 +100,67 @@ The main Claude agent operates as an **orchestrator**, not a direct executor. Th
 
 ---
 
+# NETWORK POLICY ENFORCEMENT
+
+**All cluster network traffic is implicitly denied unless explicitly allowed.** This is enterprise-grade network segmentation using Cilium.
+
+## Critical Knowledge for All Agents
+
+| Fact | Impact |
+|------|--------|
+| Default deny is implicit | Pods cannot communicate unless a policy allows it |
+| Application namespaces need labels | Without `network-policy.homelab/profile=<profile>`, apps have no ingress |
+| Platform namespaces use custom CNPs | Never apply profiles to `kube-system`, `monitoring`, `database`, etc. |
+| Troubleshoot with Hubble | `hubble observe --verdict DROPPED --namespace <ns>` shows blocked traffic |
+
+## Namespace Profile Labels (Required for App Namespaces)
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-app
+  labels:
+    network-policy.homelab/profile: standard  # Choose: isolated, internal, internal-egress, standard
+```
+
+| Profile | Ingress | Egress | Use Case |
+|---------|---------|--------|----------|
+| `isolated` | None | DNS only | Batch jobs, workers |
+| `internal` | Internal gateway | DNS only | Internal dashboards |
+| `internal-egress` | Internal gateway | DNS + HTTPS | Internal apps calling external APIs |
+| `standard` | Both gateways | DNS + HTTPS | Public-facing web apps |
+
+## Shared Resource Access
+
+Grant access to shared services via additional labels:
+
+```bash
+kubectl label namespace my-app access.network-policy.homelab/postgres=true    # Database access
+kubectl label namespace my-app access.network-policy.homelab/garage-s3=true   # S3 storage
+kubectl label namespace my-app access.network-policy.homelab/kube-api=true    # Kubernetes API
+```
+
+## Emergency Escape Hatch
+
+If network policies block legitimate traffic:
+
+```bash
+# Disable enforcement (triggers alert after 5 minutes)
+kubectl label namespace <ns> network-policy.homelab/enforcement=disabled
+
+# Re-enable after fixing
+kubectl label namespace <ns> network-policy.homelab/enforcement-
+```
+
+See `docs/runbooks/network-policy-escape-hatch.md` for full procedure.
+
+## Detailed Documentation
+
+For complete architecture, profiles, and debugging: [kubernetes/platform/config/network-policy/CLAUDE.md](kubernetes/platform/config/network-policy/CLAUDE.md)
+
+---
+
 # CHANGE MANAGEMENT & DEPLOYMENT
 
 **The primary goal of all practices in this repository is to provide safe continuity of service for the live environment.**

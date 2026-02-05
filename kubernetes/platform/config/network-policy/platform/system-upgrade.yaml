@@ -3,10 +3,10 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: external-secrets-default
-  namespace: external-secrets
+  name: system-upgrade-default
+  namespace: system-upgrade
 spec:
-  description: "Allow external-secrets: AWS SSM/Secrets Manager, K8s API"
+  description: "Allow Tuppr: Talos/Kubernetes upgrade controller requiring Talos API access"
   endpointSelector: { }
   ingress:
     # Allow Prometheus scraping
@@ -18,25 +18,19 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
-    # Allow webhooks from K8s API server
-    - fromEntities:
-        - kube-apiserver
-      toPorts:
-        - ports:
-            - port: "10250"
-              protocol: TCP
   egress:
-    # Allow Kubernetes API access
+    # Allow Kubernetes API access (watch TalosUpgrade/KubernetesUpgrade CRs, update node status)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
               protocol: TCP
-    # Allow AWS SSM and Secrets Manager (HTTPS)
+    # Allow Talos API access to nodes (for executing upgrades)
+    # Talos API runs on port 50000 on each node
     - toEntities:
-        - world
+        - host
       toPorts:
         - ports:
-            - port: "443"
+            - port: "50000"
               protocol: TCP

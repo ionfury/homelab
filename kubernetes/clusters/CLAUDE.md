@@ -217,3 +217,35 @@ KUBECONFIG=~/.kube/live.yaml kubectl describe pod -n monitoring prometheus-0
 3. Run Terragrunt to provision cluster and generate bootstrap files
 4. Commit the generated `kubernetes/clusters/<cluster>/` files
 5. Flux will bootstrap the cluster on next reconciliation
+
+---
+
+## Network Policy Requirements
+
+**Network policies are ENFORCED cluster-wide.** Application namespaces need proper labels or pods will have no network connectivity.
+
+### Required Namespace Labels
+
+Every application namespace must have a profile label in `kubernetes/platform/namespaces.yaml`:
+
+```yaml
+- name: my-app
+  labels:
+    network-policy.homelab/profile: standard  # Required for connectivity
+```
+
+| Profile | Use Case |
+|---------|----------|
+| `isolated` | Batch jobs, workers |
+| `internal` | Internal dashboards |
+| `internal-egress` | Internal apps calling external APIs |
+| `standard` | Public-facing web apps |
+
+### Optional Access Labels
+
+```yaml
+    access.network-policy.homelab/postgres: "true"   # Database access
+    access.network-policy.homelab/garage-s3: "true"  # S3 storage
+```
+
+See [kubernetes/platform/config/network-policy/CLAUDE.md](../platform/config/network-policy/CLAUDE.md) for full documentation.

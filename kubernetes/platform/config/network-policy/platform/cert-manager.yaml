@@ -25,30 +25,17 @@ spec:
         - ports:
             - port: "10250"
               protocol: TCP
-    # Allow istio-csr certificate requests from istiod and ztunnel
+    # Allow istio-csr certificate requests from istiod, ztunnel, and gateways
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: istio-system
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-gateway
       toPorts:
         - ports:
             - port: "6443"
               protocol: TCP
-    # Allow intra-namespace communication
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: cert-manager
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow Kubernetes API access
     - toEntities:
         - kube-apiserver
@@ -65,7 +52,3 @@ spec:
               protocol: TCP
             - port: "80"
               protocol: TCP
-    # Allow intra-namespace communication
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: cert-manager

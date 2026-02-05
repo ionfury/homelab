@@ -9,9 +9,9 @@ spec:
   description: "Allow Istio control plane: xDS to data plane, K8s API, webhook traffic"
   endpointSelector: { }
   ingress:
-    # Allow xDS requests from data plane (ztunnel, waypoints)
-    - fromEndpoints:
-        - { }
+    # Allow xDS requests from data plane (ztunnel in kube-system, waypoints)
+    - fromEntities:
+        - cluster
       toPorts:
         - ports:
             # istiod gRPC port
@@ -41,22 +41,7 @@ spec:
         - ports:
             - port: "15017"
               protocol: TCP
-    # Allow intra-namespace communication
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: istio-system
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow Kubernetes API access
     - toEntities:
         - kube-apiserver
@@ -78,7 +63,11 @@ spec:
             # ztunnel outbound
             - port: "15001"
               protocol: TCP
-    # Allow intra-namespace communication
+    # Allow certificate requests to istio-csr (ztunnel requests workload certs)
     - toEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: istio-system
+            io.kubernetes.pod.namespace: cert-manager
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

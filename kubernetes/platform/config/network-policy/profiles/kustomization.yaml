@@ -3,7 +3,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - default-deny.yaml
+  # NOTE: No default-deny.yaml needed - baselines with endpointSelector: {} enable
+  # Cilium enforcement mode for ALL pods, providing implicit deny for unallowed traffic
   - profile-isolated.yaml
   - profile-internal.yaml
   - profile-standard.yaml

@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: baseline-hbone-mesh
+spec:
+  description: >-
+    Allow HBONE mesh traffic (port 15008) for Istio Ambient mode.
+    Automatically applies to any namespace with istio.io/dataplane-mode=ambient.
+  endpointSelector:
+    matchExpressions:
+      - key: io.cilium.k8s.namespace.labels.istio.io/dataplane-mode
+        operator: In
+        values: ["ambient"]
+  ingress:
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "15008"
+              protocol: TCP
+  egress:
+    - toEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "15008"
+              protocol: TCP
