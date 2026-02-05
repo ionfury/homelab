@@ -151,6 +151,24 @@ Add to `kubernetes/platform/namespaces.yaml` inputs array:
 - name: <namespace>
   labels:
     pod-security.kubernetes.io/enforce: baseline
+    network-policy.homelab/profile: standard  # REQUIRED - choose: isolated, internal, internal-egress, standard
+```
+
+**Network Policy Profile Selection:**
+
+| Profile | Use When |
+|---------|----------|
+| `isolated` | Batch jobs, workers with no inbound traffic |
+| `internal` | Internal dashboards/tools (internal gateway only) |
+| `internal-egress` | Internal apps that call external APIs |
+| `standard` | Public-facing web apps (both gateways + HTTPS egress) |
+
+**Optional Access Labels** (add if app needs these):
+
+```yaml
+    access.network-policy.homelab/postgres: "true"    # Database access
+    access.network-policy.homelab/garage-s3: "true"   # S3 storage access
+    access.network-policy.homelab/kube-api: "true"    # Kubernetes API access
 ```
 
 ### 3.3 Add to helm-charts.yaml
@@ -363,7 +381,30 @@ KUBECONFIG=~/.kube/dev.yaml kubectl -n <namespace> \
   wait --for=condition=Ready pod -l app.kubernetes.io/name=<app-name> --timeout=300s
 ```
 
-### 5.3 Verify Monitoring
+### 5.3 Verify Network Connectivity
+
+**CRITICAL**: Network policies are enforced - verify traffic flows correctly:
+
+```bash
+# Setup Hubble access (run once per session)
+KUBECONFIG=~/.kube/dev.yaml kubectl port-forward -n kube-system svc/hubble-relay 4245:80 &
+
+# Check for dropped traffic (should be empty for healthy app)
+hubble observe --verdict DROPPED --namespace <namespace> --since 5m
+
+# Verify gateway can reach the app (if exposed)
+hubble observe --from-namespace istio-gateway --to-namespace <namespace> --since 2m
+
+# Verify app can reach database (if using postgres access label)
+hubble observe --from-namespace <namespace> --to-namespace database --since 2m
+```
+
+**Common issues:**
+- Missing profile label → gateway traffic blocked
+- Missing access label → database/S3 traffic blocked
+- Wrong profile → external API calls blocked (use `internal-egress` or `standard`)
+
+### 5.4 Verify Monitoring
 
 Use the helper scripts:
 
@@ -381,10 +422,11 @@ Use the helper scripts:
 .claude/skills/deploy-app/scripts/check-canary.sh <app-name>
 ```
 
-### 5.4 User Confirmation
+### 5.5 User Confirmation
 
 Use AskUserQuestion to report:
 - Pod status (Ready/NotReady)
+- Network connectivity (Hubble drops)
 - ServiceMonitor discovery status
 - Alert status
 - Canary status (if applicable)

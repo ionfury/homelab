@@ -190,17 +190,23 @@ task k8s:validate
 
 ### Network Policy Organization
 
+**⚠️ Network policies are ENFORCED - all traffic implicitly denied unless allowed.**
+
+See [network-policy/CLAUDE.md](network-policy/CLAUDE.md) for complete architecture and debugging.
+
 ```
 network-policy/
-├── baselines/           # Namespace-level defaults
-├── profiles/            # Reusable policy templates
-├── platform/            # Platform service policies
-└── shared-resources/    # Cross-namespace access rules
+├── baselines/           # Universal allows (DNS, health probes, Prometheus, intra-namespace)
+├── profiles/            # Namespace profiles (isolated, internal, internal-egress, standard)
+├── platform/            # Hand-crafted CNPs for platform namespaces
+└── shared-resources/    # Opt-in access to postgres, garage-s3, kube-api
 ```
 
+**Critical for app deployment**: Application namespaces MUST have `network-policy.homelab/profile=<profile>` label.
+
 Two-tier model:
-1. **Baseline policies**: Default deny + common allows per namespace
-2. **Workload policies**: Specific rules per application
+1. **Baseline CCNPs**: Universal allows applied to all pods cluster-wide
+2. **Profile CCNPs**: Per-namespace ingress/egress based on namespace label
 
 ### Issuers Organization
 
