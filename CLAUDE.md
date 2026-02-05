@@ -58,6 +58,18 @@ Documentation and skills are living artifacts. Improve them proactively:
 - Anti-patterns encountered that should be warned against
 - Workflow improvements that benefit future tasks
 
+**Documentation maintenance skills:**
+
+| Skill | Purpose |
+|-------|---------|
+| `sync-claude` | Validate docs against codebase before commits |
+| `self-improvement` | Capture corrections and new patterns immediately |
+
+**Where does content belong?**
+- **CLAUDE.md files**: Declarative knowledge (what exists, why, constraints)
+- **Skills**: Procedural knowledge (step-by-step workflows)
+- **Runbooks**: Emergency procedures (disaster recovery, incident response)
+
 ## Agent Orchestration
 
 The main Claude agent operates as an **orchestrator**, not a direct executor. This maximizes context window efficiency and enables parallel work:
@@ -161,57 +173,9 @@ task renovate:validate
 
 ---
 
-# DEV CLUSTER OPERATIONS
+## Dev Cluster Operations
 
-The `dev` cluster is a sandbox environment for testing infrastructure changes. Claude has expanded permissions for dev cluster operations to facilitate testing workflows.
-
-## Allowed Operations (dev cluster only)
-
-```bash
-# Status checks (run freely)
-task inv:hosts                     # List all hosts
-task inv:power-status              # Check power state of all hosts
-task inv:status-<host>             # Check specific host IPMI status
-task talos:maint                   # Check maintenance mode for all hosts
-task talos:maint-<host>            # Check specific host maintenance mode
-
-# Infrastructure operations (require confirmation)
-task tg:plan-dev                   # Plan dev cluster changes
-task tg:apply-dev                  # Apply dev cluster changes
-task tg:gen-dev                    # Generate dev stack
-task tg:clean-dev                  # Clean dev stack cache
-```
-
-## AWS Credentials
-
-Infrastructure operations require AWS credentials for remote state and Parameter Store access:
-
-```bash
-export AWS_PROFILE=terragrunt
-export AWS_REGION=us-east-2
-```
-
-Verify credentials before running Terragrunt:
-```bash
-aws sts get-caller-identity
-```
-
-## Pre-Flight Checks
-
-Before running infrastructure operations on dev, verify cluster readiness:
-
-1. **Check host power**: `task inv:status-node45` (node45 is the dev cluster host)
-2. **Check maintenance mode**: `task talos:maint-node45`
-
-## Confirmation Required
-
-**ALWAYS use AskUserQuestion before:**
-- `task tg:apply-dev` (creates/modifies infrastructure)
-- Any operation that destroys or recreates resources
-
-This ensures the human operator is aware and approves state-changing operations, even on the dev cluster.
-
-## Scope Boundaries
+For dev cluster permissions, pre-flight checks, and safety procedures, see [.taskfiles/CLAUDE.md](.taskfiles/CLAUDE.md#dev-cluster-safety).
 
 | Cluster | Claude Permissions |
 |---------|-------------------|
@@ -358,6 +322,32 @@ mise doctor              # Diagnose environment issues
 - CI workflows use `jdx/mise-action` to install the same versions
 - Renovate auto-updates versions via the mise manager
 
+## Platform Version Management
+
+`kubernetes/platform/versions.env` is the **single source of truth** for all platform versions:
+
+- **Infrastructure versions**: Talos, Kubernetes, Cilium (read by Terragrunt)
+- **Helm chart versions**: All charts deployed via Flux (substituted at reconciliation)
+- **Upgrade operations**: Tuppr reads versions for declarative upgrades
+- **Dependency updates**: Renovate manages version bumps
+
+See [kubernetes/platform/CLAUDE.md](kubernetes/platform/CLAUDE.md) for detailed version management patterns.
+
+### Data Flow
+
+```
+kubernetes/platform/versions.env  ─────────────────────────────┐
+    │                                                          │
+    ├──→ infrastructure/stacks/*/  (Terragrunt reads versions) │
+    │         │                                                │
+    │         └──→ generates .cluster-vars.env per cluster     │
+    │                    │                                     │
+    │                    ▼                                     │
+    │    kubernetes/clusters/<cluster>/.cluster-vars.env       │
+    │                                                          │
+    └──→ kubernetes/platform/ (Flux substitutes versions) ◄────┘
+```
+
 ---
 
 # DIRECTORY-SPECIFIC DOCUMENTATION
@@ -366,10 +356,17 @@ Each major directory has its own CLAUDE.md with domain-specific patterns:
 
 | Directory | Focus |
 |-----------|-------|
-| [infrastructure/CLAUDE.md](infrastructure/CLAUDE.md) | Testing, validation, stacks, inventory lookups |
-| [kubernetes/platform/CLAUDE.md](kubernetes/platform/CLAUDE.md) | Flux patterns, secrets management, variable substitution |
+| [.github/CLAUDE.md](.github/CLAUDE.md) | CI/CD workflows, OCI artifact promotion pipeline |
+| [.taskfiles/CLAUDE.md](.taskfiles/CLAUDE.md) | Task commands, dev cluster safety |
+| [.claude/skills/CLAUDE.md](.claude/skills/CLAUDE.md) | Skill architecture and inventory |
+| [docs/CLAUDE.md](docs/CLAUDE.md) | Runbook organization and guidelines |
+| [infrastructure/CLAUDE.md](infrastructure/CLAUDE.md) | Architecture overview, testing philosophy |
+| [infrastructure/stacks/CLAUDE.md](infrastructure/stacks/CLAUDE.md) | Stack lifecycles and definitions |
+| [infrastructure/units/CLAUDE.md](infrastructure/units/CLAUDE.md) | Unit patterns and dependencies |
+| [infrastructure/modules/CLAUDE.md](infrastructure/modules/CLAUDE.md) | Module development and testing |
+| [kubernetes/platform/CLAUDE.md](kubernetes/platform/CLAUDE.md) | Flux patterns, secrets, version management |
+| [kubernetes/platform/config/CLAUDE.md](kubernetes/platform/config/CLAUDE.md) | Config subsystem organization |
 | [kubernetes/clusters/CLAUDE.md](kubernetes/clusters/CLAUDE.md) | Cluster configuration, promotion path |
-| [.taskfiles/CLAUDE.md](.taskfiles/CLAUDE.md) | Task commands quick reference |
 
 ## Skills (Lazy-Loaded)
 
