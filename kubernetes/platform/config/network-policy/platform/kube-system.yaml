@@ -62,15 +62,6 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
   egress:
-    # Allow DNS resolution (internal)
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
     # Allow CoreDNS to reach node-local upstream DNS (Talos host DNS forwarder at 169.254.116.108)
     - toCIDR:
         - 169.254.116.108/32

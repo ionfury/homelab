@@ -57,17 +57,6 @@ spec:
             - port: "3903"
               protocol: TCP
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow inter-node RPC replication and operator admin API calls
     - toEndpoints:
         - matchLabels:

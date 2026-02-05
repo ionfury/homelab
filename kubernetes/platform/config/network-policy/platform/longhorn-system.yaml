@@ -53,17 +53,6 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: longhorn-system
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow Kubernetes API access
     - toEntities:
         - kube-apiserver

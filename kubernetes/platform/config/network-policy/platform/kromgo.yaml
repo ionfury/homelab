@@ -31,17 +31,6 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: kromgo
   egress:
-    # Allow DNS resolution
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     # Allow Prometheus queries (fetch metrics for badge generation)
     - toEndpoints:
         - matchLabels:
