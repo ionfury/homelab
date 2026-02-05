@@ -19,12 +19,14 @@ spec:
             - port: "8080"
               protocol: TCP
   egress:
-    # Allow Kubernetes API access (watch TalosUpgrade/KubernetesUpgrade CRs, update node status)
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+            - port: "443"
               protocol: TCP
     # Allow Talos API access to nodes (for executing upgrades)
     # Talos API runs on port 50000 on each node
