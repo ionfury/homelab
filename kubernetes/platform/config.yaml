@@ -66,6 +66,10 @@ spec:
       namespace: kube-system
       path: kubernetes/platform/config/network-policy
       dependsOn: [cilium]
+    - name: infrastructure-policies-config
+      namespace: ""
+      path: kubernetes/platform/config/infrastructure-policies
+      dependsOn: [cilium]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -86,7 +90,9 @@ spec:
       sourceRef:
         kind: ${source_kind}
         name: flux-system
+      <<- if inputs.namespace >>
       targetNamespace: << inputs.namespace >>
+      <<- end >>
       postBuild:
         substituteFrom:
           - kind: ConfigMap
