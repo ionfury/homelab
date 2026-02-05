@@ -48,9 +48,9 @@ spec:
         - ports:
             - port: "8081"
               protocol: TCP
-    # Allow Cilium health endpoint probes (reserved:health identity on port 4240)
+    # Allow Cilium cross-node health probes (remote nodes probe local health endpoint)
     - fromEntities:
-        - health
+        - remote-node
       toPorts:
         - ports:
             - port: "4240"
