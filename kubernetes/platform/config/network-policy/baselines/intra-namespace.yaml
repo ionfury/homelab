@@ -9,10 +9,10 @@ spec:
     Allow pods to communicate freely within their own namespace.
     Uses fromEndpoints/toEndpoints with empty selector which matches
     same-namespace endpoints only (not cluster-wide).
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     - fromEndpoints:
-        - {}
+        - { }
   egress:
     - toEndpoints:
-        - {}
+        - { }
