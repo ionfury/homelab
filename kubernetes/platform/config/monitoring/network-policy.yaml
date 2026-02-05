@@ -52,6 +52,13 @@ spec:
         - ports:
             - port: "15008"
               protocol: TCP
+    # Allow webhooks from K8s API server (PrometheusRule, AlertmanagerConfig admission)
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP
   egress:
     # Allow Kubernetes API access (for service discovery, kube-state-metrics)
     - toEntities:
