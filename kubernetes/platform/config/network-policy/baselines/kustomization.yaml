@@ -7,3 +7,4 @@ resources:
   - prometheus-scrape.yaml
   - kube-api-access.yaml
   - health-probes.yaml
+  - escape-hatch-allow-all.yaml

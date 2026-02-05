@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: escape-hatch-allow-all
+spec:
+  description: >-
+    Allow all traffic for namespaces with enforcement disabled.
+    This is an emergency escape hatch - use only when network policies
+    are blocking legitimate traffic and you need to debug.
+    See docs/runbooks/network-policy-escape-hatch.md for procedure.
+  endpointSelector:
+    matchExpressions:
+      - key: io.cilium.k8s.namespace.labels.network-policy.homelab/enforcement
+        operator: In
+        values: ["disabled"]
+  egress:
+    - toEntities:
+        - all
+  ingress:
+    - fromEntities:
+        - all
