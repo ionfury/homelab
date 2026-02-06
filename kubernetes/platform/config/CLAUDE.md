@@ -96,6 +96,7 @@ Config kustomizations must declare dependencies on the HelmReleases that provide
 | `Canary` | canary-checker |
 | `Gateway`, `HTTPRoute` | (Gateway API CRDs - pre-installed) |
 | `PrometheusRule`, `ServiceMonitor` | kube-prometheus-stack |
+| `Silence` | silence-operator |
 | `TalosUpgrade`, `KubernetesUpgrade` | tuppr |
 | `WasmPlugin` | istio-istiod |
 | `GarageCluster` | garage |
