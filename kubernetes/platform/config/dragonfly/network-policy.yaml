@@ -10,6 +10,7 @@ spec:
   endpointSelector:
     matchLabels:
       app: dragonfly
+      app.kubernetes.io/name: dragonfly
   ingress:
     # Redis connections from namespaces with dragonfly access label
     - fromEndpoints:
