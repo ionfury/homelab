@@ -4,6 +4,8 @@ apiVersion: cilium.io/v2
 kind: CiliumBGPAdvertisement
 metadata:
   name: loadbalancer-ips
+  labels:
+    advertise: bgp
 spec:
   advertisements:
     - advertisementType: Service

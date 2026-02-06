@@ -18,6 +18,13 @@ spec:
     restartTimeSeconds: 120
   # eBGP requires TTL=1 for directly connected peers
   ebgpMultihop: 1
+  # Address families and advertisement selection
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: bgp
   # Transport settings - use standard BGP port
   transport:
     peerPort: 179
