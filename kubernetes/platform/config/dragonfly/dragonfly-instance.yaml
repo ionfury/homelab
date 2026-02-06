@@ -2,7 +2,7 @@
 apiVersion: dragonflydb.io/v1alpha1
 kind: Dragonfly
 metadata:
-  name: platform
+  name: dragonfly
 spec:
   replicas: ${default_replica_count}
 
@@ -21,26 +21,26 @@ spec:
   args:
     - "--maxmemory"
     - "768mb"
-    - "--maxmemory-policy"
-    - "allkeys-lru"
+    - "--cache_mode"
     - "--proactor_threads"
     - "2"
     - "--dbfilename"
     - "dump"
+    - "--s3_endpoint"
+    - "garage.garage.svc.cluster.local:3900"
+    - "--s3_use_https=false"
 
   env:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
           name: dragonfly-s3-credentials
-          key: accessKeyId
+          key: access-key-id
     - name: AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef:
           name: dragonfly-s3-credentials
-          key: secretAccessKey
-    - name: AWS_ENDPOINT_URL
-      value: "http://garage.garage.svc.cluster.local:3900"
+          key: secret-access-key
     - name: AWS_REGION
       value: "garage"
 
@@ -62,4 +62,4 @@ spec:
       labelSelector:
         matchLabels:
           app: dragonfly
-          app.kubernetes.io/instance: platform
+          app.kubernetes.io/name: dragonfly
