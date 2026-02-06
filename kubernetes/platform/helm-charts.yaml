@@ -18,182 +18,182 @@ spec:
       namespace: "cert-manager"
       chart:
         name: "cert-manager"
-        version: "${cert_manager_version:-1.17.1}"
+        version: "${cert_manager_version}"
         url: "https://charts.jetstack.io"
       dependsOn: [cilium]
     - name: "external-secrets"
       namespace: "external-secrets"
       chart:
         name: "external-secrets"
-        version: "${external_secrets_version:-0.13.0}"
+        version: "${external_secrets_version}"
         url: "https://charts.external-secrets.io"
       dependsOn: [cilium]
     - name: "cilium"
       namespace: "kube-system"
       chart:
         name: "cilium"
-        version: "${cilium_version:-1.18.6}"
+        version: "${cilium_version}"
         url: "https://helm.cilium.io/"
       dependsOn: []
     - name: "descheduler"
       namespace: "kube-system"
       chart:
         name: "descheduler"
-        version: "${descheduler_version:-0.32.1}"
+        version: "${descheduler_version}"
         url: "https://kubernetes-sigs.github.io/descheduler"
       dependsOn: [cilium]
     - name: longhorn
       namespace: longhorn-system
       chart:
         name: longhorn
-        version: "${longhorn_version:-v1.8.0}"
+        version: "${longhorn_version}"
         url: https://charts.longhorn.io
       dependsOn: [cilium]
     - name: "reloader"
       namespace: "system"
       chart:
         name: "reloader"
-        version: "${reloader_version:-v1.2.1}"
+        version: "${reloader_version}"
         url: "https://stakater.github.io/stakater-charts"
       dependsOn: []
     - name: "replicator"
       namespace: "system"
       chart:
         name: "kubernetes-replicator"
-        version: "${replicator_version:-2.11.0}"
+        version: "${replicator_version}"
         url: "https://helm.mittwald.de"
       dependsOn: []
     - name: "secret-generator"
       namespace: "system"
       chart:
         name: "kubernetes-secret-generator"
-        version: "${secret_generator_version:-3.4.0}"
+        version: "${secret_generator_version}"
         url: "https://helm.mittwald.de"
       dependsOn: []
     - name: "canary-checker"
       namespace: "monitoring"
       chart:
         name: "canary-checker"
-        version: "${canary_checker_version:-1.1.1}"
+        version: "${canary_checker_version}"
         url: "https://flanksource.github.io/charts"
       dependsOn: [cilium, kube-prometheus-stack]
     - name: kube-prometheus-stack
       namespace: monitoring
       chart:
         name: kube-prometheus-stack
-        version: "${kube_prometheus_stack_version:-72.3.1}"
+        version: "${kube_prometheus_stack_version}"
         url: https://prometheus-community.github.io/helm-charts
       dependsOn: [longhorn, kube-prometheus-stack-crds, external-secrets]
     - name: "grafana-loki-single-binary"
       namespace: "monitoring"
       chart:
         name: "loki"
-        version: "${loki_version:-6.25.0}"
+        version: "${loki_version}"
         url: "https://grafana.github.io/helm-charts"
       dependsOn: [cilium, longhorn]
     - name: alloy
       namespace: monitoring
       chart:
         name: alloy
-        version: "${alloy_version:-1.6.0}"
+        version: "${alloy_version}"
         url: https://grafana.github.io/helm-charts
       dependsOn: [grafana-loki-single-binary]
     - name: grafana
       namespace: monitoring
       chart:
         name: grafana
-        version: "${grafana_version:-8.8.5}"
+        version: "${grafana_version}"
         url: https://grafana.github.io/helm-charts
       dependsOn: [kube-prometheus-stack, alloy]
     - name: "kube-prometheus-stack-crds"
       namespace: "monitoring"
       chart:
         name: "prometheus-operator-crds"
-        version: "${prometheus_version:-26.0.0}"
+        version: "${prometheus_version}"
         url: "https://prometheus-community.github.io/helm-charts"
       dependsOn: []
     - name: "istio-csr"
       namespace: "cert-manager"
       chart:
         name: "cert-manager-istio-csr"
-        version: "${istio_csr_version:-0.15.0}"
+        version: "${istio_csr_version}"
         url: "https://charts.jetstack.io"
       dependsOn: [cert-manager]
     - name: "istio-base"
       namespace: "istio-system"
       chart:
         name: "base"
-        version: "${istio_version:-1.28.1}"
+        version: "${istio_version}"
         url: "https://istio-release.storage.googleapis.com/charts"
       dependsOn: [cilium]
     - name: "istiod"
       namespace: "istio-system"
       chart:
         name: "istiod"
-        version: "${istio_version:-1.28.1}"
+        version: "${istio_version}"
         url: "https://istio-release.storage.googleapis.com/charts"
       dependsOn: [istio-base, istio-csr]
     - name: istio-cni
       namespace: istio-system
       chart:
         name: cni
-        version: "${istio_version:-1.28.1}"
+        version: "${istio_version}"
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod]
     - name: istio-ztunnel
       namespace: istio-system
       chart:
         name: ztunnel
-        version: "${istio_version:-1.28.1}"
+        version: "${istio_version}"
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni]
     - name: garage-operator
       namespace: garage
       chart:
         name: garage-operator
-        version: "${garage_operator_version:-0.0.24}"
+        version: "${garage_operator_version}"
         url: oci://ghcr.io/rajsinghtech/charts
       dependsOn: [cilium]
     - name: cloudnative-pg
       namespace: database
       chart:
         name: cloudnative-pg
-        version: "${cloudnative_pg_version:-0.27.0}"
+        version: "${cloudnative_pg_version}"
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
     - name: dragonfly-operator
       namespace: database
       chart:
         name: dragonfly-operator
-        version: "${dragonfly_operator_version:-v1.4.0}"
+        version: "${dragonfly_operator_version}"
         url: oci://ghcr.io/dragonflydb/dragonfly-operator/helm
       dependsOn: [cilium, kube-prometheus-stack-crds, secret-generator]
     - name: kromgo
       namespace: kromgo
       chart:
         name: app-template
-        version: "${app_template_version:-3.6.1}"
+        version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s/helm
       dependsOn: [kube-prometheus-stack]
     - name: spegel
       namespace: spegel
       chart:
         name: spegel
-        version: "${spegel_version:-0.6.0}"
+        version: "${spegel_version}"
         url: oci://ghcr.io/spegel-org/helm-charts
       dependsOn: [cilium]
     - name: tuppr
       namespace: system-upgrade
       chart:
         name: tuppr
-        version: "${tuppr_version:-0.0.52}"
+        version: "${tuppr_version}"
         url: oci://ghcr.io/home-operations/charts
       dependsOn: [cilium, kube-prometheus-stack-crds]
     - name: silence-operator
       namespace: monitoring
       chart:
         name: silence-operator
-        version: "${silence_operator_version:-0.20.0}"
+        version: "${silence_operator_version}"
         url: oci://gsoci.azurecr.io/charts/giantswarm
       dependsOn: [kube-prometheus-stack]
   resourcesTemplate: |

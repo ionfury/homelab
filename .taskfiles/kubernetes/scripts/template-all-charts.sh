@@ -17,10 +17,10 @@ source "$VERSION_VARS"
 set +a
 
 # Parse helm-charts.yaml to get chart definitions
-# First substitute ${var:-default} patterns with variable values or defaults
-charts_yaml=$(perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*):-([^}]*)\}/
+# First substitute ${var:-default} and ${var} patterns with variable values
+charts_yaml=$(perl -pe 's/\$\{([a-zA-Z_][a-zA-Z0-9_]*)(?::-([^}]*))?\}/
   my $var = $1; my $default = $2; my $val = $ENV{$var};
-  defined($val) && $val ne "" ? $val : $default;
+  defined($val) && $val ne "" ? $val : (defined($default) ? $default : "");
 /gex' "$HELM_CHARTS_FILE")
 charts_json=$(echo "$charts_yaml" | yq '.spec.inputs' -o=json)
 

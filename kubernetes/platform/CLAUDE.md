@@ -98,13 +98,13 @@ inputs:
     namespace: "monitoring"
     chart:
       name: "grafana"
-      version: "${grafana_version:-8.8.5}"    # Variable with default fallback
+      version: "${grafana_version}"
       url: "https://grafana.github.io/helm-charts"
     dependsOn: [kube-prometheus-stack]
 ```
 
 **Conventions:**
-- Chart versions use `${var:-default}` pattern (variable from `platform-versions` ConfigMap with fallback)
+- Chart versions use `${var}` pattern (variable from `platform-versions` ConfigMap, guaranteed by bootstrap dependency chain)
 - Dependencies between releases use `dependsOn` arrays
 - Values files contain only Helm chart configuration
 
@@ -235,7 +235,7 @@ Scenario: Version Upgrade via PR
 ### Adding/Updating Versions
 
 1. Edit `versions.env` with the new version
-2. If adding a new Helm chart, update `helm-charts.yaml` with `${new_chart_version:-X.Y.Z}`
+2. If adding a new Helm chart, update `helm-charts.yaml` with `${new_chart_version}`
 3. Run `task k8s:validate` to verify substitution works
 
 ---
