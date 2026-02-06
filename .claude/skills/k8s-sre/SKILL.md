@@ -16,7 +16,15 @@ description: |
 
 # ACCESSING CLUSTERS
 
-ALWAYS USE `export KUBECONFIG=~/kube/<cluster>.yaml && kubectl ...` WHEN EXECUTING KUBE COMMANDS TO CONNECT TO THE CLUSTER.
+**CRITICAL:** Always prefix kubectl/flux commands with inline KUBECONFIG assignment. Do NOT use `export` or `&&` - the variable must be set in the same command:
+
+```bash
+# ✅ CORRECT - inline assignment
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl get pods
+
+# ❌ WRONG - export with && breaks in some shell contexts
+export KUBECONFIG=~/.kube/<cluster>.yaml && kubectl get pods
+```
 
 
 # Debugging Kubernetes Incidents
