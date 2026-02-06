@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: baseline-health-probes
+spec:
+  description: >-
+    Allow health probes: kubelet liveness/readiness (169.254.x.x) and
+    Cilium cross-node health probes (host/remote-node entities).
+  endpointSelector:
+    matchExpressions:
+      # Apply to all pods (no label restrictions)
+      - key: reserved.none
+        operator: DoesNotExist
+  ingress:
+    # Allow health probe traffic from Cilium entities (local and remote nodes)
+    # Note: toPorts restriction doesn't work correctly with reserved entities
+    - fromEntities:
+        - health
+        - host
+        - remote-node
+        - kube-apiserver
+    # Allow kubelet health probes from node-local addresses (169.254.0.0/16)
+    - fromCIDR:
+        - 169.254.0.0/16

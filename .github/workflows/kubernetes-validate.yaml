@@ -13,7 +13,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate:
+  # Job 1: Cluster-independent validation (lint, ResourceSets, Helm)
+  validate-base:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,5 +23,70 @@ jobs:
       - name: Setup tools
         uses: jdx/mise-action@v3
 
-      - name: Validate Kubernetes manifests and Helm charts
+      - name: Validate (cluster-independent)
         run: task k8s:validate
+
+  # Job 2: Discover clusters with .cluster-vars.env
+  discover-clusters:
+    runs-on: ubuntu-latest
+    outputs:
+      clusters: ${{ steps.discover.outputs.clusters }}
+      has_clusters: ${{ steps.discover.outputs.has_clusters }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Discover clusters
+        id: discover
+        uses: actions/github-script@v7.1.0
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const clustersDir = 'kubernetes/clusters';
+            const clusters = [];
+
+            // Read cluster directories
+            const entries = fs.readdirSync(clustersDir, { withFileTypes: true });
+            for (const entry of entries) {
+              if (entry.isDirectory()) {
+                const varsFile = path.join(clustersDir, entry.name, '.cluster-vars.env');
+                if (fs.existsSync(varsFile)) {
+                  clusters.push(entry.name);
+                }
+              }
+            }
+
+            clusters.sort();
+            const clustersJson = JSON.stringify(clusters);
+
+            core.setOutput('clusters', clustersJson);
+            core.setOutput('has_clusters', clusters.length > 0 ? 'true' : 'false');
+
+            if (clusters.length === 0) {
+              core.info('No clusters with .cluster-vars.env found');
+            } else {
+              core.info(`Discovered clusters: ${clustersJson}`);
+            }
+
+  # Job 3: Per-cluster validation (separate status check per cluster)
+  validate-cluster:
+    needs: [validate-base, discover-clusters]
+    if: needs.discover-clusters.outputs.has_clusters == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cluster: ${{ fromJson(needs.discover-clusters.outputs.clusters) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup tools
+        uses: jdx/mise-action@v3
+
+      - name: Validate cluster
+        env:
+          CLUSTER: ${{ matrix.cluster }}
+        run: task k8s:validate-$CLUSTER

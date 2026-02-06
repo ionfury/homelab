@@ -1,0 +1,75 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: istio-system-default
+  namespace: istio-system
+spec:
+  description: "Allow Istio control plane: xDS to data plane, K8s API, webhook traffic"
+  endpointSelector: { }
+  ingress:
+    # Allow xDS requests from data plane (ztunnel in kube-system, waypoints)
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            # istiod gRPC port
+            - port: "15010"
+              protocol: TCP
+            # istiod HTTPS port
+            - port: "15012"
+              protocol: TCP
+            # istiod debug port
+            - port: "15014"
+              protocol: TCP
+    # Allow Prometheus scraping
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "15014"
+              protocol: TCP
+            - port: "15020"
+              protocol: TCP
+    # Allow webhooks from K8s API server
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "15017"
+              protocol: TCP
+  egress:
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+    # Allow HBONE tunnel traffic to data plane pods
+    - toEntities:
+        - cluster
+      toPorts:
+        - ports:
+            # HBONE tunnel port
+            - port: "15008"
+              protocol: TCP
+            # ztunnel inbound plaintext
+            - port: "15006"
+              protocol: TCP
+            # ztunnel outbound
+            - port: "15001"
+              protocol: TCP
+    # Allow certificate requests to istio-csr (ztunnel requests workload certs)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cert-manager
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

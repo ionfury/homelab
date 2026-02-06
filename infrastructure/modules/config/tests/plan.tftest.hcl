@@ -168,9 +168,10 @@ run "cluster_endpoint" {
 run "unifi_output_structure" {
   command = plan
 
+  # 2 controlplane records + 2 wildcard ingress records (internal + external)
   assert {
-    condition     = length(output.unifi.dns_records) == 2
-    error_message = "Expected 2 DNS records (one per controlplane node)"
+    condition     = length(output.unifi.dns_records) == 4
+    error_message = "Expected 4 DNS records (2 controlplane + 2 wildcard ingress)"
   }
 
   assert {
@@ -312,28 +313,59 @@ run "cluster_vars_content" {
     ])
     error_message = "cluster_id env var should match networking.id"
   }
+
+  # tls_issuer should be present (defaults to cloudflare for unknown clusters)
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "cloudflare"
+    ])
+    error_message = "tls_issuer env var should default to cloudflare for unknown clusters"
+  }
 }
 
-run "version_vars_content" {
+# TLS issuer configuration per cluster type
+run "tls_issuer_dev_cluster" {
   command = plan
 
-  assert {
-    condition     = length(output.version_vars) == 5
-    error_message = "Expected exactly 5 version vars"
+  variables {
+    name = "dev"
   }
 
   assert {
     condition = anytrue([
-      for v in output.version_vars : v.name == "talos_version" && v.value == "v1.9.0"
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "homelab-ca"
     ])
-    error_message = "talos_version env var should match versions.talos"
+    error_message = "Dev cluster should use homelab-ca issuer to avoid Let's Encrypt rate limits"
+  }
+}
+
+run "tls_issuer_integration_cluster" {
+  command = plan
+
+  variables {
+    name = "integration"
   }
 
   assert {
     condition = anytrue([
-      for v in output.version_vars : v.name == "kubernetes_version" && v.value == "1.32.0"
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "homelab-ca"
     ])
-    error_message = "kubernetes_version env var should match versions.kubernetes"
+    error_message = "Integration cluster should use homelab-ca issuer to avoid Let's Encrypt rate limits"
+  }
+}
+
+run "tls_issuer_live_cluster" {
+  command = plan
+
+  variables {
+    name = "live"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "cloudflare"
+    ])
+    error_message = "Live cluster should use cloudflare issuer for browser-trusted certificates"
   }
 }
 

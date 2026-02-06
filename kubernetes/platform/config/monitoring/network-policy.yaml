@@ -1,0 +1,81 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: monitoring-default
+  namespace: monitoring
+spec:
+  description: "Allow monitoring stack: Prometheus scraping, Grafana UI, Alertmanager webhooks, Loki ingestion"
+  endpointSelector: { }
+  ingress:
+    # Allow traffic from gateways (Grafana, Prometheus, Alertmanager UIs)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-gateway
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "9090"
+              protocol: TCP
+            - port: "9093"
+              protocol: TCP
+    # Allow log shipping from all namespaces to Loki
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "3100"
+              protocol: TCP
+    # Allow Prometheus scraping from itself
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+            - port: "9093"
+              protocol: TCP
+            - port: "3000"
+              protocol: TCP
+            - port: "3100"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+    # Allow HBONE mesh traffic (Istio ambient mode)
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "15008"
+              protocol: TCP
+    # Allow webhooks from K8s API server (PrometheusRule, AlertmanagerConfig admission)
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP
+  egress:
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+    # Allow Prometheus to scrape all cluster pods
+    - toEntities:
+        - cluster
+    # Allow external HTTPS connections (Alertmanager webhooks, Grafana external datasources)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

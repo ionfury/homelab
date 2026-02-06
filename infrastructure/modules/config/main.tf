@@ -20,6 +20,57 @@ locals {
   selected_sizes = local.storage_sizes[var.storage_provisioning]
 }
 
+# OCI artifact configuration by cluster
+# - dev: uses git sync, no OCI artifacts
+# - integration: accepts pre-release versions (>= 0.0.0-0 includes rc builds)
+# - live: stable releases only (>= 0.0.0 excludes pre-releases)
+#
+# Note: semverFilter is NOT supported by flux-operator kustomize patches.
+# The semver constraint alone handles version filtering:
+#   ">= 0.0.0-0" includes pre-releases (the -0 suffix)
+#   ">= 0.0.0" excludes pre-releases
+locals {
+  oci_config = {
+    dev = {
+      source_type = "git"
+      semver      = ""
+      tag_pattern = ""
+    }
+    integration = {
+      source_type = "oci"
+      semver      = ">= 0.0.0-0" # Includes pre-releases (rc builds)
+      tag_pattern = "latest"
+    }
+    live = {
+      source_type = "oci"
+      semver      = ">= 0.0.0" # Stable releases only
+      tag_pattern = "validated-*"
+    }
+  }
+
+  # Default to dev behavior for unknown clusters
+  _oci_cluster_config = lookup(local.oci_config, var.name, local.oci_config["dev"])
+
+  oci_source_type = local._oci_cluster_config.source_type
+  oci_semver      = local._oci_cluster_config.semver
+  oci_tag_pattern = local._oci_cluster_config.tag_pattern
+  oci_url         = local.oci_source_type == "oci" ? "oci://ghcr.io/${var.accounts.github.org}/${var.accounts.github.repository}/platform" : ""
+}
+
+# TLS issuer configuration by cluster
+# - dev/integration: use homelab-ca (self-signed, avoids Let's Encrypt rate limits)
+# - live: use cloudflare (Let's Encrypt via DNS-01 for browser trust)
+locals {
+  tls_issuer_config = {
+    dev         = "homelab-ca"
+    integration = "homelab-ca"
+    live        = "cloudflare"
+  }
+
+  # Default to cloudflare for unknown clusters (safe default - uses production issuer)
+  tls_issuer = lookup(local.tls_issuer_config, var.name, "cloudflare")
+}
+
 locals {
   cluster_endpoint = "k8s.${var.networking.internal_tld}"
   cluster_path     = "${var.accounts.github.repository_path}/${var.name}"
@@ -100,25 +151,18 @@ locals {
     ])
   }
 
-  # Build kubelet mounts per machine: longhorn root + any additional volumes
+  # Build kubelet mounts per machine for volume access with mount propagation
+  # Talos mounts user volumes at /var/mnt/<name>; these mounts ensure rshared propagation
   machine_kubelet_mounts = {
     for name, machine in local.cluster_machines :
-    name => concat(
-      # System disk volume gets /var/lib/longhorn mount
-      local.longhorn_enabled && anytrue([for v in lookup(machine, "volumes", []) : v.selector == "system_disk == true"]) ? [{
-        destination = "/var/lib/longhorn"
-        type        = "bind"
-        source      = "/var/lib/longhorn"
-        options     = ["bind", "rshared", "rw"]
-      }] : [],
-      # Non-system volumes get mounts at /var/mnt/<name>
-      [for vol in lookup(machine, "volumes", []) : {
+    name => [
+      for vol in lookup(machine, "volumes", []) : {
         destination = "/var/mnt/${vol.name}"
         type        = "bind"
         source      = "/var/mnt/${vol.name}"
         options     = ["bind", "rshared", "rw"]
-      } if vol.selector != "system_disk == true"]
-    )
+      }
+    ]
   }
 
   # Build longhorn disk annotations per machine from volumes
@@ -129,7 +173,7 @@ locals {
       value = "'${jsonencode([
         for vol in machine.volumes : {
           name            = vol.name
-          path            = vol.selector == "system_disk == true" ? "/var/lib/longhorn" : "/var/mnt/${vol.name}"
+          path            = "/var/mnt/${vol.name}"
           storageReserved = 0
           allowScheduling = true
           tags            = vol.tags
@@ -310,26 +354,33 @@ locals {
     { name = "bgp_cluster_asn", value = tostring(var.networking.bgp_asn) },
     { name = "bgp_router_asn", value = tostring(var.bgp.router_asn) },
     { name = "bgp_router_ip", value = var.bgp.router_ip },
+    # TLS certificate issuer (homelab-ca for dev/integration, cloudflare for live)
+    { name = "tls_issuer", value = local.tls_issuer },
   ]
 
-  # Version environment variables for flux post-build substitution
-  version_vars = [
-    { name = "talos_version", value = var.versions.talos },
-    { name = "cilium_version", value = var.versions.cilium },
-    { name = "flux_version", value = var.versions.flux },
-    { name = "prometheus_version", value = var.versions.prometheus },
-    { name = "kubernetes_version", value = var.versions.kubernetes },
-  ]
-
-  # DNS records for control plane nodes
-  dns_records = {
-    for name, machine in local.machines :
-    name => {
-      name   = local.cluster_endpoint
-      record = machine.bonds[0].addresses[0]
+  # DNS records for control plane nodes AND wildcard ingress
+  dns_records = merge(
+    # Controlplane records (k8s API endpoint)
+    {
+      for name, machine in local.machines :
+      name => {
+        name   = local.cluster_endpoint
+        record = machine.bonds[0].addresses[0]
+      }
+      if machine.type == "controlplane"
+    },
+    # Wildcard ingress records
+    {
+      "internal-ingress-wildcard" = {
+        name   = "*.${var.networking.internal_tld}"
+        record = var.networking.internal_ingress_ip
+      }
+      "external-ingress-wildcard" = {
+        name   = "*.${var.networking.external_tld}"
+        record = var.networking.external_ingress_ip
+      }
     }
-    if machine.type == "controlplane"
-  }
+  )
 
   # DHCP reservations for all cluster machines
   dhcp_reservations = {

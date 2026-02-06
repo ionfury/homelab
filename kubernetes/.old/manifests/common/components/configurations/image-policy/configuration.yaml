@@ -1,5 +1,0 @@
-nameReference:
-  - kind: ImageRepository
-    fieldSpecs:
-      - path: spec/imageRepositoryRef/name
-        kind: ImagePolicy

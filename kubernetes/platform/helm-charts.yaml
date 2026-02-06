@@ -182,6 +182,13 @@ spec:
         version: "${tuppr_version:-0.0.52}"
         url: oci://ghcr.io/home-operations/charts
       dependsOn: [cilium, kube-prometheus-stack-crds]
+    - name: silence-operator
+      namespace: monitoring
+      chart:
+        name: silence-operator
+        version: "${silence_operator_version:-0.20.0}"
+        url: oci://gsoci.azurecr.io/charts/giantswarm
+      dependsOn: [kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
@@ -236,3 +243,28 @@ spec:
         - kind: ConfigMap
           name: platform-values
           valuesKey: << inputs.name >>.yaml
+    ---
+    # Wrapper Kustomization enables config Kustomizations to dependsOn this HelmRelease
+    apiVersion: kustomize.toolkit.fluxcd.io/v1
+    kind: Kustomization
+    metadata:
+      name: << inputs.name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      <<- if inputs.dependsOn >>
+      dependsOn:
+      <<- range $dep := inputs.dependsOn >>
+        - name: << $dep >>
+      <<- end >>
+      <<- end >>
+      interval: 10m
+      path: kubernetes/platform/stubs/empty
+      prune: false
+      sourceRef:
+        kind: ${source_kind}
+        name: flux-system
+      healthChecks:
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          name: << inputs.name >>
+          namespace: << inputs.provider.namespace >>

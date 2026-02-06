@@ -18,15 +18,6 @@ variable "cluster_vars" {
   default = []
 }
 
-variable "version_vars" {
-  description = "Version environment variables for flux post-build substitution."
-  type = list(object({
-    name  = string
-    value = string
-  }))
-  default = []
-}
-
 variable "healthchecksio_replication_allowed_namespaces" {
   description = "Namespaces to allow replication for healthchecks.io.  See: https://github.com/mittwald/kubernetes-replicator?tab=readme-ov-file#pull-based-replication"
   type        = string
@@ -91,13 +82,7 @@ variable "oci_tag_pattern" {
 }
 
 variable "oci_semver" {
-  description = "Semver constraint for ImagePolicy (e.g., '>= 0.0.0-0')"
-  type        = string
-  default     = ""
-}
-
-variable "oci_semver_filter" {
-  description = "Semver filter for ImagePolicy (e.g., '.*-rc\\\\..*')"
+  description = "Semver constraint for OCIRepository (e.g., '>= 0.0.0-0' includes pre-releases)"
   type        = string
   default     = ""
 }

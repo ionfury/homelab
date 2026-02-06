@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: baseline-intra-namespace
+spec:
+  description: >-
+    Allow pods to communicate freely within their own namespace.
+    Uses fromEndpoints/toEndpoints with empty selector which matches
+    same-namespace endpoints only (not cluster-wide).
+  endpointSelector: { }
+  ingress:
+    - fromEndpoints:
+        - { }
+  egress:
+    - toEndpoints:
+        - { }

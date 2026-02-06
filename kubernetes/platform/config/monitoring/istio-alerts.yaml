@@ -1,0 +1,192 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: istio-alerts
+  labels:
+    app.kubernetes.io/name: istio
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: istio-control-plane
+      rules:
+        # Control plane availability
+        - alert: IstiodDown
+          expr: absent(up{job="istiod"} == 1)
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Istio control plane (istiod) is down"
+            description: >-
+              Istiod has been unavailable for 5+ minutes. New workloads cannot receive
+              configuration or certificates. Existing workloads continue but cannot be updated.
+
+        # High XDS push error rate
+        - alert: IstiodXdsPushErrorsHigh
+          expr: |
+            (
+              sum(rate(pilot_xds_pushes{type="cds"}[5m])) > 0
+              and
+              sum(rate(pilot_xds_push_context_errors[5m])) / sum(rate(pilot_xds_pushes{type="cds"}[5m])) > 0.05
+            )
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Istiod XDS push error rate > 5%"
+            description: >-
+              {{ $value | humanizePercentage }} of XDS configuration pushes are failing.
+              Check istiod logs for invalid configuration or connectivity issues.
+
+        # XDS config rejections (proxies rejecting config)
+        - alert: IstiodXdsRejects
+          expr: |
+            sum(rate(pilot_xds_cds_reject[5m])) > 0
+            or sum(rate(pilot_xds_eds_reject[5m])) > 0
+            or sum(rate(pilot_xds_lds_reject[5m])) > 0
+            or sum(rate(pilot_xds_rds_reject[5m])) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxies rejecting Istio configuration"
+            description: >-
+              Envoy proxies are rejecting XDS configuration pushes. This indicates
+              invalid configuration being pushed by istiod. Check pilot logs.
+
+        # Slow config convergence
+        - alert: IstiodSlowConvergence
+          expr: |
+            histogram_quantile(0.99, sum(rate(pilot_proxy_convergence_time_bucket[5m])) by (le)) > 30
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Istio config convergence p99 > 30s"
+            description: >-
+              Configuration changes are taking {{ $value | humanizeDuration }} (p99)
+              to reach proxies. This may indicate istiod overload or network issues.
+
+        # Internal errors
+        - alert: IstiodInternalErrors
+          expr: sum(rate(pilot_total_xds_internal_errors[5m])) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Istiod internal XDS errors"
+            description: >-
+              Istiod is experiencing internal errors processing XDS requests.
+              Check istiod logs for stack traces.
+
+        # Listener conflicts (common misconfiguration)
+        - alert: IstiodListenerConflicts
+          expr: |
+            pilot_conflict_inbound_listener > 0
+            or pilot_conflict_outbound_listener_http_over_current_tcp > 0
+            or pilot_conflict_outbound_listener_tcp_over_current_tcp > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Istio listener conflicts detected"
+            description: >-
+              Port conflicts between services detected. This happens when multiple
+              services use the same port with different protocols. Check pilot logs.
+
+        # SDS certificate errors
+        - alert: IstiodSDSCertificateErrors
+          expr: sum(rate(pilot_sds_certificate_errors_total[5m])) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Istio SDS certificate fetch errors"
+            description: >-
+              Istiod is failing to fetch SDS certificates. This breaks mTLS
+              for workloads. Check istio-csr and cert-manager health.
+
+        # High number of XDS clients (capacity planning)
+        - alert: IstiodHighClientCount
+          expr: pilot_xds > 500
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Istiod managing > 500 XDS clients"
+            description: >-
+              Istiod is managing {{ $value }} XDS clients. Istio benchmarks recommend
+              < 2000 clients per 1 vCPU and 1.5GB memory. Consider scaling istiod.
+
+    - name: istio-ztunnel
+      rules:
+        # Ztunnel availability (Ambient mode node proxy)
+        - alert: ZtunnelDown
+          expr: |
+            kube_daemonset_status_number_unavailable{daemonset="ztunnel"} > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Istio ztunnel pods unavailable"
+            description: >-
+              {{ $value }} ztunnel pods are unavailable. In Ambient mode, ztunnel
+              handles mTLS for ALL pods on the node. Affected nodes have no mesh connectivity.
+
+        # Ztunnel not running on all nodes
+        - alert: ZtunnelNotFullyDeployed
+          expr: |
+            kube_daemonset_status_desired_number_scheduled{daemonset="ztunnel"}
+            - kube_daemonset_status_number_ready{daemonset="ztunnel"} > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Ztunnel not running on all nodes"
+            description: >-
+              Ztunnel DaemonSet has {{ $value }} pods not ready. Some nodes may
+              not have Ambient mode mesh connectivity.
+
+    - name: istio-csr
+      rules:
+        # istio-csr availability
+        - alert: IstioCSRDown
+          expr: absent(up{job="cert-manager-istio-csr-metrics"} == 1)
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "istio-csr certificate authority is down"
+            description: >-
+              istio-csr has been unavailable for 5+ minutes. This prevents certificate
+              renewal for mesh workloads. Existing certificates work until expiry (24h).
+
+        # Certificate request failures
+        - alert: IstioCSRCertificateRequestFailures
+          expr: |
+            sum(rate(certmanager_certificate_ready_status{condition="False",name=~"istio.*"}[5m])) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Istio certificate requests failing"
+            description: >-
+              istio-csr is failing to issue certificates. This breaks mTLS between
+              mesh workloads. Check cert-manager logs and istio-mesh-ca ClusterIssuer.
+
+        # istio-csr certificate expiry approaching
+        # Note: istiod certs have 24h validity and renew at 50% lifetime (12h).
+        # Alert only if < 6h remaining (renewal should have happened by now).
+        - alert: IstioCSRCertificateExpiringSoon
+          expr: |
+            certmanager_certificate_expiration_timestamp_seconds{name=~"istiod.*"} - time() < 21600
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Istio component certificate expiring in < 6 hours"
+            description: >-
+              Certificate {{ $labels.name }} expires in {{ $value | humanizeDuration }}.
+              Renewal should have occurred at 12h remaining. Check cert-manager and istio-csr health.

@@ -1,9 +1,5 @@
 locals {
   accounts_vars = read_terragrunt_config(find_in_parent_folders("accounts.hcl"))
-
-  # OCI artifact configuration for non-dev clusters
-  github_org  = local.accounts_vars.locals.accounts.github.org
-  github_repo = local.accounts_vars.locals.accounts.github.repository
 }
 
 include "root" {
@@ -19,13 +15,17 @@ dependency "config" {
 
   mock_outputs = {
     bootstrap = {
-      cluster_name = "mock"
-      flux_version = "v2.4.0"
-      cluster_vars = []
-      version_vars = []
+      cluster_name    = "mock"
+      flux_version    = "v2.4.0"
+      cluster_vars    = []
+      source_type     = "git"
+      oci_url         = ""
+      oci_tag_pattern = ""
+      oci_semver      = ""
     }
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
+  mock_outputs_merge_strategy_with_state  = "deep_map_only"
 }
 
 dependency "talos" {
@@ -45,7 +45,6 @@ inputs = {
   cluster_name     = dependency.config.outputs.bootstrap.cluster_name
   flux_version     = dependency.config.outputs.bootstrap.flux_version
   cluster_vars     = dependency.config.outputs.bootstrap.cluster_vars
-  version_vars     = dependency.config.outputs.bootstrap.version_vars
   github           = local.accounts_vars.locals.accounts.github
   external_secrets = local.accounts_vars.locals.accounts.external_secrets
   healthchecksio   = local.accounts_vars.locals.accounts.healthchecksio
@@ -56,10 +55,9 @@ inputs = {
     cluster_ca_certificate = dependency.talos.outputs.kubeconfig_cluster_ca_certificate
   }
 
-  # OCI artifact promotion - dev uses git, integration/live use OCI artifacts
-  source_type       = dependency.config.outputs.bootstrap.cluster_name == "dev" ? "git" : "oci"
-  oci_url           = dependency.config.outputs.bootstrap.cluster_name != "dev" ? "oci://ghcr.io/${local.github_org}/${local.github_repo}/platform" : ""
-  oci_tag_pattern   = dependency.config.outputs.bootstrap.cluster_name == "integration" ? "latest" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? "validated-*" : "")
-  oci_semver        = dependency.config.outputs.bootstrap.cluster_name == "integration" ? ">= 0.0.0-0" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? ">= 0.0.0" : "")
-  oci_semver_filter = dependency.config.outputs.bootstrap.cluster_name == "integration" ? ".*-rc\\\\..*" : (dependency.config.outputs.bootstrap.cluster_name == "live" ? ".*" : "")
+  # OCI artifact promotion - all config comes from config module
+  source_type     = dependency.config.outputs.bootstrap.source_type
+  oci_url         = dependency.config.outputs.bootstrap.oci_url
+  oci_tag_pattern = dependency.config.outputs.bootstrap.oci_tag_pattern
+  oci_semver      = dependency.config.outputs.bootstrap.oci_semver
 }

@@ -1,13 +1,14 @@
 [tools]
 # Infrastructure
 opentofu = "1.11.4"
-terragrunt = "0.98.0"
+terragrunt = "0.99.1"
 
 # Kubernetes validation
-helm = "3.20.0"
+helm = "4.1.0"
 kustomize = "5.8.0"
 kubeconform = "0.6.7"
-yq = "4.50.1"
+"aqua:FairwindsOps/pluto" = "5.22.7"  # API deprecation checker
+yq = "4.52.1"
 yamllint = "1.38.0"
 
 # Task runner
@@ -18,7 +19,7 @@ talosctl = "1.12.2"
 "aqua:cilium/cilium-cli" = "0.19.0"
 
 # Node.js (for renovate validation)
-node = "22"
+node = "24"
 
 # flux-operator: use asset_pattern to select CLI (not MCP variant)
 # NOTE: This section MUST be at the end because TOML nested tables

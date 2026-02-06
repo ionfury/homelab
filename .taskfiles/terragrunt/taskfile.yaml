@@ -8,11 +8,13 @@ vars:
 env:
   AWS_REGION: us-east-2
   AWS_PROFILE: terragrunt
+  TG_NON_INTERACTIVE: "true"
 
 tasks:
   use:
-    desc: Uses tgenv to set up the Terragrunt environment.
+    desc: Uses tgenv to set up the Terragrunt environment, installing if needed.
     cmds:
+      - tgenv install
       - tgenv use
     preconditions:
       - which tgenv
@@ -108,6 +110,72 @@ tasks:
       - which terragrunt
       - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
 
+  preflight-*:
+    desc: Verify nodes are in maintenance mode before applying a stack.
+    vars:
+      STACK: "{{index .MATCH 0}}"
+    label: preflight-{{.STACK}}
+    cmds:
+      - |
+        echo "Checking nodes for {{.STACK}} cluster..."
+        failed=0
+        for node in $(grep -B1 'cluster = "{{.STACK}}"' {{.INFRASTRUCTURE_DIR}}/inventory.hcl | grep -oE '[a-z]+[0-9]+\s*=' | sed 's/\s*=//'); do
+          result=$(task talos:maint-${node} 2>&1)
+          if echo "$result" | grep -q "yes"; then
+            echo "✅ ${node} is in maintenance mode"
+          else
+            echo "❌ ${node} is NOT in maintenance mode"
+            failed=1
+          fi
+        done
+        if [ $failed -eq 1 ]; then
+          echo ""
+          echo "Some nodes are not ready. Run 'task talos:maint' to see full status."
+          exit 1
+        fi
+        echo ""
+        echo "All nodes ready for {{.STACK}} cluster apply."
+    preconditions:
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+
+  status-*:
+    desc: Show power and maintenance status of nodes in a cluster.
+    vars:
+      STACK: "{{index .MATCH 0}}"
+    label: status-{{.STACK}}
+    cmds:
+      - |
+        echo "=== {{.STACK}} cluster status ==="
+        echo ""
+        # Extract node names for this cluster from inventory
+        nodes=$(grep -B1 'cluster = "{{.STACK}}"' {{.INFRASTRUCTURE_DIR}}/inventory.hcl | grep -oE '[a-z]+[0-9]+\s*=' | sed 's/\s*=//' | sort -u)
+
+        echo "Nodes: $(echo $nodes | tr '\n' ' ')"
+        echo ""
+
+        echo "Power Status:"
+        for node in $nodes; do
+          result=$(task inv:status-${node} 2>&1 | grep -i "power" | head -1 || echo "unknown")
+          echo "  ${node}: ${result}"
+        done
+
+        echo ""
+        echo "Maintenance Mode:"
+        for node in $nodes; do
+          result=$(task talos:maint-${node} 2>&1)
+          if echo "$result" | grep -q "yes"; then
+            echo "  ${node}: maintenance"
+          elif echo "$result" | grep -q "no-ip"; then
+            echo "  ${node}: no-ip (powered off?)"
+          elif echo "$result" | grep -q "no"; then
+            echo "  ${node}: running"
+          else
+            echo "  ${node}: unknown"
+          fi
+        done
+    preconditions:
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+
   validate-*:
     desc: Validates a specific terragrunt stack.
     deps: [use, fmt]
@@ -153,9 +221,8 @@ tasks:
     label: destroy-{{.STACK}}
     cmds:
       - terragrunt stack run init --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}} -- -upgrade
-      - terragrunt --working-dir {{.BOOTSTRAP_DIR}} state list | grep -E '^(helm_release|kubernetes)' | xargs -I {} terragrunt --working-dir {{.BOOTSTRAP_DIR}} state rm {}
+      - terragrunt --working-dir {{.BOOTSTRAP_DIR}} state list 2>/dev/null | grep -E '^(helm_release|kubernetes)' | xargs -r -I {} terragrunt --working-dir {{.BOOTSTRAP_DIR}} state rm {} || true
       - terragrunt stack run destroy --working-dir {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}
     preconditions:
       - which terragrunt
-      - test -d "{{.WORKING_DIR}}"
-      - test -d "{{.BOOTSTRAP_DIR}}"
+      - test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"

@@ -1,0 +1,93 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kube-system-default
+  namespace: kube-system
+spec:
+  description: "Allow essential kube-system traffic: DNS serving, NTP, Cilium, metrics"
+  endpointSelector: { }
+  ingress:
+    # Allow DNS queries from all cluster pods
+    # Note: fromEntities cluster allows from ANY pod in the cluster (not just kube-system)
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Allow Prometheus scraping (CoreDNS 9153, Cilium 9962-9965, descheduler 10258)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+            - port: "9100"
+              protocol: TCP
+            - port: "9153"
+              protocol: TCP
+            - port: "9962"
+              protocol: TCP
+            - port: "9963"
+              protocol: TCP
+            - port: "9965"
+              protocol: TCP
+            - port: "10258"
+              protocol: TCP
+    # Allow Hubble UI access from gateway
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-gateway
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
+    # Allow Cilium cross-node health probes (remote nodes probe local health endpoint)
+    - fromEntities:
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "4240"
+              protocol: TCP
+  egress:
+    # Allow CoreDNS to reach node-local upstream DNS (Talos host DNS forwarder at 169.254.116.108)
+    - toCIDR:
+        - 169.254.116.108/32
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Allow NTP for time sync (world egress on UDP 123)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "123"
+              protocol: UDP
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+    # Allow health checks to all cluster pods (Cilium)
+    - toEntities:
+        - cluster
+    # Allow Hubble relay to reach Cilium agents on nodes (host network)
+    - toEntities:
+        - host
+      toPorts:
+        - ports:
+            - port: "4244"
+              protocol: TCP

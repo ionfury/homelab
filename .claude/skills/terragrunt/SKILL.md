@@ -21,22 +21,7 @@ description: |
 
 Manage bare-metal Kubernetes infrastructure from PXE boot to running clusters.
 
-## Architecture Overview
-
-```
-stacks/           → Cluster deployments (dev, integration, live)
-  └── terragrunt.stack.hcl → Defines units and passes values
-
-units/            → Reusable Terragrunt wrappers
-  └── terragrunt.hcl → Declares dependencies, passes inputs to modules
-
-modules/          → Pure Terraform/OpenTofu code
-  └── *.tf → Resources, variables, outputs
-```
-
-**Dependency chain**: `config` → `unifi` / `talos` → `bootstrap` / `aws-set-params`
-
-The `config` unit is the brain—reads all `.hcl` config files and outputs structured data consumed by other units.
+For architecture overview (units vs modules, config centralization), see [infrastructure/CLAUDE.md](../../infrastructure/CLAUDE.md). For detailed unit patterns, see [infrastructure/units/CLAUDE.md](../../infrastructure/units/CLAUDE.md).
 
 ## Task Commands (Always Use These)
 
@@ -56,81 +41,7 @@ task tg:clean-<stack>          # Clean generated files
 
 **NEVER** run `terragrunt` or `tofu` directly—always use `task` commands.
 
-## Stack Definition (terragrunt.stack.hcl)
-
-```hcl
-locals {
-  name     = "${basename(get_terragrunt_dir())}"  # "integration"
-  features = ["gateway-api", "longhorn", "prometheus", "spegel"]
-}
-
-unit "config" {
-  source = "../../units/config"
-  path   = "config"
-  values = {
-    name     = local.name
-    features = local.features
-  }
-}
-
-unit "talos" {
-  source = "../../units/talos"
-  path   = "talos"
-}
-```
-
-- `source`: Path to unit directory
-- `path`: Output path in `.terragrunt-stack/`
-- `values`: Data passed to unit's `values.*` references
-
-## Unit Definition (terragrunt.hcl)
-
-```hcl
-locals {
-  networking_vars = read_terragrunt_config(find_in_parent_folders("networking.hcl"))
-  inventory_vars  = read_terragrunt_config(find_in_parent_folders("inventory.hcl"))
-}
-
-include "root" {
-  path = find_in_parent_folders("root.hcl")
-}
-
-terraform {
-  source = "../../../.././/modules/config"
-}
-
-dependency "config" {
-  config_path = "../config"
-  mock_outputs = { ... }
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
-}
-
-inputs = {
-  name       = values.name           # From stack's values block
-  networking = local.networking_vars.locals.clusters[values.name]
-}
-```
-
-Key patterns:
-- `read_terragrunt_config()` reads sibling `.hcl` files
-- `values.*` accesses data from stack's `values = { }` block
-- `dependency.*` accesses outputs from prerequisite units
-- `mock_outputs` enables planning without applied dependencies
-
-## Configuration Files (Source of Truth)
-
-| File | Purpose | Example Data |
-|------|---------|--------------|
-| `inventory.hcl` | Hardware (nodes, MACs, IPs, disks) | `node41 = { cluster = "live", type = "controlplane", ... }` |
-| `networking.hcl` | Network topology per cluster | `live = { vip = "192.168.10.20", pod_subnet = "172.18.0.0/16" }` |
-| `versions.hcl` | Pinned software versions | `talos = "v1.12.1", kubernetes = "1.34.0"` |
-| `accounts.hcl` | External service credentials | SSM paths for secrets, not values |
-
-**NEVER** hardcode values that exist in these files—use `read_terragrunt_config()`.
-
-## Common Tasks
-
-### Add a Machine
+## How to Add a Machine
 
 1. Edit `inventory.hcl`:
 ```hcl
@@ -152,7 +63,7 @@ node50 = {
 3. Review plan—config module auto-includes machines where `cluster == "live"`
 4. Request human approval before apply
 
-### Add a Feature Flag
+## How to Add a Feature Flag
 
 1. Add version to `versions.hcl` if needed
 2. Add feature detection in `modules/config/main.tf`:
@@ -166,7 +77,7 @@ locals {
 features = ["gateway-api", "longhorn", "new-feature"]
 ```
 
-### Create a New Unit
+## How to Create a New Unit
 
 1. Create `units/new-unit/terragrunt.hcl`:
 ```hcl
@@ -189,7 +100,7 @@ inputs = dependency.config.outputs.new_unit
 3. Add output from config module
 4. Add `unit` block to stacks that need it
 
-## Module Testing
+## How to Write Module Tests
 
 Tests use OpenTofu native testing in `modules/<name>/tests/*.tftest.hcl`:
 

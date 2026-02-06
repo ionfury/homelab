@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: loki-mixin-recording-rules
+  labels:
+    app.kubernetes.io/name: loki
+spec:
+  groups:
+    - name: loki-recording-rules
+      rules:
+        - record: loki:request_duration_seconds:p99
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(loki_request_duration_seconds_bucket[5m])) by (le, job, namespace)
+            )
+
+        - record: loki:request_duration_seconds:p50
+          expr: |
+            histogram_quantile(0.50,
+              sum(rate(loki_request_duration_seconds_bucket[5m])) by (le, job, namespace)
+            )
+
+        - record: loki:request_duration_seconds:avg
+          expr: |
+            sum(rate(loki_request_duration_seconds_sum[5m])) by (job, namespace)
+            /
+            sum(rate(loki_request_duration_seconds_count[5m])) by (job, namespace)
+
+        - record: loki:requests_total:rate5m
+          expr: |
+            sum(rate(loki_request_duration_seconds_count[5m])) by (job, namespace, route)
+
+        - record: loki:requests_errors:rate5m
+          expr: |
+            sum(rate(loki_request_duration_seconds_count{status_code=~"5.."}[5m])) by (job, namespace, route)
+
+        - record: loki:requests_error_rate:ratio5m
+          expr: |
+            sum(rate(loki_request_duration_seconds_count{status_code=~"5.."}[5m])) by (job, namespace)
+            /
+            sum(rate(loki_request_duration_seconds_count[5m])) by (job, namespace)
+
+        - record: loki:ingester_bytes_received:rate5m
+          expr: |
+            sum(rate(loki_distributor_bytes_received_total[5m])) by (job, namespace)
+
+        - record: loki:ingester_lines_received:rate5m
+          expr: |
+            sum(rate(loki_distributor_lines_received_total[5m])) by (job, namespace)

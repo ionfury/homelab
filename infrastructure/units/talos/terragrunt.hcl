@@ -23,20 +23,27 @@ dependency "config" {
       kubernetes_version = "1.34.0"
       talos_machines = [
         {
-          install = { selector = "disk.model = *" }
-          configs = [<<EOT
-cluster:
-  clusterName: talos.local
-  controlPlane:
-    endpoint: https://talos.local:6443
-machine:
-  type: controlplane
-  network:
-    hostname: mock-controlplane-1
-    interfaces:
-      - addresses:
-        - 10.10.10.10/24
-EOT
+          install = { selector = "disk.model = *", secureboot = false }
+          configs = [
+            <<-EOT
+            kind: HostnameConfig
+            hostname: mock-controlplane-1
+            EOT
+            ,
+            <<-EOT
+            kind: BondConfig
+            addresses:
+              - address: 10.10.10.10/24
+            EOT
+            ,
+            <<-EOT
+            cluster:
+              clusterName: talos.local
+              controlPlane:
+                endpoint: https://talos.local:6443
+            machine:
+              type: controlplane
+            EOT
           ]
         }
       ]

@@ -41,14 +41,50 @@ The `config/` directory organizes non-Helm resources by concern:
 | `secrets/` | Secret generator resources |
 | `tuppr/` | Tuppr upgrade CRs (TalosUpgrade, KubernetesUpgrade) |
 
+**Note**: Alertmanager silences use the per-cluster pattern - see `kubernetes/clusters/CLAUDE.md`.
+
 ---
 
 ## Adding a New Helm Release
 
-1. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
-2. Create `charts/<chart-name>.yaml` with Helm values
-3. Add the values file to `kustomization.yaml` configMapGenerator
-4. If the chart needs post-install resources, add to `config/` and reference in `config.yaml`
+1. Add version to `versions.env` (e.g., `new_chart_version=1.0.0`)
+2. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
+3. Create `charts/<chart-name>.yaml` with Helm values
+4. Add the values file to `kustomization.yaml` configMapGenerator
+5. **Add Renovate custom manager** to `.github/renovate.json5` (see below)
+6. If the chart needs post-install resources, add to `config/` and reference in `config.yaml`
+7. Run `task k8s:validate` and `task renovate:validate`
+
+### Renovate Configuration (Required)
+
+Renovate requires a custom regex manager for each version in `versions.env`. Add to `.github/renovate.json5`:
+
+```json5
+// For HTTP Helm repositories
+{
+  "customType": "regex",
+  "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+  "matchStrings": ["new_chart_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+  "depNameTemplate": "chart-name",
+  "datasourceTemplate": "helm",
+  "registryUrlTemplate": "https://charts.example.io"
+}
+
+// For OCI Helm registries (ghcr.io, etc.)
+{
+  "customType": "regex",
+  "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+  "matchStrings": ["new_chart_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+  "depNameTemplate": "chart-name",
+  "datasourceTemplate": "docker",
+  "packageNameTemplate": "ghcr.io/org/charts/chart-name"
+}
+```
+
+**Key differences:**
+- HTTP registries use `datasourceTemplate: "helm"` + `registryUrlTemplate`
+- OCI registries use `datasourceTemplate: "docker"` + `packageNameTemplate`
+- For v-prefixed versions, add `"extractVersionTemplate": "^v(?<version>.*)$"`
 
 ### ResourceSet Pattern
 
@@ -70,6 +106,63 @@ inputs:
 - Chart versions use `${var:-default}` pattern (variable from `platform-versions` ConfigMap with fallback)
 - Dependencies between releases use `dependsOn` arrays
 - Values files contain only Helm chart configuration
+
+---
+
+## Config Kustomization Dependencies
+
+The `config.yaml` ResourceSet generates Kustomizations for non-Helm resources. These Kustomizations **must** declare `dependsOn` to ensure CRDs exist before resources are created.
+
+### Why Dependencies Matter
+
+Without `dependsOn`, Flux reconciles Kustomizations in parallel. This causes race conditions:
+1. `issuers` Kustomization tries to create ExternalSecret before External Secrets CRDs exist
+2. `external-secrets-stores` fails because ClusterSecretStore CRD doesn't exist yet
+3. Downstream resources (istio-csr, istiod) block waiting for secrets
+
+With proper dependencies, reconciliation happens in order:
+`external-secrets` → `external-secrets-stores` → `issuers` → `istio-csr` → `istiod`
+
+### Adding a Config Kustomization
+
+When adding a new entry to `config.yaml`, always specify `dependsOn`:
+
+```yaml
+# In config.yaml
+inputs:
+  - name: my-config
+    namespace: my-namespace
+    path: kubernetes/platform/config/my-config
+    dependsOn: [required-chart, another-chart]  # CRD providers
+```
+
+### Dependency Reference
+
+| Kustomization | dependsOn | Why |
+|---------------|-----------|-----|
+| `cilium-config` | `cilium`, `canary-checker` | CiliumNetworkPolicy + Canary CRDs |
+| `external-secrets-stores` | `external-secrets` | ExternalSecret/ClusterSecretStore CRDs |
+| `issuers` | `cert-manager`, `external-secrets-stores` | Certificate CRD + ClusterSecretStore must exist |
+| `certificates` | `cert-manager`, `istiod` | Certificate CRD + Gateway for TLS |
+| `longhorn-storage` | `longhorn` | RecurringJob CRD |
+| `database-config` | `cloudnative-pg`, `canary-checker` | Cluster/Pooler CRDs + Canary |
+| `garage-config` | `garage-operator`, `canary-checker` | Garage CRDs + Canary |
+| `gateway` | `istiod` | WasmPlugin CRD |
+| `monitoring-config` | `kube-prometheus-stack`, `canary-checker` | PrometheusRule + Canary CRDs |
+| `canary-checker-config` | `canary-checker` | Canary CRD |
+| `tuppr-config` | `tuppr` | TalosUpgrade/KubernetesUpgrade CRDs |
+| `kromgo-config` | *(none)* | ConfigMap must exist BEFORE app deployment |
+| `flux-notifications-config` | *(none)* | Uses only core Flux CRDs (always present) |
+
+### Finding CRD Providers
+
+To determine dependencies for a new config Kustomization:
+
+1. **List the CRDs your resources use**: `kubectl explain <resource>` or check `apiVersion`
+2. **Find which HelmRelease provides the CRD**: Check `helm-charts.yaml` for the operator/controller
+3. **Add transitive dependencies**: If your config depends on another config's resources, add that too
+
+Example: `issuers` creates ExternalSecret (from `external-secrets`) referencing ClusterSecretStore (created by `external-secrets-stores`), so it depends on both.
 
 ---
 
@@ -248,7 +341,7 @@ Use ExternalSecret only when secrets MUST come from outside the cluster:
 - Secrets needed for disaster recovery bootstrapping
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: external-api-credentials

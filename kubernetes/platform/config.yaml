@@ -13,43 +13,63 @@ spec:
     - name: cilium-config
       namespace: kube-system
       path: kubernetes/platform/config/cilium
+      dependsOn: [cilium, canary-checker]
     - name: issuers
       namespace: cert-manager
       path: kubernetes/platform/config/issuers
+      dependsOn: [cert-manager, external-secrets-stores]
     - name: certificates
       namespace: istio-gateway
       path: kubernetes/platform/config/certs
+      dependsOn: [cert-manager, istiod]
     - name: external-secrets-stores
       namespace: system
       path: kubernetes/platform/config/secrets
+      dependsOn: [external-secrets]
     - name: longhorn-storage
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn
+      dependsOn: [longhorn]
     - name: garage-config
       namespace: garage
       path: kubernetes/platform/config/garage
+      dependsOn: [garage-operator, canary-checker]
     - name: gateway
       namespace: istio-gateway
       path: kubernetes/platform/config/gateway
+      dependsOn: [istiod]
     - name: monitoring-config
       namespace: monitoring
       path: kubernetes/platform/config/monitoring
+      dependsOn: [kube-prometheus-stack, canary-checker]
     - name: database-config
       namespace: database
       path: kubernetes/platform/config/database
+      dependsOn: [cloudnative-pg, canary-checker]
     - name: kromgo-config
       namespace: kromgo
       path: kubernetes/platform/config/kromgo
+      dependsOn: []  # ConfigMap must deploy BEFORE HelmRelease (no CRD dependency)
     - name: canary-checker-config
       namespace: monitoring
       path: kubernetes/platform/config/canary-checker
+      dependsOn: [canary-checker]
     - name: flux-notifications-config
       namespace: flux-system
       path: kubernetes/platform/config/flux-notifications
+      dependsOn: [external-secrets-stores]
     - name: tuppr-config
       namespace: system-upgrade
       path: kubernetes/platform/config/tuppr
-  # NOTE: network-policy-config disabled - does not work currently
+      dependsOn: [tuppr]
+    - name: network-policy-config
+      namespace: kube-system
+      path: kubernetes/platform/config/network-policy
+      dependsOn: [cilium]
+    - name: infrastructure-policies-config
+      namespace: ""
+      path: kubernetes/platform/config/infrastructure-policies
+      dependsOn: [cilium]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -58,13 +78,21 @@ spec:
       name: << inputs.name >>
       namespace: << inputs.provider.namespace >>
     spec:
+      <<- if inputs.dependsOn >>
+      dependsOn:
+      <<- range $dep := inputs.dependsOn >>
+        - name: << $dep >>
+      <<- end >>
+      <<- end >>
       interval: 10m
       path: << inputs.path >>
       prune: true
       sourceRef:
         kind: ${source_kind}
         name: flux-system
+      <<- if inputs.namespace >>
       targetNamespace: << inputs.namespace >>
+      <<- end >>
       postBuild:
         substituteFrom:
           - kind: ConfigMap

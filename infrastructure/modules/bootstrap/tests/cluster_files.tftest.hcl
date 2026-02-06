@@ -37,11 +37,6 @@ variables {
     { name = "cluster_endpoint", value = "k8s.internal.test.example.com" },
     { name = "cluster_vip", value = "10.0.0.100" },
   ]
-  version_vars = [
-    { name = "talos_version", value = "v1.12.1" },
-    { name = "kubernetes_version", value = "1.34.0" },
-    { name = "flux_version", value = "v2.4.0" },
-  ]
   kubeconfig = {
     host                   = "https://localhost:6443"
     client_certificate     = "mock-cert"
@@ -89,32 +84,6 @@ run "creates_cluster_vars_file" {
   }
 }
 
-run "creates_versions_file" {
-  command = plan
-  providers = {
-    github         = github.mock
-    kubernetes     = kubernetes.mock
-    helm           = helm.mock
-    healthchecksio = healthchecksio.mock
-    aws            = aws.mock
-  }
-
-  assert {
-    condition     = github_repository_file.versions.file == "kubernetes/clusters/test-cluster/.versions.env"
-    error_message = "versions file path incorrect"
-  }
-
-  assert {
-    condition     = can(regex("talos_version=v1.12.1", github_repository_file.versions.content))
-    error_message = "versions content should contain talos_version"
-  }
-
-  assert {
-    condition     = can(regex("kubernetes_version=1.34.0", github_repository_file.versions.content))
-    error_message = "versions content should contain kubernetes_version"
-  }
-}
-
 # NOTE: kustomization.yaml and platform.yaml are now static files committed to git
 # rather than Terraform-managed resources. See kubernetes/clusters/{integration,live}/
 # These tests were removed as part of the OCI artifact promotion implementation.
@@ -131,16 +100,10 @@ run "empty_vars_still_creates_files" {
 
   variables {
     cluster_vars = []
-    version_vars = []
   }
 
   assert {
     condition     = github_repository_file.cluster_vars.file == "kubernetes/clusters/test-cluster/.cluster-vars.env"
     error_message = "cluster_vars file should be created even with empty vars"
-  }
-
-  assert {
-    condition     = github_repository_file.versions.file == "kubernetes/clusters/test-cluster/.versions.env"
-    error_message = "versions file should be created even with empty vars"
   }
 }

@@ -14,10 +14,12 @@ spec:
         operator: In
         values: ["true"]
   egress:
-    # Allow access to Kubernetes API server
+    # Allow access to Kubernetes API server (6443 for node IPs, 443 for ClusterIP service)
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
             - port: "6443"
+              protocol: TCP
+            - port: "443"
               protocol: TCP

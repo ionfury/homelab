@@ -6,13 +6,12 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: kubernetes/platform
+  path: kubernetes/platform/flux
   postBuild:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-vars
-      - kind: ConfigMap
-        name: versions
+        optional: false
   prune: true
   sourceRef:
     kind: OCIRepository

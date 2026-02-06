@@ -1,0 +1,78 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: garage-default
+  namespace: garage
+spec:
+  description: "Allow Garage S3: API from labeled namespaces, inter-node replication, admin API"
+  endpointSelector: { }
+  ingress:
+    # Allow S3 API from namespaces with garage-s3 access label
+    - fromEndpoints:
+        - matchExpressions:
+            - key: io.cilium.k8s.namespace.labels.access.network-policy.homelab/garage-s3
+              operator: In
+              values: ["true"]
+      toPorts:
+        - ports:
+            - port: "3900"
+              protocol: TCP
+    # Allow S3 API from platform namespaces that need backups (longhorn, database)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: longhorn-system
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+      toPorts:
+        - ports:
+            - port: "3900"
+              protocol: TCP
+    # Allow inter-node RPC replication
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: garage
+      toPorts:
+        - ports:
+            - port: "3901"
+              protocol: TCP
+    # Allow Prometheus scraping and operator admin API access
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+        - matchLabels:
+            io.kubernetes.pod.namespace: garage
+      toPorts:
+        - ports:
+            - port: "3903"
+              protocol: TCP
+    # Allow admin API from gateway (optional web UI)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: istio-gateway
+      toPorts:
+        - ports:
+            - port: "3903"
+              protocol: TCP
+  egress:
+    # Allow inter-node RPC replication and operator admin API calls
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: garage
+      toPorts:
+        - ports:
+            - port: "3901"
+              protocol: TCP
+            - port: "3903"
+              protocol: TCP
+    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP

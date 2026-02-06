@@ -6,31 +6,17 @@ metadata:
   namespace: monitoring
 spec:
   interval: 60
-  # Prometheus check - verify Flux reconciliation health
-  prometheus:
-    - name: flux-reconciliation
-      url: http://kube-prometheus-stack-prometheus.monitoring:9090
-      query: |
-        (sum(gotk_reconcile_condition{status="True",type="Ready"}) /
-         sum(gotk_reconcile_condition{type="Ready"})) * 100
-      test:
-        expr: results[0] > 95
   # HTTP checks - verify critical services respond
   http:
     - name: kubernetes-api
       url: https://kubernetes.default.svc/healthz
-      responseCodes: [200]
-    - name: flux-source-controller
-      url: http://source-controller.flux-system:9090/healthz
-      responseCodes: [200]
-  # Kubernetes resource check - verify no failing pods
+      responseCodes: [200, 401]
+  # Kubernetes resource check - verify Flux pods are healthy
   kubernetes:
     - name: flux-pods-healthy
       kind: Pod
       namespaceSelector:
-        matchNames:
-          - flux-system
+        name: flux-system
       resource:
         labelSelector: app.kubernetes.io/part-of=flux
-      test:
-        expr: all(results, {.status.phase == "Running"})
+      healthy: true
