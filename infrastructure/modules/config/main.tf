@@ -5,6 +5,7 @@ locals {
       garage_data = "100Gi"
       garage_meta = "10Gi"
       database    = "20Gi"
+      dragonfly   = "2Gi"
       loki        = "50Gi"
       prometheus  = "50Gi"
     }
@@ -12,6 +13,7 @@ locals {
       garage_data = "10Gi"
       garage_meta = "2Gi"
       database    = "5Gi"
+      dragonfly   = "1Gi"
       loki        = "10Gi"
       prometheus  = "10Gi"
     }
@@ -346,6 +348,7 @@ locals {
     { name = "garage_data_volume_size", value = local.selected_sizes.garage_data },
     { name = "garage_meta_volume_size", value = local.selected_sizes.garage_meta },
     { name = "database_volume_size", value = local.selected_sizes.database },
+    { name = "dragonfly_volume_size", value = local.selected_sizes.dragonfly },
     { name = "loki_volume_size", value = local.selected_sizes.loki },
     { name = "prometheus_volume_size", value = local.selected_sizes.prometheus },
     # Flux source kind for ResourceSet Kustomizations (GitRepository for dev, OCIRepository for integration/live)

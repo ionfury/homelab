@@ -1,0 +1,14 @@
+---
+apiVersion: garage.rajsingh.info/v1alpha1
+kind: GarageBucket
+metadata:
+  name: dragonfly-snapshots
+spec:
+  clusterRef:
+    name: garage
+  quotas:
+    maxSize: "10Gi"
+  keyPermissions:
+    - keyRef: dragonfly-s3
+      read: true
+      write: true

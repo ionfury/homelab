@@ -149,6 +149,7 @@ Grant access to shared services via additional labels:
 
 ```bash
 kubectl label namespace my-app access.network-policy.homelab/postgres=true    # Database access
+kubectl label namespace my-app access.network-policy.homelab/dragonfly=true   # Dragonfly (Redis) access
 kubectl label namespace my-app access.network-policy.homelab/garage-s3=true   # S3 storage
 kubectl label namespace my-app access.network-policy.homelab/kube-api=true    # Kubernetes API
 ```

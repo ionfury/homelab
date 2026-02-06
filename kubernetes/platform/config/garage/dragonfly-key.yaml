@@ -1,0 +1,15 @@
+---
+apiVersion: garage.rajsingh.info/v1alpha1
+kind: GarageKey
+metadata:
+  name: dragonfly-s3
+spec:
+  clusterRef:
+    name: garage
+  bucketPermissions:
+    - bucketRef: dragonfly-snapshots
+      read: true
+      write: true
+  secretTemplate:
+    name: dragonfly-s3-credentials
+    namespace: database

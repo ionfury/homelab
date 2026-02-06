@@ -16,6 +16,7 @@ configMapGenerator:
       - cert-manager.yaml=charts/cert-manager.yaml
       - cilium.yaml=charts/cilium.yaml
       - cloudnative-pg.yaml=charts/cloudnative-pg.yaml
+      - dragonfly-operator.yaml=charts/dragonfly-operator.yaml
       - descheduler.yaml=charts/descheduler.yaml
       - external-secrets.yaml=charts/external-secrets.yaml
       - garage-operator.yaml=charts/garage-operator.yaml

@@ -95,6 +95,7 @@ Namespaces can opt-in to additional capabilities via labels:
 | Label | Capability |
 |-------|------------|
 | `access.network-policy.homelab/kube-api=true` | Egress to Kubernetes API (port 6443) |
+| `access.network-policy.homelab/dragonfly=true` | Egress to Dragonfly in database namespace (port 6379) |
 | `access.network-policy.homelab/postgres=true` | Egress to PostgreSQL in database namespace (port 5432) |
 | `access.network-policy.homelab/garage-s3=true` | Egress to Garage S3 in garage namespace (port 3900) |
 
