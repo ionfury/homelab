@@ -19,4 +19,4 @@ spec:
         name: flux-system
       resource:
         labelSelector: app.kubernetes.io/part-of=flux
-      healthy: true
+      ready: true
