@@ -63,11 +63,49 @@ jobs:
 
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
-      - name: Tag as validated
+      - name: Resolve stable semver
+        id: semver
         env:
           SHA: ${{ steps.sha.outputs.sha }}
         run: |
-          echo "Tagging integration-${SHA} as validated-${SHA}"
+          # Find the RC semver tag (0.1.0-rc.N) that shares the same digest as integration-<sha>.
+          # flux list artifact outputs: TAG DIGEST LAST_UPDATED
+          # First, get the digest for our integration tag
+          DIGEST=$(flux list artifact oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }} 2>/dev/null | \
+            awk -v tag="integration-${SHA}" '$1 == tag {print $2}')
+
+          if [ -z "$DIGEST" ]; then
+            echo "::error::Could not find digest for integration-${SHA}"
+            exit 1
+          fi
+          echo "Found digest: ${DIGEST}"
+
+          # Find the RC tag with the same digest
+          RC_TAG=$(flux list artifact oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }} 2>/dev/null | \
+            awk -v digest="$DIGEST" '$2 == digest && $1 ~ /^[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$/ {print $1}')
+
+          if [ -z "$RC_TAG" ]; then
+            echo "::error::Could not find RC semver tag for digest ${DIGEST}"
+            exit 1
+          fi
+          echo "Found RC tag: ${RC_TAG}"
+
+          # Derive stable semver: 0.1.0-rc.130 → 0.1.130
+          BASE=$(echo "$RC_TAG" | sed 's/\([0-9]*\.[0-9]*\)\..*/\1/')
+          RC_NUM=$(echo "$RC_TAG" | sed 's/.*-rc\.//')
+          STABLE="${BASE}.${RC_NUM}"
+          echo "stable=${STABLE}" >> "$GITHUB_OUTPUT"
+          echo "Derived stable semver: ${RC_TAG} → ${STABLE}"
+
+      - name: Tag as validated
+        env:
+          SHA: ${{ steps.sha.outputs.sha }}
+          STABLE: ${{ steps.semver.outputs.stable }}
+        run: |
+          echo "Tagging integration-${SHA} as validated-${SHA} and ${STABLE}"
           flux tag artifact \
             "oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:integration-${SHA}" \
             --tag "validated-${SHA}"
+          flux tag artifact \
+            "oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:integration-${SHA}" \
+            --tag "${STABLE}"

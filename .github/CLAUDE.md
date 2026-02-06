@@ -58,14 +58,15 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │  tag-validated-artifact.yaml                                        │
-│  └─ flux tag artifact → validated-<short-sha>                      │
+│  ├─ flux tag artifact → validated-<short-sha> (traceability)       │
+│  └─ flux tag artifact → 0.1.N (stable semver for live)             │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Live Cluster                                                       │
-│  ├─ OCIRepository polls for "validated-*" pattern                   │
-│  ├─ Detects new validated-<sha> tag                                │
+│  ├─ OCIRepository polls for semver ">= 0.0.0" (stable only)        │
+│  ├─ Detects new 0.1.N stable semver tag                            │
 │  └─ Flux reconciles platform (production deployment)                │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -74,10 +75,11 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 
 | Tag | Created By | Purpose |
 |-----|------------|---------|
-| `0.1.0-rc.N` | build workflow | Semver for OCIRepository polling |
+| `0.1.0-rc.N` | build workflow | Semver for OCIRepository polling (integration) |
 | `sha-<short>` | build workflow | Immutable reference to commit |
 | `integration-<short>` | build workflow | Marks artifact for integration |
-| `validated-<short>` | tag workflow | Marks artifact for production |
+| `validated-<short>` | tag workflow | Traceability reference for validated artifacts |
+| `0.1.N` | tag workflow | Stable semver for live OCIRepository polling |
 
 ---
 
@@ -87,7 +89,7 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 |---------|-------------|----------------|-----------|
 | `dev` | GitRepository | N/A | Fast iteration, no build step |
 | `integration` | OCIRepository | `>= 0.0.0-0` | Accepts RC versions |
-| `live` | OCIRepository | `validated-*` | Only validated artifacts |
+| `live` | OCIRepository | `>= 0.0.0` | Stable semver (validated artifacts) |
 
 ### Why Different Sources?
 

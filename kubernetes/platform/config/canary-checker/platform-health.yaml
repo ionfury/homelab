@@ -12,6 +12,8 @@ spec:
       url: https://kubernetes.default.svc/healthz
       responseCodes: [200, 401]
   # Kubernetes resource check - verify Flux pods are healthy
+  # Uses CEL test expression instead of ready: true because the built-in flag
+  # penalizes pods with restart history, causing false negatives after upgrades
   kubernetes:
     - name: flux-pods-healthy
       kind: Pod
@@ -19,4 +21,9 @@ spec:
         name: flux-system
       resource:
         labelSelector: app.kubernetes.io/part-of=flux
-      ready: true
+      test:
+        expr: >
+          dyn(results).all(pod,
+            pod.Object.status.phase == "Running" &&
+            pod.Object.status.conditions.exists(c, c.type == "Ready" && c.status == "True")
+          )

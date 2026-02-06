@@ -275,8 +275,8 @@ run "cluster_vars_content" {
   command = plan
 
   assert {
-    condition     = length(output.cluster_vars) >= 12
-    error_message = "Expected at least 12 cluster vars (non-version)"
+    condition     = length(output.cluster_vars) >= 14
+    error_message = "Expected at least 14 cluster vars (non-version)"
   }
 
   assert {
@@ -320,6 +320,21 @@ run "cluster_vars_content" {
       for v in output.cluster_vars : v.name == "tls_issuer" && v.value == "cloudflare"
     ])
     error_message = "tls_issuer env var should default to cloudflare for unknown clusters"
+  }
+
+  # GitHub org and repository for Flux notification dispatch
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "github_org" && v.value == "testorg"
+    ])
+    error_message = "github_org env var should match accounts.github.org"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "github_repository" && v.value == "testrepo"
+    ])
+    error_message = "github_repository env var should match accounts.github.repository"
   }
 }
 
