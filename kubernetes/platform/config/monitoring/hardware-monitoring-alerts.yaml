@@ -95,15 +95,27 @@ spec:
               Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
               has {{ $value }} media errors. Monitor for increasing error count.
 
+        - alert: DiskWearLevelHigh
+          expr: smartctl_device_percentage_used > 80
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "NVMe wear level high on {{ $labels.device }} on {{ $labels.instance }}"
+            description: >-
+              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
+              has consumed {{ $value }}% of its rated endurance. Plan replacement when approaching 100%.
+
     - name: hardware-monitoring.power
       rules:
         - alert: PowerSupplyDegraded
-          expr: ipmi_power_supply_state{name=~"PS.*Status"} != 1
+          expr: ipmi_sensor_state{type="Power Supply"} > 0
           for: 5m
           labels:
             severity: critical
           annotations:
             summary: "Power supply degraded on {{ $labels.instance }}"
             description: >-
-              Power supply {{ $labels.name }} on {{ $labels.instance }} reports non-OK state.
+              Power supply {{ $labels.name }} on {{ $labels.instance }} is in state {{ $value }}
+              (0=nominal, 1=warning, 2=critical).
               Check PSU LED indicators and power connections. Redundant PSU may be compensating.

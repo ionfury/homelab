@@ -27,3 +27,4 @@ resources:
   - hardware-monitoring-secrets.yaml
   - hardware-monitoring-scrape.yaml
   - hardware-monitoring-alerts.yaml
+  - hardware-monitoring-egress.yaml

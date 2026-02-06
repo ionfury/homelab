@@ -73,3 +73,8 @@ This document outlines the steps to physically and logically set up a new Superm
   - Set **Community String** to the value stored in AWS SSM at `/homelab/kubernetes/<cluster>/snmp-community`
   - **Save** the configuration
   - **Note**: The community string must match across all nodes in the same cluster.
+  - **Verify**: From another host on the management network, confirm SNMP is responding:
+    ```bash
+    snmpwalk -v2c -c <community-string> <ipmi-ip> sysDescr
+    ```
+    Expected: A response containing the BMC firmware description (e.g., `Supermicro X12...`).
