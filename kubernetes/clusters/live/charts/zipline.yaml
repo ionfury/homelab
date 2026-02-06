@@ -22,6 +22,11 @@ controllers:
         image:
           repository: ghcr.io/home-operations/postgres-init
           tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
         env:
           INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
           INIT_POSTGRES_SUPER_USER: postgres
@@ -86,6 +91,16 @@ controllers:
           limits:
             memory: 512Mi
         probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 3000
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 30
           liveness:
             enabled: true
             custom: true
@@ -93,7 +108,6 @@ controllers:
               httpGet:
                 path: /api/health
                 port: 3000
-              initialDelaySeconds: 15
               periodSeconds: 30
           readiness:
             enabled: true
@@ -102,7 +116,6 @@ controllers:
               httpGet:
                 path: /api/health
                 port: 3000
-              initialDelaySeconds: 10
               periodSeconds: 10
 
 service:
