@@ -13,6 +13,7 @@ Skills are procedural guides that provide step-by-step workflows for complex ope
 | `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | Yes | - | - |
 | `k8s-sre` | Kubernetes incident investigation and debugging | Yes | - | cluster-health.sh |
 | `kubesearch` | Research Helm configurations from kubesearch.dev | Yes | - | - |
+| `loki` | Query Loki API for cluster logs and debugging | Yes | queries.md | logql.sh |
 | `opentofu-modules` | OpenTofu module development and testing patterns | Yes | opentofu-testing.md | - |
 | `prometheus` | Query Prometheus API for metrics and alerts | Yes | queries.md | promql.sh |
 | `self-improvement` | Capture user feedback to enhance documentation | Yes | - | - |

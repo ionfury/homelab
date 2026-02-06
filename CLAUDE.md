@@ -471,6 +471,8 @@ Invoke these skills for detailed procedural guidance:
 | `app-template` | Deploying apps with bjw-s/app-template |
 | `kubesearch` | Researching Helm chart configurations |
 | `k8s-sre` | Debugging Kubernetes incidents |
+| `loki` | Query Loki API for logs and debugging |
+| `prometheus` | Query Prometheus API for metrics and alerts |
 | `taskfiles` | Taskfile syntax and patterns |
 | `sync-claude` | Validate and sync Claude docs before commits |
 | `self-improvement` | Capture feedback to enhance documentation and skills |
