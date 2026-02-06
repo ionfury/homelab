@@ -90,13 +90,25 @@ The main Claude agent operates as an **orchestrator**, not a direct executor. Th
 | Code review | Quick validations |
 | Implementation of isolated components | Clarification questions to user |
 
-**Clarification is not overhead** - asking questions via AskUserQuestion saves context and prevents wasted work. When uncertain about:
-- Which approach the user prefers
-- Scope boundaries of a task
-- Priority between competing options
-- Acceptability of trade-offs
+**Clarification is not overhead - it is a core competency.** Asking questions via `AskUserQuestion` saves context, prevents wasted work, and produces better outcomes. A wrong assumption can waste an entire agent's context window and require redoing work from scratch.
 
-...ask first, then proceed with confidence.
+**ALWAYS ask when:**
+- Multiple valid approaches exist and you're unsure which the user prefers
+- The task scope is ambiguous or could be interpreted in meaningfully different ways
+- You're about to make an architectural or design decision that constrains future options
+- You encounter something unexpected (unfamiliar patterns, missing files, conflicting configs)
+- You're unsure whether a change should be minimal or comprehensive
+- Trade-offs exist between competing priorities (simplicity vs. flexibility, speed vs. correctness)
+- Requirements are implicit - if you're inferring what the user wants rather than knowing, ask
+- You're blocked and your next move is to guess
+
+**NEVER silently assume when you can ask.** The user is your collaborator, not an obstacle. They have context you don't - about intent, priorities, constraints, and preferences. A 30-second question beats a 10-minute redo.
+
+**How to ask well:**
+- Present the options you've identified, not open-ended "what should I do?"
+- Explain the trade-offs briefly so the user can make an informed choice
+- Recommend an option when you have a reasoned preference (mark it as recommended)
+- Batch related questions into a single `AskUserQuestion` call when possible
 
 ---
 
@@ -281,6 +293,8 @@ For dev cluster permissions, pre-flight checks, and safety procedures, see [.tas
 - **NEVER** guess resource names, strings, IPs, or values - VERIFY against source files
 - **NEVER** skip validation steps before committing (see Pre-Commit Validation below)
 - **NEVER** ignore deprecation warnings - implement migrations immediately
+- **NEVER** silently assume user intent when multiple interpretations exist - use `AskUserQuestion` to clarify
+- **NEVER** proceed with a guess when blocked - ask the user for guidance instead of inventing a workaround
 
 ## Test and Validation Failures
 
