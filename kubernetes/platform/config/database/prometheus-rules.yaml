@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: cnpg-platform-alerts
+  name: cnpg-alerts
   labels:
     prometheus: kube-prometheus-stack
     release: kube-prometheus-stack
@@ -11,7 +11,7 @@ spec:
     - name: cnpg.rules
       rules:
         - alert: CNPGClusterNotHealthy
-          expr: cnpg_pg_replication_streaming{cluster="platform"} == 0
+          expr: cnpg_pg_replication_streaming == 0
           for: 5m
           labels:
             severity: critical
@@ -19,7 +19,7 @@ spec:
             summary: "CNPG cluster {{ $labels.cluster }} replication not healthy"
 
         - alert: CNPGClusterHighConnections
-          expr: (cnpg_pg_stat_activity_count{cluster="platform"} / on() cnpg_pg_settings_setting{name="max_connections",cluster="platform"}) > 0.8
+          expr: (cnpg_pg_stat_activity_count / on(cluster) cnpg_pg_settings_setting{name="max_connections"}) > 0.8
           for: 5m
           labels:
             severity: warning
@@ -27,7 +27,7 @@ spec:
             summary: "CNPG cluster {{ $labels.cluster }} connection usage > 80%"
 
         - alert: CNPGInstanceNotReady
-          expr: cnpg_pg_replication_in_recovery{cluster="platform"} == 1 and cnpg_pg_replication_is_wal_receiver_up{cluster="platform"} == 0
+          expr: cnpg_pg_replication_in_recovery == 1 and cnpg_pg_replication_is_wal_receiver_up == 0
           for: 5m
           labels:
             severity: critical

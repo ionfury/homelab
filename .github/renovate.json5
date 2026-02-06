@@ -281,6 +281,33 @@
       "depNameTemplate": "silence-operator",
       "datasourceTemplate": "docker",
       "packageNameTemplate": "gsoci.azurecr.io/charts/giantswarm/silence-operator"
+    },
+    // immich (HTTP Helm chart)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["immich_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "immich",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://immich-app.github.io/immich-charts"
+    },
+    // immich app image (v-prefixed Docker tags)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["immich_app_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "immich-server",
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/immich-app/immich-server"
+    },
+    // vectorchord (CNPG image for Immich)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["vectorchord_version=(?<currentValue>\\d+\\.\\d+-\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "cloudnative-vectorchord",
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/tensorchord/cloudnative-vectorchord"
     }
   ],
   "ignorePaths": [

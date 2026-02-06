@@ -1,0 +1,44 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-database
+spec:
+  description: "Immich PostgreSQL with vectorchord for AI vector search"
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:${vectorchord_version:-17.7-1.0.0}
+  instances: ${default_replica_count}
+  primaryUpdateStrategy: unsupervised
+
+  postgresql:
+    shared_preload_libraries:
+      - "vchord.so"
+    parameters:
+      shared_buffers: "128MB"
+      max_connections: "100"
+
+  bootstrap:
+    initdb:
+      database: immich
+      owner: immich
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+        - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+
+  storage:
+    storageClass: fast
+    size: 10Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+  monitoring:
+    enablePodMonitor: true
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
