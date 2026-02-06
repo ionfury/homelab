@@ -122,7 +122,7 @@ resourcesTemplate: |
 ```yaml
 inputs:
   - name: "grafana"
-    dependsOn: [kube-prometheus-stack, promtail]  # Waits for these
+    dependsOn: [kube-prometheus-stack, alloy]  # Waits for these
 ```
 
 ### ResourceSet Dependencies

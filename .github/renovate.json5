@@ -183,12 +183,12 @@
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://grafana.github.io/helm-charts"
     },
-    // promtail
+    // alloy
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["promtail_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "promtail",
+      "matchStrings": ["alloy_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "alloy",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://grafana.github.io/helm-charts"
     },
@@ -303,7 +303,7 @@
     },
     {
       // Grafana stack (monitoring visualization)
-      "matchDepNames": ["grafana", "loki", "promtail"],
+      "matchDepNames": ["grafana", "loki", "alloy"],
       "groupName": "grafana stack"
     },
     {

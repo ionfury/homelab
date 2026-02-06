@@ -1,0 +1,35 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alloy-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: alloy.rules
+      rules:
+        - alert: AlloyDroppedEntries
+          expr: rate(loki_write_dropped_entries_total[5m]) > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Alloy dropping log entries"
+            description: "Alloy is dropping {{ $value | humanize }} entries/second. This may indicate Loki is unavailable or overloaded."
+        - alert: AlloyRequestErrors
+          expr: rate(loki_write_request_duration_seconds_count{status_code=~"5.."}[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Alloy requests failing"
+            description: "Alloy is experiencing errors sending logs to Loki."
+        - alert: AlloyStreamLagging
+          expr: loki_write_stream_lag_seconds > 60
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Alloy falling behind"
+            description: "Alloy log stream lag exceeds 60 seconds, indicating it cannot keep up with log volume."
