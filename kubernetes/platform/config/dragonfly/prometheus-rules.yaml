@@ -11,7 +11,7 @@ spec:
     - name: dragonfly.rules
       rules:
         - alert: DragonflyDown
-          expr: up{job=~".*dragonfly.*", namespace="database"} == 0
+          expr: up{app="dragonfly", namespace="database"} == 0
           for: 2m
           labels:
             severity: critical
