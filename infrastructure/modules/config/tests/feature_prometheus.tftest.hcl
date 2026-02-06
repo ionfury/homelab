@@ -279,8 +279,35 @@ run "no_prometheus_no_controller_manager_section" {
   }
 }
 
-# Without prometheus - no scheduler section
-run "no_prometheus_no_scheduler_section" {
+# Without prometheus - scheduler has config but no extraArgs
+run "no_prometheus_scheduler_has_config_but_no_extra_args" {
+  command = plan
+
+  variables {
+    features = []
+  }
+
+  # Scheduler section should still be present (for PodTopologySpread)
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "scheduler:")
+    ])
+    error_message = "scheduler section should always be present for PodTopologySpread defaults"
+  }
+
+  # But should not have extraArgs without prometheus
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      !strcontains(join("\n", m.configs), "bind-address")
+    ])
+    error_message = "scheduler should not have bind-address extraArgs without prometheus"
+  }
+}
+
+# PodTopologySpread defaults are always configured
+run "scheduler_topology_spread_defaults" {
   command = plan
 
   variables {
@@ -290,9 +317,69 @@ run "no_prometheus_no_scheduler_section" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      !strcontains(join("\n", m.configs), "scheduler:")
+      strcontains(join("\n", m.configs), "KubeSchedulerConfiguration")
     ])
-    error_message = "scheduler section should not be in config without prometheus"
+    error_message = "KubeSchedulerConfiguration should be in scheduler config"
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "PodTopologySpread")
+    ])
+    error_message = "PodTopologySpread plugin should be configured"
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "kubernetes.io/hostname")
+    ])
+    error_message = "topology key should be kubernetes.io/hostname"
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "ScheduleAnyway")
+    ])
+    error_message = "whenUnsatisfiable should be ScheduleAnyway (soft preference)"
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "maxSkew: 1")
+    ])
+    error_message = "maxSkew should be 1"
+  }
+}
+
+# PodTopologySpread config coexists with prometheus extraArgs
+run "scheduler_topology_spread_with_prometheus" {
+  command = plan
+
+  variables {
+    features = ["prometheus"]
+  }
+
+  # Both scheduler config and extraArgs should be present
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "KubeSchedulerConfiguration") &&
+      strcontains(join("\n", m.configs), "PodTopologySpread")
+    ])
+    error_message = "PodTopologySpread config should be present with prometheus enabled"
+  }
+
+  assert {
+    condition = alltrue([
+      for m in output.talos.talos_machines :
+      strcontains(join("\n", m.configs), "bind-address") &&
+      strcontains(join("\n", m.configs), "0.0.0.0")
+    ])
+    error_message = "scheduler extraArgs should include bind-address when prometheus enabled"
   }
 }
 
