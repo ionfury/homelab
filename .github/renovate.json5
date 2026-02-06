@@ -272,6 +272,15 @@
       "depNameTemplate": "silence-operator",
       "datasourceTemplate": "docker",
       "packageNameTemplate": "gsoci.azurecr.io/charts/giantswarm/silence-operator"
+    },
+    // immich (HTTP Helm chart)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["immich_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "immich",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://immich-app.github.io/immich-charts"
     }
   ],
   "ignorePaths": [

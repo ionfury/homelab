@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - superuser-secret.yaml
   - cluster.yaml
+  - immich-cluster.yaml
   - pooler.yaml
   - prometheus-rules.yaml
   - network-policy.yaml
