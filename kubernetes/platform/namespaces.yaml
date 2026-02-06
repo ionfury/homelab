@@ -63,7 +63,7 @@ spec:
       networkPolicy: false
     - name: authelia
       dataplane: ambient
-      security: privileged
+      security: restricted
       networkPolicy: false
   resourcesTemplate: |
     ---

@@ -3,12 +3,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - lldap-secrets.yaml
-  - oidc-certificate.yaml
-  - internal-route.yaml
+  - authelia-external-canary.yaml
+  - authelia-internal-canary.yaml
   - external-route.yaml
+  - internal-route.yaml
   - lldap-route.yaml
   - network-policy.yaml
-  - namespace-labels.yaml
-  - authelia-canary.yaml
   - prometheus-rules.yaml

@@ -19,34 +19,7 @@ spec:
               protocol: TCP
             - port: "17170"
               protocol: TCP
-    # Allow Prometheus scraping (Authelia metrics)
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: monitoring
-            app.kubernetes.io/name: prometheus
-      toPorts:
-        - ports:
-            - port: "9959"
-              protocol: TCP
-    # Allow intra-namespace communication (Authelia -> LLDAP LDAP)
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: authelia
-      toPorts:
-        - ports:
-            - port: "3890"
-              protocol: TCP
   egress:
-    # Allow PostgreSQL via shared access policy (uses namespace label)
-    # Allow Dragonfly via shared access policy (uses namespace label)
-    # Allow intra-namespace communication (Authelia -> LLDAP)
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: authelia
-      toPorts:
-        - ports:
-            - port: "3890"
-              protocol: TCP
     # Allow external HTTPS (OIDC discovery, WebAuthn attestation)
     - toEntities:
         - world
@@ -54,5 +27,3 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
-            - port: "123"
-              protocol: UDP

@@ -200,16 +200,16 @@ spec:
       namespace: authelia
       chart:
         name: app-template
-        version: "${app_template_version:-3.7.3}"
+        version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s/helm
-      dependsOn: [cilium, cloudnative-pg, secret-generator]
+      dependsOn: [cilium, cloudnative-pg, secret-generator, authelia-prereqs]
     - name: authelia
       namespace: authelia
       chart:
         name: authelia
-        version: "${authelia_version:-0.10.49}"
+        version: "${authelia_version}"
         url: https://charts.authelia.com
-      dependsOn: [cilium, cloudnative-pg, secret-generator, lldap]
+      dependsOn: [cilium, cloudnative-pg, secret-generator, lldap, authelia-prereqs]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

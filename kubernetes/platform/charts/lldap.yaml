@@ -21,7 +21,7 @@ controllers:
       db-url:
         image:
           repository: busybox
-          tag: latest
+          tag: "1.37.0"
         command:
           - /bin/sh
           - -c
