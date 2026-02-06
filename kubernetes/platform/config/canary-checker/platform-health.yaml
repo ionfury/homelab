@@ -19,4 +19,12 @@ spec:
         name: flux-system
       resource:
         labelSelector: app.kubernetes.io/part-of=flux
-      healthy: true
+      # Use CEL to check only current Ready condition, not restart counts.
+      # The built-in ready/healthy flags use is-healthy which treats any
+      # restarts in the last hour as unhealthy — unsuitable for a canary.
+      test:
+        expr: >
+          dyn(results).all(pod,
+            pod.Object.status.phase == "Running" &&
+            pod.Object.status.conditions.exists(c, c.type == "Ready" && c.status == "True")
+          )
