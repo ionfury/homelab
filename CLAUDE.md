@@ -149,6 +149,7 @@ Grant access to shared services via additional labels:
 
 ```bash
 kubectl label namespace my-app access.network-policy.homelab/postgres=true    # Database access
+kubectl label namespace my-app access.network-policy.homelab/dragonfly=true   # Dragonfly (Redis) access
 kubectl label namespace my-app access.network-policy.homelab/garage-s3=true   # S3 storage
 kubectl label namespace my-app access.network-policy.homelab/kube-api=true    # Kubernetes API
 ```
@@ -329,6 +330,21 @@ When a test or validation fails:
 - "It's just a warning"
 - "It's unrelated to my change"
 - "It's a minor issue"
+
+## No Manual Steps — Everything Must Be Declarative
+
+**This is a GitOps and Infrastructure-as-Code project. Manual operational tasks are forbidden.**
+
+Every dependency an application needs — databases, S3 buckets, credentials, DNS records — must be provisioned declaratively through git-committed resources. If a resource can't be created through IaC, that's a gap to solve, not a step to defer.
+
+- **NEVER** create resources with `PLACEHOLDER` values that require manual replacement
+- **NEVER** list "manual operational tasks" or "post-merge steps" as follow-up work
+- **NEVER** expect someone to run `kubectl`, call an API, or click a UI to complete a deployment
+- **NEVER** defer provisioning of dependencies (databases, buckets, credentials) as separate manual work
+- **ALWAYS** provision all dependencies declaratively: use CRDs (CNPG Cluster, GarageBucketClaim), ExternalSecret, secret-generator, or init containers
+- **ALWAYS** ask (via `AskUserQuestion`) if you don't know how to declaratively provision a dependency — don't paper over it with placeholders
+
+**The litmus test**: After merging a PR, does the system converge to a fully working state with zero human intervention? If not, the PR is incomplete.
 
 ## Documentation
 

@@ -1,0 +1,78 @@
+---
+# https://raw.githubusercontent.com/grafana/alloy/main/operations/helm/charts/alloy/values.yaml
+fullnameOverride: alloy
+controller:
+  type: daemonset
+alloy:
+  mounts:
+    varlog: true
+  configMap:
+    content: |
+      // Discover pods on this node only (prevents FD exhaustion from cluster-wide scrape)
+      discovery.kubernetes "pod" {
+        role = "pod"
+        selectors {
+          role  = "pod"
+          field = "spec.nodeName=" + coalesce(env("HOSTNAME"), constants.hostname)
+        }
+      }
+
+      // Extract Kubernetes metadata as labels
+      discovery.relabel "pod_logs" {
+        targets = discovery.kubernetes.pod.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          target_label  = "app"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label  = "node"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name"]
+          separator     = "/"
+          target_label  = "job"
+        }
+      }
+
+      // Collect container logs from discovered pods
+      loki.source.kubernetes "pod_logs" {
+        targets    = discovery.relabel.pod_logs.output
+        forward_to = [loki.process.pod_logs.receiver]
+      }
+
+      // Drop Loki's own logs to prevent feedback loops
+      loki.process "pod_logs" {
+        stage.match {
+          selector = "{app=\"loki\"}"
+          action   = "drop"
+        }
+        forward_to = [loki.write.default.receiver]
+      }
+
+      // Collect Kubernetes events (new capability beyond Promtail)
+      loki.source.kubernetes_events "events" {
+        forward_to = [loki.write.default.receiver]
+      }
+
+      // Ship to Loki
+      loki.write "default" {
+        endpoint {
+          url = "http://loki-headless.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+        }
+      }
+serviceMonitor:
+  enabled: true

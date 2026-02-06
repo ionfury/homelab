@@ -1,0 +1,49 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dragonfly-alerts
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: dragonfly.rules
+      rules:
+        - alert: DragonflyDown
+          expr: up{job=~".*dragonfly.*", namespace="database"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Dragonfly instance {{ $labels.pod }} is down"
+
+        - alert: DragonflyHighMemoryUsage
+          expr: |
+            (dragonfly_used_memory_bytes{namespace="database"}
+            / dragonfly_maxmemory_bytes{namespace="database"}) > 0.9
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Dragonfly memory usage > 90% on {{ $labels.pod }}"
+
+        - alert: DragonflyHighMemoryUsageCritical
+          expr: |
+            (dragonfly_used_memory_bytes{namespace="database"}
+            / dragonfly_maxmemory_bytes{namespace="database"}) > 0.95
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Dragonfly memory usage > 95% on {{ $labels.pod }}"
+
+        - alert: DragonflyReplicationBroken
+          expr: |
+            dragonfly_connected_replicas{namespace="database"}
+            < (dragonfly_total_replicas{namespace="database"} - 1)
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Dragonfly replication broken for {{ $labels.pod }}"

@@ -91,11 +91,11 @@ spec:
         version: "${loki_version:-6.25.0}"
         url: "https://grafana.github.io/helm-charts"
       dependsOn: [cilium, longhorn]
-    - name: promtail
+    - name: alloy
       namespace: monitoring
       chart:
-        name: promtail
-        version: "${promtail_version:-6.16.6}"
+        name: alloy
+        version: "${alloy_version:-1.6.0}"
         url: https://grafana.github.io/helm-charts
       dependsOn: [grafana-loki-single-binary]
     - name: grafana
@@ -104,7 +104,7 @@ spec:
         name: grafana
         version: "${grafana_version:-8.8.5}"
         url: https://grafana.github.io/helm-charts
-      dependsOn: [kube-prometheus-stack, promtail]
+      dependsOn: [kube-prometheus-stack, alloy]
     - name: "kube-prometheus-stack-crds"
       namespace: "monitoring"
       chart:
@@ -161,6 +161,13 @@ spec:
         version: "${cloudnative_pg_version:-0.27.0}"
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+    - name: dragonfly-operator
+      namespace: database
+      chart:
+        name: dragonfly-operator
+        version: "${dragonfly_operator_version:-v1.4.0}"
+        url: oci://ghcr.io/dragonflydb/dragonfly-operator/helm
+      dependsOn: [cilium, kube-prometheus-stack-crds, secret-generator]
     - name: kromgo
       namespace: kromgo
       chart:

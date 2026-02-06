@@ -14,6 +14,7 @@ For Flux patterns and version management, see [kubernetes/platform/CLAUDE.md](..
 | `certs/` | TLS certificates for gateways | Certificate |
 | `cilium/` | Load balancer config, L2 announcements | CiliumLoadBalancerIPPool, CiliumL2AnnouncementPolicy |
 | `database/` | Shared PostgreSQL cluster | Cluster, Pooler (CNPG) |
+| `dragonfly/` | Shared Dragonfly (Redis) instance | Dragonfly, Secret, CiliumNetworkPolicy, PrometheusRule |
 | `flux-notifications/` | Flux alert providers and routing | Provider, Alert |
 | `garage/` | S3-compatible object storage | GarageCluster |
 | `gateway/` | Gateway API resources and WAF | Gateway, HTTPRoute, WasmPlugin |
@@ -91,6 +92,7 @@ Config kustomizations must declare dependencies on the HelmReleases that provide
 | `Certificate`, `ClusterIssuer` | cert-manager |
 | `CiliumNetworkPolicy`, `CiliumLoadBalancerIPPool` | cilium |
 | `Cluster`, `Pooler` (CNPG) | cloudnative-pg |
+| `Dragonfly` | dragonfly-operator |
 | `Canary` | canary-checker |
 | `Gateway`, `HTTPRoute` | (Gateway API CRDs - pre-installed) |
 | `PrometheusRule`, `ServiceMonitor` | kube-prometheus-stack |

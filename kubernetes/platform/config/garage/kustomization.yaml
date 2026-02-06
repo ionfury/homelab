@@ -10,3 +10,5 @@ resources:
   - garage-canary.yaml
   - prometheus-rules.yaml
   - network-policy.yaml
+  - dragonfly-bucket.yaml
+  - dragonfly-key.yaml

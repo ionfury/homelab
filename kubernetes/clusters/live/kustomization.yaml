@@ -19,4 +19,5 @@ configMapGenerator:
       disableNameSuffixHash: true
     namespace: flux-system
     behavior: create
-    files: []
+    files:
+      - zipline.yaml=charts/zipline.yaml

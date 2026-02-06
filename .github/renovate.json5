@@ -183,12 +183,12 @@
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://grafana.github.io/helm-charts"
     },
-    // promtail
+    // alloy
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["promtail_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "promtail",
+      "matchStrings": ["alloy_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "alloy",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://grafana.github.io/helm-charts"
     },
@@ -236,6 +236,15 @@
       "depNameTemplate": "cloudnative-pg",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://cloudnative-pg.github.io/charts"
+    },
+    // dragonfly-operator (OCI registry, v-prefixed)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["dragonfly_operator_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "dragonfly-operator",
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/dragonflydb/dragonfly-operator/helm/dragonfly-operator"
     },
     // app-template (OCI registry: oci://ghcr.io/bjw-s/helm)
     {
@@ -312,7 +321,7 @@
     },
     {
       // Grafana stack (monitoring visualization)
-      "matchDepNames": ["grafana", "loki", "promtail"],
+      "matchDepNames": ["grafana", "loki", "alloy"],
       "groupName": "grafana stack"
     },
     {
