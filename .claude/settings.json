@@ -79,7 +79,9 @@
       "Skill(gha-pipelines)",
       "Skill(k8s-manifest-generator)",
       "Skill(deploy-app)",
-      "Skill(self-improvement)"
+      "Skill(self-improvement)",
+      "Skill(loki)",
+      "Skill(prometheus)"
     ]
   },
   "enabledPlugins": {
