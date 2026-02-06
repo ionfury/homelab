@@ -359,6 +359,9 @@ locals {
     { name = "bgp_router_ip", value = var.bgp.router_ip },
     # TLS certificate issuer (homelab-ca for dev/integration, cloudflare for live)
     { name = "tls_issuer", value = local.tls_issuer },
+    # GitHub repository for Flux notification dispatch
+    { name = "github_org", value = var.accounts.github.org },
+    { name = "github_repository", value = var.accounts.github.repository },
   ]
 
   # DNS records for control plane nodes AND wildcard ingress

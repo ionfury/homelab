@@ -29,45 +29,83 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Determine artifact SHA
-        id: sha
-        env:
-          # Use environment variables to prevent command injection
-          INPUT_SHA: ${{ inputs.artifact_sha }}
-          PAYLOAD_SHA: ${{ github.event.client_payload.artifact_sha }}
-        run: |
-          SHA="${INPUT_SHA:-$PAYLOAD_SHA}"
+      - name: Resolve artifact SHA and stable semver
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const inputSha = '${{ inputs.artifact_sha }}';
+            const payloadSha = '${{ github.event.client_payload.artifact_sha }}';
+            const packageName = `${context.repo.repo}/platform`;
 
-          if [ -z "$SHA" ]; then
-            echo "No SHA provided, discovering latest integration tag..."
-            # List tags and find the most recent integration-* tag
-            LATEST_TAG=$(flux list artifact oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }} 2>/dev/null | \
-              grep 'integration-' | \
-              head -1 | \
-              awk '{print $1}' | \
-              sed 's/integration-//')
+            // List all versions of the container package
+            const versions = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+              package_type: 'container',
+              package_name: packageName,
+              username: context.repo.owner,
+              per_page: 100,
+            });
 
-            if [ -z "$LATEST_TAG" ]; then
-              echo "::error::No integration tags found in GHCR"
-              exit 1
-            fi
-            SHA="$LATEST_TAG"
-            echo "Discovered latest integration SHA: $SHA"
-          fi
+            // Determine the artifact SHA - from input, payload, or auto-detect latest integration tag
+            let sha = inputSha || payloadSha;
 
-          # Validate SHA is a valid short git hash (7 hex chars)
-          if ! echo "$SHA" | grep -qE '^[a-f0-9]{7}$'; then
-            echo "::error::Invalid SHA format: $SHA (expected 7 hex characters)"
-            exit 1
-          fi
+            if (!sha) {
+              core.info('No SHA provided, discovering latest integration tag...');
+              const integrationVersion = versions.data.find(v =>
+                v.metadata?.container?.tags?.some(t => t.startsWith('integration-'))
+              );
+              if (!integrationVersion) {
+                core.setFailed('No integration tags found in GHCR');
+                return;
+              }
+              const integrationTag = integrationVersion.metadata.container.tags.find(t =>
+                t.startsWith('integration-')
+              );
+              sha = integrationTag.replace('integration-', '');
+              core.info(`Discovered latest integration SHA: ${sha}`);
+            }
 
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+            // Validate SHA format (7 hex chars)
+            if (!/^[a-f0-9]{7}$/.test(sha)) {
+              core.setFailed(`Invalid SHA format: ${sha} (expected 7 hex characters)`);
+              return;
+            }
+
+            // Find the version tagged with integration-<sha> and extract its RC semver tag
+            const targetVersion = versions.data.find(v =>
+              v.metadata?.container?.tags?.includes(`integration-${sha}`)
+            );
+            if (!targetVersion) {
+              core.setFailed(`Could not find version tagged integration-${sha}`);
+              return;
+            }
+
+            const rcTag = targetVersion.metadata.container.tags.find(t =>
+              /^\d+\.\d+\.\d+-rc\.\d+$/.test(t)
+            );
+            if (!rcTag) {
+              core.setFailed(`No RC semver tag found on version with integration-${sha}`);
+              return;
+            }
+
+            // Derive stable semver: 0.1.0-rc.130 → 0.1.130
+            const match = rcTag.match(/^(\d+\.\d+)\.\d+-rc\.(\d+)$/);
+            const stable = `${match[1]}.${match[2]}`;
+
+            core.info(`Found RC tag: ${rcTag}`);
+            core.info(`Derived stable semver: ${rcTag} → ${stable}`);
+            core.setOutput('sha', sha);
+            core.setOutput('stable', stable);
 
       - name: Tag as validated
         env:
-          SHA: ${{ steps.sha.outputs.sha }}
+          SHA: ${{ steps.resolve.outputs.sha }}
+          STABLE: ${{ steps.resolve.outputs.stable }}
         run: |
-          echo "Tagging integration-${SHA} as validated-${SHA}"
+          echo "Tagging integration-${SHA} as validated-${SHA} and ${STABLE}"
           flux tag artifact \
             "oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:integration-${SHA}" \
             --tag "validated-${SHA}"
+          flux tag artifact \
+            "oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:integration-${SHA}" \
+            --tag "${STABLE}"
