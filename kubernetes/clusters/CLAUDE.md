@@ -129,7 +129,48 @@ These variables are injected into the `cluster-vars` ConfigMap and used througho
 
 ---
 
-## Example: Dev-Only Silence
+## Alertmanager Silences (silence-operator)
+
+The [silence-operator](https://github.com/giantswarm/silence-operator) (deployed platform-wide) manages Alertmanager silences declaratively via `Silence` CRs. Silences are **per-cluster resources** placed in `config/silences/` because different clusters have different expected alert profiles.
+
+### Silence CRD
+
+```yaml
+apiVersion: observability.giantswarm.io/v1alpha2
+kind: Silence
+metadata:
+  name: descriptive-silence-name
+  namespace: monitoring
+spec:
+  matchers:
+    - name: alertname
+      matchType: "=~"           # "=" for exact, "=~" for regex
+      value: "Alert1|Alert2"
+    - name: namespace
+      matchType: "="
+      value: target-namespace
+```
+
+### Matcher Reference
+
+| Field | Values | Description |
+|-------|--------|-------------|
+| `matchType` | `=`, `!=`, `=~`, `!~` | Exact match, negation, regex match, regex negation |
+| `name` | Any alert label | Common: `alertname`, `namespace`, `severity`, `job` |
+| `value` | String or regex | Multiple alerts: `"Alert1\|Alert2\|Alert3"` |
+
+### Adding a Cluster-Specific Silence
+
+1. Create `config/silences/` directory if it doesn't exist
+2. Add the Silence YAML file
+3. Add to `config/silences/kustomization.yaml`
+4. Reference `silences` in `config/kustomization.yaml`
+
+### Zero-Alert Baseline
+
+**Every cluster must maintain zero firing alerts** (excluding Watchdog, which validates Alertmanager is working). When an alert cannot be fixed (e.g., architectural limitation like single-node Spegel), silence it declaratively with a comment explaining why.
+
+### Example: Dev-Only Silence
 
 The dev cluster has a spegel silence because single-node clusters can't find P2P peers:
 

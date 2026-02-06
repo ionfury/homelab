@@ -10,7 +10,7 @@ spec:
   matchers:
     - name: alertname
       matchType: "=~"
-      value: "KubePodCrashLooping|KubeDaemonSetRolloutStuck"
+      value: "KubePodCrashLooping|KubeDaemonSetRolloutStuck|TargetDown"
     - name: namespace
       matchType: "="
       value: spegel
