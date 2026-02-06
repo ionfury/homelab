@@ -61,12 +61,6 @@ spec:
       dataplane: ambient
       security: privileged
       networkPolicy: false
-    - name: immich
-      dataplane: ambient
-      security: privileged
-      networkPolicy:
-        profile: standard
-        enforcement: ""
   resourcesTemplate: |
     ---
     apiVersion: v1

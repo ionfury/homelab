@@ -21,3 +21,4 @@ configMapGenerator:
     behavior: create
     files:
       - zipline.yaml=charts/zipline.yaml
+      - immich.yaml=charts/immich.yaml

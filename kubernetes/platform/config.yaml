@@ -70,10 +70,6 @@ spec:
       namespace: kube-system
       path: kubernetes/platform/config/network-policy
       dependsOn: [cilium]
-    - name: immich-config
-      namespace: immich
-      path: kubernetes/platform/config/immich
-      dependsOn: [longhorn, canary-checker, cloudnative-pg]
     - name: infrastructure-policies-config
       namespace: ""
       path: kubernetes/platform/config/infrastructure-policies

@@ -1,11 +1,13 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - namespace-labels.yaml
+  - namespace.yaml
   - library-pvc.yaml
   - database-secret-replication.yaml
   - dragonfly-secret-replication.yaml
   - external-route.yaml
   - internal-route.yaml
   - canary.yaml
+  - immich-cluster.yaml
