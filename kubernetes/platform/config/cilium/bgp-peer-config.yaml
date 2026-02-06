@@ -1,11 +1,13 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgppeerconfig_v2alpha1.json
-apiVersion: cilium.io/v2alpha1
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgppeerconfig_v2.json
+apiVersion: cilium.io/v2
 kind: CiliumBGPPeerConfig
 metadata:
   name: unifi-router
 spec:
-  # Aggressive timers for fast failover (approved: holdTime=9s, keepAlive=3s)
+  # Aggressive timers for fast failover (~9s detection)
+  # IMPORTANT: FRR router must be configured with matching timers:
+  #   neighbor <peer> timers 3 9
   timers:
     holdTimeSeconds: 9
     keepAliveTimeSeconds: 3

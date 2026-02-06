@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: baseline-bgp-peering
+spec:
+  description: >-
+    Allow BGP peering traffic (TCP 179) between cluster nodes and the
+    external BGP router. Required for Cilium BGP control plane to
+    establish and maintain peering sessions.
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  ingress:
+    # Accept BGP session initiation from the router
+    - fromCIDR:
+        - ${bgp_router_ip}/32
+      toPorts:
+        - ports:
+            - port: "179"
+              protocol: TCP
+  egress:
+    # Initiate BGP sessions to the router
+    - toCIDR:
+        - ${bgp_router_ip}/32
+      toPorts:
+        - ports:
+            - port: "179"
+              protocol: TCP

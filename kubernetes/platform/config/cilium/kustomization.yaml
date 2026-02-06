@@ -12,5 +12,5 @@ resources:
   # Hubble observability
   - hubble-route.yaml
   - hubble-canary.yaml
-  # L2 disabled in favor of BGP (kept for rollback reference)
-  # - l2.yaml
+  # L2 kept active alongside BGP during transition (remove after BGP verified on dev)
+  - l2.yaml

@@ -58,22 +58,22 @@ router bgp 64512
   neighbor LIVE remote-as 64513
   neighbor LIVE description Live cluster nodes
   neighbor LIVE soft-reconfiguration inbound
-  neighbor LIVE timers 15 45
-  neighbor LIVE timers connect 15
+  neighbor LIVE timers 3 9
+  neighbor LIVE timers connect 5
 
   neighbor INTEGRATION peer-group
   neighbor INTEGRATION remote-as 64514
   neighbor INTEGRATION description Integration cluster nodes
   neighbor INTEGRATION soft-reconfiguration inbound
-  neighbor INTEGRATION timers 15 45
-  neighbor INTEGRATION timers connect 15
+  neighbor INTEGRATION timers 3 9
+  neighbor INTEGRATION timers connect 5
 
   neighbor DEV peer-group
   neighbor DEV remote-as 64515
   neighbor DEV description Dev cluster nodes
   neighbor DEV soft-reconfiguration inbound
-  neighbor DEV timers 15 45
-  neighbor DEV timers connect 15
+  neighbor DEV timers 3 9
+  neighbor DEV timers connect 5
 
   ! Live cluster nodes
   neighbor 192.168.10.253 peer-group LIVE
@@ -94,6 +94,9 @@ router bgp 64512
   ! Dev cluster node
   neighbor 192.168.10.252 peer-group DEV
   neighbor 192.168.10.252 description node45
+
+  ! TODO: Add staging cluster (ASN 64516) neighbors when provisioned
+  ! neighbor STAGING peer-group, remote-as 64516, timers 3 9
 
   ! IPv4 Address Family
   address-family ipv4 unicast

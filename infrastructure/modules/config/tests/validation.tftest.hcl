@@ -254,7 +254,6 @@ run "valid_domain_simple" {
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
       bgp_asn             = 64513
-      bgp_asn             = 64513
       nameservers         = ["192.168.10.1"]
       timeservers         = ["0.pool.ntp.org"]
     }
@@ -282,7 +281,6 @@ run "valid_domain_subdomain" {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
-      bgp_asn             = 64513
       bgp_asn             = 64513
       nameservers         = ["192.168.10.1"]
       timeservers         = ["0.pool.ntp.org"]
@@ -313,7 +311,6 @@ run "valid_nameservers_multiple" {
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
       bgp_asn             = 64513
-      bgp_asn             = 64513
       nameservers         = ["8.8.8.8", "8.8.4.4", "1.1.1.1"]
       timeservers         = ["0.pool.ntp.org"]
     }
@@ -342,7 +339,6 @@ run "valid_timeservers_multiple" {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
-      bgp_asn             = 64513
       bgp_asn             = 64513
       nameservers         = ["192.168.10.1"]
       timeservers         = ["0.pool.ntp.org", "1.pool.ntp.org", "time.google.com", "time.cloudflare.com"]

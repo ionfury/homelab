@@ -35,7 +35,7 @@ This works because both L2 and BGP announce the same IPs. The router prefers BGP
 
 ```bash
 # Check L2 announcements are working
-KUBECONFIG=~/.kube/dev.yaml kubectl get ciliull2announcementpolicy -A
+KUBECONFIG=~/.kube/dev.yaml kubectl get ciliuml2announcementpolicy -A
 KUBECONFIG=~/.kube/dev.yaml kubectl get ciliumloadbalancerippool -A
 
 # Check services have IPs
@@ -115,7 +115,7 @@ Commit and push this change, then trigger reconciliation:
 KUBECONFIG=~/.kube/dev.yaml flux reconcile kustomization cilium-config -n flux-system
 
 # Verify L2 policy is removed
-KUBECONFIG=~/.kube/dev.yaml kubectl get ciliull2announcementpolicy -A
+KUBECONFIG=~/.kube/dev.yaml kubectl get ciliuml2announcementpolicy -A
 # Should return: No resources found
 ```
 
