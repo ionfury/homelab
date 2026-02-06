@@ -1,0 +1,65 @@
+---
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: platform
+spec:
+  replicas: ${default_replica_count}
+
+  authentication:
+    passwordFromSecret:
+      name: dragonfly-password
+      key: password
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+  args:
+    - "--maxmemory"
+    - "768mb"
+    - "--maxmemory-policy"
+    - "allkeys-lru"
+    - "--proactor_threads"
+    - "2"
+    - "--dbfilename"
+    - "dump"
+
+  env:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: dragonfly-s3-credentials
+          key: accessKeyId
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: dragonfly-s3-credentials
+          key: secretAccessKey
+    - name: AWS_ENDPOINT_URL
+      value: "http://garage.garage.svc.cluster.local:3900"
+    - name: AWS_REGION
+      value: "garage"
+
+  snapshot:
+    cron: "0 */6 * * *"
+    dir: "s3://dragonfly-snapshots/"
+    persistentVolumeClaimSpec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: fast
+      resources:
+        requests:
+          storage: ${dragonfly_volume_size:-1Gi}
+
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: dragonfly
+          app.kubernetes.io/instance: platform

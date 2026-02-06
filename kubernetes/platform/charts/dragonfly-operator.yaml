@@ -1,0 +1,15 @@
+---
+# https://github.com/dragonflydb/dragonfly-operator/blob/main/charts/dragonfly-operator/values.yaml
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+serviceMonitor:
+  enabled: true
+  interval: 60s
+
+grafanaDashboard:
+  enabled: true

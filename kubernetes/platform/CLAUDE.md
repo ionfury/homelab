@@ -32,6 +32,7 @@ The `config/` directory organizes non-Helm resources by concern:
 | `certs/` | Certificate resources |
 | `cilium/` | Cilium network policies and configs |
 | `database/` | CloudNative-PG clusters and secrets |
+| `dragonfly/` | Dragonfly HA instance, auth, monitoring |
 | `garage/` | Garage object storage configs |
 | `gateway/` | Gateway API resources |
 | `issuers/` | Cert-manager ClusterIssuers |
@@ -146,6 +147,7 @@ inputs:
 | `certificates` | `cert-manager`, `istiod` | Certificate CRD + Gateway for TLS |
 | `longhorn-storage` | `longhorn` | RecurringJob CRD |
 | `database-config` | `cloudnative-pg`, `canary-checker` | Cluster/Pooler CRDs + Canary |
+| `dragonfly-config` | `dragonfly-operator`, `garage-config`, `canary-checker` | Dragonfly CRD + S3 credentials + Canary |
 | `garage-config` | `garage-operator`, `canary-checker` | Garage CRDs + Canary |
 | `gateway` | `istiod` | WasmPlugin CRD |
 | `monitoring-config` | `kube-prometheus-stack`, `canary-checker` | PrometheusRule + Canary CRDs |

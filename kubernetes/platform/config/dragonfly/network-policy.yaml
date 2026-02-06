@@ -1,0 +1,50 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: database-dragonfly
+  namespace: database
+spec:
+  description: "Allow Dragonfly: Redis connections from labeled namespaces, replication, metrics, S3 backup"
+  endpointSelector:
+    matchLabels:
+      app: dragonfly
+  ingress:
+    # Redis connections from namespaces with dragonfly access label
+    - fromEndpoints:
+        - matchExpressions:
+            - key: io.cilium.k8s.namespace.labels.access.network-policy.homelab/dragonfly
+              operator: In
+              values: ["true"]
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    # Intra-namespace (master <-> replicas, operator management)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+            - port: "9999"
+              protocol: TCP
+  egress:
+    # Intra-namespace (replication)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    # S3 snapshots to Garage
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: garage
+      toPorts:
+        - ports:
+            - port: "3900"
+              protocol: TCP
