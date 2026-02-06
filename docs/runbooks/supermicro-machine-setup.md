@@ -64,3 +64,12 @@ This document outlines the steps to physically and logically set up a new Superm
     - **Primary NTP Server**: `0.pool.ntp.org`
     - **Secondary NTP Server**: `1.pool.ntp.org`
   - **Save** the configuration
+
+### 6. Configure SNMP
+- **Task**: Enable SNMP v2c for hardware monitoring by the prometheus-snmp-exporter.
+  - Navigate to `Configuration > SNMP`
+  - Enable **SNMP over LAN**.
+  - Set **SNMP Protocol**: `SNMP v2c`
+  - Set **Community String** to the value stored in AWS SSM at `/homelab/kubernetes/<cluster>/snmp-community`
+  - **Save** the configuration
+  - **Note**: The community string must match across all nodes in the same cluster.

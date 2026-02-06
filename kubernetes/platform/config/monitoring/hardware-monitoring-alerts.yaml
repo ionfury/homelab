@@ -1,0 +1,109 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: hardware-monitoring-alerts
+  labels:
+    app.kubernetes.io/name: hardware-monitoring
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: hardware-monitoring.targets
+      rules:
+        - alert: SnmpTargetDown
+          expr: up{job="scrapeconfig/monitoring/snmp-exporter-targets"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "SNMP target {{ $labels.instance }} unreachable"
+            description: >-
+              SNMP exporter cannot reach {{ $labels.instance }} for 5+ minutes.
+              Check BMC network connectivity, SNMP service status, and community string.
+
+        - alert: IpmiTargetDown
+          expr: up{job="scrapeconfig/monitoring/ipmi-exporter-targets"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "IPMI target {{ $labels.instance }} unreachable"
+            description: >-
+              IPMI exporter cannot reach {{ $labels.instance }} for 5+ minutes.
+              Check BMC network connectivity, IPMI-over-LAN status, and credentials.
+
+    - name: hardware-monitoring.temperature
+      rules:
+        - alert: HighCpuTemperature
+          expr: ipmi_temperature_celsius{name=~"CPU.*Temp"} > 85
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CPU temperature critical on {{ $labels.instance }}"
+            description: >-
+              CPU temperature on {{ $labels.instance }} is {{ $value }}°C (threshold: 85°C).
+              Check cooling, fan status, and ambient temperature.
+
+        - alert: DiskTemperatureHigh
+          expr: smartctl_device_temperature{temperature_type="current"} > 55
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Disk {{ $labels.device }} temperature high on {{ $labels.instance }}"
+            description: >-
+              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
+              is at {{ $value }}°C. Drives should stay below 55°C for longevity.
+
+    - name: hardware-monitoring.fans
+      rules:
+        - alert: FanSpeedCritical
+          expr: ipmi_fan_speed_rpm > 0 and ipmi_fan_speed_rpm < 500
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Fan {{ $labels.name }} critically slow on {{ $labels.instance }}"
+            description: >-
+              Fan {{ $labels.name }} on {{ $labels.instance }} is at {{ $value }} RPM.
+              Minimum safe speed is 500 RPM. Check for physical obstruction or fan failure.
+
+    - name: hardware-monitoring.disks
+      rules:
+        - alert: DiskSmartPreFailure
+          expr: smartctl_device_smart_status != 1
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "SMART health check failed for {{ $labels.device }} on {{ $labels.instance }}"
+            description: >-
+              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
+              reports SMART health status NOT OK. Immediate replacement recommended.
+              Back up data from this drive immediately.
+
+        - alert: DiskSmartMediaErrors
+          expr: smartctl_device_media_errors > 0
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "SMART media errors on {{ $labels.device }} on {{ $labels.instance }}"
+            description: >-
+              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
+              has {{ $value }} media errors. Monitor for increasing error count.
+
+    - name: hardware-monitoring.power
+      rules:
+        - alert: PowerSupplyDegraded
+          expr: ipmi_power_supply_state{name=~"PS.*Status"} != 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Power supply degraded on {{ $labels.instance }}"
+            description: >-
+              Power supply {{ $labels.name }} on {{ $labels.instance }} reports non-OK state.
+              Check PSU LED indicators and power connections. Redundant PSU may be compensating.

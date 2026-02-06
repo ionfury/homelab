@@ -38,3 +38,6 @@ configMapGenerator:
       - silence-operator.yaml=charts/silence-operator.yaml
       - spegel.yaml=charts/spegel.yaml
       - tuppr.yaml=charts/tuppr.yaml
+      - prometheus-snmp-exporter.yaml=charts/prometheus-snmp-exporter.yaml
+      - prometheus-ipmi-exporter.yaml=charts/prometheus-ipmi-exporter.yaml
+      - prometheus-smartctl-exporter.yaml=charts/prometheus-smartctl-exporter.yaml

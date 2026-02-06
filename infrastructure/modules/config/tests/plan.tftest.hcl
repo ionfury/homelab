@@ -336,6 +336,30 @@ run "cluster_vars_content" {
     ])
     error_message = "github_repository env var should match accounts.github.repository"
   }
+
+  # ipmi_target_hostnames should contain IPMI hostnames for non-RPi machines
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars : v.name == "ipmi_target_hostnames"
+    ])
+    error_message = "ipmi_target_hostnames env var should be present"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars :
+      v.name == "ipmi_target_hostnames" && strcontains(v.value, "node1-ipmi.citadel.tomnowak.work")
+    ])
+    error_message = "ipmi_target_hostnames should contain node1 IPMI hostname"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars :
+      v.name == "ipmi_target_hostnames" && strcontains(v.value, "node2-ipmi.citadel.tomnowak.work")
+    ])
+    error_message = "ipmi_target_hostnames should contain node2 IPMI hostname"
+  }
 }
 
 # TLS issuer configuration per cluster type

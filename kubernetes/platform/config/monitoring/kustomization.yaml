@@ -23,3 +23,7 @@ resources:
   - loki-mixin-recording-rules.yaml
   - flux-podmonitor.yaml
   - alloy-alerts.yaml
+  - network-policy.yaml
+  - hardware-monitoring-secrets.yaml
+  - hardware-monitoring-scrape.yaml
+  - hardware-monitoring-alerts.yaml

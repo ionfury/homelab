@@ -11,3 +11,4 @@ resources:
   - escape-hatch-allow-all.yaml
   - hbone-mesh.yaml
   - intra-namespace.yaml
+  - hardware-monitoring-egress.yaml
