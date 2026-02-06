@@ -19,8 +19,21 @@ cluster:
       "${arg.name}": "${arg.value}"
 %{ endfor ~}
 %{ endif ~}
-%{ if length(cluster_scheduler_extraArgs) > 0 ~}
   scheduler:
+    config:
+      apiVersion: kubescheduler.config.k8s.io/v1
+      kind: KubeSchedulerConfiguration
+      profiles:
+        - schedulerName: default-scheduler
+          pluginConfig:
+            - name: PodTopologySpread
+              args:
+                defaultingType: List
+                defaultConstraints:
+                  - maxSkew: 1
+                    topologyKey: kubernetes.io/hostname
+                    whenUnsatisfiable: ScheduleAnyway
+%{ if length(cluster_scheduler_extraArgs) > 0 ~}
     extraArgs:
 %{ for arg in cluster_scheduler_extraArgs ~}
       "${arg.name}": "${arg.value}"
