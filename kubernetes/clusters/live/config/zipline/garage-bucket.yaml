@@ -1,0 +1,9 @@
+---
+apiVersion: garage.rajsingh.info/v1alpha1
+kind: GarageBucket
+metadata:
+  name: zipline
+  namespace: garage
+spec:
+  clusterRef:
+    name: garage

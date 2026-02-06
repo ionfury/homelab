@@ -1,0 +1,113 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s/helm-charts/tree/main/charts/other/app-template
+controllers:
+  zipline:
+    type: deployment
+    replicas: 1
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        env:
+          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
+          INIT_POSTGRES_SUPER_USER: postgres
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_USER: postgres
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_DBNAME: zipline
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/diced/zipline
+          tag: 4.0.3
+        env:
+          CORE_PORT: "3000"
+          CORE_HOSTNAME: "0.0.0.0"
+          CORE_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-secret
+                key: CORE_SECRET
+          # Database — superuser via replicated CNPG secret, $(VAR) substitution
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/zipline"
+          # S3 — credentials auto-created by GarageKey operator
+          DATASOURCE_TYPE: s3
+          DATASOURCE_S3_REGION: garage
+          DATASOURCE_S3_BUCKET: zipline
+          DATASOURCE_S3_ENDPOINT: http://garage.garage.svc.cluster.local:3900
+          DATASOURCE_S3_FORCE_PATH_STYLE: "true"
+          DATASOURCE_S3_ACCESS_KEY_ID:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-s3-credentials
+                key: access-key-id
+          DATASOURCE_S3_SECRET_ACCESS_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-s3-credentials
+                key: secret-access-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 3000
+              initialDelaySeconds: 15
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 3000
+              initialDelaySeconds: 10
+              periodSeconds: 10
+
+service:
+  app:
+    controller: zipline
+    ports:
+      http:
+        port: 3000

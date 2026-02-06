@@ -3,4 +3,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - zipline
+  - namespace.yaml
+  - secret.yaml
+  - cnpg-superuser-replica.yaml
+  - garage-bucket.yaml
+  - garage-key.yaml
+  - external-route.yaml
