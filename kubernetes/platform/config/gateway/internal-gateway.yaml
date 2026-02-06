@@ -6,6 +6,10 @@ metadata:
   name: internal
 spec:
   infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: gateway-deployment-defaults
     annotations:
       lbipam.cilium.io/ips: ${internal_ingress_ip}
   gatewayClassName: istio

@@ -3,6 +3,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - gateway-deployment-defaults.yaml
   - internal-gateway.yaml
   - external-gateway.yaml
   - coraza-wasm-plugin.yaml
