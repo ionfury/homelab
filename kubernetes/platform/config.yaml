@@ -54,6 +54,10 @@ spec:
       namespace: kromgo
       path: kubernetes/platform/config/kromgo
       dependsOn: []  # ConfigMap must deploy BEFORE HelmRelease (no CRD dependency)
+    - name: authelia-config
+      namespace: authelia
+      path: kubernetes/platform/config/authelia
+      dependsOn: [authelia, lldap, canary-checker, cert-manager, kube-prometheus-stack]
     - name: canary-checker-config
       namespace: monitoring
       path: kubernetes/platform/config/canary-checker

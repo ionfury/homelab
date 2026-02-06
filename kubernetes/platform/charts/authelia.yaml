@@ -1,0 +1,128 @@
+---
+# Authelia v0.10.x chart values
+# Chart docs: https://www.authelia.com/integration/kubernetes/introduction/
+pod:
+  kind: Deployment
+  replicas: 1
+  annotations:
+    reloader.stakater.com/auto: "true"
+  extraVolumeMounts:
+    - name: oidc-jwk
+      mountPath: /secrets/oidc-jwk
+      readOnly: true
+  extraVolumes:
+    - name: oidc-jwk
+      secret:
+        secretName: authelia-oidc-jwk
+
+configMap:
+  theme: dark
+
+  totp:
+    disable: false
+    issuer: homelab
+    algorithm: SHA1
+    digits: 6
+    period: 30
+
+  webauthn:
+    disable: false
+    enable_passkey_login: true
+    display_name: Homelab
+
+  authentication_backend:
+    password_reset:
+      disable: false
+    ldap:
+      enabled: true
+      implementation: custom
+      address: ldap://lldap-app.authelia.svc.cluster.local:3890
+      base_dn: dc=homelab,dc=local
+      additional_users_dn: ou=people
+      users_filter: "(&(|({username_attribute}={input})({email_attribute}={input}))(objectClass=person))"
+      additional_groups_dn: ou=groups
+      groups_filter: "(member={dn})"
+      attributes:
+        distinguished_name: ""
+        username: uid
+        display_name: displayName
+        mail: mail
+        member_of: memberOf
+        group_name: cn
+      user: uid=admin,ou=people,dc=homelab,dc=local
+      password:
+        secret_name: lldap-secrets
+        path: LLDAP_LDAP_USER_PASS
+
+  access_control:
+    default_policy: two_factor
+
+  session:
+    cookies:
+      - domain: "${internal_domain}"
+        subdomain: auth
+        default_redirection_url: "https://auth.${internal_domain}"
+      - domain: "${external_domain}"
+        subdomain: auth
+        default_redirection_url: "https://auth.${external_domain}"
+    redis:
+      enabled: true
+      host: platform.database.svc.cluster.local
+      port: 6379
+      password:
+        secret_name: dragonfly-password
+        path: password
+
+  storage:
+    postgres:
+      enabled: true
+      address: tcp://platform-pooler-rw.database.svc.cluster.local:5432
+      database: authelia
+      username: authelia_user
+      password:
+        secret_name: authelia-db-password
+        path: password
+
+  notifier:
+    filesystem:
+      enabled: true
+      filename: /config/notification.txt
+
+  telemetry:
+    metrics:
+      enabled: true
+      port: 9959
+      serviceMonitor:
+        enabled: true
+
+  identity_providers:
+    oidc:
+      enabled: true
+      jwks:
+        - key:
+            path: /secrets/oidc-jwk/tls.key
+      cors:
+        endpoints:
+          - authorization
+          - token
+          - revocation
+          - introspection
+          - userinfo
+      clients: []
+
+  regulation:
+    max_retries: 3
+    ban_time: 5m
+    find_time: 2m
+
+  server:
+    endpoints:
+      automatic_authz_implementations:
+        - ForwardAuth
+
+secret:
+  existingSecret: ''
+  additionalSecrets:
+    lldap-secrets: { }
+    authelia-db-password: { }
+    dragonfly-password: { }

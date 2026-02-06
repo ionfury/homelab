@@ -1,0 +1,119 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s/helm-charts/tree/main/charts/other/app-template
+controllers:
+  lldap:
+    type: deployment
+    replicas: 1
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    initContainers:
+      db-url:
+        image:
+          repository: busybox
+          tag: latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            PASSWORD=$(cat /secrets/db/password)
+            echo "postgres://lldap_user:${PASSWORD}@platform-pooler-rw.database.svc.cluster.local:5432/lldap" > /config/database-url
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/lldap/lldap
+          tag: "${lldap_version:-v0.6.2}"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            export LLDAP_DATABASE_URL=$(cat /config/database-url)
+            exec /app/lldap run
+        env:
+          TZ: UTC
+          LLDAP_LDAP_BASE_DN: "dc=homelab,dc=local"
+          LLDAP_HTTP_URL: "https://lldap.${internal_domain}"
+        envFrom:
+          - secretRef:
+              name: lldap-secrets
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 17170
+              initialDelaySeconds: 10
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 17170
+              initialDelaySeconds: 5
+              periodSeconds: 10
+
+service:
+  app:
+    controller: lldap
+    ports:
+      ldap:
+        port: 3890
+      http:
+        port: 17170
+
+persistence:
+  data:
+    enabled: true
+    type: emptyDir
+    globalMounts:
+      - path: /data
+  config:
+    enabled: true
+    type: emptyDir
+    advancedMounts:
+      lldap:
+        db-url:
+          - path: /config
+        app:
+          - path: /config
+            readOnly: true
+  db-secret:
+    enabled: true
+    type: secret
+    name: lldap-db-password
+    advancedMounts:
+      lldap:
+        db-url:
+          - path: /secrets/db
+            readOnly: true

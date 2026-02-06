@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: authelia
+  labels:
+    access.network-policy.homelab/postgres: "true"
+    access.network-policy.homelab/dragonfly: "true"

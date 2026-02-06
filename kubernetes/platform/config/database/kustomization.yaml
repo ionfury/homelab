@@ -4,6 +4,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - superuser-secret.yaml
+  - lldap-db-secret.yaml
+  - authelia-db-secret.yaml
   - cluster.yaml
+  - lldap-database.yaml
+  - authelia-database.yaml
   - pooler.yaml
   - prometheus-rules.yaml
