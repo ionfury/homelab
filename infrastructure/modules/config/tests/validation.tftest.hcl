@@ -3,6 +3,11 @@
 variables {
   name = "validation-test"
 
+  bgp = {
+    router_ip  = "192.168.10.1"
+    router_asn = 64512
+  }
+
   networking = {
     id                  = 1
     internal_tld        = "internal.test.local"
@@ -15,6 +20,7 @@ variables {
     internal_ingress_ip = "192.168.10.22"
     external_ingress_ip = "192.168.10.23"
     ip_pool_stop        = "192.168.10.29"
+    bgp_asn             = 64513
     nameservers         = ["192.168.10.1"]
     timeservers         = ["0.pool.ntp.org"]
   }
@@ -190,6 +196,7 @@ run "valid_cidr_large_subnet" {
       internal_ingress_ip = "10.0.0.102"
       external_ingress_ip = "10.0.0.103"
       ip_pool_stop        = "10.0.0.200"
+      bgp_asn             = 64513
       nameservers         = ["8.8.8.8"]
       timeservers         = ["time.google.com"]
     }
@@ -217,6 +224,7 @@ run "valid_cidr_small_subnet" {
       internal_ingress_ip = "192.168.100.3"
       external_ingress_ip = "192.168.100.4"
       ip_pool_stop        = "192.168.100.14"
+      bgp_asn             = 64513
       nameservers         = ["192.168.100.1"]
       timeservers         = ["pool.ntp.org"]
     }
@@ -245,6 +253,7 @@ run "valid_domain_simple" {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
+      bgp_asn             = 64513
       nameservers         = ["192.168.10.1"]
       timeservers         = ["0.pool.ntp.org"]
     }
@@ -272,6 +281,7 @@ run "valid_domain_subdomain" {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
+      bgp_asn             = 64513
       nameservers         = ["192.168.10.1"]
       timeservers         = ["0.pool.ntp.org"]
     }
@@ -300,6 +310,7 @@ run "valid_nameservers_multiple" {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
+      bgp_asn             = 64513
       nameservers         = ["8.8.8.8", "8.8.4.4", "1.1.1.1"]
       timeservers         = ["0.pool.ntp.org"]
     }
@@ -328,6 +339,7 @@ run "valid_timeservers_multiple" {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
+      bgp_asn             = 64513
       nameservers         = ["192.168.10.1"]
       timeservers         = ["0.pool.ntp.org", "1.pool.ntp.org", "time.google.com", "time.cloudflare.com"]
     }

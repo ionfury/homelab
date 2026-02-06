@@ -7,7 +7,7 @@ bandwidthManager:
   bbr: true
   enabled: true
 bgpControlPlane:
-  enabled: false
+  enabled: true
 ipam:
   mode: kubernetes
 cgroup:
@@ -37,6 +37,7 @@ hubble:
     enabled: true
   ui:
     enabled: true
+# L2 announcements kept active during BGP migration for rollback capability
 l2announcements:
   enabled: true
 loadBalancer:

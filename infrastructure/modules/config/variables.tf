@@ -25,6 +25,24 @@ variable "storage_provisioning" {
   }
 }
 
+variable "bgp" {
+  description = "Global BGP configuration for the upstream router."
+  type = object({
+    router_ip  = string
+    router_asn = number
+  })
+
+  validation {
+    condition     = can(regex("^((25[0-5]|(2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9]))\\.){3}(25[0-5]|(2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9]))$", var.bgp.router_ip))
+    error_message = "bgp.router_ip must be a valid IP address."
+  }
+
+  validation {
+    condition     = var.bgp.router_asn >= 64512 && var.bgp.router_asn <= 65534
+    error_message = "bgp.router_asn must be a private ASN (64512-65534)."
+  }
+}
+
 variable "networking" {
   description = "Networking configuration for the cluster."
   type = object({
@@ -39,6 +57,7 @@ variable "networking" {
     internal_ingress_ip = string
     external_ingress_ip = string
     ip_pool_stop        = string
+    bgp_asn             = number
     nameservers         = list(string)
     timeservers         = list(string)
   })
@@ -79,6 +98,11 @@ variable "networking" {
       can(regex("^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$", var.networking.internal_tld)),
       can(regex("^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$", var.networking.external_tld)),
     ])
+  }
+
+  validation {
+    error_message = "bgp_asn must be a private ASN (64512-65534)."
+    condition     = var.networking.bgp_asn >= 64512 && var.networking.bgp_asn <= 65534
   }
 }
 

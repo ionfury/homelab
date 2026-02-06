@@ -11,6 +11,12 @@ locals {
   nameservers = ["192.168.10.1"]
   timeservers = ["0.pool.ntp.org", "1.pool.ntp.org"]
 
+  # BGP configuration for LoadBalancer IP advertisement
+  bgp = {
+    router_ip  = "192.168.10.1" # UniFi gateway (BGP peer)
+    router_asn = 64512          # Private ASN for UniFi router
+  }
+
   clusters = {
     live = {
       id           = 1
@@ -25,6 +31,7 @@ locals {
       internal_ingress_ip = "192.168.10.22"
       external_ingress_ip = "192.168.10.23"
       ip_pool_stop        = "192.168.10.29"
+      bgp_asn             = 64513
 
       nameservers = local.nameservers
       timeservers = local.timeservers
@@ -42,6 +49,7 @@ locals {
       internal_ingress_ip = "192.168.10.32"
       external_ingress_ip = "192.168.10.33"
       ip_pool_stop        = "192.168.10.39"
+      bgp_asn             = 64514
 
       nameservers = local.nameservers
       timeservers = local.timeservers
@@ -59,6 +67,7 @@ locals {
       internal_ingress_ip = "192.168.10.42"
       external_ingress_ip = "192.168.10.43"
       ip_pool_stop        = "192.168.10.49"
+      bgp_asn             = 64516
 
       nameservers = local.nameservers
       timeservers = local.timeservers
@@ -76,6 +85,7 @@ locals {
       internal_ingress_ip = "192.168.10.52"
       external_ingress_ip = "192.168.10.53"
       ip_pool_stop        = "192.168.10.59"
+      bgp_asn             = 64515
 
       nameservers = local.nameservers
       timeservers = local.timeservers

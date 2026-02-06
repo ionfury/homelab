@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgpclusterconfig_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: bgp-policy
+spec:
+  # Select all Linux nodes as potential BGP speakers
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  bgpInstances:
+    - name: instance-1
+      localASN: ${bgp_cluster_asn}
+      peers:
+        - name: unifi-router
+          peerASN: ${bgp_router_asn}
+          peerAddress: ${bgp_router_ip}
+          peerConfigRef:
+            name: unifi-router
