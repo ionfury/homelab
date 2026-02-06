@@ -6,7 +6,7 @@ metadata:
   name: immich-database
 spec:
   description: "Immich PostgreSQL with vectorchord for AI vector search"
-  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.7-1.0.0
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:${vectorchord_version:-17.7-1.0.0}
   instances: ${default_replica_count}
   primaryUpdateStrategy: unsupervised
 

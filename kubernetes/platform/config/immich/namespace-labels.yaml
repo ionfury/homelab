@@ -5,3 +5,4 @@ metadata:
   name: immich
   labels:
     access.network-policy.homelab/postgres: "true"
+    access.network-policy.homelab/dragonfly: "true"

@@ -5,6 +5,7 @@ resources:
   - namespace-labels.yaml
   - library-pvc.yaml
   - database-secret-replication.yaml
+  - dragonfly-secret-replication.yaml
   - external-route.yaml
   - internal-route.yaml
   - canary.yaml

@@ -4,7 +4,7 @@ controllers:
     containers:
       main:
         image:
-          tag: v2.0.0
+          tag: "${immich_app_version:-v2.0.0}"
         env:
           DB_HOSTNAME: immich-database-rw.database.svc.cluster.local
           DB_PORT: "5432"
@@ -19,8 +19,13 @@ controllers:
               secretKeyRef:
                 name: cnpg-immich-database-app
                 key: password
-          REDIS_HOSTNAME: dragonfly.dragonfly.svc.cluster.local
+          REDIS_HOSTNAME: platform.database.svc.cluster.local
           REDIS_PORT: "6379"
+          REDIS_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: dragonfly-password
+                key: password
         resources:
           requests:
             cpu: 100m
@@ -54,7 +59,7 @@ server:
               cpu: 100m
               memory: 512Mi
             limits:
-              memory: 2Gi
+              memory: 4Gi
 
 machine-learning:
   enabled: true
