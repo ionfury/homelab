@@ -14,7 +14,14 @@ spec:
       kind: Kustomization
       name: platform
       namespace: flux-system
-  inputs: []
+  inputs:
+    - name: zipline
+      namespace: zipline
+      chart:
+        name: app-template
+        version: "${app_template_version:-3.7.3}"
+        url: oci://ghcr.io/bjw-s/helm
+      dependsOn: [cloudnative-pg]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
