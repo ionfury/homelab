@@ -4,6 +4,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: immich-database
+  namespace: database
 spec:
   description: "Immich PostgreSQL with vectorchord for AI vector search"
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:${vectorchord_version:-17.7-1.0.0}

@@ -196,13 +196,6 @@ spec:
         version: "${silence_operator_version:-0.20.0}"
         url: oci://gsoci.azurecr.io/charts/giantswarm
       dependsOn: [kube-prometheus-stack]
-    - name: immich
-      namespace: immich
-      chart:
-        name: immich
-        version: "${immich_version:-0.10.3}"
-        url: "https://immich-app.github.io/immich-charts"
-      dependsOn: [cilium, longhorn, cloudnative-pg]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
