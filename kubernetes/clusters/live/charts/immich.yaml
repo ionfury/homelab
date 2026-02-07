@@ -3,8 +3,6 @@ controllers:
   main:
     containers:
       main:
-        image:
-          tag: "${immich_app_version}"
         env:
           DB_HOSTNAME: immich-database-rw.database.svc.cluster.local
           DB_PORT: "5432"
