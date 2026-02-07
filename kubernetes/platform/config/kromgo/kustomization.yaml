@@ -7,4 +7,3 @@ resources:
   - internal-route.yaml
   - external-route.yaml
   - external-canary.yaml
-  - network-policy.yaml

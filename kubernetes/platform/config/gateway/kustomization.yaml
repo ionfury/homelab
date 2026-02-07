@@ -9,4 +9,3 @@ resources:
   - coraza-wasm-plugin.yaml
   - coraza-config.yaml
   - coraza-waf-rules.yaml
-  - network-policy.yaml

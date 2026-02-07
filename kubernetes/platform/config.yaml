@@ -67,7 +67,7 @@ spec:
       path: kubernetes/platform/config/tuppr
       dependsOn: [tuppr]
     - name: network-policy-config
-      namespace: kube-system
+      namespace: ""
       path: kubernetes/platform/config/network-policy
       dependsOn: [cilium]
     - name: infrastructure-policies-config
