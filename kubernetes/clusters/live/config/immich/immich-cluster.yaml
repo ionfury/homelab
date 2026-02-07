@@ -6,6 +6,10 @@ metadata:
   name: immich-database
   namespace: database
 spec:
+  inheritedMetadata:
+    annotations:
+      replicator.v1.mittwald.de/replication-allowed: "true"
+      replicator.v1.mittwald.de/replication-allowed-namespaces: "immich"
   description: "Immich PostgreSQL with vectorchord for AI vector search"
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:${vectorchord_version:-17.7-1.0.0}
   instances: ${default_replica_count}
