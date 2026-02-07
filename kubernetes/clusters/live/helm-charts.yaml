@@ -1,110 +1,24 @@
 ---
-apiVersion: fluxcd.controlplane.io/v1
-kind: ResourceSet
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
 metadata:
   name: cluster-resources
   namespace: flux-system
-  annotations:
-    fluxcd.controlplane.io/reconcile: "enabled"
-    fluxcd.controlplane.io/reconcileEvery: "30m"
-    fluxcd.controlplane.io/reconcileTimeout: "10m"
 spec:
   dependsOn:
-    - apiVersion: kustomize.toolkit.fluxcd.io/v1
-      kind: Kustomization
-      name: platform
-      namespace: flux-system
-  inputs:
-    - name: zipline
-      namespace: zipline
-      chart:
-        name: app-template
-        version: "${app_template_version:-3.7.3}"
-        url: oci://ghcr.io/bjw-s/helm
-      dependsOn: [cloudnative-pg]
-    - name: immich
-      namespace: immich
-      chart:
-        name: immich
-        version: "${immich_version:-0.10.3}"
-        url: "https://immich-app.github.io/immich-charts"
-      dependsOn: [cloudnative-pg]
-  resourcesTemplate: |
-    ---
-    apiVersion: source.toolkit.fluxcd.io/v1
-    kind: HelmRepository
-    metadata:
-      name: << inputs.name >>
-      namespace: << inputs.provider.namespace >>
-    spec:
-      interval: 10m
-      <<- if hasPrefix "oci://" inputs.chart.url >>
-      type: oci
-      <<- end >>
-      url: << inputs.chart.url >>
-    ---
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: << inputs.name >>
-      namespace: << inputs.provider.namespace >>
-    spec:
-      <<- if inputs.dependsOn >>
-      dependsOn:
-      <<- range $dep := inputs.dependsOn >>
-        - name: << $dep >>
-      <<- end >>
-      <<- end >>
-      chart:
-        spec:
-          chart: << inputs.chart.name >>
-          version: << inputs.chart.version >>
-          interval: 10m
-          sourceRef:
-            kind: HelmRepository
-            name: << inputs.name >>
-      install:
-        createNamespace: false
-        remediation:
-          retries: 3
-        timeout: 10m
-      interval: 10m
-      maxHistory: 3
-      releaseName: << inputs.name >>
-      targetNamespace: << inputs.namespace >>
-      uninstall:
-        keepHistory: false
-      upgrade:
-        crds: CreateReplace
-        remediation:
-          retries: 3
-        timeout: 10m
-      valuesFrom:
-        - kind: ConfigMap
-          name: cluster-values
-          valuesKey: << inputs.name >>.yaml
-    ---
-    # Wrapper Kustomization enables config Kustomizations to dependsOn this HelmRelease
-    apiVersion: kustomize.toolkit.fluxcd.io/v1
-    kind: Kustomization
-    metadata:
-      name: << inputs.name >>
-      namespace: << inputs.provider.namespace >>
-    spec:
-      <<- if inputs.dependsOn >>
-      dependsOn:
-      <<- range $dep := inputs.dependsOn >>
-        - name: << $dep >>
-      <<- end >>
-      <<- end >>
-      interval: 10m
-      path: kubernetes/clusters/live/stubs/empty
-      prune: false
-      sourceRef:
-        kind: OCIRepository
-        name: flux-system
-      healthChecks:
-        - apiVersion: helm.toolkit.fluxcd.io/v2
-          kind: HelmRelease
-          name: << inputs.name >>
-          namespace: << inputs.provider.namespace >>
+    - name: platform
+  interval: 10m
+  path: kubernetes/clusters/live/resourcesets
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-vars
+        optional: false
+      - kind: ConfigMap
+        name: platform-versions
+        optional: false
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: flux-system
+    namespace: flux-system

@@ -5,5 +5,4 @@ kind: Kustomization
 resources:
   - password-secret.yaml
   - dragonfly-instance.yaml
-  - network-policy.yaml
   - prometheus-rules.yaml

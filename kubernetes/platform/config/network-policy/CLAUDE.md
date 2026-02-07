@@ -50,12 +50,14 @@ network-policy/
 │   ├── profile-internal-egress.yaml  # Internal gateway + HTTPS egress
 │   └── profile-standard.yaml      # Both gateways + HTTPS egress
 ├── platform/            # Hand-crafted CNPs for platform namespaces
-│   ├── kube-system.yaml
-│   ├── monitoring.yaml
-│   ├── database.yaml
-│   ├── istio-system.yaml
-│   ├── istio-gateway.yaml
-│   └── ... (other platform namespaces)
+│   ├── database.yaml              # CloudNative-PG operator + clusters
+│   ├── database-dragonfly.yaml    # Dragonfly (Redis) instances
+│   ├── garage.yaml                # Garage S3 storage
+│   ├── istio-gateway.yaml         # Istio ingress gateways
+│   ├── kromgo.yaml                # Kromgo status badges
+│   ├── longhorn-system.yaml       # Longhorn storage
+│   ├── monitoring.yaml            # Prometheus, Grafana, Alertmanager, Loki
+│   └── system-upgrade.yaml        # Tuppr upgrade controller
 ├── shared-resources/    # Opt-in access to shared services
 │   ├── access-postgres.yaml       # Database access
 │   └── access-garage-s3.yaml      # Object storage access

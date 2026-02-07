@@ -17,4 +17,3 @@ resources:
   - storage-classes/slow-critical.yaml
   - storage-classes/slow.yaml
   - storage-classes/slow-unmanaged.yaml
-  - network-policy.yaml
