@@ -65,6 +65,9 @@ prometheus:
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
 rollOutCiliumPods: true
+# Return ICMP "Destination Unreachable" instead of silently dropping denied traffic.
+# Provides faster client-side failure detection with our implicit default-deny model.
+policyDenyResponse: icmp
 routingMode: native
 securityContext:
   capabilities:
