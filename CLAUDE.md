@@ -80,6 +80,19 @@ The main Claude agent operates as an **orchestrator**, not a direct executor. Th
 - **Clarify proactively**: Use AskUserQuestion liberally to validate assumptions, confirm approaches, and gather requirements before proceeding
 - **Parallel execution**: Launch multiple sub-agents simultaneously when tasks are independent
 
+**Worktree-First Development**: All code changes must happen in a git worktree, not the main checkout. This enables parallel agent work without branch conflicts or index lock contention:
+
+```bash
+task wt:new -- <branch-name>    # Creates worktree at ../homelab-<branch-name> off main
+```
+
+- **Why worktrees?** Multiple agents can work on separate branches simultaneously — each worktree has its own working directory, index, and HEAD
+- **Always branch off main**: Worktrees created by `task wt:new` automatically base on the current HEAD (ensure main is up to date)
+- **Path convention**: Worktrees live at `../homelab-<branch-name>` (sibling to the main checkout)
+- **Cleanup**: `task wt:remove -- <branch-name>` after PR is merged
+
+If the agent is already running inside a worktree (e.g. spawned by `task wt:new`), it should work directly — no need to create a nested worktree.
+
 **When to delegate vs execute directly:**
 
 | Delegate to Sub-Agent | Execute Directly |
@@ -182,7 +195,8 @@ Every process, validation step, and architectural decision exists to protect pro
 
 ## Branch-Based Development
 
-All changes flow through pull requests:
+All changes flow through pull requests using **worktree-based isolation**:
+- **Worktree by default**: All work happens in a dedicated worktree, not the main checkout — this prevents conflicts when multiple agents work in parallel (see Agent Orchestration above)
 - **All changes require PRs**: Direct commits to `main` are forbidden (branch protection enforced)
 - **Validation gates**: PRs must pass all validation checks before merge
 - **Review required**: No self-merging - changes require approval
@@ -280,7 +294,8 @@ For dev cluster permissions, pre-flight checks, and safety procedures, see [.tas
 - **NEVER** use `git reset --hard` to undo commits after pushing
 - **NEVER** use `git push --force` or `git push --force-with-lease` - always create new commits to fix mistakes
 - **NEVER** commit to `main` when creating a PR - always create the branch first, then commit
-- **Correct PR workflow**: `git checkout -b <branch>` → make changes → `git commit` → `git push -u origin <branch>` → `gh pr create`
+- **NEVER** make changes directly in the main checkout when other agents may be working in parallel - use a worktree
+- **Correct PR workflow**: `task wt:new -- <branch>` → make changes in worktree → `git commit` → `git push -u origin <branch>` → `gh pr create` → `task wt:remove -- <branch>` (after merge)
 
 ## Kubernetes Safety
 
