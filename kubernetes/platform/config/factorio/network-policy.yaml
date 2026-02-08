@@ -1,0 +1,22 @@
+---
+# Custom CiliumNetworkPolicy overlay for Factorio game server.
+# The namespace uses the "isolated" profile (DNS egress + Prometheus ingress),
+# and this CNP adds the UDP game port ingress that profiles don't cover.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: factorio-game-server
+  namespace: factorio
+spec:
+  description: >-
+    Allow UDP game traffic on port 34197 from any source (internet-accessible).
+    Combined with the isolated profile baseline for DNS egress and Prometheus scraping.
+  endpointSelector: { }
+  ingress:
+    # Game server UDP traffic from any source
+    - fromEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "34197"
+              protocol: UDP

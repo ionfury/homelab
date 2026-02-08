@@ -74,6 +74,10 @@ spec:
       namespace: ""
       path: kubernetes/platform/config/infrastructure-policies
       dependsOn: [cilium]
+    - name: factorio-config
+      namespace: factorio
+      path: kubernetes/platform/config/factorio
+      dependsOn: [cilium, secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

@@ -38,3 +38,4 @@ configMapGenerator:
       - silence-operator.yaml=charts/silence-operator.yaml
       - spegel.yaml=charts/spegel.yaml
       - tuppr.yaml=charts/tuppr.yaml
+      - factorio.yaml=charts/factorio.yaml

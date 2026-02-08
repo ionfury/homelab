@@ -1,0 +1,75 @@
+---
+replicaCount: 1
+
+strategy:
+  type: Recreate
+
+image:
+  repository: factoriotools/factorio
+  tag: stable
+  pullPolicy: IfNotPresent
+
+securityContext:
+  fsGroup: 845
+
+podSecurityContext:
+  runAsUser: 845
+  runAsGroup: 845
+
+service:
+  type: LoadBalancer
+  port: 34197
+  annotations:
+    lbipam.cilium.io/sharing-key: factorio
+
+hostNetworkEnabled: false
+
+persistence:
+  enabled: true
+  dataDir:
+    Size: 10Gi
+    storageClassName: longhorn
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    memory: 2Gi
+
+factorioServer:
+  save_name: homelab-server
+  generate_new_save: true
+  load_latest_save: true
+  enable_space_age: true
+  port: 34197
+  rcon_port: 27015
+
+server_settings:
+  name: Homelab Factorio
+  description: Factorio 2.0 on Kubernetes
+  max_players: 0
+  visibility:
+    public: false
+    lan: true
+  require_user_verification: false
+  allow_commands: admins-only
+  autosave_interval: 5
+  autosave_slots: 10
+  auto_pause: true
+  max_heartbeats_per_second: 60
+
+rcon:
+  external: false
+  password: ""
+  passwordSecret: factorio-rcon-secret
+  port: 27015
+
+mods:
+  enabled: false
+
+import_save:
+  enabled: false
+
+port_fixer:
+  enabled: false

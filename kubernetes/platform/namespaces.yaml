@@ -61,6 +61,12 @@ spec:
       dataplane: ambient
       security: privileged
       networkPolicy: false
+    - name: factorio
+      dataplane: ambient
+      security: baseline
+      networkPolicy:
+        profile: isolated
+        enforcement: ""
   resourcesTemplate: |
     ---
     apiVersion: v1

@@ -196,6 +196,13 @@ spec:
         version: "${silence_operator_version}"
         url: oci://gsoci.azurecr.io/charts/giantswarm
       dependsOn: [kube-prometheus-stack]
+    - name: factorio
+      namespace: factorio
+      chart:
+        name: factorio-server-charts
+        version: "${factorio_version}"
+        url: https://sqljames.github.io/factorio-server-charts
+      dependsOn: [cilium, longhorn]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

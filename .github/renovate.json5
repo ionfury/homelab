@@ -291,6 +291,15 @@
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "https://immich-app.github.io/immich-charts"
     },
+    // factorio-server-charts (HTTP Helm chart)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["factorio_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "factorio-server-charts",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://sqljames.github.io/factorio-server-charts"
+    },
     // vectorchord (CNPG image for Immich)
     {
       "customType": "regex",
