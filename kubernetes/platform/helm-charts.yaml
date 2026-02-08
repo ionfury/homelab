@@ -200,21 +200,21 @@ spec:
       namespace: monitoring
       chart:
         name: prometheus-snmp-exporter
-        version: "${prometheus_snmp_exporter_version:-9.11.1}"
+        version: "${prometheus_snmp_exporter_version}"
         url: https://prometheus-community.github.io/helm-charts
       dependsOn: [kube-prometheus-stack]
     - name: prometheus-ipmi-exporter
       namespace: monitoring
       chart:
         name: prometheus-ipmi-exporter
-        version: "${prometheus_ipmi_exporter_version:-0.8.0}"
+        version: "${prometheus_ipmi_exporter_version}"
         url: https://prometheus-community.github.io/helm-charts
       dependsOn: [kube-prometheus-stack]
     - name: prometheus-smartctl-exporter
       namespace: monitoring
       chart:
         name: prometheus-smartctl-exporter
-        version: "${prometheus_smartctl_exporter_version:-0.16.0}"
+        version: "${prometheus_smartctl_exporter_version}"
         url: https://prometheus-community.github.io/helm-charts
       dependsOn: [kube-prometheus-stack]
   resourcesTemplate: |

@@ -6,5 +6,6 @@ extraSecretMounts:
   - name: snmp-community
     mountPath: /etc/snmp-secrets
     secretName: hardware-monitoring-credentials
+    subPath: ""
     readOnly: true
     defaultMode: 0400
