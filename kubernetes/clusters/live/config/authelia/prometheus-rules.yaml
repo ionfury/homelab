@@ -1,0 +1,40 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: authelia-alerts
+  namespace: authelia
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: authelia.rules
+      rules:
+        - alert: AutheliaDown
+          expr: up{job="authelia-metrics"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Authelia authentication portal is unreachable"
+
+        - alert: AutheliaHighAuthFailureRate
+          expr: |
+            (
+              rate(authelia_authn_1fa_total{success="false"}[5m])
+              / on() rate(authelia_authn_1fa_total[5m])
+            ) > 0.3
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Authelia authentication failure rate > 30%"
+
+        - alert: AutheliaHighLatency
+          expr: histogram_quantile(0.99, rate(authelia_request_duration_seconds_bucket[5m])) > 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Authelia p99 request latency > 2s"

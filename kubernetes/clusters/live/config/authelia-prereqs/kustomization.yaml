@@ -3,6 +3,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - zipline
-  - immich
-  # authelia-prereqs and authelia are managed by their own Flux Kustomizations in config.yaml
+  - namespace.yaml
+  - lldap-secrets.yaml
+  - oidc-certificate.yaml
+  - cnpg-superuser-replica.yaml
+  - dragonfly-secret-replication.yaml

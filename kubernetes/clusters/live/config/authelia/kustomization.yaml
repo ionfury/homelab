@@ -3,6 +3,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - zipline
-  - immich
-  # authelia-prereqs and authelia are managed by their own Flux Kustomizations in config.yaml
+  - internal-route.yaml
+  - external-route.yaml
+  - lldap-route.yaml
+  - network-policy.yaml
+  - authelia-canary.yaml
+  - prometheus-rules.yaml

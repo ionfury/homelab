@@ -299,6 +299,24 @@
       "depNameTemplate": "cloudnative-vectorchord",
       "datasourceTemplate": "docker",
       "packageNameTemplate": "ghcr.io/tensorchord/cloudnative-vectorchord"
+    },
+    // authelia (Helm chart from charts.authelia.com)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["authelia_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "authelia",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://charts.authelia.com"
+    },
+    // lldap (Docker image, v-prefixed)
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["lldap_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "lldap",
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/lldap/lldap"
     }
   ],
   "ignorePaths": [
@@ -347,6 +365,11 @@
       // Mittwald utilities (replicator, secret-generator)
       "matchDepNames": ["kubernetes-replicator", "kubernetes-secret-generator"],
       "groupName": "mittwald utilities"
+    },
+    {
+      // Authelia stack (authentication)
+      "matchDepNames": ["authelia", "lldap"],
+      "groupName": "authelia stack"
     }
   ]
 }
