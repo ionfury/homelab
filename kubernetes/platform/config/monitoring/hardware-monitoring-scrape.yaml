@@ -1,0 +1,47 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: snmp-exporter-targets
+  labels:
+    release: kube-prometheus-stack
+spec:
+  metricsPath: /snmp
+  params:
+    module: ["if_mib"]
+    auth: ["public_v2"]
+  staticConfigs:
+    - targets: ${ipmi_target_hostnames}
+  relabelings:
+    - sourceLabels: [__address__]
+      targetLabel: __param_target
+    - sourceLabels: [__param_target]
+      targetLabel: instance
+    - targetLabel: __address__
+      replacement: prometheus-snmp-exporter.monitoring.svc:9116
+  scrapeInterval: 120s
+  scrapeTimeout: 30s
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: ipmi-exporter-targets
+  labels:
+    release: kube-prometheus-stack
+spec:
+  metricsPath: /ipmi
+  params:
+    module: ["default"]
+  staticConfigs:
+    - targets: ${ipmi_target_hostnames}
+  relabelings:
+    - sourceLabels: [__address__]
+      targetLabel: __param_target
+    - sourceLabels: [__param_target]
+      targetLabel: instance
+    - targetLabel: __address__
+      replacement: prometheus-ipmi-exporter.monitoring.svc:9290
+  scrapeInterval: 60s
+  scrapeTimeout: 30s

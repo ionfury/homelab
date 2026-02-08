@@ -282,6 +282,33 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "gsoci.azurecr.io/charts/giantswarm/silence-operator"
     },
+    // prometheus-snmp-exporter
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["prometheus_snmp_exporter_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "prometheus-snmp-exporter",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://prometheus-community.github.io/helm-charts"
+    },
+    // prometheus-ipmi-exporter
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["prometheus_ipmi_exporter_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "prometheus-ipmi-exporter",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://prometheus-community.github.io/helm-charts"
+    },
+    // prometheus-smartctl-exporter
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "matchStrings": ["prometheus_smartctl_exporter_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
+      "depNameTemplate": "prometheus-smartctl-exporter",
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "https://prometheus-community.github.io/helm-charts"
+    },
     // immich (HTTP Helm chart)
     {
       "customType": "regex",
@@ -370,6 +397,11 @@
       // Authelia stack (authentication)
       "matchDepNames": ["authelia", "lldap"],
       "groupName": "authelia stack"
+    },
+    {
+      // Hardware monitoring exporters
+      "matchDepNames": ["prometheus-snmp-exporter", "prometheus-ipmi-exporter", "prometheus-smartctl-exporter"],
+      "groupName": "hardware monitoring exporters"
     }
   ]
 }
