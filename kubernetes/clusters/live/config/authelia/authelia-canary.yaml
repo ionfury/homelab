@@ -3,7 +3,8 @@
 apiVersion: canaries.flanksource.com/v1
 kind: Canary
 metadata:
-  name: http-check-authelia-internal
+  name: http-check-authelia
+  namespace: authelia
 spec:
   schedule: "@every 1m"
   http:

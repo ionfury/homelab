@@ -22,3 +22,54 @@ spec:
     kind: OCIRepository
     name: flux-system
     namespace: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: authelia-prereqs
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: platform
+  interval: 10m
+  path: kubernetes/clusters/live/config/authelia-prereqs
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-vars
+        optional: false
+      - kind: ConfigMap
+        name: platform-versions
+        optional: true
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: flux-system
+    namespace: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: authelia-config
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: authelia
+    - name: lldap
+    - name: canary-checker
+    - name: kube-prometheus-stack
+  interval: 10m
+  path: kubernetes/clusters/live/config/authelia
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-vars
+        optional: false
+      - kind: ConfigMap
+        name: platform-versions
+        optional: true
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: flux-system
+    namespace: flux-system

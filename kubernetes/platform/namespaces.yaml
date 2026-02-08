@@ -61,10 +61,6 @@ spec:
       dataplane: ambient
       security: privileged
       networkPolicy: false
-    - name: authelia
-      dataplane: ambient
-      security: restricted
-      networkPolicy: false
   resourcesTemplate: |
     ---
     apiVersion: v1

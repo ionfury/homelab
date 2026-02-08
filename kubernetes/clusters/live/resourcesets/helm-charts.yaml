@@ -29,6 +29,20 @@ spec:
         version: "${immich_version}"
         url: "https://immich-app.github.io/immich-charts"
       dependsOn: [cloudnative-pg]
+    - name: lldap
+      namespace: authelia
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s/helm
+      dependsOn: [cloudnative-pg, secret-generator, authelia-prereqs]
+    - name: authelia
+      namespace: authelia
+      chart:
+        name: authelia
+        version: "${authelia_version}"
+        url: https://charts.authelia.com
+      dependsOn: [cloudnative-pg, secret-generator, lldap, authelia-prereqs]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

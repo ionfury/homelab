@@ -14,6 +14,33 @@ pod:
     - name: oidc-jwk
       secret:
         secretName: authelia-oidc-jwk
+  extraInitContainers:
+    - name: init-db
+      image: ghcr.io/home-operations/postgres-init:18
+      env:
+        - name: INIT_POSTGRES_HOST
+          value: platform-rw.database.svc.cluster.local
+        - name: INIT_POSTGRES_SUPER_USER
+          value: postgres
+        - name: INIT_POSTGRES_SUPER_PASS
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-superuser-replica
+              key: password
+        - name: INIT_POSTGRES_USER
+          value: postgres
+        - name: INIT_POSTGRES_PASS
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-superuser-replica
+              key: password
+        - name: INIT_POSTGRES_DBNAME
+          value: authelia
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
 
 configMap:
   theme: dark
@@ -78,9 +105,9 @@ configMap:
       enabled: true
       address: tcp://platform-pooler-rw.database.svc.cluster.local:5432
       database: authelia
-      username: authelia_user
+      username: postgres
       password:
-        secret_name: authelia-db-password
+        secret_name: cnpg-superuser-replica
         path: password
 
   notifier:
@@ -124,5 +151,5 @@ secret:
   existingSecret: ''
   additionalSecrets:
     lldap-secrets: { }
-    authelia-db-password: { }
+    cnpg-superuser-replica: { }
     dragonfly-password: { }

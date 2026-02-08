@@ -196,20 +196,6 @@ spec:
         version: "${silence_operator_version}"
         url: oci://gsoci.azurecr.io/charts/giantswarm
       dependsOn: [kube-prometheus-stack]
-    - name: lldap
-      namespace: authelia
-      chart:
-        name: app-template
-        version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s/helm
-      dependsOn: [cilium, cloudnative-pg, secret-generator, authelia-prereqs]
-    - name: authelia
-      namespace: authelia
-      chart:
-        name: authelia
-        version: "${authelia_version}"
-        url: https://charts.authelia.com
-      dependsOn: [cilium, cloudnative-pg, secret-generator, lldap, authelia-prereqs]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

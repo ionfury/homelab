@@ -41,16 +41,3 @@ spec:
   affinity:
     enablePodAntiAffinity: true
     topologyKey: kubernetes.io/hostname
-
-  managed:
-    roles:
-      - name: lldap_user
-        ensure: present
-        login: true
-        passwordSecret:
-          name: lldap-db-password
-      - name: authelia_user
-        ensure: present
-        login: true
-        passwordSecret:
-          name: authelia-db-password

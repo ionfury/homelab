@@ -18,6 +18,30 @@ controllers:
           type: RuntimeDefault
 
     initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        env:
+          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
+          INIT_POSTGRES_SUPER_USER: postgres
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_USER: postgres
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_DBNAME: lldap
       db-url:
         image:
           repository: busybox
@@ -27,7 +51,7 @@ controllers:
           - -c
           - |
             PASSWORD=$(cat /secrets/db/password)
-            echo "postgres://lldap_user:${PASSWORD}@platform-pooler-rw.database.svc.cluster.local:5432/lldap" > /config/database-url
+            echo "postgres://postgres:${PASSWORD}@platform-pooler-rw.database.svc.cluster.local:5432/lldap" > /config/database-url
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -38,7 +62,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/lldap/lldap
-          tag: "${lldap_version:-v0.6.2}"
+          tag: "${lldap_version}"
         command:
           - /bin/sh
           - -c
@@ -111,7 +135,7 @@ persistence:
   db-secret:
     enabled: true
     type: secret
-    name: lldap-db-password
+    name: cnpg-superuser-replica
     advancedMounts:
       lldap:
         db-url:
