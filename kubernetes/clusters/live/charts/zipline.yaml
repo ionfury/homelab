@@ -4,7 +4,7 @@
 controllers:
   zipline:
     type: deployment
-    replicas: 1
+    replicas: 2
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -36,11 +36,11 @@ controllers:
               secretKeyRef:
                 name: cnpg-superuser-replica
                 key: password
-          INIT_POSTGRES_USER: postgres
+          INIT_POSTGRES_USER: zipline
           INIT_POSTGRES_PASS:
             valueFrom:
               secretKeyRef:
-                name: cnpg-superuser-replica
+                name: zipline-db-credentials
                 key: password
           INIT_POSTGRES_DBNAME: zipline
 
@@ -57,13 +57,13 @@ controllers:
               secretKeyRef:
                 name: zipline-secret
                 key: CORE_SECRET
-          # Database — superuser via replicated CNPG secret, $(VAR) substitution
+          # Database — dedicated app user via secret-generator, $(VAR) substitution
           POSTGRES_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: cnpg-superuser-replica
+                name: zipline-db-credentials
                 key: password
-          DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/zipline"
+          DATABASE_URL: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/zipline"
           # S3 — credentials auto-created by GarageKey operator
           DATASOURCE_TYPE: s3
           DATASOURCE_S3_REGION: garage
