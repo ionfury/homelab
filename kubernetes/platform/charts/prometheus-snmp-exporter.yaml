@@ -2,10 +2,3 @@
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-snmp-exporter
 serviceMonitor:
   enabled: false  # Using standalone ScrapeConfig for Flux variable substitution
-extraSecretMounts:
-  - name: snmp-community
-    mountPath: /etc/snmp-secrets
-    secretName: hardware-monitoring-credentials
-    subPath: ""
-    readOnly: true
-    defaultMode: 0400

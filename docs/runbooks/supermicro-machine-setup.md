@@ -68,13 +68,12 @@ This document outlines the steps to physically and logically set up a new Superm
 ### 6. Configure SNMP
 - **Task**: Enable SNMP v2c for hardware monitoring by the prometheus-snmp-exporter.
   - Navigate to `Configuration > SNMP`
-  - Enable **SNMP over LAN**.
-  - Set **SNMP Protocol**: `SNMP v2c`
-  - Set **Community String** to the value stored in AWS SSM at `/homelab/kubernetes/<cluster>/snmp-community`
+  - Check **Enable SNMP**
+  - Under SNMPV2, check **Enable**
+  - Leave **ROCommunity** as `public` (the SNMP exporter uses the default `public_v2` auth module)
   - **Save** the configuration
-  - **Note**: The community string must match across all nodes in the same cluster.
   - **Verify**: From another host on the management network, confirm SNMP is responding:
     ```bash
-    snmpwalk -v2c -c <community-string> <ipmi-ip> sysDescr
+    snmpwalk -v2c -c public <ipmi-ip> sysDescr
     ```
     Expected: A response containing the BMC firmware description (e.g., `Supermicro X12...`).
