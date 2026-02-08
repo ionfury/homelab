@@ -17,20 +17,23 @@ description: |
 
 ## Setup
 
-Loki runs in-cluster. Establish access via port-forward:
+Loki does **not** have an HTTPRoute on the internal ingress gateway, so it requires port-forward access (unlike Prometheus and Grafana which are available via DNS).
 
 ```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
+export LOKI_URL=http://localhost:3100
 ```
 
 **Clusters**: `dev`, `integration`, `live`
+
+**Why port-forward?** Loki's gateway component is disabled (`replicas: 0`) and no HTTPRoute exists for it on the internal ingress gateway. For other services that do have HTTPRoutes (Prometheus, Grafana, Alertmanager), prefer using the internal DNS URLs instead -- see the `k8s-sre` skill for the full URL table.
 
 ## Quick Queries
 
 Use the bundled script at `.claude/skills/loki/scripts/logql.sh`:
 
 ```bash
-# Set URL (default: localhost:3100)
+# Set URL (Loki requires port-forward -- no internal gateway route)
 export LOKI_URL=http://localhost:3100
 
 # Health check
