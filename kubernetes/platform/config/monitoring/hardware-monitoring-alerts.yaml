@@ -54,7 +54,7 @@ spec:
           annotations:
             summary: "Disk {{ $labels.device }} temperature high on {{ $labels.instance }}"
             description: >-
-              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
+              Drive {{ $labels.device }} on {{ $labels.instance }}
               is at {{ $value }}°C. Drives should stay below 55°C for longevity.
 
     - name: hardware-monitoring.fans
@@ -80,31 +80,31 @@ spec:
           annotations:
             summary: "SMART health check failed for {{ $labels.device }} on {{ $labels.instance }}"
             description: >-
-              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
+              Drive {{ $labels.device }} on {{ $labels.instance }}
               reports SMART health status NOT OK. Immediate replacement recommended.
               Back up data from this drive immediately.
 
-        - alert: DiskSmartMediaErrors
-          expr: smartctl_device_media_errors > 0
+        - alert: DiskSmartErrorLog
+          expr: smartctl_device_error_log_count > 0
           for: 0m
           labels:
             severity: warning
           annotations:
-            summary: "SMART media errors on {{ $labels.device }} on {{ $labels.instance }}"
+            summary: "SMART error log entries on {{ $labels.device }} on {{ $labels.instance }}"
             description: >-
-              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
-              has {{ $value }} media errors. Monitor for increasing error count.
+              Drive {{ $labels.device }} on {{ $labels.instance }}
+              has {{ $value }} SMART error log entries. Monitor for increasing error count.
 
         - alert: DiskWearLevelHigh
-          expr: smartctl_device_percentage_used > 80
+          expr: smartctl_device_attribute{attribute_name="Percent_Lifetime_Remain",attribute_value_type="value"} < 20
           for: 0m
           labels:
             severity: warning
           annotations:
-            summary: "NVMe wear level high on {{ $labels.device }} on {{ $labels.instance }}"
+            summary: "Disk wear level high on {{ $labels.device }} on {{ $labels.instance }}"
             description: >-
-              Drive {{ $labels.device }} ({{ $labels.model_name }}) on {{ $labels.instance }}
-              has consumed {{ $value }}% of its rated endurance. Plan replacement when approaching 100%.
+              Drive {{ $labels.device }} on {{ $labels.instance }}
+              has {{ $value }}% lifetime remaining (threshold: 20%). Plan replacement.
 
     - name: hardware-monitoring.power
       rules:
