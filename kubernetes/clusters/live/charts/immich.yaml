@@ -3,6 +3,8 @@ controllers:
   main:
     containers:
       main:
+        image:
+          tag: v2.5.5
         env:
           DB_HOSTNAME: immich-database-rw.database.svc.cluster.local
           DB_PORT: "5432"
@@ -17,7 +19,7 @@ controllers:
               secretKeyRef:
                 name: cnpg-immich-database-app
                 key: password
-          REDIS_HOSTNAME: platform.database.svc.cluster.local
+          REDIS_HOSTNAME: dragonfly.database.svc.cluster.local
           REDIS_PORT: "6379"
           REDIS_PASSWORD:
             valueFrom:

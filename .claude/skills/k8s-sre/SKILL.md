@@ -19,13 +19,67 @@ description: |
 **CRITICAL:** Always prefix kubectl/flux commands with inline KUBECONFIG assignment. Do NOT use `export` or `&&` - the variable must be set in the same command:
 
 ```bash
-# ✅ CORRECT - inline assignment
+# CORRECT - inline assignment
 KUBECONFIG=~/.kube/<cluster>.yaml kubectl get pods
 
-# ❌ WRONG - export with && breaks in some shell contexts
+# WRONG - export with && breaks in some shell contexts
 export KUBECONFIG=~/.kube/<cluster>.yaml && kubectl get pods
 ```
 
+## Accessing Internal Services via DNS (Preferred)
+
+Platform services are exposed through the internal ingress gateway over HTTPS. **Always use DNS-based access instead of port-forwarding** when querying Prometheus, Grafana, Alertmanager, and other internal services.
+
+| Service | Live | Integration | Dev |
+|---------|------|-------------|-----|
+| Prometheus | `https://prometheus.internal.tomnowak.work` | `https://prometheus.internal.integration.tomnowak.work` | `https://prometheus.internal.dev.tomnowak.work` |
+| Grafana | `https://grafana.internal.tomnowak.work` | `https://grafana.internal.integration.tomnowak.work` | `https://grafana.internal.dev.tomnowak.work` |
+| Alertmanager | `https://alertmanager.internal.tomnowak.work` | `https://alertmanager.internal.integration.tomnowak.work` | `https://alertmanager.internal.dev.tomnowak.work` |
+| Hubble UI | `https://hubble.internal.tomnowak.work` | `https://hubble.internal.integration.tomnowak.work` | `https://hubble.internal.dev.tomnowak.work` |
+| Longhorn UI | `https://longhorn.internal.tomnowak.work` | `https://longhorn.internal.integration.tomnowak.work` | `https://longhorn.internal.dev.tomnowak.work` |
+| Garage Admin | `https://garage.internal.tomnowak.work` | `https://garage.internal.integration.tomnowak.work` | `https://garage.internal.dev.tomnowak.work` |
+
+**Domain pattern:** `<service>.internal.<cluster-suffix>.tomnowak.work`
+- live: `internal.tomnowak.work`
+- integration: `internal.integration.tomnowak.work`
+- dev: `internal.dev.tomnowak.work`
+
+**Usage with curl (use `-k` for self-signed TLS):**
+
+```bash
+# Query Prometheus API
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=up" | jq '.data.result'
+
+# Check firing alerts
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts[] | select(.state == "firing")'
+
+# Query Alertmanager
+curl -sk "https://alertmanager.internal.tomnowak.work/api/v2/alerts" | jq .
+```
+
+**Using the helper scripts with internal DNS:**
+
+```bash
+# Prometheus (live cluster)
+export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
+.claude/skills/prometheus/scripts/promql.sh alerts --firing
+
+# Loki (no HTTPRoute - requires port-forward, see fallback below)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
+export LOKI_URL=http://localhost:3100
+.claude/skills/loki/scripts/logql.sh tail '{namespace="monitoring"}' --since 15m
+```
+
+**Note:** Loki does not have an HTTPRoute on the internal gateway. Use port-forward for Loki access.
+
+### Fallback: Port-Forward Access
+
+Use port-forwarding only when DNS-based access is unavailable (e.g., network issues, local development without VPN):
+
+```bash
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
+```
 
 # Debugging Kubernetes Incidents
 
@@ -78,8 +132,8 @@ FIX: Use properly typed variable for StorageClass parameters
 - Multiple issues share the same underlying cause
 
 ```
-❌ WRONG: "Helm timed out → increase timeout to 15m"
-✅ CORRECT: "Helm timed out → ... → Kustomization type error → fix YAML"
+BAD:  "Helm timed out → increase timeout to 15m"
+GOOD: "Helm timed out → ... → Kustomization type error → fix YAML"
 ```
 
 ## Cluster Context
@@ -120,6 +174,16 @@ kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 
 # Resource usage
 kubectl top pods -n <namespace>
+```
+
+**Metrics and alerts via internal gateway (preferred over port-forward):**
+
+```bash
+# Check firing alerts
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts[] | select(.state == "firing")'
+
+# Pod restart metrics
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=increase(kube_pod_container_status_restarts_total[1h])>0" | jq '.data.result'
 ```
 
 ### Phase 3: Correlation
@@ -313,20 +377,20 @@ Task tool:
 
 ## Common Confusions
 
-❌ Jump to logs without checking events first
-✅ Events provide context, then investigate logs
+BAD: Jump to logs without checking events first
+GOOD: Events provide context, then investigate logs
 
-❌ Look only at current pod state
-✅ Check `--previous` logs if pod restarted
+BAD: Look only at current pod state
+GOOD: Check `--previous` logs if pod restarted
 
-❌ Assume first error is root cause
-✅ Apply 5 Whys to find true root cause
+BAD: Assume first error is root cause
+GOOD: Apply 5 Whys to find true root cause
 
-❌ Investigate without confirming cluster
-✅ ALWAYS confirm cluster before any kubectl command
+BAD: Investigate without confirming cluster
+GOOD: ALWAYS confirm cluster before any kubectl command
 
-❌ Use `helm list` to check Helm release status
-✅ Use `kubectl get helmrelease -A` - Flux manages releases via CRDs, not Helm CLI
+BAD: Use `helm list` to check Helm release status
+GOOD: Use `kubectl get helmrelease -A` - Flux manages releases via CRDs, not Helm CLI
 
 ## Keywords
 

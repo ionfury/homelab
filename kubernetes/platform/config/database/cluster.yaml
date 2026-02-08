@@ -9,6 +9,7 @@ spec:
   instances: ${default_replica_count}
   primaryUpdateStrategy: unsupervised
 
+  enableSuperuserAccess: true
   superuserSecret:
     name: cnpg-platform-superuser
 
