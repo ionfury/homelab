@@ -48,7 +48,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/diced/zipline
-          tag: 4.0.3
+          tag: 4.4.1
         env:
           CORE_PORT: "3000"
           CORE_HOSTNAME: "0.0.0.0"
