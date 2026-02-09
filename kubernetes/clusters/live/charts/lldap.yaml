@@ -37,14 +37,37 @@ controllers:
               secretKeyRef:
                 name: cnpg-superuser-replica
                 key: password
-          INIT_POSTGRES_USER: postgres
+          INIT_POSTGRES_USER: lldap
           INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: lldap-db-credentials
+                key: password
+          INIT_POSTGRES_DBNAME: lldap
+      schema-grants:
+        dependsOn: init-db
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        command: ["psql"]
+        args:
+          - --host=platform-rw.database.svc.cluster.local
+          - --username=postgres
+          - --dbname=lldap
+          - --command=GRANT ALL ON SCHEMA public TO lldap; ALTER DATABASE lldap OWNER TO lldap;
+        env:
+          PGPASSWORD:
             valueFrom:
               secretKeyRef:
                 name: cnpg-superuser-replica
                 key: password
-          INIT_POSTGRES_DBNAME: lldap
       db-url:
+        dependsOn: schema-grants
         image:
           repository: busybox
           # renovate: datasource=docker depName=busybox
@@ -54,7 +77,7 @@ controllers:
           - -c
           - |
             PASSWORD=$(cat /secrets/db/password)
-            echo "postgres://postgres:${PASSWORD}@platform-pooler-rw.database.svc.cluster.local:5432/lldap" > /config/database-url
+            echo "postgres://lldap:${PASSWORD}@platform-pooler-rw.database.svc.cluster.local:5432/lldap" > /config/database-url
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -140,7 +163,7 @@ persistence:
   db-secret:
     enabled: true
     type: secret
-    name: cnpg-superuser-replica
+    name: lldap-db-credentials
     advancedMounts:
       lldap:
         db-url:

@@ -43,14 +43,35 @@ pod:
               name: cnpg-superuser-replica
               key: password
         - name: INIT_POSTGRES_USER
-          value: postgres
+          value: authelia
         - name: INIT_POSTGRES_PASS
+          valueFrom:
+            secretKeyRef:
+              name: authelia-db-credentials
+              key: password
+        - name: INIT_POSTGRES_DBNAME
+          value: authelia
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
+    - name: schema-grants
+      # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
+      image: ghcr.io/home-operations/postgres-init:18
+      command: ["psql"]
+      args:
+        - --host=platform-rw.database.svc.cluster.local
+        - --username=postgres
+        - --dbname=authelia
+        - --command=GRANT ALL ON SCHEMA public TO authelia; ALTER DATABASE authelia OWNER TO authelia;
+      env:
+        - name: PGPASSWORD
           valueFrom:
             secretKeyRef:
               name: cnpg-superuser-replica
               key: password
-        - name: INIT_POSTGRES_DBNAME
-          value: authelia
       securityContext:
         runAsNonRoot: true
         allowPrivilegeEscalation: false
@@ -121,9 +142,9 @@ configMap:
       enabled: true
       address: tcp://platform-pooler-rw.database.svc.cluster.local:5432
       database: authelia
-      username: postgres
+      username: authelia
       password:
-        secret_name: cnpg-superuser-replica
+        secret_name: authelia-db-credentials
         path: password
 
   notifier:
@@ -168,4 +189,5 @@ secret:
   additionalSecrets:
     lldap-secrets: { }
     cnpg-superuser-replica: { }
+    authelia-db-credentials: { }
     dragonfly-password: { }
