@@ -65,7 +65,8 @@ controllers:
       app:
         image:
           repository: ghcr.io/lldap/lldap
-          tag: "${lldap_version}"
+          # renovate: datasource=docker depName=ghcr.io/lldap/lldap
+          tag: v0.6.2
         command:
           - /bin/sh
           - -c
