@@ -28,7 +28,7 @@ pod:
       readOnlyRootFilesystem: true
       capabilities:
         drop: [ALL]
-  extraInitContainers:
+  initContainers:
     - name: init-db
       # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
       image: ghcr.io/home-operations/postgres-init:18
