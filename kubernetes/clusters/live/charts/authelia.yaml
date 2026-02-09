@@ -14,6 +14,20 @@ pod:
     - name: oidc-jwk
       secret:
         secretName: authelia-oidc-jwk
+  securityContext:
+    pod:
+      runAsNonRoot: true
+      runAsUser: 999
+      runAsGroup: 999
+      fsGroup: 999
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+    container:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: [ALL]
   extraInitContainers:
     - name: init-db
       # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
@@ -38,6 +52,7 @@ pod:
         - name: INIT_POSTGRES_DBNAME
           value: authelia
       securityContext:
+        runAsNonRoot: true
         allowPrivilegeEscalation: false
         readOnlyRootFilesystem: true
         capabilities:
