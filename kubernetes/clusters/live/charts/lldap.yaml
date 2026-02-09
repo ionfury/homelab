@@ -77,7 +77,7 @@ controllers:
           - -c
           - |
             PASSWORD=$(cat /secrets/db/password)
-            echo "postgres://lldap:${PASSWORD}@platform-pooler-rw.database.svc.cluster.local:5432/lldap" > /config/database-url
+            echo "postgres://lldap:$${PASSWORD}@platform-pooler-rw.database.svc.cluster.local:5432/lldap" > /config/database-url
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
