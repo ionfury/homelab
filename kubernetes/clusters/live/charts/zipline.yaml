@@ -22,6 +22,7 @@ controllers:
       init-db:
         image:
           repository: ghcr.io/home-operations/postgres-init
+          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
           tag: "18"
         securityContext:
           allowPrivilegeEscalation: false
@@ -48,6 +49,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/diced/zipline
+          # renovate: datasource=docker depName=ghcr.io/diced/zipline
           tag: 4.4.1
         env:
           CORE_PORT: "3000"

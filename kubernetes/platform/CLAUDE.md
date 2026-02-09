@@ -48,44 +48,43 @@ The `config/` directory organizes non-Helm resources by concern:
 
 ## Adding a New Helm Release
 
-1. Add version to `versions.env` (e.g., `new_chart_version=1.0.0`)
+1. Add version to `versions.env` with a `# renovate:` annotation comment (see below)
 2. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
 3. Create `charts/<chart-name>.yaml` with Helm values
 4. Add the values file to `kustomization.yaml` configMapGenerator
-5. **Add Renovate custom manager** to `.github/renovate.json5` (see below)
-6. If the chart needs post-install resources, add to `config/` and reference in `config.yaml`
-7. Run `task k8s:validate` and `task renovate:validate`
+5. If the chart needs post-install resources, add to `config/` and reference in `config.yaml`
+6. Run `task k8s:validate` and `task renovate:validate`
 
-### Renovate Configuration (Required)
+### Renovate Configuration (Inline Annotations)
 
-Renovate requires a custom regex manager for each version in `versions.env`. Add to `.github/renovate.json5`:
+Renovate uses a **generic regex manager** that reads `# renovate:` comment annotations directly from `versions.env`. No changes to `.github/renovate.json5` are needed — just add the annotation above the version line:
 
-```json5
-// For HTTP Helm repositories
-{
-  "customType": "regex",
-  "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-  "matchStrings": ["new_chart_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-  "depNameTemplate": "chart-name",
-  "datasourceTemplate": "helm",
-  "registryUrlTemplate": "https://charts.example.io"
-}
+```env
+# For HTTP Helm repositories
+# renovate: datasource=helm depName=chart-name registryUrl=https://charts.example.io
+new_chart_version=1.0.0
 
-// For OCI Helm registries (ghcr.io, etc.)
-{
-  "customType": "regex",
-  "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-  "matchStrings": ["new_chart_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-  "depNameTemplate": "chart-name",
-  "datasourceTemplate": "docker",
-  "packageNameTemplate": "ghcr.io/org/charts/chart-name"
-}
+# For OCI Helm registries (ghcr.io, etc.)
+# renovate: datasource=docker depName=chart-name packageName=ghcr.io/org/charts/chart-name
+new_oci_chart_version=2.0.0
+
+# For v-prefixed versions where the stored value has no 'v' prefix
+# renovate: datasource=helm depName=cert-manager extractVersion=^v(?<version>.*)$ registryUrl=https://charts.jetstack.io
+cert_manager_version=1.19.3
+
+# For non-semver versioning (e.g., vectorchord)
+# renovate: datasource=docker depName=cloudnative-vectorchord packageName=ghcr.io/tensorchord/cloudnative-vectorchord versioning=loose
+vectorchord_version=18.1-1.0.0
 ```
 
+**Annotation key ordering** (fixed): `datasource depName [packageName] [extractVersion] [registryUrl] [versioning]`
+
 **Key differences:**
-- HTTP registries use `datasourceTemplate: "helm"` + `registryUrlTemplate`
-- OCI registries use `datasourceTemplate: "docker"` + `packageNameTemplate`
-- For v-prefixed versions, add `"extractVersionTemplate": "^v(?<version>.*)$"`
+- HTTP registries use `datasource=helm` + `registryUrl=<url>`
+- OCI registries use `datasource=docker` + `packageName=<full-image-path>`
+- GitHub releases/tags use `datasource=github-releases` or `datasource=github-tags` + `packageName=<org/repo>`
+- For v-prefixed versions where the env value omits the `v`, add `extractVersion=^v(?<version>.*)$`
+- For non-standard version schemes, add `versioning=loose`
 
 ### ResourceSet Pattern
 
@@ -201,20 +200,21 @@ The `versions.env` file is the **single source of truth** for ALL platform versi
 
 ### versions.env Structure
 
+Each version entry has a `# renovate:` annotation comment on the line above. Renovate's generic regex manager reads these annotations to determine how to update each version.
+
 ```env
 # Infrastructure versions (Terragrunt + Tuppr)
-talos_version=v1.12.1
+# renovate: datasource=github-releases depName=talos packageName=siderolabs/talos
+talos_version=v1.12.2
+# renovate: datasource=github-tags depName=kubernetes packageName=kubernetes/kubernetes extractVersion=^v(?<version>.*)$
 kubernetes_version=1.35.0
-cilium_version=1.18.6
-gateway_api_version=v1.4.1
-flux_version=v2.7.5
-prometheus_version=26.0.0
 
 # Helm chart versions (Flux substitution)
-cert_manager_version=1.17.1
-external_secrets_version=0.13.0
-grafana_version=8.8.5
-# ... all chart versions
+# renovate: datasource=helm depName=grafana registryUrl=https://grafana.github.io/helm-charts
+grafana_version=10.5.15
+# renovate: datasource=docker depName=app-template packageName=ghcr.io/bjw-s/helm/app-template
+app_template_version=3.7.3
+# ... all chart versions with annotations
 ```
 
 ### Natural Convergence
