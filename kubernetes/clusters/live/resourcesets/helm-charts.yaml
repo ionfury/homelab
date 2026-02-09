@@ -35,14 +35,14 @@ spec:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: [cloudnative-pg, secret-generator, authelia-prereqs]
+      dependsOn: [cloudnative-pg, secret-generator]
     - name: authelia
       namespace: authelia
       chart:
         name: authelia
         version: "${authelia_version}"
         url: https://charts.authelia.com
-      dependsOn: [cloudnative-pg, secret-generator, lldap, authelia-prereqs]
+      dependsOn: [cloudnative-pg, secret-generator, lldap]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
