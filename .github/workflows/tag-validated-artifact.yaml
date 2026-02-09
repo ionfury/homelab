@@ -88,9 +88,9 @@ jobs:
               return;
             }
 
-            // Derive stable semver: 0.1.0-rc.130 → 0.1.130
-            const match = rcTag.match(/^(\d+\.\d+)\.\d+-rc\.(\d+)$/);
-            const stable = `${match[1]}.${match[2]}`;
+            // Derive stable semver by stripping RC suffix: 0.1.146-rc.3 → 0.1.146
+            const match = rcTag.match(/^(\d+\.\d+\.\d+)-rc\.\d+$/);
+            const stable = match[1];
 
             core.info(`Found RC tag: ${rcTag}`);
             core.info(`Derived stable semver: ${rcTag} → ${stable}`);
