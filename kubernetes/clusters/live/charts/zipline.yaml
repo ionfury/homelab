@@ -92,7 +92,7 @@ controllers:
                 key: password
           DATABASE_URL:
             dependsOn: POSTGRES_PASSWORD
-            value: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/zipline"
+            value: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-rw.database.svc.cluster.local:5432/zipline"
           # S3 — credentials auto-created by GarageKey operator
           DATASOURCE_TYPE: s3
           DATASOURCE_S3_REGION: garage
