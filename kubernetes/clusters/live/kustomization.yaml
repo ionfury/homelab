@@ -6,6 +6,7 @@ resources:
   - platform.yaml
   - config.yaml
   - helm-charts.yaml
+  - chart-values.yaml
 configMapGenerator:
   - name: cluster-vars
     options:
@@ -14,13 +15,3 @@ configMapGenerator:
     behavior: create
     envs:
       - .cluster-vars.env
-  - name: cluster-values
-    options:
-      disableNameSuffixHash: true
-    namespace: flux-system
-    behavior: create
-    files:
-      - zipline.yaml=charts/zipline.yaml
-      - immich.yaml=charts/immich.yaml
-      - authelia.yaml=charts/authelia.yaml
-      - lldap.yaml=charts/lldap.yaml

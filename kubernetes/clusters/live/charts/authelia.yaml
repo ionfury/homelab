@@ -102,12 +102,12 @@ configMap:
 
   session:
     cookies:
-      - domain: internal.tomnowak.work
+      - domain: "${internal_domain}"
         subdomain: auth
-        default_redirection_url: "https://auth.internal.tomnowak.work"
-      - domain: external.tomnowak.work
+        default_redirection_url: "https://auth.${internal_domain}"
+      - domain: "${external_domain}"
         subdomain: auth
-        default_redirection_url: "https://auth.external.tomnowak.work"
+        default_redirection_url: "https://auth.${external_domain}"
     redis:
       enabled: true
       host: platform.database.svc.cluster.local

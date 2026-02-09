@@ -2,14 +2,11 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-resources
+  name: cluster-chart-values
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: platform
-    - name: cluster-chart-values
   interval: 10m
-  path: kubernetes/clusters/live/resourcesets
+  path: kubernetes/clusters/live/charts
   postBuild:
     substituteFrom:
       - kind: ConfigMap
