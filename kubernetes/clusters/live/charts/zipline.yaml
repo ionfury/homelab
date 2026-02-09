@@ -126,7 +126,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /api/health
+                path: /api/healthcheck
                 port: 3000
               initialDelaySeconds: 5
               periodSeconds: 5
@@ -136,7 +136,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /api/health
+                path: /api/healthcheck
                 port: 3000
               periodSeconds: 30
           readiness:
@@ -144,7 +144,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /api/health
+                path: /api/healthcheck
                 port: 3000
               periodSeconds: 10
 
