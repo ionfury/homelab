@@ -1,6 +1,6 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/values.schema.json
-# https://github.com/bjw-s/helm-charts/tree/main/charts/other/app-template
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
 controllers:
   zipline:
     type: deployment
@@ -65,7 +65,9 @@ controllers:
               secretKeyRef:
                 name: zipline-db-credentials
                 key: password
-          DATABASE_URL: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/zipline"
+          DATABASE_URL:
+            dependsOn: POSTGRES_PASSWORD
+            value: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/zipline"
           # S3 — credentials auto-created by GarageKey operator
           DATASOURCE_TYPE: s3
           DATASOURCE_S3_REGION: garage

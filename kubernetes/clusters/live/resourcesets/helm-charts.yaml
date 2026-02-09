@@ -20,7 +20,7 @@ spec:
       chart:
         name: app-template
         version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s/helm
+        url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg]
     - name: immich
       namespace: immich
@@ -34,7 +34,7 @@ spec:
       chart:
         name: app-template
         version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s/helm
+        url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator, authelia-prereqs]
     - name: authelia
       namespace: authelia

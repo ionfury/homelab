@@ -173,7 +173,7 @@ spec:
       chart:
         name: app-template
         version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s/helm
+        url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [kube-prometheus-stack]
     - name: spegel
       namespace: spegel
