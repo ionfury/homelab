@@ -28,7 +28,7 @@ pod:
       readOnlyRootFilesystem: true
       capabilities:
         drop: [ALL]
-  extraInitContainers:
+  initContainers:
     - name: init-db
       # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
       image: ghcr.io/home-operations/postgres-init:18
@@ -102,12 +102,12 @@ configMap:
 
   session:
     cookies:
-      - domain: "${internal_domain}"
+      - domain: internal.tomnowak.work
         subdomain: auth
-        default_redirection_url: "https://auth.${internal_domain}"
-      - domain: "${external_domain}"
+        default_redirection_url: "https://auth.internal.tomnowak.work"
+      - domain: external.tomnowak.work
         subdomain: auth
-        default_redirection_url: "https://auth.${external_domain}"
+        default_redirection_url: "https://auth.external.tomnowak.work"
     redis:
       enabled: true
       host: platform.database.svc.cluster.local
