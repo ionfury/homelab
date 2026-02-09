@@ -4,6 +4,7 @@ controllers:
     containers:
       main:
         image:
+          # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
           tag: v2.5.5
         env:
           DB_HOSTNAME: immich-database-rw.database.svc.cluster.local

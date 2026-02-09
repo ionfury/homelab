@@ -21,6 +21,7 @@ controllers:
       init-db:
         image:
           repository: ghcr.io/home-operations/postgres-init
+          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
           tag: "18"
         securityContext:
           allowPrivilegeEscalation: false
@@ -45,6 +46,7 @@ controllers:
       db-url:
         image:
           repository: busybox
+          # renovate: datasource=docker depName=busybox
           tag: "1.37.0"
         command:
           - /bin/sh

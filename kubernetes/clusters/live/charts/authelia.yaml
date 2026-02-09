@@ -16,6 +16,7 @@ pod:
         secretName: authelia-oidc-jwk
   extraInitContainers:
     - name: init-db
+      # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
       image: ghcr.io/home-operations/postgres-init:18
       env:
         - name: INIT_POSTGRES_HOST
