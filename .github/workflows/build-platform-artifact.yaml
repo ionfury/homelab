@@ -11,7 +11,6 @@ on:
 env:
   REGISTRY: ghcr.io
   ARTIFACT_REPO: ${{ github.repository }}/platform
-  BASE_VERSION: "0.1.0"
 
 jobs:
   build:
@@ -31,11 +30,67 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Resolve next RC version
+        id: version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const packageName = `${context.repo.repo}/platform`;
+
+            // Discover all existing tags from GHCR
+            let allTags = [];
+            try {
+              const versions = await github.paginate(
+                github.rest.packages.getAllPackageVersionsForPackageOwnedByUser,
+                {
+                  package_type: 'container',
+                  package_name: packageName,
+                  username: context.repo.owner,
+                  per_page: 100,
+                }
+              );
+              allTags = versions.flatMap(v => v.metadata?.container?.tags || []);
+            } catch (e) {
+              core.info(`No existing package found, starting fresh: ${e.message}`);
+            }
+
+            // Find highest stable semver tag (X.Y.Z, no pre-release)
+            const stableRegex = /^(\d+)\.(\d+)\.(\d+)$/;
+            let latest = [0, 0, 0];
+            for (const tag of allTags) {
+              const m = tag.match(stableRegex);
+              if (m) {
+                const v = [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])];
+                if (v[0] > latest[0] ||
+                    (v[0] === latest[0] && v[1] > latest[1]) ||
+                    (v[0] === latest[0] && v[1] === latest[1] && v[2] > latest[2])) {
+                  latest = v;
+                }
+              }
+            }
+
+            // Next version: bump patch from latest stable
+            const nextVersion = `${latest[0]}.${latest[1]}.${latest[2] + 1}`;
+
+            // Find highest existing RC number for the next version
+            const rcRegex = new RegExp(`^${nextVersion.replace(/\./g, '\\.')}-rc\\.(\\d+)$`);
+            let maxRc = 0;
+            for (const tag of allTags) {
+              const m = tag.match(rcRegex);
+              if (m) maxRc = Math.max(maxRc, parseInt(m[1]));
+            }
+
+            const semver = `${nextVersion}-rc.${maxRc + 1}`;
+            core.info(`Latest stable: ${latest.join('.')}`);
+            core.info(`Next RC: ${semver}`);
+            core.setOutput('semver', semver);
+
       - name: Build and push artifact
+        env:
+          SEMVER: ${{ steps.version.outputs.semver }}
         run: |
           SHORT_SHA="${{ github.sha }}"
           SHORT_SHA="${SHORT_SHA:0:7}"
-          SEMVER="${{ env.BASE_VERSION }}-rc.${{ github.run_number }}"
 
           # Push from repo root so paths match GitRepository structure
           flux push artifact \

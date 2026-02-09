@@ -34,7 +34,8 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │  build-platform-artifact.yaml                                       │
-│  ├─ flux push artifact → ghcr.io/.../platform:0.1.0-rc.N           │
+│  ├─ Discovers latest stable tag, bumps patch for next version       │
+│  ├─ flux push artifact → ghcr.io/.../platform:X.Y.Z-rc.N           │
 │  ├─ flux tag artifact → sha-<short-sha>                            │
 │  └─ flux tag artifact → integration-<short-sha>                    │
 └─────────────────────────────────┬───────────────────────────────────┘
@@ -43,7 +44,7 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Integration Cluster                                                │
 │  ├─ OCIRepository polls for semver ">= 0.0.0-0" (includes RCs)     │
-│  ├─ Detects new 0.1.0-rc.N artifact                                │
+│  ├─ Detects new X.Y.Z-rc.N artifact (higher than last stable)      │
 │  └─ Flux reconciles platform                                        │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
@@ -59,7 +60,7 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 ┌─────────────────────────────────────────────────────────────────────┐
 │  tag-validated-artifact.yaml                                        │
 │  ├─ flux tag artifact → validated-<short-sha> (traceability)       │
-│  └─ flux tag artifact → 0.1.N (stable semver for live)             │
+│  └─ flux tag artifact → X.Y.Z (stable semver, RC suffix stripped)  │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
                                   ▼
@@ -75,11 +76,16 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 
 | Tag | Created By | Purpose |
 |-----|------------|---------|
-| `0.1.0-rc.N` | build workflow | Semver for OCIRepository polling (integration) |
+| `X.Y.Z-rc.N` | build workflow | Pre-release semver for integration OCIRepository polling |
 | `sha-<short>` | build workflow | Immutable reference to commit |
 | `integration-<short>` | build workflow | Marks artifact for integration |
 | `validated-<short>` | tag workflow | Traceability reference for validated artifacts |
-| `0.1.N` | tag workflow | Stable semver for live OCIRepository polling |
+| `X.Y.Z` | tag workflow | Stable semver for live OCIRepository polling |
+
+**Version numbering**: The build workflow discovers the latest stable tag (`X.Y.Z`) from GHCR,
+bumps the patch version, and creates RC tags like `X.Y.(Z+1)-rc.N`. When validated, the RC
+suffix is stripped to produce the stable tag `X.Y.(Z+1)`. This ensures RC tags always sort
+higher than the previous stable release in semver ordering.
 
 ---
 
@@ -222,27 +228,17 @@ Runs on PRs touching `infrastructure/`:
 
 Triggers on push to main (kubernetes/ changes):
 
-```yaml
-# Key steps
-flux push artifact \
-  oci://ghcr.io/${{ github.repository }}/platform:${SEMVER} \
-  --path=. \
-  --source="https://github.com/${{ github.repository }}" \
-  --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
-
-flux tag artifact ... --tag integration-${SHORT_SHA}
-```
+1. **Resolve version**: Queries GHCR for latest stable tag, bumps patch, increments RC number
+2. **Push artifact**: `flux push artifact ... :X.Y.Z-rc.N`
+3. **Tag**: Adds `sha-<short>` and `integration-<short>` tags
 
 ### tag-validated-artifact.yaml
 
 Triggers on `repository_dispatch` from canary-checker:
 
-```yaml
-# Validates SHA format and tags
-flux tag artifact \
-  "oci://ghcr.io/.../platform:integration-${SHA}" \
-  --tag "validated-${SHA}"
-```
+1. **Resolve**: Finds `integration-<sha>` artifact, extracts RC tag
+2. **Derive stable**: Strips `-rc.N` suffix (e.g., `0.1.146-rc.3` → `0.1.146`)
+3. **Tag**: Adds `validated-<sha>` and stable semver tags
 
 ---
 
