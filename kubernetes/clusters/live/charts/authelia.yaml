@@ -65,7 +65,7 @@ pod:
         - --host=platform-rw.database.svc.cluster.local
         - --username=postgres
         - --dbname=authelia
-        - --command=GRANT ALL ON SCHEMA public TO authelia; ALTER DATABASE authelia OWNER TO authelia;
+        - --command=GRANT ALL ON SCHEMA public TO authelia; ALTER DATABASE authelia OWNER TO authelia; GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO authelia; GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO authelia;
       env:
         - name: PGPASSWORD
           valueFrom:

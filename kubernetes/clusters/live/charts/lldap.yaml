@@ -59,7 +59,7 @@ controllers:
           - --host=platform-rw.database.svc.cluster.local
           - --username=postgres
           - --dbname=lldap
-          - --command=GRANT ALL ON SCHEMA public TO lldap; ALTER DATABASE lldap OWNER TO lldap;
+          - --command=GRANT ALL ON SCHEMA public TO lldap; ALTER DATABASE lldap OWNER TO lldap; GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO lldap; GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO lldap;
         env:
           PGPASSWORD:
             valueFrom:
