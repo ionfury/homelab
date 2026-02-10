@@ -100,7 +100,6 @@ controllers:
           TZ: UTC
           LLDAP_LDAP_BASE_DN: "dc=homelab,dc=local"
           LLDAP_HTTP_URL: "https://lldap.${internal_domain}"
-          LLDAP_FORCE_UPDATE_PRIVATE_KEY: "true"
         envFrom:
           - secretRef:
               name: lldap-secrets
