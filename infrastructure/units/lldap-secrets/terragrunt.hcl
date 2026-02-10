@@ -15,7 +15,7 @@ inputs = {
     LLDAP_KEY_SEED       = { length = 32, special = false }
   }
 
-  ssm_parameter_path = "/homelab/kubernetes/shared/lldap-secrets"
+  ssm_parameter_path = "/homelab/kubernetes/live/lldap-secrets"
 
   local_backup_path = pathexpand("~/.secrets/homelab/lldap-secrets.json")
 }

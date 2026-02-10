@@ -53,12 +53,12 @@ run "stores_in_ssm" {
       LLDAP_JWT_SECRET = { length = 32, special = false }
       LLDAP_KEY_SEED   = { length = 32, special = false }
     }
-    ssm_parameter_path = "/homelab/kubernetes/shared/lldap-secrets"
+    ssm_parameter_path = "/homelab/kubernetes/live/lldap-secrets"
     local_backup_path  = "/tmp/lldap-secrets.json"
   }
 
   assert {
-    condition     = aws_ssm_parameter.secrets.name == "/homelab/kubernetes/shared/lldap-secrets"
+    condition     = aws_ssm_parameter.secrets.name == "/homelab/kubernetes/live/lldap-secrets"
     error_message = "SSM parameter path should match input"
   }
 
