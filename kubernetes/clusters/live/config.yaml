@@ -31,6 +31,7 @@ metadata:
 spec:
   dependsOn:
     - name: platform
+    - name: external-secrets-stores
   interval: 10m
   path: kubernetes/clusters/live/config/authelia-prereqs
   postBuild:
