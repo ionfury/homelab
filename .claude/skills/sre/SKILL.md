@@ -1,85 +1,22 @@
 ---
-name: k8s-sre
+name: sre
 description: |
-  Kubernetes SRE debugging and incident investigation for pod failures, crashes, and service issues.
+  SRE debugging methodology for Kubernetes incident investigation, root cause analysis,
+  and failure diagnosis.
 
   Use when: (1) Pods not starting, stuck, or failing (CrashLoopBackOff, ImagePullBackOff, OOMKilled, Pending),
   (2) Debugging Kubernetes errors or investigating "why is my pod...", (3) Service degradation or unavailability,
-  (4) Reading pod logs or events, (5) Troubleshooting deployments, statefulsets, or daemonsets,
-  (6) Root cause analysis for any Kubernetes incident.
+  (4) Root cause analysis for any Kubernetes incident, (5) Network policy blocking traffic,
+  (6) Stalled HelmReleases or Flux failures that need troubleshooting.
 
   Triggers: "pod not starting", "pod stuck", "CrashLoopBackOff", "ImagePullBackOff", "OOMKilled",
   "Pending pod", "why is my pod", "kubernetes error", "k8s error", "service not available",
-  "can't reach service", "pod logs", "debug kubernetes", "troubleshoot k8s", "what's wrong with my pod",
-  "deployment not working", "helm install failed", "flux not reconciling"
+  "can't reach service", "debug kubernetes", "troubleshoot k8s", "what's wrong with my pod",
+  "deployment not working", "helm install failed", "flux not reconciling", "root cause",
+  "5 whys", "incident", "network policy blocking", "hubble dropped", "stalled helmrelease"
 ---
 
-# ACCESSING CLUSTERS
-
-**CRITICAL:** Always prefix kubectl/flux commands with inline KUBECONFIG assignment. Do NOT use `export` or `&&` - the variable must be set in the same command:
-
-```bash
-# CORRECT - inline assignment
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl get pods
-
-# WRONG - export with && breaks in some shell contexts
-export KUBECONFIG=~/.kube/<cluster>.yaml && kubectl get pods
-```
-
-## Accessing Internal Services via DNS (Preferred)
-
-Platform services are exposed through the internal ingress gateway over HTTPS. **Always use DNS-based access instead of port-forwarding** when querying Prometheus, Grafana, Alertmanager, and other internal services.
-
-| Service | Live | Integration | Dev |
-|---------|------|-------------|-----|
-| Prometheus | `https://prometheus.internal.tomnowak.work` | `https://prometheus.internal.integration.tomnowak.work` | `https://prometheus.internal.dev.tomnowak.work` |
-| Grafana | `https://grafana.internal.tomnowak.work` | `https://grafana.internal.integration.tomnowak.work` | `https://grafana.internal.dev.tomnowak.work` |
-| Alertmanager | `https://alertmanager.internal.tomnowak.work` | `https://alertmanager.internal.integration.tomnowak.work` | `https://alertmanager.internal.dev.tomnowak.work` |
-| Hubble UI | `https://hubble.internal.tomnowak.work` | `https://hubble.internal.integration.tomnowak.work` | `https://hubble.internal.dev.tomnowak.work` |
-| Longhorn UI | `https://longhorn.internal.tomnowak.work` | `https://longhorn.internal.integration.tomnowak.work` | `https://longhorn.internal.dev.tomnowak.work` |
-| Garage Admin | `https://garage.internal.tomnowak.work` | `https://garage.internal.integration.tomnowak.work` | `https://garage.internal.dev.tomnowak.work` |
-
-**Domain pattern:** `<service>.internal.<cluster-suffix>.tomnowak.work`
-- live: `internal.tomnowak.work`
-- integration: `internal.integration.tomnowak.work`
-- dev: `internal.dev.tomnowak.work`
-
-**Usage with curl (use `-k` for self-signed TLS):**
-
-```bash
-# Query Prometheus API
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=up" | jq '.data.result'
-
-# Check firing alerts
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts[] | select(.state == "firing")'
-
-# Query Alertmanager
-curl -sk "https://alertmanager.internal.tomnowak.work/api/v2/alerts" | jq .
-```
-
-**Using the helper scripts with internal DNS:**
-
-```bash
-# Prometheus (live cluster)
-export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
-.claude/skills/prometheus/scripts/promql.sh alerts --firing
-
-# Loki (no HTTPRoute - requires port-forward, see fallback below)
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
-export LOKI_URL=http://localhost:3100
-.claude/skills/loki/scripts/logql.sh tail '{namespace="monitoring"}' --since 15m
-```
-
-**Note:** Loki does not have an HTTPRoute on the internal gateway. Use port-forward for Loki access.
-
-### Fallback: Port-Forward Access
-
-Use port-forwarding only when DNS-based access is unavailable (e.g., network issues, local development without VPN):
-
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
-```
+> **Cluster access, KUBECONFIG patterns, and internal service URLs** are in the `k8s` skill.
 
 # Debugging Kubernetes Incidents
 
@@ -134,20 +71,6 @@ FIX: Use properly typed variable for StorageClass parameters
 ```
 BAD:  "Helm timed out → increase timeout to 15m"
 GOOD: "Helm timed out → ... → Kustomization type error → fix YAML"
-```
-
-## Cluster Context
-
-**CRITICAL:** Always confirm cluster before running commands.
-
-| Cluster | Purpose | Kubeconfig |
-|---------|---------|------------|
-| `dev` | Manual testing | `~/.kube/dev.yaml` |
-| `integration` | Automated testing | `~/.kube/integration.yaml` |
-| `live` | Production | `~/.kube/live.yaml` |
-
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl <command>
 ```
 
 ## Investigation Phases
@@ -301,20 +224,6 @@ KUBECONFIG=~/.kube/<cluster>.yaml kubectl label namespace <ns> network-policy.ho
 
 See `docs/runbooks/network-policy-escape-hatch.md` for full procedure.
 
-## Flux GitOps Commands
-
-```bash
-# Check status
-KUBECONFIG=~/.kube/<cluster>.yaml flux get all
-KUBECONFIG=~/.kube/<cluster>.yaml flux get kustomizations
-KUBECONFIG=~/.kube/<cluster>.yaml flux get helmreleases -A
-
-# Trigger reconciliation
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile source git flux-system
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile kustomization <name>
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile helmrelease <name> -n <namespace>
-```
-
 ## Kickstarting Stalled HelmReleases
 
 HelmReleases can get stuck in a `Stalled` state with `RetriesExceeded` even after the underlying issue is resolved. This happens because:
@@ -352,29 +261,6 @@ KUBECONFIG=~/.kube/<cluster>.yaml flux resume helmrelease <name> -n flux-system
 
 **Prevention:** Ensure proper `dependsOn` ordering so prerequisites are ready before HelmRelease installs.
 
-## Researching Unfamiliar Services
-
-When investigating unknown services, spawn a haiku agent to research documentation:
-
-```
-Task tool:
-- subagent_type: "general-purpose"
-- model: "haiku"
-- prompt: "Research [service] troubleshooting docs. Focus on:
-  1. Common failure modes
-  2. Health indicators
-  3. Configuration gotchas
-  Start with: [docs-url]"
-```
-
-**Chart URL → Docs mapping:**
-| Chart Source | Documentation |
-|--------------|---------------|
-| `charts.jetstack.io` | cert-manager.io/docs |
-| `charts.longhorn.io` | longhorn.io/docs |
-| `grafana.github.io` | grafana.com/docs |
-| `prometheus-community.github.io` | prometheus.io/docs |
-
 ## Common Confusions
 
 BAD: Jump to logs without checking events first
@@ -389,9 +275,6 @@ GOOD: Apply 5 Whys to find true root cause
 BAD: Investigate without confirming cluster
 GOOD: ALWAYS confirm cluster before any kubectl command
 
-BAD: Use `helm list` to check Helm release status
-GOOD: Use `kubectl get helmrelease -A` - Flux manages releases via CRDs, not Helm CLI
-
 ## Keywords
 
-kubernetes, debugging, crashloopbackoff, oomkilled, pending, root cause analysis, 5 whys, incident investigation, pod logs, events, kubectl, flux, gitops, troubleshooting
+kubernetes, debugging, crashloopbackoff, oomkilled, pending, root cause analysis, 5 whys, incident investigation, pod logs, events, troubleshooting, network policy, hubble, stalled helmrelease

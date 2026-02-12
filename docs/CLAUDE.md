@@ -208,6 +208,7 @@ Pattern: `<feature-or-system>.md` (kebab-case)
 
 | Skill | Use For |
 |-------|---------|
-| `k8s-sre` | Kubernetes debugging (before escalating to runbook) |
+| `k8s` | Cluster access, kubectl patterns, Flux status |
+| `sre` | Kubernetes debugging (before escalating to runbook) |
 | `terragrunt` | Infrastructure operations |
 | `flux-gitops` | GitOps debugging |

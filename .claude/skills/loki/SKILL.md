@@ -26,7 +26,7 @@ export LOKI_URL=http://localhost:3100
 
 **Clusters**: `dev`, `integration`, `live`
 
-**Why port-forward?** Loki's gateway component is disabled (`replicas: 0`) and no HTTPRoute exists for it on the internal ingress gateway. For other services that do have HTTPRoutes (Prometheus, Grafana, Alertmanager), prefer using the internal DNS URLs instead -- see the `k8s-sre` skill for the full URL table.
+**Why port-forward?** Loki's gateway component is disabled (`replicas: 0`) and no HTTPRoute exists for it on the internal ingress gateway. For other services that do have HTTPRoutes (Prometheus, Grafana, Alertmanager), prefer using the internal DNS URLs instead -- see the `k8s` skill for the full URL table.
 
 ## Quick Queries
 

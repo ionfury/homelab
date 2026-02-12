@@ -11,7 +11,8 @@ Skills are procedural guides that provide step-by-step workflows for complex ope
 | `app-template` | Deploy applications using bjw-s/app-template Helm chart | Yes | patterns.md, values-reference.md | - |
 | `deploy-app` | End-to-end application deployment with monitoring integration | Yes | file-templates.md, monitoring-patterns.md | check-alerts.sh, check-canary.sh, check-deployment-health.sh, check-servicemonitor.sh |
 | `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | Yes | - | - |
-| `k8s-sre` | Kubernetes incident investigation and debugging | Yes | - | cluster-health.sh |
+| `k8s` | Kubernetes cluster access, kubectl, and Flux operations | Yes | - | - |
+| `sre` | Kubernetes incident investigation and debugging | Yes | - | cluster-health.sh |
 | `kubesearch` | Research Helm configurations from kubesearch.dev | Yes | - | - |
 | `loki` | Query Loki API for cluster logs and debugging | Yes | queries.md | logql.sh |
 | `opentofu-modules` | OpenTofu module development and testing patterns | Yes | opentofu-testing.md | - |

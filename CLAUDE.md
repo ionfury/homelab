@@ -485,7 +485,8 @@ Invoke these skills for detailed procedural guidance:
 | `flux-gitops` | Adding Helm releases, ResourceSet patterns |
 | `app-template` | Deploying apps with bjw-s/app-template |
 | `kubesearch` | Researching Helm chart configurations |
-| `k8s-sre` | Debugging Kubernetes incidents |
+| `k8s` | Cluster access, kubectl, Flux status, internal URLs |
+| `sre` | Debugging Kubernetes incidents, root cause analysis |
 | `loki` | Query Loki API for logs and debugging |
 | `prometheus` | Query Prometheus API for metrics and alerts |
 | `taskfiles` | Taskfile syntax and patterns |
