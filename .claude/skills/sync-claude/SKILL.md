@@ -14,6 +14,7 @@ description: |
   Two modes:
   - full: Exhaustive validation of all Claude docs in repository
   - changed: Smart detection of docs affected by current branch changes
+user_invocable: false
 ---
 
 # Claude Documentation Sync

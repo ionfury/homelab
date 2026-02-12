@@ -11,6 +11,7 @@ description: |
   "configuration examples", "values.yaml examples", "kubesearch", "homelab examples",
   "how do other homelabs", "real-world config", "chart configuration", "helm values examples",
   "compare helm configs", "best practices for helm"
+user_invocable: false
 ---
 
 # KubeSearch - Homelab Helm Configuration Research
