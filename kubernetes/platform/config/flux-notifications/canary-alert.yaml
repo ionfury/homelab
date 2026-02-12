@@ -4,12 +4,13 @@
 # NOTE: This Alert watches the platform Kustomization, not canary-checker's Canary CRD.
 # Flux Alert only supports watching Flux-native resources. The flow is:
 # 1. Platform Kustomization becomes Ready after all HelmReleases deploy
-# 2. Alert triggers GitHub repository_dispatch
-# 3. tag-validated-artifact workflow tags the OCI artifact
+# 2. Alert triggers the github (commit status) Provider
+# 3. Provider posts a commit status to the reconciled commit on GitHub
+# 4. GitHub fires a `status` event, triggering the tag-validated-artifact workflow
 #
-# The githubdispatch provider hardcodes event_type as "{Kind}/{Name}.{Namespace}",
-# so this Alert dispatches with event_type: "Kustomization/platform.flux-system".
-# The workflow trigger must match this exact string.
+# The `github` provider posts a commit status with context
+# "kustomization/platform/<uid-prefix>" on the commit referenced by originRevision.
+# The workflow filters on state == 'success' and context prefix.
 #
 # For deeper health validation, canary-checker performs additional checks.
 # A future enhancement could have canary-checker directly call GitHub API

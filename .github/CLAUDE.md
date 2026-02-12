@@ -14,7 +14,7 @@ For core principles and deployment philosophy, see [CLAUDE.md](../CLAUDE.md).
 | `infrastructure-validate.yaml` | PR (infrastructure/ changes) | Format checks, module tests |
 | `renovate-validate.yaml` | PR (renovate config) | Validate Renovate configuration |
 | `build-platform-artifact.yaml` | Push to main (kubernetes/) | Build OCI artifact for promotion |
-| `tag-validated-artifact.yaml` | repository_dispatch | Promote validated artifact to live |
+| `tag-validated-artifact.yaml` | status event (commit status) | Promote validated artifact to live |
 | `renovate.yaml` | Scheduled (hourly) | Dependency update automation |
 | `label-sync.yaml` | Scheduled/manual | Sync GitHub labels |
 
@@ -52,7 +52,7 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Flux Alert (validation-success)                                     │
 │  ├─ Watches platform Kustomization for "Reconciliation finished"     │
-│  ├─ Fires repository_dispatch (event_type: Kustomization/platform.flux-system) │
+│  ├─ Provider posts commit status (context: kustomization/platform/*) │
 │  └─ Workflow has idempotency guard for repeated reconciliation events │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
@@ -168,8 +168,8 @@ flux get kustomizations -A
 |---------|-------|-----|
 | Build succeeds but integration doesn't update | Semver not matching `>= 0.0.0-0` | Check OCIRepository spec |
 | Validation passes but live doesn't update | `validated-*` tag not applied | Check tag-validated workflow |
-| `repository_dispatch` not received | `flux-system` secret token lacks `repo` scope or `contents:write` permission | Verify token: `gh api repos/{owner}/{repo}/dispatches -X POST -f event_type=test` with the same token |
-| Notification controller logs "dispatching event" but no workflow triggers | Token accepted by GitHub (204) but lacks dispatch permission | Recreate token with `repo` scope or fine-grained `contents:write` |
+| Commit status not posted | `flux-system` secret token lacks `statuses:write` permission | Check notification-controller logs for explicit API errors, update token in SSM |
+| Commit status posted but workflow doesn't trigger | Job-level `if` filter not matching context prefix | Check `github.event.context` format: should start with `kustomization/platform/` |
 | Artifact push fails | GHCR auth issue | Check `GITHUB_TOKEN` permissions |
 | Workflow triggers every ~10min | Alert fires on every reconciliation | Idempotency guard skips already-validated artifacts |
 
@@ -236,11 +236,12 @@ Triggers on push to main (kubernetes/ changes):
 
 ### tag-validated-artifact.yaml
 
-Triggers on `repository_dispatch` from Flux Alert (`Kustomization/platform.flux-system`):
+Triggers on `status` event (GitHub commit status posted by Flux's `github` Provider):
 
-1. **Resolve**: Finds `integration-<sha>` artifact, extracts RC tag
-2. **Derive stable**: Strips `-rc.N` suffix (e.g., `0.1.146-rc.3` → `0.1.146`)
-3. **Tag**: Adds `validated-<sha>` and stable semver tags
+1. **Filter**: Only runs on `state == 'success'` with context prefix `kustomization/platform/`
+2. **Resolve**: Extracts short SHA from commit, finds `integration-<sha>` artifact, extracts RC tag
+3. **Derive stable**: Strips `-rc.N` suffix (e.g., `0.1.146-rc.3` → `0.1.146`)
+4. **Tag**: Adds `validated-<sha>` and stable semver tags
 
 ---
 
