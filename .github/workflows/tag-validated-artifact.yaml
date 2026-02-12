@@ -2,8 +2,7 @@
 name: Tag Validated Artifact
 
 on:
-  repository_dispatch:
-    types: ["Kustomization/platform.flux-system"]
+  status:
   workflow_dispatch:
     inputs:
       artifact_sha:
@@ -17,8 +16,13 @@ env:
 jobs:
   tag:
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.state == 'success' &&
+       startsWith(github.event.context, 'kustomization/platform/'))
     permissions:
       packages: write
+      statuses: read
 
     steps:
       - uses: fluxcd/flux2/action@main
@@ -45,8 +49,14 @@ jobs:
               per_page: 100,
             });
 
-            // Determine the artifact SHA - from input or auto-detect latest integration tag
+            // Determine the artifact SHA - from input, status event, or auto-detect
             let sha = inputSha;
+
+            if (!sha && '${{ github.event_name }}' === 'status') {
+              // Extract short SHA from the commit that received the status
+              sha = '${{ github.event.sha }}'.substring(0, 7);
+              core.info(`Status event for commit ${sha}`);
+            }
 
             if (!sha) {
               core.info('No SHA provided, discovering latest integration tag...');
