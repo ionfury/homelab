@@ -295,6 +295,7 @@ For dev cluster permissions, pre-flight checks, and safety procedures, see [.tas
 - **NEVER** use `git push --force` or `git push --force-with-lease` - always create new commits to fix mistakes
 - **NEVER** commit to `main` when creating a PR - always create the branch first, then commit
 - **NEVER** make changes directly in the main checkout when other agents may be working in parallel - use a worktree
+- **NEVER** reuse a worktree/branch from a merged PR for follow-up work — the remote branch was auto-deleted and the base is stale. Always: `task wt:remove -- <old-branch>`, pull main, `task wt:new -- <new-branch>`
 - **Correct PR workflow**: `task wt:new -- <branch>` → make changes in worktree → `git commit` → `git push -u origin <branch>` → `gh pr create` → `task wt:remove -- <branch>` (after merge)
 
 ## Kubernetes Safety

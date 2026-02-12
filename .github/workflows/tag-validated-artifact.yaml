@@ -106,6 +106,7 @@ jobs:
             core.setOutput('stable', stable);
 
       - name: Tag as validated
+        if: steps.resolve.outputs.sha
         env:
           SHA: ${{ steps.resolve.outputs.sha }}
           STABLE: ${{ steps.resolve.outputs.stable }}
