@@ -11,6 +11,7 @@ skills:
   - k8s
   - loki
   - prometheus
+  - promotion-pipeline
 memory: project
 ---
 

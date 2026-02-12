@@ -13,6 +13,11 @@ skills:
   - deploy-app
   - taskfiles
   - k8s
+  - secrets
+  - monitoring-authoring
+  - cnpg-database
+  - gateway-routing
+  - versions-renovate
 memory: project
 ---
 

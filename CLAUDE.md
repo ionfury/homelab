@@ -483,8 +483,8 @@ Users interact through 3 specialized agents that compose skills internally:
 
 | Command | Agent | Role | Composed Skills |
 |---------|-------|------|----------------|
-| `/troubleshoot` | `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus |
-| `/implement` | `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s |
+| `/troubleshoot` | `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline |
+| `/implement` | `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, cnpg-database, gateway-routing, versions-renovate |
 | `/design` | `designer` | Principal architect (Opus, plan mode) | kubesearch, architecture-review |
 
 Agent definitions live in `.claude/agents/`. See [.claude/skills/CLAUDE.md](.claude/skills/CLAUDE.md) for the full agent-first architecture.
@@ -502,9 +502,15 @@ Skills are composed by agents internally — not invoked directly by users:
 | `deploy-app` | End-to-end deployment with monitoring | implementer |
 | `taskfiles` | Taskfile syntax and patterns | implementer |
 | `k8s` | Cluster access, kubectl, Flux status, internal URLs | troubleshooter, implementer |
+| `secrets` | Secret provisioning (secret-generator, ExternalSecret, app-secrets) | implementer |
+| `monitoring-authoring` | Author alerts, ServiceMonitors, canary checks | implementer |
+| `cnpg-database` | PostgreSQL cluster provisioning and credentials | implementer |
+| `gateway-routing` | Gateway API routing, TLS, WAF configuration | implementer |
+| `versions-renovate` | Version management and Renovate annotations | implementer |
 | `sre` | Debugging Kubernetes incidents, root cause analysis | troubleshooter |
 | `loki` | Query Loki API for logs and debugging | troubleshooter |
 | `prometheus` | Query Prometheus API for metrics and alerts | troubleshooter |
+| `promotion-pipeline` | OCI artifact promotion tracing and rollback | troubleshooter |
 | `kubesearch` | Researching Helm chart configurations | designer |
 | `architecture-review` | Technology standards and evaluation criteria | designer |
 | `sync-claude` | Validate and sync Claude docs before commits | orchestrator |
