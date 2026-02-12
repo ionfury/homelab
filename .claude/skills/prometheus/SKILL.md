@@ -100,6 +100,12 @@ curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.a
 
 For homelab-specific PromQL queries (Longhorn, CloudNative-PG, Cilium, etc.), see [references/queries.md](references/queries.md).
 
+## Creating Monitoring Resources
+
+This skill covers **querying** Prometheus. For **authoring** new monitoring resources
+(PrometheusRules, ServiceMonitors, PodMonitors, AlertmanagerConfig, recording rules),
+see the [monitoring-authoring skill](../monitoring-authoring/SKILL.md).
+
 ## Prometheus Details
 
 | Property | Value |

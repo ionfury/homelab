@@ -9,18 +9,23 @@ Skills are procedural guides that provide step-by-step workflows for complex ope
 | Skill | Purpose | User-Invocable | References | Scripts |
 |-------|---------|----------------|------------|---------|
 | `app-template` | Deploy applications using bjw-s/app-template Helm chart | Yes | patterns.md, values-reference.md | - |
+| `cnpg-database` | CNPG PostgreSQL cluster provisioning and credential management | Yes | - | - |
 | `deploy-app` | End-to-end application deployment with monitoring integration | Yes | file-templates.md, monitoring-patterns.md | check-alerts.sh, check-canary.sh, check-deployment-health.sh, check-servicemonitor.sh |
 | `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | Yes | - | - |
+| `gateway-routing` | Gateway API routing, TLS certificates, and WAF configuration | Claude-only | - | - |
 | `k8s` | Kubernetes cluster access, kubectl, and Flux operations | Yes | - | - |
-| `sre` | Kubernetes incident investigation and debugging | Yes | - | cluster-health.sh |
 | `kubesearch` | Research Helm configurations from kubesearch.dev | Yes | - | - |
 | `loki` | Query Loki API for cluster logs and debugging | Yes | queries.md | logql.sh |
+| `monitoring-authoring` | Author PrometheusRules, ServiceMonitors, AlertmanagerConfig, canary checks | Yes | - | - |
 | `opentofu-modules` | OpenTofu module development and testing patterns | Yes | opentofu-testing.md | - |
 | `prometheus` | Query Prometheus API for metrics and alerts | Yes | queries.md | promql.sh |
+| `promotion-pipeline` | OCI artifact promotion pipeline tracing and rollback | Claude-only | - | - |
+| `secrets` | Secret provisioning: secret-generator, ExternalSecret, app-secrets | Yes | - | - |
 | `self-improvement` | Capture user feedback to enhance documentation | Yes | - | - |
 | `sync-claude` | Validate Claude docs against codebase state | Yes | - | discover-claude-docs.sh, extract-references.sh |
 | `taskfiles` | Task runner syntax, patterns, and conventions | Yes | schema.md, cli.md, styleguide.md, task-catalog.md | - |
 | `terragrunt` | Infrastructure operations with Terragrunt/OpenTofu | Yes | stacks.md, units.md | - |
+| `versions-renovate` | Version management and Renovate annotation configuration | Claude-only | - | - |
 
 ---
 

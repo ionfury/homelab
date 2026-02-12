@@ -489,6 +489,12 @@ Invoke these skills for detailed procedural guidance:
 | `sre` | Debugging Kubernetes incidents, root cause analysis |
 | `loki` | Query Loki API for logs and debugging |
 | `prometheus` | Query Prometheus API for metrics and alerts |
+| `monitoring-authoring` | Author alerts, ServiceMonitors, canary checks |
+| `secrets` | Secret provisioning (secret-generator, ExternalSecret, app-secrets) |
+| `cnpg-database` | PostgreSQL cluster provisioning and credentials |
+| `gateway-routing` | Gateway API routing, TLS, WAF configuration |
+| `promotion-pipeline` | OCI artifact promotion tracing and rollback |
+| `versions-renovate` | Version management and Renovate annotations |
 | `taskfiles` | Taskfile syntax and patterns |
 | `sync-claude` | Validate and sync Claude docs before commits |
 | `self-improvement` | Capture feedback to enhance documentation and skills |

@@ -173,6 +173,17 @@ flux reconcile kustomization flux-system -n flux-system
 | `chart not found` | Wrong chart name/URL | Verify chart exists in repository |
 | `namespace not found` | Namespace not created | Add to namespaces.yaml |
 
+## Version Management
+
+When adding a new Helm release, you must also add a version entry to `kubernetes/platform/versions.env` with the correct Renovate annotation. Use `${variable_name}` in `helm-charts.yaml` to reference the version:
+
+```yaml
+chart:
+  version: "${my_chart_version}"  # Substituted from platform-versions ConfigMap
+```
+
+For annotation syntax, datasource selection, and debugging Renovate, see the [versions-renovate skill](../versions-renovate/SKILL.md).
+
 ## OCI Registry Specifics
 
 When using OCI registries like GHCR:
