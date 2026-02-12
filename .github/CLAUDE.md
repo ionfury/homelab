@@ -168,7 +168,8 @@ flux get kustomizations -A
 |---------|-------|-----|
 | Build succeeds but integration doesn't update | Semver not matching `>= 0.0.0-0` | Check OCIRepository spec |
 | Validation passes but live doesn't update | `validated-*` tag not applied | Check tag-validated workflow |
-| `repository_dispatch` not received | GitHub token missing `repo` scope | Check Provider secret |
+| `repository_dispatch` not received | `flux-system` secret token lacks `repo` scope or `contents:write` permission | Verify token: `gh api repos/{owner}/{repo}/dispatches -X POST -f event_type=test` with the same token |
+| Notification controller logs "dispatching event" but no workflow triggers | Token accepted by GitHub (204) but lacks dispatch permission | Recreate token with `repo` scope or fine-grained `contents:write` |
 | Artifact push fails | GHCR auth issue | Check `GITHUB_TOKEN` permissions |
 | Workflow triggers every ~10min | Alert fires on every reconciliation | Idempotency guard skips already-validated artifacts |
 

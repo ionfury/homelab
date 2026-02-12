@@ -13,6 +13,7 @@ description: |
   "how to run", "available tasks", "task syntax", "taskfile.dev"
 
   This skill covers the repository's specific conventions in .taskfiles/ and the root Taskfile.yaml.
+user_invocable: false
 ---
 
 # Taskfiles

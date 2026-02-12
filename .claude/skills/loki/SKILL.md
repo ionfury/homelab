@@ -11,6 +11,7 @@ description: |
   Triggers: "check logs", "search logs", "query loki", "logql", "show me logs",
   "what happened in", "log errors", "find in logs", "tail logs", "kubernetes events",
   "recent logs", "log query", "debug logs"
+user_invocable: false
 ---
 
 # Loki Log Querying
