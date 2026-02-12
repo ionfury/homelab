@@ -11,7 +11,7 @@ description: |
   Triggers: "secret", "ExternalSecret", "secret-generator", "aws ssm", "parameter store",
   "kubernetes-replicator", "replicate secret", "app-secrets", "persistent secret",
   "cross-namespace secret", "secret not syncing", "ClusterSecretStore"
-user_invocable: false
+user-invocable: false
 ---
 
 # Secrets Management

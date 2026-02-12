@@ -11,7 +11,7 @@ description: |
   Triggers: "kubectl", "kubeconfig", "flux get", "flux reconcile", "flux status", "cluster access",
   "internal URL", "service URL", "prometheus URL", "grafana URL", "helm release status",
   "check flux", "which cluster", "how to access", "port-forward"
-user_invocable: false
+user-invocable: false
 ---
 
 # ACCESSING CLUSTERS

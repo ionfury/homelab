@@ -10,7 +10,7 @@ description: |
   Triggers: "httproute", "gateway", "expose service", "add route", "certificate", "tls",
   "coraza", "waf", "internal gateway", "external gateway", "dns", "ingress",
   "routing", "cert-manager", "letsencrypt", "homelab-ca"
-user_invocable: false
+user-invocable: false
 ---
 
 # Gateway Routing

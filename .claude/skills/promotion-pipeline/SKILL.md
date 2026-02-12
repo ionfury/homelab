@@ -11,7 +11,7 @@ description: |
   "stuck in integration", "not deploying", "ghcr", "build artifact", "tag validated",
   "repository_dispatch", "canary-checker", "rollback", "semver", "image policy",
   "promotion pipeline", "why isn't live updating"
-user_invocable: false
+user-invocable: false
 ---
 
 # Promotion Pipeline

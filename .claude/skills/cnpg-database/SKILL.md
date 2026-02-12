@@ -12,7 +12,7 @@ description: |
   Triggers: "database", "postgresql", "postgres", "cnpg", "cloudnative-pg", "pooler",
   "pgbouncer", "database credentials", "db password", "initdb", "postInitApplicationSQL",
   "database cluster", "shared database", "dedicated database", "cnpg cluster"
-user_invocable: false
+user-invocable: false
 ---
 
 # CNPG Database Management

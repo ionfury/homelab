@@ -10,7 +10,7 @@ description: |
 
   Triggers: "architecture review", "evaluate technology", "stack fit", "should we use",
   "technology comparison", "design review", "architecture decision"
-user_invocable: false
+user-invocable: false
 ---
 
 # Architecture Evaluation Framework
