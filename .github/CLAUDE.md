@@ -50,10 +50,10 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│  Canary-Checker Validation                                          │
-│  ├─ Monitors Kustomization health                                   │
-│  ├─ Runs platform smoke tests                                       │
-│  └─ On success: Alert triggers repository_dispatch                  │
+│  Flux Alert (validation-success)                                     │
+│  ├─ Watches platform Kustomization for "Reconciliation finished"     │
+│  ├─ Fires repository_dispatch (event_type: Kustomization/platform.flux-system) │
+│  └─ Workflow has idempotency guard for repeated reconciliation events │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
                                   ▼
@@ -143,7 +143,7 @@ kubectl get alerts -n flux-system
 kubectl get providers -n flux-system
 
 # Check if Alert fired
-kubectl describe alert canary-success -n flux-system
+kubectl describe alert validation-success -n flux-system
 ```
 
 ### Tracing an Artifact
@@ -170,6 +170,7 @@ flux get kustomizations -A
 | Validation passes but live doesn't update | `validated-*` tag not applied | Check tag-validated workflow |
 | `repository_dispatch` not received | GitHub token missing `repo` scope | Check Provider secret |
 | Artifact push fails | GHCR auth issue | Check `GITHUB_TOKEN` permissions |
+| Workflow triggers every ~10min | Alert fires on every reconciliation | Idempotency guard skips already-validated artifacts |
 
 ### Manual Promotion (Emergency)
 
@@ -234,7 +235,7 @@ Triggers on push to main (kubernetes/ changes):
 
 ### tag-validated-artifact.yaml
 
-Triggers on `repository_dispatch` from canary-checker:
+Triggers on `repository_dispatch` from Flux Alert (`Kustomization/platform.flux-system`):
 
 1. **Resolve**: Finds `integration-<sha>` artifact, extracts RC tag
 2. **Derive stable**: Strips `-rc.N` suffix (e.g., `0.1.146-rc.3` → `0.1.146`)

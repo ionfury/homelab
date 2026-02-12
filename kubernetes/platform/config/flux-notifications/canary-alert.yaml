@@ -7,6 +7,10 @@
 # 2. Alert triggers GitHub repository_dispatch
 # 3. tag-validated-artifact workflow tags the OCI artifact
 #
+# The githubdispatch provider hardcodes event_type as "{Kind}/{Name}.{Namespace}",
+# so this Alert dispatches with event_type: "Kustomization/platform.flux-system".
+# The workflow trigger must match this exact string.
+#
 # For deeper health validation, canary-checker performs additional checks.
 # A future enhancement could have canary-checker directly call GitHub API
 # when all health checks pass.
@@ -26,5 +30,3 @@ spec:
       namespace: flux-system
   inclusionList:
     - ".*Reconciliation finished.*"
-  eventMetadata:
-    event_type: artifact-validated
