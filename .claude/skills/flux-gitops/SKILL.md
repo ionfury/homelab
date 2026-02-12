@@ -12,7 +12,7 @@ description: |
   "flux resourceset", "flux reconciliation", "flux not syncing", "flux stuck", "gitops",
   "helm-charts.yaml", "platform values", "flux debug", "HelmRelease not ready", "kustomization",
   "helmrelease", "add chart", "deploy helm chart"
-user_invocable: false
+user-invocable: false
 ---
 
 # Flux GitOps Platform

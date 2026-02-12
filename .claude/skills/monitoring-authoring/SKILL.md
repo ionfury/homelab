@@ -12,7 +12,7 @@ description: |
   Triggers: "create alert", "add alerting", "PrometheusRule", "ServiceMonitor", "PodMonitor",
   "AlertmanagerConfig", "silence alert", "canary check", "recording rule", "add monitoring",
   "scrape target", "alert rule", "prometheus rule", "health check canary"
-user_invocable: false
+user-invocable: false
 ---
 
 # Monitoring Resource Authoring

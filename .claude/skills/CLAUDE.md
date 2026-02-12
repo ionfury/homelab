@@ -132,7 +132,7 @@ description: |
 |-------|----------|---------|
 | `name` | Yes | Unique identifier, matches directory name |
 | `description` | Yes | Multi-line description with use cases and triggers |
-| `user_invocable` | No | Set to `false` to make Claude-only (default: `true`) |
+| `user-invocable` | No | Set to `false` to make Claude-only (default: `true`) |
 | `disable-model-invocation` | No | Set to `true` to make user-only |
 
 ---
@@ -203,7 +203,7 @@ User → /design       → dispatch skill → designer agent       → composes:
 | Configuration | User /command | Agent Composition | Use Case |
 |---------------|---------------|-------------------|----------|
 | Dispatch skill (`disable-model-invocation: true`) | Yes | No | Entry points: troubleshoot, implement, design |
-| Background skill (`user_invocable: false`) | No | Yes | Domain knowledge composed by agents |
+| Background skill (`user-invocable: false`) | No | Yes | Domain knowledge composed by agents |
 
 ### Agents
 

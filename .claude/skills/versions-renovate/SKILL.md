@@ -10,7 +10,7 @@ description: |
   Triggers: "versions.env", "renovate annotation", "renovate not updating", "add version",
   "renovate ignore", "datasource", "extractVersion", "package rule", "automerge",
   "renovate validate", "dependency tracking", "version management"
-user_invocable: false
+user-invocable: false
 ---
 
 # Versions and Renovate Management

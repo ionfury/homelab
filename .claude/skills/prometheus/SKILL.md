@@ -1,7 +1,7 @@
 ---
 name: prometheus
 description: Query Prometheus API for cluster metrics, alerts, and observability data. Use when investigating cluster health, performance issues, resource utilization, or alert status. Triggers on questions like "what's the CPU usage", "show me firing alerts", "check memory pressure", "query prometheus for", or any PromQL-related requests.
-user_invocable: false
+user-invocable: false
 ---
 
 # Prometheus Querying

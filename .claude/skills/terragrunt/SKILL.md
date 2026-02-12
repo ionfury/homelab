@@ -15,7 +15,7 @@ description: |
   "stacks", "units", "modules architecture"
 
   Always use task commands (task tg:*) instead of running terragrunt directly.
-user_invocable: false
+user-invocable: false
 ---
 
 # Terragrunt Infrastructure Skill

@@ -15,7 +15,7 @@ description: |
   "deployment not working", "helm install failed", "flux not reconciling", "root cause",
   "5 whys", "incident", "network policy blocking", "hubble dropped", "stalled helmrelease",
   "live not updating", "promotion pipeline stuck", "artifact not promoted"
-user_invocable: false
+user-invocable: false
 ---
 
 > **Cluster access, KUBECONFIG patterns, and internal service URLs** are in the `k8s` skill.
