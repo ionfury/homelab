@@ -3,7 +3,7 @@ name: Tag Validated Artifact
 
 on:
   repository_dispatch:
-    types: [artifact-validated]
+    types: ["Kustomization/platform.flux-system"]
   workflow_dispatch:
     inputs:
       artifact_sha:
@@ -35,7 +35,6 @@ jobs:
         with:
           script: |
             const inputSha = '${{ inputs.artifact_sha }}';
-            const payloadSha = '${{ github.event.client_payload.artifact_sha }}';
             const packageName = `${context.repo.repo}/platform`;
 
             // List all versions of the container package
@@ -46,8 +45,8 @@ jobs:
               per_page: 100,
             });
 
-            // Determine the artifact SHA - from input, payload, or auto-detect latest integration tag
-            let sha = inputSha || payloadSha;
+            // Determine the artifact SHA - from input or auto-detect latest integration tag
+            let sha = inputSha;
 
             if (!sha) {
               core.info('No SHA provided, discovering latest integration tag...');
@@ -77,6 +76,15 @@ jobs:
             );
             if (!targetVersion) {
               core.setFailed(`Could not find version tagged integration-${sha}`);
+              return;
+            }
+
+            // Check if already promoted (Alert fires every ~10min reconciliation)
+            const alreadyValidated = targetVersion.metadata.container.tags.some(t =>
+              t === `validated-${sha}`
+            );
+            if (alreadyValidated) {
+              core.info(`Artifact ${sha} already validated — skipping`);
               return;
             }
 
