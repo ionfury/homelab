@@ -6,21 +6,36 @@ Skills are procedural guides that provide step-by-step workflows for complex ope
 
 ## Skill Inventory
 
-| Skill | Purpose | User-Invocable | References | Scripts |
-|-------|---------|----------------|------------|---------|
-| `app-template` | Deploy applications using bjw-s/app-template Helm chart | Yes | patterns.md, values-reference.md | - |
-| `deploy-app` | End-to-end application deployment with monitoring integration | Yes | file-templates.md, monitoring-patterns.md | check-alerts.sh, check-canary.sh, check-deployment-health.sh, check-servicemonitor.sh |
-| `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | Yes | - | - |
-| `k8s` | Kubernetes cluster access, kubectl, and Flux operations | Yes | - | - |
-| `sre` | Kubernetes incident investigation and debugging | Yes | - | cluster-health.sh |
-| `kubesearch` | Research Helm configurations from kubesearch.dev | Yes | - | - |
-| `loki` | Query Loki API for cluster logs and debugging | Yes | queries.md | logql.sh |
-| `opentofu-modules` | OpenTofu module development and testing patterns | Yes | opentofu-testing.md | - |
-| `prometheus` | Query Prometheus API for metrics and alerts | Yes | queries.md | promql.sh |
-| `self-improvement` | Capture user feedback to enhance documentation | Yes | - | - |
-| `sync-claude` | Validate Claude docs against codebase state | Yes | - | discover-claude-docs.sh, extract-references.sh |
-| `taskfiles` | Task runner syntax, patterns, and conventions | Yes | schema.md, cli.md, styleguide.md, task-catalog.md | - |
-| `terragrunt` | Infrastructure operations with Terragrunt/OpenTofu | Yes | stacks.md, units.md | - |
+### Agent Dispatch Skills
+
+These skills serve as slash command entry points that delegate to specialized agents. Users interact with agents through these commands.
+
+| Skill | Dispatches To | Purpose |
+|-------|--------------|---------|
+| `troubleshoot` | `troubleshooter` agent | Kubernetes and infrastructure debugging |
+| `implement` | `implementer` agent | Deploy apps, write IaC, create PRs |
+| `design` | `designer` agent | Architecture design and review |
+
+### Background Skills (Agent-Composed)
+
+These skills are composed by agents internally. They are not invoked directly by users — agents load them as needed for domain-specific knowledge.
+
+| Skill | Purpose | Composed By | References | Scripts |
+|-------|---------|-------------|------------|---------|
+| `app-template` | Deploy applications using bjw-s/app-template Helm chart | implementer | patterns.md, values-reference.md | - |
+| `architecture-review` | Architecture evaluation criteria and technology standards | designer | technology-decisions.md | - |
+| `deploy-app` | End-to-end application deployment with monitoring integration | implementer | file-templates.md, monitoring-patterns.md | check-alerts.sh, check-canary.sh, check-deployment-health.sh, check-servicemonitor.sh |
+| `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | implementer | - | - |
+| `k8s` | Kubernetes cluster access, kubectl, and Flux operations | troubleshooter, implementer | - | - |
+| `kubesearch` | Research Helm configurations from kubesearch.dev | designer | - | - |
+| `loki` | Query Loki API for cluster logs and debugging | troubleshooter | queries.md | logql.sh |
+| `opentofu-modules` | OpenTofu module development and testing patterns | implementer | opentofu-testing.md | - |
+| `prometheus` | Query Prometheus API for metrics and alerts | troubleshooter | queries.md | promql.sh |
+| `self-improvement` | Capture user feedback to enhance documentation | orchestrator | - | - |
+| `sre` | Kubernetes incident investigation and debugging | troubleshooter | - | cluster-health.sh |
+| `sync-claude` | Validate Claude docs against codebase state | orchestrator | - | discover-claude-docs.sh, extract-references.sh |
+| `taskfiles` | Task runner syntax, patterns, and conventions | implementer | schema.md, cli.md, styleguide.md, task-catalog.md | - |
+| `terragrunt` | Infrastructure operations with Terragrunt/OpenTofu | implementer | stacks.md, units.md | - |
 
 ---
 
@@ -34,9 +49,9 @@ Skills are **procedural knowledge** documents that guide Claude through multi-st
 4. **Supporting Resources**: Skills can include reference docs and helper scripts
 
 Skills are invoked when:
-- User explicitly calls `/skill-name`
-- User's question matches skill triggers (defined in frontmatter)
+- An agent composes the skill as part of its domain knowledge
 - Claude determines the skill is relevant to the current task
+- A dispatch skill delegates to the corresponding agent (e.g., `/troubleshoot` → troubleshooter agent)
 
 ---
 
@@ -165,37 +180,34 @@ To deprecate a skill:
 
 ---
 
-## User-Invocable vs Claude-Only
+## Agent-First Architecture
 
-### Default Behavior (Both)
+This repository uses an **agent-first** interaction model. Users interact through 3 high-level commands (`/troubleshoot`, `/implement`, `/design`) that dispatch to specialized agents. Skills serve as background knowledge that agents compose internally.
 
-By default, skills can be invoked by both users (via `/skill-name`) and Claude (when triggers match). This is appropriate for most skills.
+### How It Works
 
-### User-Only Skills
+```
+User → /troubleshoot → dispatch skill → troubleshooter agent → composes: sre, k8s, loki, prometheus
+User → /implement    → dispatch skill → implementer agent    → composes: flux-gitops, app-template, terragrunt, ...
+User → /design       → dispatch skill → designer agent       → composes: kubesearch, architecture-review
+```
 
-Set `disable-model-invocation: true` when:
-- The skill should only run on explicit user request
-- Claude should not auto-invoke based on triggers
-- The procedure is destructive or expensive
+### Skill Invocability
 
-Example use case: A "reset-cluster" skill that should never be auto-triggered.
+| Configuration | User /command | Agent Composition | Use Case |
+|---------------|---------------|-------------------|----------|
+| Dispatch skill (`disable-model-invocation: true`) | Yes | No | Entry points: troubleshoot, implement, design |
+| Background skill (`user_invocable: false`) | No | Yes | Domain knowledge composed by agents |
 
-### Claude-Only Skills
+### Agents
 
-Set `user_invocable: false` when:
-- The skill is an internal helper not meant for direct use
-- The skill is always invoked by another skill
-- The procedure requires context Claude has but users don't provide
+Agents are defined in `.claude/agents/` and compose skills for their domain:
 
-Example use case: Internal validation or preprocessing skills.
-
-### Summary
-
-| Configuration | User /command | Claude Auto-Invoke |
-|---------------|---------------|-------------------|
-| Default | Yes | Yes |
-| `disable-model-invocation: true` | Yes | No |
-| `user_invocable: false` | No | Yes |
+| Agent | Role | Skills | Model | Mode |
+|-------|------|--------|-------|------|
+| `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus | inherit | default (read-only tools) |
+| `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s | inherit | default (full tools) |
+| `designer` | Principal architect | kubesearch, architecture-review | opus | plan (read-only) |
 
 ---
 

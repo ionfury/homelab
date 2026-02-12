@@ -82,7 +82,11 @@
       "Skill(deploy-app)",
       "Skill(self-improvement)",
       "Skill(loki)",
-      "Skill(prometheus)"
+      "Skill(prometheus)",
+      "Skill(troubleshoot)",
+      "Skill(implement)",
+      "Skill(design)",
+      "Skill(architecture-review)"
     ]
   },
   "enabledPlugins": {

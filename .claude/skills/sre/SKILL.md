@@ -14,6 +14,7 @@ description: |
   "can't reach service", "debug kubernetes", "troubleshoot k8s", "what's wrong with my pod",
   "deployment not working", "helm install failed", "flux not reconciling", "root cause",
   "5 whys", "incident", "network policy blocking", "hubble dropped", "stalled helmrelease"
+user_invocable: false
 ---
 
 > **Cluster access, KUBECONFIG patterns, and internal service URLs** are in the `k8s` skill.

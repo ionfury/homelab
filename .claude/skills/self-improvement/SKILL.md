@@ -12,8 +12,7 @@ description: |
   Triggers: "remember this", "update the skill", "add this to documentation", "you should know",
   "in the future", "always do", "never do", "that's wrong", "actually it should be",
   "/self-improvement", "capture this", "document this pattern", "add to CLAUDE.md"
-
-  user_invocable: true
+user_invocable: false
 ---
 
 # Self-Improvement Skill

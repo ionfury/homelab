@@ -9,7 +9,7 @@ description: |
 
   Triggers: "deploy app", "add new application", "deploy to kubernetes", "install helm chart",
   "/deploy-app", "set up new service", "add monitoring for", "deploy with monitoring"
-user_invocable: true
+user_invocable: false
 ---
 
 # Deploy App Workflow
