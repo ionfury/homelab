@@ -27,7 +27,7 @@ spec:
     - "--dbfilename"
     - "dump"
     - "--s3_endpoint"
-    - "garage.garage.svc.cluster.local:3900"
+    - "${garage_s3_endpoint}"
     - "--s3_use_https=false"
 
   env:
