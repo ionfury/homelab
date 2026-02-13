@@ -2,6 +2,12 @@
 # https://github.com/dragonflydb/dragonfly-operator/blob/main/charts/dragonfly-operator/values.yaml
 manager:
   priorityClassName: platform
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
 resources:
   requests:
     cpu: 10m
