@@ -4,6 +4,7 @@
 global:
   leaderElection:
     namespace: cert-manager
+  priorityClassName: platform
   commonLabels:
 podLabels:
   networking/allow-egress-internet: "true"

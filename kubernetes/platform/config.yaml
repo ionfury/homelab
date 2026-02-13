@@ -70,6 +70,10 @@ spec:
       namespace: ""
       path: kubernetes/platform/config/network-policy
       dependsOn: [cilium]
+    - name: priority-classes-config
+      namespace: ""
+      path: kubernetes/platform/config/priority-classes
+      dependsOn: []
     - name: infrastructure-policies-config
       namespace: ""
       path: kubernetes/platform/config/infrastructure-policies

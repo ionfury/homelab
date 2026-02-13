@@ -12,6 +12,7 @@ global:
   # Point to istio-csr for certificate requests
   caAddress: cert-manager-istio-csr.cert-manager.svc:443
   logAsJson: true
+  priorityClassName: platform
   defaultResources:
     resources:
       requests:

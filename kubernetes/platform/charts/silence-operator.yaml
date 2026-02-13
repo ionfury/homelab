@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/giantswarm/silence-operator/main/helm/silence-operator/values.schema.json
 ---
+priorityClassName: platform
+
 # Alertmanager service endpoint (kube-prometheus-stack default)
 alertmanagerAddress: "http://alertmanager-operated.monitoring.svc:9093"
 

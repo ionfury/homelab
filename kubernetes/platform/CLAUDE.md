@@ -39,6 +39,7 @@ The `config/` directory organizes non-Helm resources by concern:
 | `kromgo/` | Kromgo status page configs |
 | `longhorn/` | Longhorn backup and storage configs |
 | `monitoring/` | Prometheus rules, Grafana dashboards |
+| `priority-classes/` | Workload scheduling priority tiers |
 | `secrets/` | Secret generator resources |
 | `tuppr/` | Tuppr upgrade CRs (TalosUpgrade, KubernetesUpgrade) |
 
@@ -152,6 +153,7 @@ inputs:
 | `monitoring-config` | `kube-prometheus-stack`, `canary-checker` | PrometheusRule + Canary CRDs |
 | `canary-checker-config` | `canary-checker` | Canary CRD |
 | `tuppr-config` | `tuppr` | TalosUpgrade/KubernetesUpgrade CRDs |
+| `priority-classes-config` | *(none)* | PriorityClass is a built-in resource (no CRDs needed) |
 | `kromgo-config` | *(none)* | ConfigMap must exist BEFORE app deployment |
 | `flux-notifications-config` | *(none)* | Uses only core Flux CRDs (always present) |
 

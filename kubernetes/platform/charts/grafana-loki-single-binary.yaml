@@ -31,6 +31,7 @@ loki:
     retention_period: 14d
 singleBinary:
   replicas: 1
+  priorityClassName: platform
   persistence:
     enabled: true
     storageClass: fast

@@ -3,6 +3,7 @@
 fullnameOverride: alloy
 controller:
   type: daemonset
+  priorityClassName: platform
 alloy:
   mounts:
     varlog: true

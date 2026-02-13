@@ -23,6 +23,7 @@ For Flux patterns and version management, see [kubernetes/platform/CLAUDE.md](..
 | `longhorn/` | Storage classes, backup config | StorageClass, RecurringJob |
 | `monitoring/` | Alertmanager config, alert rules | PrometheusRule, ServiceMonitor, AlertmanagerConfig |
 | `network-policy/` | Cilium network policies | CiliumNetworkPolicy, CiliumClusterwideNetworkPolicy |
+| `priority-classes/` | Workload scheduling tiers | PriorityClass (system-critical, platform, application) |
 | `secrets/` | External secrets infrastructure | ClusterSecretStore |
 | `tuppr/` | Talos and Kubernetes upgrades | TalosUpgrade, KubernetesUpgrade |
 

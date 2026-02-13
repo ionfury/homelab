@@ -1,5 +1,6 @@
 ---
 # https://raw.githubusercontent.com/grafana/helm-charts/main/charts/grafana/values.yaml
+priorityClassName: platform
 deploymentStrategy:
   type: Recreate
 admin:

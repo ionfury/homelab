@@ -1,5 +1,7 @@
 ---
 # https://github.com/dragonflydb/dragonfly-operator/blob/main/charts/dragonfly-operator/values.yaml
+manager:
+  priorityClassName: platform
 resources:
   requests:
     cpu: 10m

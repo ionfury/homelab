@@ -1,5 +1,6 @@
 ---
 # https://raw.githubusercontent.com/kubernetes-sigs/descheduler/master/charts/descheduler/values.yaml
+priorityClassName: platform
 replicas: 2
 kind: Deployment
 deschedulerPolicyAPIVersion: descheduler/v1alpha2
