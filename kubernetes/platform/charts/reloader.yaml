@@ -5,6 +5,12 @@
 reloader:
   deployment:
     priorityClassName: platform
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
   podMonitor:
     enabled: true
   reloadStrategy: annotations
