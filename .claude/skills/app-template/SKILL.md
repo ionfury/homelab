@@ -11,6 +11,7 @@ description: |
   "sidecar container", "multi-container pod helm", "deploy container image", "no helm chart available",
   "custom container deployment", "bjw-s", "app-template chart", "deploy docker image to kubernetes",
   "container without helm chart", "generic helm chart"
+user-invocable: false
 ---
 
 # app-template Helm Chart

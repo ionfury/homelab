@@ -73,7 +73,8 @@
       "Skill(terragrunt)",
       "Skill(flux-gitops)",
       "Skill(app-template)",
-      "Skill(k8s-sre)",
+      "Skill(k8s)",
+      "Skill(sre)",
       "Skill(taskfiles)",
       "Skill(opentofu-modules)",
       "Skill(gha-pipelines)",
@@ -81,7 +82,17 @@
       "Skill(deploy-app)",
       "Skill(self-improvement)",
       "Skill(loki)",
-      "Skill(prometheus)"
+      "Skill(prometheus)",
+      "Skill(troubleshoot)",
+      "Skill(implement)",
+      "Skill(design)",
+      "Skill(architecture-review)",
+      "Skill(secrets)",
+      "Skill(monitoring-authoring)",
+      "Skill(cnpg-database)",
+      "Skill(gateway-routing)",
+      "Skill(promotion-pipeline)",
+      "Skill(versions-renovate)"
     ]
   },
   "enabledPlugins": {

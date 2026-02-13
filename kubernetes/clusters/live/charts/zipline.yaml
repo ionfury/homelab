@@ -1,10 +1,10 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/values.schema.json
-# https://github.com/bjw-s/helm-charts/tree/main/charts/other/app-template
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
 controllers:
   zipline:
     type: deployment
-    replicas: 1
+    replicas: 2
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -22,6 +22,7 @@ controllers:
       init-db:
         image:
           repository: ghcr.io/home-operations/postgres-init
+          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
           tag: "18"
         securityContext:
           allowPrivilegeEscalation: false
@@ -36,19 +37,45 @@ controllers:
               secretKeyRef:
                 name: cnpg-superuser-replica
                 key: password
-          INIT_POSTGRES_USER: postgres
+          INIT_POSTGRES_USER: zipline
           INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-db-credentials
+                key: password
+          INIT_POSTGRES_DBNAME: zipline
+
+      # postgres-init only grants ALL ON DATABASE, which doesn't include
+      # CREATE ON SCHEMA public (required since PostgreSQL 15+)
+      schema-grants:
+        dependsOn: init-db
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        command: ["psql"]
+        args:
+          - --host=platform-rw.database.svc.cluster.local
+          - --username=postgres
+          - --dbname=zipline
+          - --command=GRANT ALL ON SCHEMA public TO zipline; ALTER DATABASE zipline OWNER TO zipline;
+        env:
+          PGPASSWORD:
             valueFrom:
               secretKeyRef:
                 name: cnpg-superuser-replica
                 key: password
-          INIT_POSTGRES_DBNAME: zipline
 
     containers:
       app:
         image:
           repository: ghcr.io/diced/zipline
-          tag: 4.0.3
+          # renovate: datasource=docker depName=ghcr.io/diced/zipline
+          tag: 4.4.1
         env:
           CORE_PORT: "3000"
           CORE_HOSTNAME: "0.0.0.0"
@@ -57,13 +84,15 @@ controllers:
               secretKeyRef:
                 name: zipline-secret
                 key: CORE_SECRET
-          # Database — superuser via replicated CNPG secret, $(VAR) substitution
+          # Database — dedicated app user via secret-generator, $(VAR) substitution
           POSTGRES_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: cnpg-superuser-replica
+                name: zipline-db-credentials
                 key: password
-          DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/zipline"
+          DATABASE_URL:
+            dependsOn: POSTGRES_PASSWORD
+            value: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-rw.database.svc.cluster.local:5432/zipline"
           # S3 — credentials auto-created by GarageKey operator
           DATASOURCE_TYPE: s3
           DATASOURCE_S3_REGION: garage
@@ -97,7 +126,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /api/health
+                path: /api/healthcheck
                 port: 3000
               initialDelaySeconds: 5
               periodSeconds: 5
@@ -107,7 +136,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /api/health
+                path: /api/healthcheck
                 port: 3000
               periodSeconds: 30
           readiness:
@@ -115,7 +144,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /api/health
+                path: /api/healthcheck
                 port: 3000
               periodSeconds: 10
 

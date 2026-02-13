@@ -343,6 +343,16 @@ locals {
     { name = "internal_domain", value = var.networking.internal_tld },
     { name = "external_domain", value = var.networking.external_tld },
     { name = "cluster_l2_interfaces", value = jsonencode(distinct(flatten([for m in values(local.machines) : [for bond_idx, _ in m.bonds : "bond${bond_idx}"]]))) },
+    # IPMI/BMC hostnames for hardware monitoring (SNMP + IPMI exporters)
+    # Filters to Supermicro nodes only (excludes RPi — no BMC)
+    {
+      name = "ipmi_target_hostnames"
+      value = jsonencode([
+        for name, machine in local.machines :
+        "${name}-ipmi.citadel.tomnowak.work"
+        if !startswith(name, "rpi")
+      ])
+    },
     # Storage provisioning - volume sizes based on cluster mode
     { name = "storage_provisioning", value = var.storage_provisioning },
     { name = "garage_data_volume_size", value = local.selected_sizes.garage_data },

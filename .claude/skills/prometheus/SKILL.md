@@ -1,27 +1,44 @@
 ---
 name: prometheus
 description: Query Prometheus API for cluster metrics, alerts, and observability data. Use when investigating cluster health, performance issues, resource utilization, or alert status. Triggers on questions like "what's the CPU usage", "show me firing alerts", "check memory pressure", "query prometheus for", or any PromQL-related requests.
+user-invocable: false
 ---
 
 # Prometheus Querying
 
 ## Setup
 
-Prometheus runs in-cluster. Establish access via port-forward:
+Prometheus is accessible via the internal ingress gateway over HTTPS. **Always use DNS-based access as the default approach.**
+
+| Cluster | URL |
+|---------|-----|
+| live | `https://prometheus.internal.tomnowak.work` |
+| integration | `https://prometheus.internal.integration.tomnowak.work` |
+| dev | `https://prometheus.internal.dev.tomnowak.work` |
+
+```bash
+# Set URL to the appropriate cluster (live example)
+export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
+```
+
+**Note:** The internal gateway uses a homelab CA certificate. Use `-k` with curl to skip TLS verification, or configure the CA trust. The `promql.sh` script uses `curl -f` internally, so set `CURL_INSECURE=true` or use the `--insecure` flag if needed.
+
+### Fallback: Port-Forward Access
+
+Use port-forwarding only when DNS-based access is unavailable:
 
 ```bash
 KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090
+export PROMETHEUS_URL=http://localhost:9090
 ```
-
-**Clusters**: `dev`, `integration`, `live`
 
 ## Quick Queries
 
 Use the bundled script at `.claude/skills/prometheus/scripts/promql.sh`:
 
 ```bash
-# Set URL (default: localhost:9090)
-export PROMETHEUS_URL=http://localhost:9090
+# Set URL (default uses internal gateway for live cluster)
+export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
 
 # Instant query
 ./scripts/promql.sh query 'up'
@@ -73,16 +90,22 @@ export PROMETHEUS_URL=http://localhost:9090
 ### Direct curl (alternative)
 
 ```bash
-# Instant query
-curl -s "http://localhost:9090/api/v1/query?query=up" | jq '.data.result'
+# Instant query (use -k for self-signed TLS)
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=up" | jq '.data.result'
 
 # Alerts
-curl -s "http://localhost:9090/api/v1/alerts" | jq '.data.alerts'
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts'
 ```
 
 ## Reference
 
 For homelab-specific PromQL queries (Longhorn, CloudNative-PG, Cilium, etc.), see [references/queries.md](references/queries.md).
+
+## Creating Monitoring Resources
+
+This skill covers **querying** Prometheus. For **authoring** new monitoring resources
+(PrometheusRules, ServiceMonitors, PodMonitors, AlertmanagerConfig, recording rules),
+see the [monitoring-authoring skill](../monitoring-authoring/SKILL.md).
 
 ## Prometheus Details
 

@@ -72,13 +72,28 @@ Documentation and skills are living artifacts. Improve them proactively:
 
 ## Agent Orchestration
 
-The main Claude agent operates as an **orchestrator**, not a direct executor. This maximizes context window efficiency and enables parallel work:
+The main Claude agent operates as an **orchestrator**, not a direct executor. This maximizes context window efficiency and enables parallel work.
 
-- **Delegate aggressively**: Use the Task tool to spawn specialized sub-agents for exploration, code review, architecture analysis, and implementation tasks
+**Agent-First Architecture**: Users interact through 3 custom agents (`/troubleshoot`, `/implement`, `/design`) defined in `.claude/agents/`. These agents compose skills internally, providing a higher-level interface than raw skill invocation. The orchestrator dispatches to these agents and manages ad-hoc sub-agents as needed:
+
+- **Delegate aggressively**: Use custom agents for domain tasks and the Task tool for ad-hoc sub-agents (exploration, code review, etc.)
 - **Preserve context**: The orchestrator's context is precious - offload research, file exploration, and deep dives to sub-agents
 - **Use task lists**: For multi-step work, create a task list (TaskCreate) to track progress and maintain visibility
 - **Clarify proactively**: Use AskUserQuestion liberally to validate assumptions, confirm approaches, and gather requirements before proceeding
 - **Parallel execution**: Launch multiple sub-agents simultaneously when tasks are independent
+
+**Worktree-First Development**: All code changes must happen in a git worktree, not the main checkout. This enables parallel agent work without branch conflicts or index lock contention:
+
+```bash
+task wt:new -- <branch-name>    # Creates worktree at ../homelab-<branch-name> off main
+```
+
+- **Why worktrees?** Multiple agents can work on separate branches simultaneously — each worktree has its own working directory, index, and HEAD
+- **Always branch off main**: Worktrees created by `task wt:new` automatically base on the current HEAD (ensure main is up to date)
+- **Path convention**: Worktrees live at `../homelab-<branch-name>` (sibling to the main checkout)
+- **Cleanup**: `task wt:remove -- <branch-name>` after PR is merged
+
+If the agent is already running inside a worktree (e.g. spawned by `task wt:new`), it should work directly — no need to create a nested worktree.
 
 **When to delegate vs execute directly:**
 
@@ -182,7 +197,8 @@ Every process, validation step, and architectural decision exists to protect pro
 
 ## Branch-Based Development
 
-All changes flow through pull requests:
+All changes flow through pull requests using **worktree-based isolation**:
+- **Worktree by default**: All work happens in a dedicated worktree, not the main checkout — this prevents conflicts when multiple agents work in parallel (see Agent Orchestration above)
 - **All changes require PRs**: Direct commits to `main` are forbidden (branch protection enforced)
 - **Validation gates**: PRs must pass all validation checks before merge
 - **Review required**: No self-merging - changes require approval
@@ -280,7 +296,9 @@ For dev cluster permissions, pre-flight checks, and safety procedures, see [.tas
 - **NEVER** use `git reset --hard` to undo commits after pushing
 - **NEVER** use `git push --force` or `git push --force-with-lease` - always create new commits to fix mistakes
 - **NEVER** commit to `main` when creating a PR - always create the branch first, then commit
-- **Correct PR workflow**: `git checkout -b <branch>` → make changes → `git commit` → `git push -u origin <branch>` → `gh pr create`
+- **NEVER** make changes directly in the main checkout when other agents may be working in parallel - use a worktree
+- **NEVER** reuse a worktree/branch from a merged PR for follow-up work — the remote branch was auto-deleted and the base is stale. Always: `task wt:remove -- <old-branch>`, pull main, `task wt:new -- <new-branch>`
+- **Correct PR workflow**: `task wt:new -- <branch>` → make changes in worktree → `git commit` → `git push -u origin <branch>` → `gh pr create` → `task wt:remove -- <branch>` (after merge)
 
 ## Kubernetes Safety
 
@@ -459,23 +477,44 @@ Each major directory has its own CLAUDE.md with domain-specific patterns:
 | [kubernetes/platform/config/CLAUDE.md](kubernetes/platform/config/CLAUDE.md) | Config subsystem organization |
 | [kubernetes/clusters/CLAUDE.md](kubernetes/clusters/CLAUDE.md) | Cluster configuration, promotion path |
 
-## Skills (Lazy-Loaded)
+## Agents (Primary User Interface)
 
-Invoke these skills for detailed procedural guidance:
+Users interact through 3 specialized agents that compose skills internally:
 
-| Skill | Trigger |
-|-------|---------|
-| `terragrunt` | Infrastructure operations, stack management |
-| `opentofu-modules` | Module development and testing |
-| `flux-gitops` | Adding Helm releases, ResourceSet patterns |
-| `app-template` | Deploying apps with bjw-s/app-template |
-| `kubesearch` | Researching Helm chart configurations |
-| `k8s-sre` | Debugging Kubernetes incidents |
-| `loki` | Query Loki API for logs and debugging |
-| `prometheus` | Query Prometheus API for metrics and alerts |
-| `taskfiles` | Taskfile syntax and patterns |
-| `sync-claude` | Validate and sync Claude docs before commits |
-| `self-improvement` | Capture feedback to enhance documentation and skills |
+| Command | Agent | Role | Composed Skills |
+|---------|-------|------|----------------|
+| `/troubleshoot` | `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline |
+| `/implement` | `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, cnpg-database, gateway-routing, versions-renovate |
+| `/design` | `designer` | Principal architect (Opus, plan mode) | kubesearch, architecture-review |
+
+Agent definitions live in `.claude/agents/`. See [.claude/skills/CLAUDE.md](.claude/skills/CLAUDE.md) for the full agent-first architecture.
+
+## Skills (Background, Agent-Composed)
+
+Skills are composed by agents internally — not invoked directly by users:
+
+| Skill | Purpose | Composed By |
+|-------|---------|-------------|
+| `terragrunt` | Infrastructure operations, stack management | implementer |
+| `opentofu-modules` | Module development and testing | implementer |
+| `flux-gitops` | Adding Helm releases, ResourceSet patterns | implementer |
+| `app-template` | Deploying apps with bjw-s/app-template | implementer |
+| `deploy-app` | End-to-end deployment with monitoring | implementer |
+| `taskfiles` | Taskfile syntax and patterns | implementer |
+| `k8s` | Cluster access, kubectl, Flux status, internal URLs | troubleshooter, implementer |
+| `secrets` | Secret provisioning (secret-generator, ExternalSecret, app-secrets) | implementer |
+| `monitoring-authoring` | Author alerts, ServiceMonitors, canary checks | implementer |
+| `cnpg-database` | PostgreSQL cluster provisioning and credentials | implementer |
+| `gateway-routing` | Gateway API routing, TLS, WAF configuration | implementer |
+| `versions-renovate` | Version management and Renovate annotations | implementer |
+| `sre` | Debugging Kubernetes incidents, root cause analysis | troubleshooter |
+| `loki` | Query Loki API for logs and debugging | troubleshooter |
+| `prometheus` | Query Prometheus API for metrics and alerts | troubleshooter |
+| `promotion-pipeline` | OCI artifact promotion tracing and rollback | troubleshooter |
+| `kubesearch` | Researching Helm chart configurations | designer |
+| `architecture-review` | Technology standards and evaluation criteria | designer |
+| `sync-claude` | Validate and sync Claude docs before commits | orchestrator |
+| `self-improvement` | Capture feedback to enhance documentation and skills | orchestrator |
 
 ---
 

@@ -9,7 +9,7 @@ description: |
 
   Triggers: "deploy app", "add new application", "deploy to kubernetes", "install helm chart",
   "/deploy-app", "set up new service", "add monitoring for", "deploy with monitoring"
-user_invocable: true
+user-invocable: false
 ---
 
 # Deploy App Workflow
@@ -138,6 +138,8 @@ All subsequent file operations happen in the worktree.
 
 ### 3.1 Add Version to versions.env
 
+Add a version entry with a Renovate annotation. For annotation syntax and datasource selection, see the [versions-renovate skill](../versions-renovate/SKILL.md).
+
 ```bash
 # kubernetes/platform/versions.env
 <APP>_VERSION="x.y.z"
@@ -170,6 +172,8 @@ Add to `kubernetes/platform/namespaces.yaml` inputs array:
     access.network-policy.homelab/garage-s3: "true"   # S3 storage access
     access.network-policy.homelab/kube-api: "true"    # Kubernetes API access
 ```
+
+For PostgreSQL provisioning patterns, see the [cnpg-database skill](../cnpg-database/SKILL.md).
 
 ### 3.3 Add to helm-charts.yaml
 
@@ -225,26 +229,17 @@ configMapGenerator:
       - charts/<app-name>.yaml
 ```
 
-### 3.6 Add Renovate Manager
+### 3.6 Configure Renovate Tracking
 
-Add to `.github/renovate.json5` customManagers:
-
-```json5
-{
-  customType: "regex",
-  fileMatch: ["kubernetes/platform/versions\\.env$"],
-  matchStrings: ["<APP>_VERSION=\"(?<currentValue>[^\"]+)\""],
-  depNameTemplate: "<chart-name>",
-  packageNameTemplate: "<registry-path>",
-  datasourceTemplate: "helm"  // or "docker" for OCI
-}
-```
+Renovate tracks versions.env entries automatically via inline `# renovate:` annotations (added in step 3.1). No changes to `.github/renovate.json5` are needed unless you want to add grouping or automerge overrides. For the full annotation workflow, see the [versions-renovate skill](../versions-renovate/SKILL.md).
 
 ### 3.7 Optional: Additional Configuration
 
 For apps that need extra resources, create `kubernetes/platform/config/<app-name>/`:
 
 #### HTTPRoute (for exposed apps)
+
+For detailed gateway routing and certificate configuration, see the [gateway-routing skill](../gateway-routing/SKILL.md).
 
 ```yaml
 # config/<app-name>/route.yaml
@@ -491,6 +486,8 @@ task wt:remove -- deploy-<app-name>
 ---
 
 ## Secrets Handling
+
+For detailed secret management workflows including persistent SSM-backed secrets, see the [secrets skill](../secrets/SKILL.md).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐

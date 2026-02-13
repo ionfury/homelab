@@ -2,8 +2,7 @@
 name: Tag Validated Artifact
 
 on:
-  repository_dispatch:
-    types: [artifact-validated]
+  status:
   workflow_dispatch:
     inputs:
       artifact_sha:
@@ -17,8 +16,13 @@ env:
 jobs:
   tag:
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.state == 'success' &&
+       startsWith(github.event.context, 'kustomization/platform/'))
     permissions:
       packages: write
+      statuses: read
 
     steps:
       - uses: fluxcd/flux2/action@main
@@ -35,7 +39,6 @@ jobs:
         with:
           script: |
             const inputSha = '${{ inputs.artifact_sha }}';
-            const payloadSha = '${{ github.event.client_payload.artifact_sha }}';
             const packageName = `${context.repo.repo}/platform`;
 
             // List all versions of the container package
@@ -46,8 +49,14 @@ jobs:
               per_page: 100,
             });
 
-            // Determine the artifact SHA - from input, payload, or auto-detect latest integration tag
-            let sha = inputSha || payloadSha;
+            // Determine the artifact SHA - from input, status event, or auto-detect
+            let sha = inputSha;
+
+            if (!sha && '${{ github.event_name }}' === 'status') {
+              // Extract short SHA from the commit that received the status
+              sha = '${{ github.event.sha }}'.substring(0, 7);
+              core.info(`Status event for commit ${sha}`);
+            }
 
             if (!sha) {
               core.info('No SHA provided, discovering latest integration tag...');
@@ -80,6 +89,15 @@ jobs:
               return;
             }
 
+            // Check if already promoted (Alert fires every ~10min reconciliation)
+            const alreadyValidated = targetVersion.metadata.container.tags.some(t =>
+              t === `validated-${sha}`
+            );
+            if (alreadyValidated) {
+              core.info(`Artifact ${sha} already validated — skipping`);
+              return;
+            }
+
             const rcTag = targetVersion.metadata.container.tags.find(t =>
               /^\d+\.\d+\.\d+-rc\.\d+$/.test(t)
             );
@@ -88,9 +106,9 @@ jobs:
               return;
             }
 
-            // Derive stable semver: 0.1.0-rc.130 → 0.1.130
-            const match = rcTag.match(/^(\d+\.\d+)\.\d+-rc\.(\d+)$/);
-            const stable = `${match[1]}.${match[2]}`;
+            // Derive stable semver by stripping RC suffix: 0.1.146-rc.3 → 0.1.146
+            const match = rcTag.match(/^(\d+\.\d+\.\d+)-rc\.\d+$/);
+            const stable = match[1];
 
             core.info(`Found RC tag: ${rcTag}`);
             core.info(`Derived stable semver: ${rcTag} → ${stable}`);
@@ -98,6 +116,7 @@ jobs:
             core.setOutput('stable', stable);
 
       - name: Tag as validated
+        if: steps.resolve.outputs.sha
         env:
           SHA: ${{ steps.resolve.outputs.sha }}
           STABLE: ${{ steps.resolve.outputs.stable }}

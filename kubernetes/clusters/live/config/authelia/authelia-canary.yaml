@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/canaries.flanksource.com/canary_v1.json
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-authelia
+  namespace: authelia
+spec:
+  schedule: "@every 1m"
+  http:
+    - name: internal-gateway-health
+      url: https://auth.${internal_domain}
+      responseCodes: [200, 302]
+      maxSSLExpiry: 7
+      thresholdMillis: 5000

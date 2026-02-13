@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-PROMETHEUS_URL="${PROMETHEUS_URL:-http://localhost:9090}"
+PROMETHEUS_URL="${PROMETHEUS_URL:-https://prometheus.internal.tomnowak.work}"
 
 usage() {
     cat <<EOF
@@ -46,7 +46,7 @@ Output Options:
   --verbose          Show full response including status
 
 Environment:
-  PROMETHEUS_URL     Prometheus base URL [default: http://localhost:9090]
+  PROMETHEUS_URL     Prometheus base URL [default: https://prometheus.internal.tomnowak.work]
 
 Examples:
   # Current CPU usage across all nodes
@@ -93,7 +93,7 @@ api_request() {
     local verbose="${3:-false}"
 
     local response
-    response=$(curl -s -f "$PROMETHEUS_URL/api/v1/$endpoint") || {
+    response=$(curl -sk -f "$PROMETHEUS_URL/api/v1/$endpoint") || {
         echo "Error: Failed to query $PROMETHEUS_URL/api/v1/$endpoint" >&2
         exit 1
     }
@@ -180,7 +180,7 @@ cmd_alerts() {
     done
 
     local response
-    response=$(curl -s -f "$PROMETHEUS_URL/api/v1/alerts") || {
+    response=$(curl -sk -f "$PROMETHEUS_URL/api/v1/alerts") || {
         echo "Error: Failed to query alerts" >&2
         exit 1
     }
@@ -210,7 +210,7 @@ cmd_rules() {
     done
 
     local response
-    response=$(curl -s -f "$PROMETHEUS_URL/api/v1/rules") || {
+    response=$(curl -sk -f "$PROMETHEUS_URL/api/v1/rules") || {
         echo "Error: Failed to query rules" >&2
         exit 1
     }
@@ -266,18 +266,18 @@ cmd_labels() {
 cmd_health() {
     echo "=== Prometheus Health ==="
     echo -n "Ready: "
-    curl -fsS "$PROMETHEUS_URL/-/ready" >/dev/null 2>&1 && echo "OK" || echo "FAILED"
+    curl -fskS "$PROMETHEUS_URL/-/ready" >/dev/null 2>&1 && echo "OK" || echo "FAILED"
 
     echo -n "Healthy: "
-    curl -fsS "$PROMETHEUS_URL/-/healthy" >/dev/null 2>&1 && echo "OK" || echo "FAILED"
+    curl -fskS "$PROMETHEUS_URL/-/healthy" >/dev/null 2>&1 && echo "OK" || echo "FAILED"
 
     echo ""
     echo "=== Build Info ==="
-    curl -s "$PROMETHEUS_URL/api/v1/status/buildinfo" | jq -r '.data | "Version: \(.version)\nBranch: \(.branch)\nRevision: \(.revision[0:8])"'
+    curl -sk "$PROMETHEUS_URL/api/v1/status/buildinfo" | jq -r '.data | "Version: \(.version)\nBranch: \(.branch)\nRevision: \(.revision[0:8])"'
 
     echo ""
     echo "=== Runtime Info ==="
-    curl -s "$PROMETHEUS_URL/api/v1/status/runtimeinfo" | jq -r '.data | "Storage Retention: \(.storageRetention)\nGoroutines: \(.goroutines)\nReload Config Success: \(.reloadConfigSuccess)"'
+    curl -sk "$PROMETHEUS_URL/api/v1/status/runtimeinfo" | jq -r '.data | "Storage Retention: \(.storageRetention)\nGoroutines: \(.goroutines)\nReload Config Success: \(.reloadConfigSuccess)"'
 }
 
 # Main

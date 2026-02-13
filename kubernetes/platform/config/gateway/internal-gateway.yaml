@@ -26,3 +26,10 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: http
+      hostname: "*.${internal_domain}"
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same

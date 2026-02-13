@@ -1,31 +1,24 @@
 ---
-name: k8s-sre
+name: sre
 description: |
-  Kubernetes SRE debugging and incident investigation for pod failures, crashes, and service issues.
+  SRE debugging methodology for Kubernetes incident investigation, root cause analysis,
+  and failure diagnosis.
 
   Use when: (1) Pods not starting, stuck, or failing (CrashLoopBackOff, ImagePullBackOff, OOMKilled, Pending),
   (2) Debugging Kubernetes errors or investigating "why is my pod...", (3) Service degradation or unavailability,
-  (4) Reading pod logs or events, (5) Troubleshooting deployments, statefulsets, or daemonsets,
-  (6) Root cause analysis for any Kubernetes incident.
+  (4) Root cause analysis for any Kubernetes incident, (5) Network policy blocking traffic,
+  (6) Stalled HelmReleases or Flux failures that need troubleshooting.
 
   Triggers: "pod not starting", "pod stuck", "CrashLoopBackOff", "ImagePullBackOff", "OOMKilled",
   "Pending pod", "why is my pod", "kubernetes error", "k8s error", "service not available",
-  "can't reach service", "pod logs", "debug kubernetes", "troubleshoot k8s", "what's wrong with my pod",
-  "deployment not working", "helm install failed", "flux not reconciling"
+  "can't reach service", "debug kubernetes", "troubleshoot k8s", "what's wrong with my pod",
+  "deployment not working", "helm install failed", "flux not reconciling", "root cause",
+  "5 whys", "incident", "network policy blocking", "hubble dropped", "stalled helmrelease",
+  "live not updating", "promotion pipeline stuck", "artifact not promoted"
+user-invocable: false
 ---
 
-# ACCESSING CLUSTERS
-
-**CRITICAL:** Always prefix kubectl/flux commands with inline KUBECONFIG assignment. Do NOT use `export` or `&&` - the variable must be set in the same command:
-
-```bash
-# ✅ CORRECT - inline assignment
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl get pods
-
-# ❌ WRONG - export with && breaks in some shell contexts
-export KUBECONFIG=~/.kube/<cluster>.yaml && kubectl get pods
-```
-
+> **Cluster access, KUBECONFIG patterns, and internal service URLs** are in the `k8s` skill.
 
 # Debugging Kubernetes Incidents
 
@@ -78,22 +71,8 @@ FIX: Use properly typed variable for StorageClass parameters
 - Multiple issues share the same underlying cause
 
 ```
-❌ WRONG: "Helm timed out → increase timeout to 15m"
-✅ CORRECT: "Helm timed out → ... → Kustomization type error → fix YAML"
-```
-
-## Cluster Context
-
-**CRITICAL:** Always confirm cluster before running commands.
-
-| Cluster | Purpose | Kubeconfig |
-|---------|---------|------------|
-| `dev` | Manual testing | `~/.kube/dev.yaml` |
-| `integration` | Automated testing | `~/.kube/integration.yaml` |
-| `live` | Production | `~/.kube/live.yaml` |
-
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl <command>
+BAD:  "Helm timed out → increase timeout to 15m"
+GOOD: "Helm timed out → ... → Kustomization type error → fix YAML"
 ```
 
 ## Investigation Phases
@@ -120,6 +99,16 @@ kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 
 # Resource usage
 kubectl top pods -n <namespace>
+```
+
+**Metrics and alerts via internal gateway (preferred over port-forward):**
+
+```bash
+# Check firing alerts
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts[] | select(.state == "firing")'
+
+# Pod restart metrics
+curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=increase(kube_pod_container_status_restarts_total[1h])>0" | jq '.data.result'
 ```
 
 ### Phase 3: Correlation
@@ -237,20 +226,6 @@ KUBECONFIG=~/.kube/<cluster>.yaml kubectl label namespace <ns> network-policy.ho
 
 See `docs/runbooks/network-policy-escape-hatch.md` for full procedure.
 
-## Flux GitOps Commands
-
-```bash
-# Check status
-KUBECONFIG=~/.kube/<cluster>.yaml flux get all
-KUBECONFIG=~/.kube/<cluster>.yaml flux get kustomizations
-KUBECONFIG=~/.kube/<cluster>.yaml flux get helmreleases -A
-
-# Trigger reconciliation
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile source git flux-system
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile kustomization <name>
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile helmrelease <name> -n <namespace>
-```
-
 ## Kickstarting Stalled HelmReleases
 
 HelmReleases can get stuck in a `Stalled` state with `RetriesExceeded` even after the underlying issue is resolved. This happens because:
@@ -288,46 +263,98 @@ KUBECONFIG=~/.kube/<cluster>.yaml flux resume helmrelease <name> -n flux-system
 
 **Prevention:** Ensure proper `dependsOn` ordering so prerequisites are ready before HelmRelease installs.
 
-## Researching Unfamiliar Services
+## Promotion Pipeline Debugging
 
-When investigating unknown services, spawn a haiku agent to research documentation:
+**Symptom: "Live cluster not updating after merge"**
+
+The OCI artifact promotion pipeline has multiple stages where failures can stall deployment.
+Walk through each stage in order to find where the pipeline is stuck.
+
+### Diagnostic Steps
 
 ```
-Task tool:
-- subagent_type: "general-purpose"
-- model: "haiku"
-- prompt: "Research [service] troubleshooting docs. Focus on:
-  1. Common failure modes
-  2. Health indicators
-  3. Configuration gotchas
-  Start with: [docs-url]"
+1. PR merged to main
+   └─ Check: Did build-platform-artifact.yaml trigger?
+      └─ GitHub Actions → "Build Platform Artifact" workflow
+      └─ If missing: Was kubernetes/ modified? (paths filter)
+
+2. OCI artifact built
+   └─ Check: Is the artifact in GHCR with integration-* tag?
+      └─ flux list artifact oci://ghcr.io/<repo>/platform | grep integration
+
+3. Integration cluster picks up artifact
+   └─ Check: Does OCIRepository see the new version?
+      └─ KUBECONFIG=~/.kube/integration.yaml kubectl get ocirepository -n flux-system
+      └─ Look at .status.artifact.revision — does it match the new RC tag?
+      └─ If stale: Check semver constraint (must be ">= 0.0.0-0" to accept RCs)
+
+4. Integration reconciliation succeeds
+   └─ Check: Platform Kustomization healthy?
+      └─ KUBECONFIG=~/.kube/integration.yaml flux get kustomizations -n flux-system
+      └─ If failed: Read Kustomization events for the error
+
+5. Flux Alert fires repository_dispatch
+   └─ Check: Did the Alert fire?
+      └─ KUBECONFIG=~/.kube/integration.yaml kubectl describe alert validation-success -n flux-system
+      └─ Check Provider (GitHub) status:
+         KUBECONFIG=~/.kube/integration.yaml kubectl get providers -n flux-system
+
+6. tag-validated-artifact.yaml runs
+   └─ Check: Did the workflow trigger?
+      └─ GitHub Actions → "Tag Validated Artifact" workflow
+      └─ If not triggered: repository_dispatch may not have fired
+         (check Provider secret has repo scope)
+      └─ If triggered but failed: Check workflow logs for tagging errors
+
+7. Live cluster picks up validated artifact
+   └─ Check: Does OCIRepository see the stable semver?
+      └─ KUBECONFIG=~/.kube/live.yaml kubectl get ocirepository -n flux-system
+      └─ Semver constraint must be ">= 0.0.0" (stable only, no RCs)
 ```
 
-**Chart URL → Docs mapping:**
-| Chart Source | Documentation |
-|--------------|---------------|
-| `charts.jetstack.io` | cert-manager.io/docs |
-| `charts.longhorn.io` | longhorn.io/docs |
-| `grafana.github.io` | grafana.com/docs |
-| `prometheus-community.github.io` | prometheus.io/docs |
+### Common Failure Modes
+
+| Stage | Symptom | Common Cause |
+|-------|---------|--------------|
+| Build | Workflow did not trigger | `kubernetes/` not in changed paths |
+| Build | Artifact push failed | GHCR auth issue (`GITHUB_TOKEN` permissions) |
+| Integration | OCIRepository not updating | Semver constraint mismatch (not accepting RCs) |
+| Validation | Kustomization failed | Actual config error in the merged PR |
+| Promotion | `repository_dispatch` not received | Provider secret missing `repo` scope |
+| Promotion | Workflow skipped (idempotency guard) | Artifact already tagged as validated |
+| Live | OCIRepository not updating | Stable semver tag not created by tag workflow |
+
+### Manual Promotion (Emergency)
+
+If the pipeline is stuck and live needs the update:
+
+```bash
+# Authenticate to GHCR
+echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USER --password-stdin
+
+# Find the integration artifact
+flux list artifact oci://ghcr.io/<repo>/platform | grep integration
+
+# Manually tag as validated + stable semver
+flux tag artifact oci://ghcr.io/<repo>/platform:<rc-tag> --tag <stable-semver>
+```
+
+See `.github/CLAUDE.md` for full pipeline architecture and rollback procedures.
 
 ## Common Confusions
 
-❌ Jump to logs without checking events first
-✅ Events provide context, then investigate logs
+BAD: Jump to logs without checking events first
+GOOD: Events provide context, then investigate logs
 
-❌ Look only at current pod state
-✅ Check `--previous` logs if pod restarted
+BAD: Look only at current pod state
+GOOD: Check `--previous` logs if pod restarted
 
-❌ Assume first error is root cause
-✅ Apply 5 Whys to find true root cause
+BAD: Assume first error is root cause
+GOOD: Apply 5 Whys to find true root cause
 
-❌ Investigate without confirming cluster
-✅ ALWAYS confirm cluster before any kubectl command
-
-❌ Use `helm list` to check Helm release status
-✅ Use `kubectl get helmrelease -A` - Flux manages releases via CRDs, not Helm CLI
+BAD: Investigate without confirming cluster
+GOOD: ALWAYS confirm cluster before any kubectl command
 
 ## Keywords
 
-kubernetes, debugging, crashloopbackoff, oomkilled, pending, root cause analysis, 5 whys, incident investigation, pod logs, events, kubectl, flux, gitops, troubleshooting
+kubernetes, debugging, crashloopbackoff, oomkilled, pending, root cause analysis, 5 whys, incident investigation, pod logs, events, troubleshooting, network policy, hubble, stalled helmrelease, promotion pipeline, live not updating

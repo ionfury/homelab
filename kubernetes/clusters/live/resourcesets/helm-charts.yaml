@@ -20,7 +20,7 @@ spec:
       chart:
         name: app-template
         version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s/helm
+        url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg]
     - name: immich
       namespace: immich
@@ -29,6 +29,20 @@ spec:
         version: "${immich_version}"
         url: "https://immich-app.github.io/immich-charts"
       dependsOn: [cloudnative-pg]
+    - name: lldap
+      namespace: authelia
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [cloudnative-pg, secret-generator]
+    - name: authelia
+      namespace: authelia
+      chart:
+        name: authelia
+        version: "${authelia_version}"
+        url: https://charts.authelia.com
+      dependsOn: [cloudnative-pg, secret-generator, lldap]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

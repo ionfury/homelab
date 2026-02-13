@@ -15,6 +15,7 @@ description: |
 
   This skill covers OpenTofu v1.11 testing syntax, variable inheritance patterns,
   assertion best practices, and repository-specific conventions in infrastructure/modules/.
+user-invocable: false
 ---
 
 # OpenTofu Modules & Testing

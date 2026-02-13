@@ -24,3 +24,8 @@ unit "ingress_pki" {
   source = "../../units/ingress-pki"
   path   = "ingress-pki"
 }
+
+unit "lldap_secrets" {
+  source = "../../units/lldap-secrets"
+  path   = "lldap-secrets"
+}

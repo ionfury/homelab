@@ -1,6 +1,6 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/values.schema.json
-# https://github.com/bjw-s/helm-charts/tree/main/charts/other/app-template
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
 controllers:
   kromgo:
     type: deployment
@@ -21,6 +21,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/kashalls/kromgo
+          # renovate: datasource=docker depName=ghcr.io/kashalls/kromgo
           tag: v0.7.5
         env:
           TZ: UTC

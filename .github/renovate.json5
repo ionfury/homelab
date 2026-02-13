@@ -31,274 +31,29 @@
       "packageNameTemplate": "gruntwork-io/terragrunt"
     },
     // ============================================================
-    // Infrastructure versions (kubernetes/platform/versions.env)
+    // versions.env — generic annotation-driven manager
+    // Each entry has a "# renovate:" comment above the key=value line.
     // ============================================================
-    // Talos version (v-prefixed)
     {
       "customType": "regex",
       "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["talos_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "talos",
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "siderolabs/talos"
-    },
-    // Kubernetes version (unprefixed, extract from v-prefixed tags)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["kubernetes_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "kubernetes",
-      "datasourceTemplate": "github-tags",
-      "packageNameTemplate": "kubernetes/kubernetes",
-      "extractVersionTemplate": "^v(?<version>.*)$"
-    },
-    // Cilium version (unprefixed, extract from v-prefixed releases)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["cilium_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "cilium",
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "cilium/cilium",
-      "extractVersionTemplate": "^v(?<version>.*)$"
-    },
-    // Gateway API version (v-prefixed)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["gateway_api_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "gateway-api",
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "kubernetes-sigs/gateway-api"
-    },
-    // Flux version (v-prefixed)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["flux_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "flux",
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "fluxcd/flux2"
-    },
-    // Prometheus CRDs Helm chart version (used for bootstrap CRDs)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["prometheus_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "prometheus-operator-crds",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://prometheus-community.github.io/helm-charts"
+      "matchStringsStrategy": "any",
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+packageName=(?<packageName>[^\\s]+))?(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?(?:\\s+registryUrl=(?<registryUrl>[^\\s]+))?(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n[A-Za-z_]+=(?<currentValue>.+)"
+      ]
     },
     // ============================================================
-    // Helm chart versions (kubernetes/platform/versions.env)
+    // YAML container images — generic annotation-driven manager
+    // Tracks hardcoded image tags in chart values files.
     // ============================================================
-    // cert-manager (chart versions are v-prefixed, we store without v)
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["cert_manager_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "cert-manager",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://charts.jetstack.io",
-      "extractVersionTemplate": "^v(?<version>.*)$"
-    },
-    // external-secrets
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["external_secrets_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "external-secrets",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://charts.external-secrets.io"
-    },
-    // descheduler
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["descheduler_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "descheduler",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://kubernetes-sigs.github.io/descheduler"
-    },
-    // longhorn (chart versions are unprefixed)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["longhorn_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "longhorn",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://charts.longhorn.io"
-    },
-    // reloader (chart versions are unprefixed)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["reloader_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "reloader",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://stakater.github.io/stakater-charts"
-    },
-    // kubernetes-replicator
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["replicator_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "kubernetes-replicator",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://helm.mittwald.de"
-    },
-    // kubernetes-secret-generator
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["secret_generator_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "kubernetes-secret-generator",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://helm.mittwald.de"
-    },
-    // canary-checker
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["canary_checker_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "canary-checker",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://flanksource.github.io/charts"
-    },
-    // kube-prometheus-stack
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["kube_prometheus_stack_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "kube-prometheus-stack",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://prometheus-community.github.io/helm-charts"
-    },
-    // loki
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["loki_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "loki",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://grafana.github.io/helm-charts"
-    },
-    // alloy
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["alloy_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "alloy",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://grafana.github.io/helm-charts"
-    },
-    // grafana
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["grafana_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "grafana",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://grafana.github.io/helm-charts"
-    },
-    // istio (base/istiod/ztunnel all use same version)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["istio_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "base",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://istio-release.storage.googleapis.com/charts"
-    },
-    // istio-csr
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["istio_csr_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "cert-manager-istio-csr",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://charts.jetstack.io"
-    },
-    // garage-operator (OCI registry: oci://ghcr.io/rajsinghtech/charts)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["garage_operator_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "garage-operator",
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/rajsinghtech/charts/garage-operator"
-    },
-    // cloudnative-pg
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["cloudnative_pg_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "cloudnative-pg",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://cloudnative-pg.github.io/charts"
-    },
-    // dragonfly-operator (OCI registry, v-prefixed)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["dragonfly_operator_version=(?<currentValue>v\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "dragonfly-operator",
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/dragonflydb/dragonfly-operator/helm/dragonfly-operator"
-    },
-    // app-template (OCI registry: oci://ghcr.io/bjw-s/helm)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["app_template_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "app-template",
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/bjw-s/helm/app-template"
-    },
-    // spegel (OCI registry)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["spegel_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "spegel",
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/spegel-org/helm-charts/spegel"
-    },
-    // tuppr (OCI registry: oci://ghcr.io/home-operations/charts)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["tuppr_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "tuppr",
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/home-operations/charts/tuppr"
-    },
-    // silence-operator (OCI registry: oci://gsoci.azurecr.io/charts/giantswarm)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["silence_operator_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "silence-operator",
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "gsoci.azurecr.io/charts/giantswarm/silence-operator"
-    },
-    // immich (HTTP Helm chart)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["immich_version=(?<currentValue>\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?)"],
-      "depNameTemplate": "immich",
-      "datasourceTemplate": "helm",
-      "registryUrlTemplate": "https://immich-app.github.io/immich-charts"
-    },
-    // vectorchord (CNPG image for Immich)
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
-      "matchStrings": ["vectorchord_version=(?<currentValue>\\d+\\.\\d+-\\d+\\.\\d+\\.\\d+)"],
-      "depNameTemplate": "cloudnative-vectorchord",
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/tensorchord/cloudnative-vectorchord"
+      "managerFilePatterns": ["/^kubernetes/.*\\.ya?ml$/"],
+      "matchStringsStrategy": "any",
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n\\s+tag:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?",
+        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n\\s+image:\\s*\\S+:(?<currentValue>[^\\s\"']+)"
+      ]
     }
   ],
   "ignorePaths": [
@@ -347,6 +102,16 @@
       // Mittwald utilities (replicator, secret-generator)
       "matchDepNames": ["kubernetes-replicator", "kubernetes-secret-generator"],
       "groupName": "mittwald utilities"
+    },
+    {
+      // Authelia stack (authentication)
+      "matchDepNames": ["authelia", "lldap"],
+      "groupName": "authelia stack"
+    },
+    {
+      // Hardware monitoring exporters
+      "matchDepNames": ["prometheus-snmp-exporter", "prometheus-ipmi-exporter", "prometheus-smartctl-exporter"],
+      "groupName": "hardware monitoring exporters"
     }
   ]
 }

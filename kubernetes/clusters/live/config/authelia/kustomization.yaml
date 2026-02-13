@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - internal-route.yaml
+  - external-route.yaml
+  - lldap-route.yaml
+  - network-policy.yaml
+  - authelia-canary.yaml
+  - prometheus-rules.yaml

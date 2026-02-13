@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - zipline
   - immich
+  # authelia-prereqs and authelia are managed by their own Flux Kustomizations in config.yaml

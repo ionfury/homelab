@@ -6,6 +6,7 @@ resources:
   - gateway-deployment-defaults.yaml
   - internal-gateway.yaml
   - external-gateway.yaml
+  - http-to-https-redirect.yaml
   - coraza-wasm-plugin.yaml
   - coraza-config.yaml
   - coraza-waf-rules.yaml

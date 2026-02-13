@@ -724,6 +724,58 @@ run "on_destroy_config" {
   }
 }
 
+# IPMI target hostnames exclude RPi nodes (no BMC)
+run "ipmi_targets_exclude_rpi" {
+  command = plan
+
+  variables {
+    features = []
+    machines = {
+      node1 = {
+        cluster = "test-cluster"
+        type    = "controlplane"
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+      rpi1 = {
+        cluster = "test-cluster"
+        type    = "controlplane"
+        install = {
+          selector     = "disk.model = *"
+          architecture = "arm64"
+          sbc          = "rpi_generic"
+        }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:02"]
+          addresses          = ["192.168.10.102"]
+        }]
+      }
+    }
+  }
+
+  # Only node1 should appear in IPMI targets, rpi1 excluded
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars :
+      v.name == "ipmi_target_hostnames" &&
+      strcontains(v.value, "node1-ipmi.citadel.tomnowak.work")
+    ])
+    error_message = "ipmi_target_hostnames should include node1"
+  }
+
+  assert {
+    condition = anytrue([
+      for v in output.cluster_vars :
+      v.name == "ipmi_target_hostnames" &&
+      !strcontains(v.value, "rpi1-ipmi")
+    ])
+    error_message = "ipmi_target_hostnames should exclude RPi nodes"
+  }
+}
+
 # Multi-link bond with 802.3ad mode
 run "multi_link_bond_802_3ad" {
   command = plan

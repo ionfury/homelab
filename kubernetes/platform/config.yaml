@@ -41,7 +41,7 @@ spec:
     - name: monitoring-config
       namespace: monitoring
       path: kubernetes/platform/config/monitoring
-      dependsOn: [kube-prometheus-stack, canary-checker]
+      dependsOn: [kube-prometheus-stack, canary-checker, external-secrets-stores]
     - name: database-config
       namespace: database
       path: kubernetes/platform/config/database

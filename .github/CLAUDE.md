@@ -14,7 +14,7 @@ For core principles and deployment philosophy, see [CLAUDE.md](../CLAUDE.md).
 | `infrastructure-validate.yaml` | PR (infrastructure/ changes) | Format checks, module tests |
 | `renovate-validate.yaml` | PR (renovate config) | Validate Renovate configuration |
 | `build-platform-artifact.yaml` | Push to main (kubernetes/) | Build OCI artifact for promotion |
-| `tag-validated-artifact.yaml` | repository_dispatch | Promote validated artifact to live |
+| `tag-validated-artifact.yaml` | status event (commit status) | Promote validated artifact to live |
 | `renovate.yaml` | Scheduled (hourly) | Dependency update automation |
 | `label-sync.yaml` | Scheduled/manual | Sync GitHub labels |
 
@@ -34,7 +34,8 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │  build-platform-artifact.yaml                                       │
-│  ├─ flux push artifact → ghcr.io/.../platform:0.1.0-rc.N           │
+│  ├─ Discovers latest stable tag, bumps patch for next version       │
+│  ├─ flux push artifact → ghcr.io/.../platform:X.Y.Z-rc.N           │
 │  ├─ flux tag artifact → sha-<short-sha>                            │
 │  └─ flux tag artifact → integration-<short-sha>                    │
 └─────────────────────────────────┬───────────────────────────────────┘
@@ -43,23 +44,23 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Integration Cluster                                                │
 │  ├─ OCIRepository polls for semver ">= 0.0.0-0" (includes RCs)     │
-│  ├─ Detects new 0.1.0-rc.N artifact                                │
+│  ├─ Detects new X.Y.Z-rc.N artifact (higher than last stable)      │
 │  └─ Flux reconciles platform                                        │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│  Canary-Checker Validation                                          │
-│  ├─ Monitors Kustomization health                                   │
-│  ├─ Runs platform smoke tests                                       │
-│  └─ On success: Alert triggers repository_dispatch                  │
+│  Flux Alert (validation-success)                                     │
+│  ├─ Watches platform Kustomization for "Reconciliation finished"     │
+│  ├─ Provider posts commit status (context: kustomization/platform/*) │
+│  └─ Workflow has idempotency guard for repeated reconciliation events │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │  tag-validated-artifact.yaml                                        │
 │  ├─ flux tag artifact → validated-<short-sha> (traceability)       │
-│  └─ flux tag artifact → 0.1.N (stable semver for live)             │
+│  └─ flux tag artifact → X.Y.Z (stable semver, RC suffix stripped)  │
 └─────────────────────────────────┬───────────────────────────────────┘
                                   │
                                   ▼
@@ -75,11 +76,16 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 
 | Tag | Created By | Purpose |
 |-----|------------|---------|
-| `0.1.0-rc.N` | build workflow | Semver for OCIRepository polling (integration) |
+| `X.Y.Z-rc.N` | build workflow | Pre-release semver for integration OCIRepository polling |
 | `sha-<short>` | build workflow | Immutable reference to commit |
 | `integration-<short>` | build workflow | Marks artifact for integration |
 | `validated-<short>` | tag workflow | Traceability reference for validated artifacts |
-| `0.1.N` | tag workflow | Stable semver for live OCIRepository polling |
+| `X.Y.Z` | tag workflow | Stable semver for live OCIRepository polling |
+
+**Version numbering**: The build workflow discovers the latest stable tag (`X.Y.Z`) from GHCR,
+bumps the patch version, and creates RC tags like `X.Y.(Z+1)-rc.N`. When validated, the RC
+suffix is stripped to produce the stable tag `X.Y.(Z+1)`. This ensures RC tags always sort
+higher than the previous stable release in semver ordering.
 
 ---
 
@@ -137,7 +143,7 @@ kubectl get alerts -n flux-system
 kubectl get providers -n flux-system
 
 # Check if Alert fired
-kubectl describe alert canary-success -n flux-system
+kubectl describe alert validation-success -n flux-system
 ```
 
 ### Tracing an Artifact
@@ -162,8 +168,10 @@ flux get kustomizations -A
 |---------|-------|-----|
 | Build succeeds but integration doesn't update | Semver not matching `>= 0.0.0-0` | Check OCIRepository spec |
 | Validation passes but live doesn't update | `validated-*` tag not applied | Check tag-validated workflow |
-| `repository_dispatch` not received | GitHub token missing `repo` scope | Check Provider secret |
+| Commit status not posted | `flux-system` secret token lacks `statuses:write` permission | Check notification-controller logs for explicit API errors, update token in SSM |
+| Commit status posted but workflow doesn't trigger | Job-level `if` filter not matching context prefix | Check `github.event.context` format: should start with `kustomization/platform/` |
 | Artifact push fails | GHCR auth issue | Check `GITHUB_TOKEN` permissions |
+| Workflow triggers every ~10min | Alert fires on every reconciliation | Idempotency guard skips already-validated artifacts |
 
 ### Manual Promotion (Emergency)
 
@@ -222,27 +230,18 @@ Runs on PRs touching `infrastructure/`:
 
 Triggers on push to main (kubernetes/ changes):
 
-```yaml
-# Key steps
-flux push artifact \
-  oci://ghcr.io/${{ github.repository }}/platform:${SEMVER} \
-  --path=. \
-  --source="https://github.com/${{ github.repository }}" \
-  --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
-
-flux tag artifact ... --tag integration-${SHORT_SHA}
-```
+1. **Resolve version**: Queries GHCR for latest stable tag, bumps patch, increments RC number
+2. **Push artifact**: `flux push artifact ... :X.Y.Z-rc.N`
+3. **Tag**: Adds `sha-<short>` and `integration-<short>` tags
 
 ### tag-validated-artifact.yaml
 
-Triggers on `repository_dispatch` from canary-checker:
+Triggers on `status` event (GitHub commit status posted by Flux's `github` Provider):
 
-```yaml
-# Validates SHA format and tags
-flux tag artifact \
-  "oci://ghcr.io/.../platform:integration-${SHA}" \
-  --tag "validated-${SHA}"
-```
+1. **Filter**: Only runs on `state == 'success'` with context prefix `kustomization/platform/`
+2. **Resolve**: Extracts short SHA from commit, finds `integration-<sha>` artifact, extracts RC tag
+3. **Derive stable**: Strips `-rc.N` suffix (e.g., `0.1.146-rc.3` → `0.1.146`)
+4. **Tag**: Adds `validated-<sha>` and stable semver tags
 
 ---
 
