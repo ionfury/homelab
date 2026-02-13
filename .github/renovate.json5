@@ -8,6 +8,8 @@
     "github>ionfury/homelab//.renovate/labels.json5"
   ],
   "dependencyDashboardTitle": "Dependency Dashboard",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 20,
   "terraform": {
     "managerFilePatterns": ["/(^|/)infrastructure/.+\\.tf$/"],
     "registryUrls": ["https://registry.opentofu.org"]
