@@ -17,3 +17,38 @@ spec:
         object.status.conditions.exists(c,
           c.type == 'Ready' && c.status == 'True')
       timeout: 10m
+    - apiVersion: longhorn.io/v1beta2
+      kind: Volume
+      namespace: longhorn-system
+      description: All attached Longhorn volumes must be robust (detached volumes are excluded)
+      expr: |
+        status.state != 'attached' ||
+          status.robustness == 'healthy'
+      timeout: 30m
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      name: platform
+      namespace: database
+      description: CNPG cluster must be healthy with all instances ready
+      expr: |
+        status.phase == 'Cluster in healthy state' &&
+          status.readyInstances == object.spec.instances
+      timeout: 15m
+    - apiVersion: garage.rajsingh.info/v1alpha1
+      kind: GarageCluster
+      name: garage
+      namespace: garage
+      description: Garage cluster must be running with all replicas ready
+      expr: |
+        status.phase == 'Running' &&
+          status.readyReplicas == object.spec.replicas
+      timeout: 10m
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      name: dragonfly
+      namespace: database
+      description: Dragonfly must be ready and not in a rolling update
+      expr: |
+        status.phase == 'ready' &&
+          !status.isRollingUpdate
+      timeout: 10m
