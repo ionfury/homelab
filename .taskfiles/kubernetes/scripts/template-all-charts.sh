@@ -8,7 +8,7 @@ set -euo pipefail
 #   - VERSION_VARS: Path to versions.env file (for substituting version variables)
 #   - EXPANDED_DIR: Output directory for templated charts
 #   - cluster_name, cluster_pod_subnet, internal_domain, external_domain: Flux substitution vars
-#   - default_replica_count, garage_data_volume_size, garage_meta_volume_size, loki_volume_size, prometheus_volume_size: Flux vars
+#   - default_replica_count, garage_data_volume_size, garage_meta_volume_size, loki_volume_size, prometheus_volume_size, prometheus_retention_size: Flux vars
 
 # Source version variables
 set -a

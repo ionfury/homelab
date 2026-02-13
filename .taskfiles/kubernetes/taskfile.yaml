@@ -25,6 +25,7 @@ vars:
   TEST_GARAGE_META_SIZE: "1Gi"
   TEST_LOKI_SIZE: "10Gi"
   TEST_PROMETHEUS_SIZE: "10Gi"
+  TEST_PROMETHEUS_RETENTION: "8GB"
   # Common kubeconform arguments (double-brace escaping for kubeconform templates)
   KUBECONFORM_ARGS: >-
     -schema-location default
@@ -185,6 +186,7 @@ tasks:
       garage_meta_volume_size: "{{.TEST_GARAGE_META_SIZE}}"
       loki_volume_size: "{{.TEST_LOKI_SIZE}}"
       prometheus_volume_size: "{{.TEST_PROMETHEUS_SIZE}}"
+      prometheus_retention_size: "{{.TEST_PROMETHEUS_RETENTION}}"
     cmds:
       - mkdir -p {{.EXPANDED_DIR}}/helm
       - "{{.TASKFILE_DIR}}/scripts/template-all-charts.sh"
