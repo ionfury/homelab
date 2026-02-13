@@ -2,10 +2,18 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "packageRules": [
     // AUTOMERGE RULES (applied first, then overridden by exclusions below)
-    // Aggressive: All minor and patch updates (Flux handles rollback)
+    // Patch updates are low-risk and the promotion pipeline validates before live
     {
-      "description": "Automerge minor and patch updates",
-      "matchUpdateTypes": ["minor", "patch"],
+      "description": "Automerge patch updates",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "1 day"
+    },
+    // Minor updates carry more risk, keep a longer stabilization window
+    {
+      "description": "Automerge minor updates",
+      "matchUpdateTypes": ["minor"],
       "automerge": true,
       "automergeType": "pr",
       "minimumReleaseAge": "3 days"
