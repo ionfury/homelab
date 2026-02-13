@@ -1,17 +1,17 @@
 ---
 # https://raw.githubusercontent.com/longhorn/charts/master/charts/longhorn/values.yaml
 longhornManager:
-  priorityClass: system-critical
+  priorityClass: infrastructure-critical
 longhornDriver:
-  priorityClass: system-critical
+  priorityClass: infrastructure-critical
 longhornUI:
-  priorityClass: system-critical
+  priorityClass: infrastructure-critical
 longhornAdmissionWebhook:
-  priorityClass: system-critical
+  priorityClass: infrastructure-critical
 longhornRecoveryBackend:
-  priorityClass: system-critical
+  priorityClass: infrastructure-critical
 longhornConversionWebhook:
-  priorityClass: system-critical
+  priorityClass: infrastructure-critical
 persistence:
   defaultFsType: xfs
   defaultClassReplicaCount: ${default_replica_count}
