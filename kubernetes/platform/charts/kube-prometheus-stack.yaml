@@ -6,6 +6,7 @@ cleanPrometheusOperatorObjectNames: true
 alertmanager:
   enabled: true
   alertmanagerSpec:
+    priorityClassName: platform
     podMetadata:
       labels:
         networking/allow-egress-internet: "true"
@@ -44,6 +45,7 @@ prometheus:
   ingress:
     enabled: false
   prometheusSpec:
+    priorityClassName: platform
     podMetadata:
       labels:
         networking/allow-ingress-internal: "true"

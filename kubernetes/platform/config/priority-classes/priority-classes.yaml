@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/scheduling.k8s.io/priorityclass_v1.json
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: system-critical
+value: 1000000
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: >-
+  CNI, DNS, storage drivers, and mesh data plane components.
+  These must survive resource pressure to maintain cluster connectivity.
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/scheduling.k8s.io/priorityclass_v1.json
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: platform
+value: 900000
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: >-
+  Monitoring, logging, databases, gateways, and control plane services.
+  These support platform operations and should preempt application workloads.
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/scheduling.k8s.io/priorityclass_v1.json
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: application
+value: 800000
+preemptionPolicy: PreemptLowerPriority
+globalDefault: true
+description: >-
+  User-facing application workloads. Default priority for all pods
+  that do not specify an explicit priorityClassName.

@@ -1,5 +1,6 @@
 ---
 # https://raw.githubusercontent.com/mittwald/kubernetes-replicator/master/deploy/helm-chart/kubernetes-replicator/values.yaml
+priorityClassName: platform
 image:
   pullPolicy: IfNotPresent
 

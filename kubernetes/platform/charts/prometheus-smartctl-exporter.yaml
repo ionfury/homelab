@@ -1,5 +1,6 @@
 ---
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-smartctl-exporter
+priorityClassName: platform
 serviceMonitor:
   enabled: true
   interval: 60s

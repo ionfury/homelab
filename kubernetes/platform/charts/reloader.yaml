@@ -3,6 +3,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/chart/reloader/values.schema.json
 
 reloader:
+  deployment:
+    priorityClassName: platform
   podMonitor:
     enabled: true
   reloadStrategy: annotations

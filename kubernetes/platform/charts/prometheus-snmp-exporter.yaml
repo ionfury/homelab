@@ -1,4 +1,5 @@
 ---
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-snmp-exporter
+priorityClassName: platform
 serviceMonitor:
   enabled: false  # Using standalone ScrapeConfig for Flux variable substitution
