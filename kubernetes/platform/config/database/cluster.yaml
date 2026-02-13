@@ -5,7 +5,7 @@ metadata:
   name: platform
 spec:
   description: "Shared platform PostgreSQL cluster"
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.2
+  imageName: ghcr.io/cloudnative-pg/postgresql:${postgresql_image_version}
   instances: ${default_replica_count}
   primaryUpdateStrategy: unsupervised
 

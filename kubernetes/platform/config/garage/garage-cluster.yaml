@@ -4,7 +4,7 @@ kind: GarageCluster
 metadata:
   name: garage
 spec:
-  image: dxflrs/garage:v2.2.0
+  image: dxflrs/garage:${garage_image_version}
   replicas: ${default_replica_count}
   zone: ${cluster_name}
 
