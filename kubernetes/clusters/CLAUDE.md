@@ -217,8 +217,8 @@ KUBECONFIG=~/.kube/live.yaml kubectl describe pod -n monitoring prometheus-0
 | Name | Purpose | Hardware | Notes |
 |------|---------|----------|-------|
 | `live` | Production | node41-43 (Supermicro x86_64) | 3-node HA control plane |
-| `integration` | Upgrade testing | node44 (Supermicro x86_64) | Single node, automated deployment |
-| `dev` | Manual testing | rpi4, node46-48 (mixed ARM64/x86_64) | Multi-node, not in automated pipeline |
+| `integration` | Upgrade testing | node46-48 (Supermicro x86_64) | 3-node HA, automated deployment |
+| `dev` | Manual testing | node45 (Supermicro x86_64) | Single node, not in automated pipeline |
 
 ### Current Bootstrap State
 
