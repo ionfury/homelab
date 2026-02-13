@@ -9,7 +9,7 @@ alertmanager:
     podMetadata:
       labels:
         networking/allow-egress-internet: "true"
-    replicas: 1
+    replicas: ${default_replica_count}
     alertmanagerConfiguration:
       name: alertmanager
       global:
