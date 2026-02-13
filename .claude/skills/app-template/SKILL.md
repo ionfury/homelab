@@ -274,7 +274,40 @@ controllers:
 
 ## Security Context
 
-### Pod-Level
+### Restricted Profile (Required for restricted namespaces)
+
+Namespaces with `security: restricted` (cert-manager, external-secrets, system, database, kromgo) enforce the PodSecurity `restricted` profile. All containers MUST have the following security context or pods will be rejected at admission time.
+
+```yaml
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534             # Use if image runs as root; omit if image already runs non-root
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: myapp
+          tag: v1.0.0
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+```
+
+If the application writes to the filesystem, mount writable `emptyDir` volumes at the required paths rather than disabling `readOnlyRootFilesystem`.
+
+### Pod-Level (Baseline namespaces)
+
+For namespaces with `security: baseline`, a lighter security context is sufficient:
 
 ```yaml
 defaultPodOptions:
@@ -294,6 +327,8 @@ controllers:
 ```
 
 ### Container-Level (Privileged Sidecar)
+
+Only applicable in namespaces with `security: privileged`:
 
 ```yaml
 controllers:

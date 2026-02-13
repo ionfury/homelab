@@ -39,7 +39,7 @@ The `config/` directory organizes non-Helm resources by concern:
 | `kromgo/` | Kromgo status page configs |
 | `longhorn/` | Longhorn backup and storage configs |
 | `monitoring/` | Prometheus rules, Grafana dashboards |
-| `priority-classes/` | Workload scheduling priority tiers |
+| `priority-classes/` | Workload scheduling priority tiers (infrastructure-critical, platform, application) |
 | `secrets/` | Secret generator resources |
 | `tuppr/` | Tuppr upgrade CRs (TalosUpgrade, KubernetesUpgrade) |
 
@@ -107,6 +107,57 @@ inputs:
 - Chart versions use `${var}` pattern (variable from `platform-versions` ConfigMap, guaranteed by bootstrap dependency chain)
 - Dependencies between releases use `dependsOn` arrays
 - Values files contain only Helm chart configuration
+
+---
+
+## PodSecurity Enforcement
+
+Namespaces use PodSecurity admission to enforce security profiles. The `namespaces.yaml` ResourceSet assigns one of three profiles to each namespace: `restricted`, `baseline`, or `privileged`.
+
+### Namespace Security Levels
+
+| Level | Namespaces | Implications |
+|-------|-----------|--------------|
+| `restricted` | cert-manager, external-secrets, system, database, kromgo | Strictest: requires full security context on all pods |
+| `baseline` | istio-gateway, garage | Moderate: allows some elevated capabilities (e.g., `NET_BIND_SERVICE`) |
+| `privileged` | kube-system, longhorn-system, istio-system, monitoring, spegel, system-upgrade | Unrestricted: host access, BPF, privileged containers |
+
+### Required Security Context for `restricted` Namespaces
+
+Charts deployed to `restricted` namespaces **MUST** set these fields or pods will be rejected at admission time:
+
+```yaml
+# Pod-level security context
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container-level security context (every container and init container)
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534          # Only if the image runs as root by default
+  seccompProfile:
+    type: RuntimeDefault
+```
+
+If the container image already runs as a non-root user (check with `docker inspect <image>` or image documentation), you can omit `runAsUser`. If the image runs as root by default, set `runAsUser: 65534` (the `nobody` user).
+
+### Validation Gap
+
+`task k8s:validate` catches YAML schema errors but **cannot** detect PodSecurity admission violations. These are only caught by:
+- **Server-side dry-run**: `task k8s:dry-run-dev` (not currently in CI)
+- **Actual deployment**: Pods rejected at admission time in the cluster
+
+Agents must manually verify security context compliance when deploying to restricted namespaces. Check the target namespace's security level in `namespaces.yaml` before writing chart values.
+
+### PriorityClass Naming Constraints
+
+Custom PriorityClass names must never use the `system-` prefix, which Kubernetes reserves for built-in classes (`system-cluster-critical`, `system-node-critical`). Our tiers are: `infrastructure-critical`, `platform`, `application`. See [config/CLAUDE.md](config/CLAUDE.md) for details.
 
 ---
 

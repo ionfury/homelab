@@ -85,6 +85,39 @@ config/my-new-chart/
 
 Then reference in `config.yaml` ResourceSet.
 
+### Step 5: Verify PodSecurity Compliance
+
+Before finalizing values, check the target namespace's PodSecurity level in `namespaces.yaml`:
+
+- [ ] **Identify the namespace security level**: Look for `security: restricted`, `baseline`, or `privileged` in the namespace inputs
+- [ ] **If `restricted`**: Add full security context to chart values (see below)
+- [ ] **Check the container image's default user**: If it runs as root, set `runAsUser: 65534`
+- [ ] **Verify all init containers and sidecars** also have security context set
+
+**Required security context for `restricted` namespaces:**
+
+```yaml
+# Pod-level (chart-specific key varies: podSecurityContext, securityContext, pod.securityContext)
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container-level (every container)
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+```
+
+**Restricted namespaces**: cert-manager, external-secrets, system, database, kromgo. See [kubernetes/platform/CLAUDE.md](../../kubernetes/platform/CLAUDE.md) for the full list.
+
+**Validation gap**: `task k8s:validate` does NOT catch PodSecurity violations. These are only caught at admission time in the cluster.
+
 ## ResourceSet Template Syntax
 
 The `resourcesTemplate` uses Go text/template with `<<` `>>` delimiters:
