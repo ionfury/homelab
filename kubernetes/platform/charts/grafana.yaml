@@ -3,24 +3,44 @@
 deploymentStrategy:
   type: Recreate
 admin:
-  user: admin
-  password: admin
+  existingSecret: grafana-admin
+  userKey: admin-user
+  passwordKey: admin-password
 env:
   GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
   GF_EXPLORE_ENABLED: true
   GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
   GF_SECURITY_ANGULAR_SUPPORT_ENABLED: true
   GF_SERVER_ROOT_URL: https://grafana.${internal_domain}
+envValueFrom:
+  GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+    secretKeyRef:
+      name: grafana-oidc-client-secret
+      key: client-secret
+      optional: true
 grafana.ini:
   analytics:
     check_for_updates: false
     check_for_plugin_updates: false
     reporting_enabled: false
-  auth.anonymous:
+  auth:
+    signout_redirect_url: https://auth.${internal_domain}/logout
+  auth.generic_oauth:
     enabled: true
-    org_id: 1
-    org_name: Main Org.
-    org_role: Viewer
+    name: Authelia
+    icon: signin
+    client_id: grafana
+    scopes: openid profile email groups
+    empty_scopes: false
+    auth_url: https://auth.${internal_domain}/api/oidc/authorization
+    token_url: https://auth.${internal_domain}/api/oidc/token
+    api_url: https://auth.${internal_domain}/api/oidc/userinfo
+    login_attribute_path: preferred_username
+    groups_attribute_path: groups
+    name_attribute_path: name
+    use_pkce: true
+    auto_login: false
+    role_attribute_path: contains(groups[*], 'admin') && 'Admin' || 'Viewer'
   news:
     news_feed_enabled: false
 datasources:

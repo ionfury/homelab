@@ -10,3 +10,4 @@ resources:
   - dragonfly-secret-replication.yaml
   - lldap-db-credentials.yaml
   - authelia-db-credentials.yaml
+  - grafana-oidc-client-secret.yaml
