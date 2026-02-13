@@ -151,10 +151,20 @@ Add to `kubernetes/platform/namespaces.yaml` inputs array:
 
 ```yaml
 - name: <namespace>
-  labels:
-    pod-security.kubernetes.io/enforce: baseline
-    network-policy.homelab/profile: standard  # REQUIRED - choose: isolated, internal, internal-egress, standard
+  dataplane: ambient
+  security: baseline                    # Choose: restricted, baseline, privileged
+  networkPolicy: false                  # Or object with profile/enforcement
 ```
+
+**PodSecurity Level Selection:**
+
+| Level | Use When | Security Context Required |
+|-------|----------|--------------------------|
+| `restricted` | Standard controllers, databases, simple apps | Full restricted context on all containers |
+| `baseline` | Apps needing elevated capabilities (e.g., `NET_BIND_SERVICE`) | Moderate |
+| `privileged` | Host access, BPF, device access | None |
+
+**If `security: restricted`**: You MUST set full security context in chart values (see step 3.4a below).
 
 **Network Policy Profile Selection:**
 
@@ -216,6 +226,32 @@ ingress:
 ```
 
 See [references/file-templates.md](references/file-templates.md) for complete templates.
+
+### 3.4a Add Security Context for Restricted Namespaces
+
+If the target namespace uses `security: restricted`, add security context to the chart values. Check the container image's default user first -- if it runs as root, set `runAsUser: 65534`.
+
+```yaml
+# Pod-level (key varies by chart: podSecurityContext, securityContext, pod.securityContext)
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container-level (every container and init container)
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+```
+
+**Restricted namespaces**: cert-manager, external-secrets, system, database, kromgo.
+
+**Validation gap**: `task k8s:validate` does NOT catch PodSecurity violations -- only server-side dry-run or actual deployment reveals them. Always verify security context manually for restricted namespaces.
 
 ### 3.5 Register in kustomization.yaml
 
@@ -555,6 +591,7 @@ spec:
 | Namespace exists | Ask user: reuse or new name |
 | Secret needed | Apply decision tree above |
 | Port-forward fails | Check if Prometheus is running in dev |
+| Pods rejected by PodSecurity | Missing security context for restricted namespace | Add restricted security context to chart values (see step 3.4a) |
 
 ---
 

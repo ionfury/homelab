@@ -231,6 +231,48 @@ longhorn/
 └── storage-classes/     # StorageClass definitions
 ```
 
+### Priority Classes
+
+Three tiers defined in `priority-classes/priority-classes.yaml`:
+
+| Name | Value | Default | Purpose |
+|------|-------|---------|---------|
+| `infrastructure-critical` | 1000000 | No | CNI, DNS, storage, mesh data plane |
+| `platform` | 900000 | No | Monitoring, logging, databases, gateways |
+| `application` | 800000 | Yes | User-facing workloads (global default) |
+
+**Naming constraint**: Never use the `system-` prefix for custom PriorityClass names. Kubernetes reserves this prefix for built-in priority classes (`system-cluster-critical`, `system-node-critical`). Names with the `system-` prefix are rejected at admission time, which causes the entire `priority-classes-config` Kustomization to fail atomically and cascades to all dependent HelmReleases.
+
+### PodSecurity Enforcement
+
+Multiple namespaces enforce the PodSecurity `restricted` profile, which requires strict security context settings on all pods.
+
+**Namespaces with `restricted` enforcement** (from `namespaces.yaml`):
+
+| Namespace | Why Restricted |
+|-----------|---------------|
+| `cert-manager` | Standard controller, no privileged requirements |
+| `external-secrets` | Standard controller, no privileged requirements |
+| `system` | Standard controller workloads |
+| `database` | CNPG PostgreSQL pods run as non-root |
+| `kromgo` | Simple web application |
+
+**What `restricted` enforcement requires** (validated at admission time):
+
+Pod-level:
+- `runAsNonRoot: true`
+- `seccompProfile.type: RuntimeDefault`
+
+Container-level (every container and init container):
+- `allowPrivilegeEscalation: false`
+- `capabilities.drop: ["ALL"]`
+- `readOnlyRootFilesystem: true` (recommended, not strictly required by restricted)
+- `runAsUser: <non-zero-uid>` (if the image runs as root by default, use `65534` for `nobody`)
+
+**Impact on Helm charts**: Any chart deployed to a `restricted` namespace MUST set these fields in its values. If the chart does not expose security context configuration, the chart cannot be deployed to that namespace without patching.
+
+**Validation gap**: `task k8s:validate` catches schema errors but NOT PodSecurity admission violations. Only server-side dry-run (`task k8s:dry-run-dev`) or actual deployment reveals these. Agents must manually verify security context compliance when deploying to restricted namespaces.
+
 ### Monitoring Organization
 
 The `monitoring/` subsystem is the largest, containing:
