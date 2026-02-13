@@ -60,7 +60,7 @@ prometheus:
     enableFeatures:
       - memory-snapshot-on-shutdown
     retention: 14d
-    retentionSize: 50GB
+    retentionSize: ${prometheus_retention_size}
     resources:
       requests:
         cpu: 100m

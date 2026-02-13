@@ -2,20 +2,22 @@
 locals {
   storage_sizes = {
     normal = {
-      garage_data = "100Gi"
-      garage_meta = "10Gi"
-      database    = "20Gi"
-      dragonfly   = "2Gi"
-      loki        = "50Gi"
-      prometheus  = "50Gi"
+      garage_data          = "100Gi"
+      garage_meta          = "10Gi"
+      database             = "20Gi"
+      dragonfly            = "2Gi"
+      loki                 = "50Gi"
+      prometheus           = "50Gi"
+      prometheus_retention = "50GB"
     }
     minimal = {
-      garage_data = "10Gi"
-      garage_meta = "2Gi"
-      database    = "5Gi"
-      dragonfly   = "1Gi"
-      loki        = "10Gi"
-      prometheus  = "10Gi"
+      garage_data          = "10Gi"
+      garage_meta          = "2Gi"
+      database             = "5Gi"
+      dragonfly            = "1Gi"
+      loki                 = "10Gi"
+      prometheus           = "10Gi"
+      prometheus_retention = "8GB"
     }
   }
 
@@ -361,6 +363,7 @@ locals {
     { name = "dragonfly_volume_size", value = local.selected_sizes.dragonfly },
     { name = "loki_volume_size", value = local.selected_sizes.loki },
     { name = "prometheus_volume_size", value = local.selected_sizes.prometheus },
+    { name = "prometheus_retention_size", value = local.selected_sizes.prometheus_retention },
     # Flux source kind for ResourceSet Kustomizations (GitRepository for dev, OCIRepository for integration/live)
     { name = "source_kind", value = var.name == "dev" ? "GitRepository" : "OCIRepository" },
     # BGP configuration for Cilium BGP control plane
