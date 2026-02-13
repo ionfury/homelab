@@ -159,7 +159,7 @@ configMap:
 
   identity_providers:
     oidc:
-      enabled: false
+      enabled: true
       jwks:
         - key:
             path: /secrets/oidc-jwk/tls.key
@@ -170,7 +170,35 @@ configMap:
           - revocation
           - introspection
           - userinfo
-      clients: []
+      claims_policies:
+        grafana:
+          id_token:
+            - email
+            - name
+            - groups
+            - preferred_username
+      clients:
+        - client_id: grafana
+          client_name: Grafana
+          client_secret:
+            path: /secrets/grafana-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://grafana.${internal_domain}/login/generic_oauth
+          scopes:
+            - openid
+            - profile
+            - groups
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_basic
+          claims_policy: grafana
 
   regulation:
     max_retries: 3
@@ -189,3 +217,4 @@ secret:
     cnpg-superuser-replica: { }
     authelia-db-credentials: { }
     dragonfly-password: { }
+    grafana-oidc-client-secret: { }
