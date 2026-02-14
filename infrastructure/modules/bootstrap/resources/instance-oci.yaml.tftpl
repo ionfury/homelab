@@ -25,5 +25,12 @@ instance:
             path: /spec/ref
             value:
               semver: "${oci_semver}"
+      - target:
+          kind: Deployment
+          name: source-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --helm-cache-max-size=16
 healthcheck:
   enabled: true

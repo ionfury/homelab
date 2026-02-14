@@ -42,6 +42,13 @@ spec:
         version: "${descheduler_version}"
         url: "https://kubernetes-sigs.github.io/descheduler"
       dependsOn: [cilium]
+    - name: "metrics-server"
+      namespace: "kube-system"
+      chart:
+        name: "metrics-server"
+        version: "${metrics_server_version}"
+        url: "https://kubernetes-sigs.github.io/metrics-server"
+      dependsOn: [cilium]
     - name: longhorn
       namespace: longhorn-system
       chart:
