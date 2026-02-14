@@ -3,14 +3,11 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: database-dragonfly
-  namespace: database
+  name: cache-default
+  namespace: cache
 spec:
-  description: "Allow Dragonfly: Redis connections from labeled namespaces, replication, metrics, S3 backup"
-  endpointSelector:
-    matchLabels:
-      app: dragonfly
-      app.kubernetes.io/name: dragonfly
+  description: "Allow Dragonfly cache: Redis connections from labeled namespaces, replication, S3 snapshots"
+  endpointSelector: { }
   ingress:
     # Redis connections from namespaces with dragonfly access label
     - fromEndpoints:
@@ -22,21 +19,30 @@ spec:
         - ports:
             - port: "6379"
               protocol: TCP
-    # Intra-namespace (master <-> replicas, operator management)
+    # Intra-namespace (master <-> replicas)
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: database
+            io.kubernetes.pod.namespace: cache
       toPorts:
         - ports:
             - port: "6379"
               protocol: TCP
             - port: "9999"
               protocol: TCP
+    # Allow Prometheus scraping
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9999"
+              protocol: TCP
   egress:
     # Intra-namespace (replication)
     - toEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: database
+            io.kubernetes.pod.namespace: cache
       toPorts:
         - ports:
             - port: "6379"

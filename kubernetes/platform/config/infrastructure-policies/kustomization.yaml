@@ -4,8 +4,11 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - cert-manager.yaml
+  - cnpg-system.yaml
+  - dragonfly-system.yaml
   - external-secrets.yaml
   - flux-system.yaml
+  - garage-system.yaml
   - istio-system.yaml
   - kube-system.yaml
   - spegel.yaml

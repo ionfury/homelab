@@ -14,7 +14,7 @@ For Flux patterns and version management, see [kubernetes/platform/CLAUDE.md](..
 | `certs/` | TLS certificates for gateways | Certificate |
 | `cilium/` | Load balancer config, L2 announcements | CiliumLoadBalancerIPPool, CiliumL2AnnouncementPolicy |
 | `database/` | Shared PostgreSQL cluster | Cluster, Pooler (CNPG) |
-| `dragonfly/` | Shared Dragonfly (Redis) instance | Dragonfly, Secret, CiliumNetworkPolicy, PrometheusRule |
+| `dragonfly/` | Shared Dragonfly (Redis) cache (deployed to `cache` namespace) | Dragonfly, Secret, PrometheusRule |
 | `flux-notifications/` | Flux alert providers and routing | Provider, Alert |
 | `garage/` | S3-compatible object storage | GarageCluster |
 | `gateway/` | Gateway API resources and WAF | Gateway, HTTPRoute, WasmPlugin |
@@ -252,6 +252,8 @@ Multiple namespaces enforce the PodSecurity `restricted` profile, which requires
 | Namespace | Why Restricted |
 |-----------|---------------|
 | `cert-manager` | Standard controller, no privileged requirements |
+| `cnpg-system` | CNPG operator, no privileged requirements |
+| `dragonfly-system` | Dragonfly operator, no privileged requirements |
 | `external-secrets` | Standard controller, no privileged requirements |
 | `system` | Standard controller workloads |
 | `database` | CNPG PostgreSQL pods run as non-root |

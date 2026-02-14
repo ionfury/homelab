@@ -20,7 +20,7 @@ controllers:
               secretKeyRef:
                 name: cnpg-immich-database-app
                 key: password
-          REDIS_HOSTNAME: dragonfly.database.svc.cluster.local
+          REDIS_HOSTNAME: dragonfly.cache.svc.cluster.local
           REDIS_PORT: "6379"
           REDIS_PASSWORD:
             valueFrom:

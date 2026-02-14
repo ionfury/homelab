@@ -78,7 +78,7 @@ spec:
     - name: cnpg-operator-healthy
       kind: Pod
       namespaceSelector:
-        name: database
+        name: cnpg-system
       resource:
         labelSelector: app.kubernetes.io/name=cloudnative-pg
       test:

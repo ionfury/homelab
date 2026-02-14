@@ -129,7 +129,7 @@ configMap:
         subdomain: auth
     redis:
       enabled: true
-      host: platform.database.svc.cluster.local
+      host: dragonfly.cache.svc.cluster.local
       port: 6379
       password:
         secret_name: dragonfly-password

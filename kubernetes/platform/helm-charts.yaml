@@ -148,21 +148,21 @@ spec:
         url: https://istio-release.storage.googleapis.com/charts
       dependsOn: [istio-base, istiod, istio-cni]
     - name: garage-operator
-      namespace: garage
+      namespace: garage-system
       chart:
         name: garage-operator
         version: "${garage_operator_version}"
         url: oci://ghcr.io/rajsinghtech/charts
       dependsOn: [cilium]
     - name: cloudnative-pg
-      namespace: database
+      namespace: cnpg-system
       chart:
         name: cloudnative-pg
         version: "${cloudnative_pg_version}"
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
     - name: dragonfly-operator
-      namespace: database
+      namespace: dragonfly-system
       chart:
         name: dragonfly-operator
         version: "${dragonfly_operator_version}"

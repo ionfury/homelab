@@ -118,8 +118,8 @@ Namespaces use PodSecurity admission to enforce security profiles. The `namespac
 
 | Level | Namespaces | Implications |
 |-------|-----------|--------------|
-| `restricted` | cert-manager, external-secrets, system, database, kromgo | Strictest: requires full security context on all pods |
-| `baseline` | istio-gateway, garage | Moderate: allows some elevated capabilities (e.g., `NET_BIND_SERVICE`) |
+| `restricted` | cert-manager, cnpg-system, dragonfly-system, external-secrets, system, database, kromgo | Strictest: requires full security context on all pods |
+| `baseline` | istio-gateway, cache, garage, garage-system | Moderate: allows some elevated capabilities (e.g., `NET_BIND_SERVICE`) |
 | `privileged` | kube-system, longhorn-system, istio-system, monitoring, spegel, system-upgrade | Unrestricted: host access, BPF, privileged containers |
 
 ### Required Security Context for `restricted` Namespaces

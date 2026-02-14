@@ -47,7 +47,7 @@ spec:
       path: kubernetes/platform/config/database
       dependsOn: [cloudnative-pg, garage-config, canary-checker]
     - name: dragonfly-config
-      namespace: database
+      namespace: cache
       path: kubernetes/platform/config/dragonfly
       dependsOn: [dragonfly-operator, garage-config, canary-checker]
     - name: kromgo-config

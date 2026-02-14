@@ -43,7 +43,7 @@ spec:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly
       name: dragonfly
-      namespace: database
+      namespace: cache
       description: Dragonfly must be ready and not in a rolling update
       expr: |
         status.phase == 'ready' &&
