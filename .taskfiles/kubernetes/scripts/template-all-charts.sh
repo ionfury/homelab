@@ -54,13 +54,14 @@ for chart_name in $(echo "$charts_json" | jq -r '.[].name'); do
   envsubst < "$values_file" > "$tmp_values"
 
   # Handle OCI vs HTTP registries
+  output_file="${EXPANDED_DIR}/helm/${chart_name}.yaml"
   case "$chart_url" in
     oci://*)
       echo "Templating (OCI): $chart_name"
       if helm template "$chart_name" "${chart_url}/${chart_helm_name}" \
         --version "$chart_version" \
         --values "$tmp_values" \
-        --namespace test > "${EXPANDED_DIR}/helm/${chart_name}.yaml"; then
+        --namespace test > "$output_file"; then
         echo "  $chart_name"
       else
         echo "  $chart_name failed to template"
@@ -73,7 +74,7 @@ for chart_name in $(echo "$charts_json" | jq -r '.[].name'); do
       if helm template "$chart_name" "$repo_name/$chart_helm_name" \
         --version "$chart_version" \
         --values "$tmp_values" \
-        --namespace test > "${EXPANDED_DIR}/helm/${chart_name}.yaml"; then
+        --namespace test > "$output_file"; then
         echo "  $chart_name"
       else
         echo "  $chart_name failed to template"
@@ -81,6 +82,12 @@ for chart_name in $(echo "$charts_json" | jq -r '.[].name'); do
       fi
       ;;
   esac
+
+  # Strip null values from rendered output. Some charts use per-field template
+  # expressions (e.g. `cpu: {{ .Values.resources.limits.cpu }}`) instead of toYaml,
+  # which renders `cpu: ` (YAML null) when a value is explicitly nulled. The K8s API
+  # server ignores null fields, but kubeconform rejects them as invalid Quantity types.
+  yq --inplace 'del(.. | select(. == null))' "$output_file"
 done
 
 echo ""
