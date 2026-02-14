@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: valheim-default
+  namespace: valheim
+spec:
+  description: "Allow Valheim game server: UDP ingress from internet, HTTPS egress for SteamCMD"
+  endpointSelector: { }
+  ingress:
+    - fromEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "2456"
+              protocol: UDP
+            - port: "2457"
+              protocol: UDP
+  egress:
+    # Allow external HTTPS (SteamCMD downloads, Steam API authentication)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
