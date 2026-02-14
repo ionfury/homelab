@@ -35,7 +35,7 @@ deschedulerPolicy:
           args:
             maxPodLifeTimeSeconds: 86400
             states:
-              - Completed
+              - Succeeded
       plugins:
         balance:
           enabled:
