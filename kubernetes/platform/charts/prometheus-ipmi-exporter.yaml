@@ -13,6 +13,7 @@ resources:
     cpu: 100m
     memory: 64Mi
   limits:
-    # No CPU limit — ipmitool subprocess forks cause brief spikes incompatible
+    # Explicitly null — ipmitool subprocess forks cause brief CPU spikes incompatible
     # with CFS rate limiting. Removed twice before (8acbb894, d052a162).
+    cpu: null
     memory: 128Mi
