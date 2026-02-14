@@ -18,6 +18,15 @@ instance:
     ref: refs/heads/main
     provider: generic
     pullSecret: flux-system
+  kustomize:
+    patches:
+      - target:
+          kind: Deployment
+          name: source-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --helm-cache-max-size=16
 healthcheck:
   enabled: true
 
