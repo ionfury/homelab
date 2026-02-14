@@ -34,6 +34,7 @@ spec:
       namespace: garage
       path: kubernetes/platform/config/garage
       dependsOn: [garage-operator, canary-checker]
+      wait: true
     - name: gateway
       namespace: istio-gateway
       path: kubernetes/platform/config/gateway
@@ -93,6 +94,9 @@ spec:
       <<- end >>
       <<- end >>
       interval: 10m
+      <<- if (index inputs "wait") >>
+      wait: true
+      <<- end >>
       path: << inputs.path >>
       prune: true
       sourceRef:
