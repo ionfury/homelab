@@ -6,7 +6,7 @@ metadata:
   name: garage-default
   namespace: garage
 spec:
-  description: "Allow Garage S3: API from labeled namespaces, inter-node replication, admin API"
+  description: "Allow Garage S3 data plane: API from labeled namespaces, inter-node replication, admin API"
   endpointSelector: { }
   ingress:
     # Allow S3 API from namespaces with garage-s3 access label
@@ -19,12 +19,14 @@ spec:
         - ports:
             - port: "3900"
               protocol: TCP
-    # Allow S3 API from platform namespaces that need backups (longhorn, database)
+    # Allow S3 API from platform namespaces that need backups (longhorn, database, cache)
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: longhorn-system
         - matchLabels:
             io.kubernetes.pod.namespace: database
+        - matchLabels:
+            io.kubernetes.pod.namespace: cache
       toPorts:
         - ports:
             - port: "3900"
@@ -37,13 +39,15 @@ spec:
         - ports:
             - port: "3901"
               protocol: TCP
-    # Allow Prometheus scraping and operator admin API access
+    # Allow Prometheus scraping, operator admin API access, and intra-namespace admin
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: monitoring
             app.kubernetes.io/name: prometheus
         - matchLabels:
             io.kubernetes.pod.namespace: garage
+        - matchLabels:
+            io.kubernetes.pod.namespace: garage-system
       toPorts:
         - ports:
             - port: "3903"
@@ -57,7 +61,7 @@ spec:
             - port: "3903"
               protocol: TCP
   egress:
-    # Allow inter-node RPC replication and operator admin API calls
+    # Allow inter-node RPC replication and intra-namespace admin API calls
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: garage
@@ -66,13 +70,4 @@ spec:
             - port: "3901"
               protocol: TCP
             - port: "3903"
-              protocol: TCP
-    # Allow Kubernetes API access (6443 for node IPs, 443 for ClusterIP service)
-    - toEntities:
-        - kube-apiserver
-      toPorts:
-        - ports:
-            - port: "6443"
-              protocol: TCP
-            - port: "443"
               protocol: TCP

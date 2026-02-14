@@ -6,7 +6,7 @@ metadata:
   name: database-default
   namespace: database
 spec:
-  description: "Allow CloudNative-PG: PostgreSQL connections from labeled namespaces, S3 backup, replication"
+  description: "Allow CloudNative-PG data plane: PostgreSQL connections from labeled namespaces, S3 backup, replication"
   endpointSelector: { }
   ingress:
     # Allow PostgreSQL connections from namespaces with postgres access label
@@ -19,7 +19,7 @@ spec:
         - ports:
             - port: "5432"
               protocol: TCP
-    # Allow intra-namespace communication (primary <-> replicas, operator)
+    # Allow intra-namespace communication (primary <-> replicas)
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: database
@@ -38,23 +38,7 @@ spec:
         - ports:
             - port: "9187"
               protocol: TCP
-    # Allow webhooks from K8s API server (CNPG operator)
-    - fromEntities:
-        - kube-apiserver
-      toPorts:
-        - ports:
-            - port: "9443"
-              protocol: TCP
   egress:
-    # Allow Kubernetes API access (operator) - 6443 for node IPs, 443 for ClusterIP service
-    - toEntities:
-        - kube-apiserver
-      toPorts:
-        - ports:
-            - port: "6443"
-              protocol: TCP
-            - port: "443"
-              protocol: TCP
     # Allow S3 backup to Garage
     - toEndpoints:
         - matchLabels:

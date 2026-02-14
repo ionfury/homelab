@@ -3,8 +3,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - cache.yaml
   - database.yaml
-  - database-dragonfly.yaml
   - garage.yaml
   - istio-gateway.yaml
   - kromgo.yaml

@@ -11,7 +11,7 @@ spec:
     - name: dragonfly.rules
       rules:
         - alert: DragonflyDown
-          expr: up{app="dragonfly", namespace="database"} == 0
+          expr: up{app="dragonfly", namespace="cache"} == 0
           for: 2m
           labels:
             severity: critical
@@ -20,8 +20,8 @@ spec:
 
         - alert: DragonflyHighMemoryUsage
           expr: |
-            (dragonfly_used_memory_bytes{namespace="database"}
-            / dragonfly_maxmemory_bytes{namespace="database"}) > 0.9
+            (dragonfly_used_memory_bytes{namespace="cache"}
+            / dragonfly_maxmemory_bytes{namespace="cache"}) > 0.9
           for: 5m
           labels:
             severity: warning
@@ -30,8 +30,8 @@ spec:
 
         - alert: DragonflyHighMemoryUsageCritical
           expr: |
-            (dragonfly_used_memory_bytes{namespace="database"}
-            / dragonfly_maxmemory_bytes{namespace="database"}) > 0.95
+            (dragonfly_used_memory_bytes{namespace="cache"}
+            / dragonfly_maxmemory_bytes{namespace="cache"}) > 0.95
           for: 2m
           labels:
             severity: critical
@@ -40,8 +40,8 @@ spec:
 
         - alert: DragonflyReplicationBroken
           expr: |
-            dragonfly_connected_replicas{namespace="database"}
-            < (dragonfly_total_replicas{namespace="database"} - 1)
+            dragonfly_connected_replicas{namespace="cache"}
+            < (dragonfly_total_replicas{namespace="cache"} - 1)
           for: 5m
           labels:
             severity: critical

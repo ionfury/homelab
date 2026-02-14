@@ -6,8 +6,8 @@ metadata:
   name: access-dragonfly-egress
 spec:
   description: >-
-    Allow namespaces with dragonfly access label to egress to Dragonfly in database namespace.
-    Corresponding ingress rule is in the database namespace CNP.
+    Allow namespaces with dragonfly access label to egress to Dragonfly in cache namespace.
+    Corresponding ingress rule is in the cache namespace CNP.
     Usage: Add label access.network-policy.homelab/dragonfly=true to namespace.
   endpointSelector:
     matchExpressions:
@@ -17,7 +17,7 @@ spec:
   egress:
     - toEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: database
+            io.kubernetes.pod.namespace: cache
       toPorts:
         - ports:
             - port: "6379"

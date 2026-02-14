@@ -50,8 +50,8 @@ network-policy/
 │   ├── profile-internal-egress.yaml  # Internal gateway + HTTPS egress
 │   └── profile-standard.yaml      # Both gateways + HTTPS egress
 ├── platform/            # Hand-crafted CNPs for platform namespaces
-│   ├── database.yaml              # CloudNative-PG operator + clusters
-│   ├── database-dragonfly.yaml    # Dragonfly (Redis) instances
+│   ├── cache.yaml                 # Dragonfly (Redis) cache instances
+│   ├── database.yaml              # CloudNative-PG data plane (clusters + poolers)
 │   ├── garage.yaml                # Garage S3 storage
 │   ├── istio-gateway.yaml         # Istio ingress gateways
 │   ├── kromgo.yaml                # Kromgo status badges
@@ -59,6 +59,7 @@ network-policy/
 │   ├── monitoring.yaml            # Prometheus, Grafana, Alertmanager, Loki
 │   └── system-upgrade.yaml        # Tuppr upgrade controller
 ├── shared-resources/    # Opt-in access to shared services
+│   ├── access-dragonfly.yaml      # Dragonfly (Redis) access
 │   ├── access-postgres.yaml       # Database access
 │   └── access-garage-s3.yaml      # Object storage access
 └── kustomization.yaml
@@ -97,7 +98,7 @@ Namespaces can opt-in to additional capabilities via labels:
 | Label | Capability |
 |-------|------------|
 | `access.network-policy.homelab/kube-api=true` | Egress to Kubernetes API (port 6443) |
-| `access.network-policy.homelab/dragonfly=true` | Egress to Dragonfly in database namespace (port 6379) |
+| `access.network-policy.homelab/dragonfly=true` | Egress to Dragonfly in cache namespace (port 6379) |
 | `access.network-policy.homelab/postgres=true` | Egress to PostgreSQL in database namespace (port 5432) |
 | `access.network-policy.homelab/garage-s3=true` | Egress to Garage S3 in garage namespace (port 3900) |
 
