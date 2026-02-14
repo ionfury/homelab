@@ -31,9 +31,9 @@ deschedulerPolicy:
               - Job
             includingInitContainers: true
             minPodLifetimeSeconds: 3600
-        - name: PodLifetime
+        - name: PodLifeTime
           args:
-            maxPodLifetimeSeconds: 86400
+            maxPodLifeTimeSeconds: 86400
             states:
               - Completed
       plugins:
@@ -46,7 +46,7 @@ deschedulerPolicy:
             - RemovePodsViolatingNodeAffinity
             - RemovePodsViolatingNodeTaints
             - RemoveFailedPods
-            - PodLifetime
+            - PodLifeTime
 service:
   enabled: true
 serviceMonitor:
