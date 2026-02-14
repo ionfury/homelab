@@ -9,5 +9,9 @@ resources:
   - garage-route.yaml
   - garage-canary.yaml
   - prometheus-rules.yaml
+  - cnpg-platform-bucket.yaml
+  - cnpg-platform-key.yaml
+  - cnpg-immich-bucket.yaml
+  - cnpg-immich-key.yaml
   - dragonfly-bucket.yaml
   - dragonfly-key.yaml

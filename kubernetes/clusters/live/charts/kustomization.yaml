@@ -13,4 +13,5 @@ configMapGenerator:
       - immich.yaml=immich.yaml
       - authelia.yaml=authelia.yaml
       - lldap.yaml=lldap.yaml
+      - valheim.yaml=valheim.yaml
       - factorio.yaml=factorio.yaml

@@ -45,7 +45,7 @@ spec:
     - name: database-config
       namespace: database
       path: kubernetes/platform/config/database
-      dependsOn: [cloudnative-pg, canary-checker]
+      dependsOn: [cloudnative-pg, garage-config, canary-checker]
     - name: dragonfly-config
       namespace: database
       path: kubernetes/platform/config/dragonfly

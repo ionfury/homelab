@@ -1,0 +1,15 @@
+---
+apiVersion: garage.rajsingh.info/v1alpha1
+kind: GarageKey
+metadata:
+  name: cnpg-immich-s3
+spec:
+  clusterRef:
+    name: garage
+  bucketPermissions:
+    - bucketRef: cnpg-immich-backups
+      read: true
+      write: true
+  secretTemplate:
+    name: cnpg-immich-s3-credentials
+    namespace: database

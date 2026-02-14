@@ -1,10 +1,17 @@
 ---
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-ipmi-exporter
 serviceMonitor:
-  enabled: false  # Using standalone ScrapeConfig for Flux variable substitution
+  enabled: false # Using standalone ScrapeConfig for Flux variable substitution
 scrapeConfig:
-  enabled: false  # Using standalone ScrapeConfig for Flux variable substitution
+  enabled: false # Using standalone ScrapeConfig for Flux variable substitution
 configSecret:
   enabled: true
   name: hardware-monitoring-credentials
   key: ipmi-config.yml
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 128Mi

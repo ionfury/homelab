@@ -18,6 +18,10 @@ skills:
   - cnpg-database
   - gateway-routing
   - versions-renovate
+  - kubesearch
+  - promotion-pipeline
+  - gha-pipelines
+  - network-policy
 memory: project
 ---
 
