@@ -12,6 +12,7 @@ skills:
   - loki
   - prometheus
   - promotion-pipeline
+  - network-policy
 memory: project
 ---
 
