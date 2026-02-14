@@ -4,7 +4,8 @@ kind: Namespace
 metadata:
   name: satisfactory
   labels:
+    istio.io/dataplane-mode: ambient
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/warn: restricted
-    network-policy.homelab/profile: isolated
+    network-policy.homelab/profile: internal-egress

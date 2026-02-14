@@ -6,7 +6,7 @@ metadata:
   name: satisfactory-game-server
   namespace: satisfactory
 spec:
-  description: "Allow Satisfactory: UDP/TCP 7777 ingress, HTTPS egress for Steam updates"
+  description: "Allow Satisfactory: UDP/TCP 7777 ingress from internet"
   endpointSelector: { }
   ingress:
     - fromEntities:
@@ -16,11 +16,4 @@ spec:
             - port: "7777"
               protocol: UDP
             - port: "7777"
-              protocol: TCP
-  egress:
-    - toEntities:
-        - world
-      toPorts:
-        - ports:
-            - port: "443"
               protocol: TCP
