@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+controllers:
+  factorio:
+    type: deployment
+    replicas: 1
+
+    pod:
+      securityContext:
+        fsGroup: 845
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: factoriotools/factorio
+          # renovate: datasource=docker depName=factoriotools/factorio
+          tag: stable
+          pullPolicy: Always
+        env:
+          LOAD_LATEST_SAVE: "true"
+          DLC_SPACE_AGE: "true"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 845
+          runAsGroup: 845
+          runAsNonRoot: true
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            memory: 4Gi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 27015
+              initialDelaySeconds: 60
+              periodSeconds: 30
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 27015
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              failureThreshold: 12
+
+persistence:
+  data:
+    enabled: true
+    type: persistentVolumeClaim
+    storageClass: fast
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    globalMounts:
+      - path: /factorio
+
+service:
+  game:
+    controller: factorio
+    type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: ${factorio_ip}
+    ports:
+      game:
+        port: 34197
+        protocol: UDP
+      rcon:
+        port: 27015
+        protocol: TCP

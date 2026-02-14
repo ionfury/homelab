@@ -50,6 +50,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
+    - name: factorio
+      namespace: factorio
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
