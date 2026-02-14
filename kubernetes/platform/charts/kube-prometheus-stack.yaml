@@ -17,12 +17,7 @@ alertmanager:
         resolveTimeout: 5m
     externalUrl: https://alertmanager.${external_domain}
     storage:
-      volumeClaimTemplate:
-        spec:
-          storageClassName: fast
-          resources:
-            requests:
-              storage: 1Gi
+      emptyDir: { }
 kubeApiServer:
   serviceMonitor:
     selector:
