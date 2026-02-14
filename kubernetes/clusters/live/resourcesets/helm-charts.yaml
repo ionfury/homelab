@@ -43,6 +43,13 @@ spec:
         version: "${authelia_version}"
         url: https://charts.authelia.com
       dependsOn: [cloudnative-pg, secret-generator, lldap]
+    - name: factorio
+      namespace: factorio
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

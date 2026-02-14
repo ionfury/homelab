@@ -13,3 +13,4 @@ configMapGenerator:
       - immich.yaml=immich.yaml
       - authelia.yaml=authelia.yaml
       - lldap.yaml=lldap.yaml
+      - factorio.yaml=factorio.yaml
