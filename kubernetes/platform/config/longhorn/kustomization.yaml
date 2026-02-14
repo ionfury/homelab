@@ -7,13 +7,10 @@ resources:
   - prometheus-rules.yaml
   - backup/
   - recurring-jobs/backup-daily.yaml
-  - recurring-jobs/backup-weekly.yaml
   - recurring-jobs/snapshot-daily.yaml
   - recurring-jobs/filesystem-trim-daily.yaml
   - routes/
-  - storage-classes/fast-critical.yaml
+  - storage-classes/ephemeral.yaml
+  - storage-classes/fast-nr.yaml
   - storage-classes/fast.yaml
-  - storage-classes/fast-unmanaged.yaml
-  - storage-classes/slow-critical.yaml
   - storage-classes/slow.yaml
-  - storage-classes/slow-unmanaged.yaml

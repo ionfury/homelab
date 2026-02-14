@@ -11,3 +11,4 @@ resources:
   - internal-route.yaml
   - canary.yaml
   - immich-cluster.yaml
+  - immich-scheduled-backup.yaml

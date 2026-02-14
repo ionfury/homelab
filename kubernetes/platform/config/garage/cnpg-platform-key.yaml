@@ -1,0 +1,15 @@
+---
+apiVersion: garage.rajsingh.info/v1alpha1
+kind: GarageKey
+metadata:
+  name: cnpg-platform-s3
+spec:
+  clusterRef:
+    name: garage
+  bucketPermissions:
+    - bucketRef: cnpg-platform-backups
+      read: true
+      write: true
+  secretTemplate:
+    name: cnpg-platform-s3-credentials
+    namespace: database
