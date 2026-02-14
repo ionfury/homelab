@@ -6,16 +6,6 @@ Skills are procedural guides that provide step-by-step workflows for complex ope
 
 ## Skill Inventory
 
-### Agent Dispatch Skills
-
-These skills serve as slash command entry points that delegate to specialized agents. Users interact with agents through these commands.
-
-| Skill | Dispatches To | Purpose |
-|-------|--------------|---------|
-| `troubleshoot` | `troubleshooter` agent | Kubernetes and infrastructure debugging |
-| `implement` | `implementer` agent | Deploy apps, write IaC, create PRs |
-| `design` | `designer` agent | Architecture design and review |
-
 ### Background Skills (Agent-Composed)
 
 These skills are composed by agents internally. They are not invoked directly by users — agents load them as needed for domain-specific knowledge.
@@ -28,13 +18,15 @@ These skills are composed by agents internally. They are not invoked directly by
 | `deploy-app` | End-to-end application deployment with monitoring integration | implementer | file-templates.md, monitoring-patterns.md | check-alerts.sh, check-canary.sh, check-deployment-health.sh, check-servicemonitor.sh |
 | `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | implementer | - | - |
 | `gateway-routing` | Gateway API routing, TLS certificates, and WAF configuration | implementer | - | - |
-| `k8s` | Kubernetes cluster access, kubectl, and Flux operations | troubleshooter, implementer | - | - |
-| `kubesearch` | Research Helm configurations from kubesearch.dev | designer | - | - |
+| `gha-pipelines` | GitHub Actions CI/CD workflows, validation pipelines, OCI promotion | implementer | - | - |
+| `k8s` | Kubernetes cluster access, kubectl, and Flux operations | troubleshooter, implementer, designer | - | - |
+| `kubesearch` | Research Helm configurations from kubesearch.dev | designer, implementer | - | - |
 | `loki` | Query Loki API for cluster logs and debugging | troubleshooter | queries.md | logql.sh |
 | `monitoring-authoring` | Author PrometheusRules, ServiceMonitors, AlertmanagerConfig, canary checks | implementer | - | - |
+| `network-policy` | Cilium network policy management, Hubble debugging, escape hatch | troubleshooter, implementer | - | - |
 | `opentofu-modules` | OpenTofu module development and testing patterns | implementer | opentofu-testing.md | - |
 | `prometheus` | Query Prometheus API for metrics and alerts | troubleshooter | queries.md | promql.sh |
-| `promotion-pipeline` | OCI artifact promotion pipeline tracing and rollback | troubleshooter | - | - |
+| `promotion-pipeline` | OCI artifact promotion pipeline tracing and rollback | troubleshooter, implementer | - | - |
 | `secrets` | Secret provisioning: secret-generator, ExternalSecret, app-secrets | implementer | - | - |
 | `self-improvement` | Capture user feedback to enhance documentation | orchestrator | - | - |
 | `sre` | Kubernetes incident investigation and debugging | troubleshooter | - | cluster-health.sh |
@@ -42,6 +34,20 @@ These skills are composed by agents internally. They are not invoked directly by
 | `taskfiles` | Task runner syntax, patterns, and conventions | implementer | schema.md, cli.md, styleguide.md, task-catalog.md | - |
 | `terragrunt` | Infrastructure operations with Terragrunt/OpenTofu | implementer | stacks.md, units.md | - |
 | `versions-renovate` | Version management and Renovate annotation configuration | implementer | - | - |
+
+---
+
+## Commands (User Entry Points)
+
+User-invocable slash commands live in `.claude/commands/` and dispatch to specialized agents:
+
+| Command | Dispatches To | Purpose |
+|---------|--------------|---------|
+| `/troubleshoot` | `troubleshooter` agent | Kubernetes and infrastructure debugging |
+| `/implement` | `implementer` agent | Deploy apps, write IaC, create PRs |
+| `/design` | `designer` agent | Architecture design and review |
+
+Commands are simple markdown files — no YAML frontmatter. They contain a prompt that delegates to the corresponding agent.
 
 ---
 
@@ -57,17 +63,17 @@ Skills are **procedural knowledge** documents that guide Claude through multi-st
 Skills are invoked when:
 - An agent composes the skill as part of its domain knowledge
 - Claude determines the skill is relevant to the current task
-- A dispatch skill delegates to the corresponding agent (e.g., `/troubleshoot` → troubleshooter agent)
 
 ---
 
-## Skill vs CLAUDE.md Boundary
+## Skill vs Command vs CLAUDE.md Boundary
 
-| Type | Purpose | Content |
-|------|---------|---------|
-| **CLAUDE.md** | Declarative knowledge | What exists, why it exists, constraints, patterns, anti-patterns |
-| **Skills** | Procedural knowledge | Step-by-step how-to workflows, decision trees, execution guides |
-| **Runbooks** | Emergency procedures | Incident response, disaster recovery, manual overrides |
+| Type | Location | Purpose | Content |
+|------|----------|---------|---------|
+| **CLAUDE.md** | Throughout repo | Declarative knowledge | What exists, why, constraints, anti-patterns |
+| **Skills** | `.claude/skills/` | Procedural knowledge | Step-by-step workflows, decision trees |
+| **Commands** | `.claude/commands/` | User entry points | Dispatch prompts to agents |
+| **Runbooks** | `docs/runbooks/` | Emergency procedures | Incident response, disaster recovery |
 
 ### Decision Tree
 
@@ -81,6 +87,10 @@ Is this knowledge...
 ├─ A multi-step procedure (5+ steps)?
 │  └─ Skill (procedural)
 │     Examples: "How to deploy an app", "How to debug K8s issues"
+│
+├─ A user-facing entry point that dispatches to an agent?
+│  └─ Command (.claude/commands/)
+│     Examples: /troubleshoot, /implement, /design
 │
 ├─ An emergency/incident procedure?
 │  └─ Runbook (docs/runbooks/)
@@ -119,6 +129,7 @@ description: |
   Use when: (1) Scenario A, (2) Scenario B, (3) Scenario C
 
   Triggers: "keyword1", "keyword2", "phrase that triggers this skill"
+user-invocable: false          # All background skills should set this
 ---
 
 # Skill Title
@@ -132,8 +143,7 @@ description: |
 |-------|----------|---------|
 | `name` | Yes | Unique identifier, matches directory name |
 | `description` | Yes | Multi-line description with use cases and triggers |
-| `user-invocable` | No | Set to `false` to make Claude-only (default: `true`) |
-| `disable-model-invocation` | No | Set to `true` to make user-only |
+| `user-invocable` | No | Set to `false` for agent-composed skills (default: `true`) |
 
 ---
 
@@ -157,7 +167,9 @@ Do NOT create a skill when:
 2. Create `SKILL.md` with proper frontmatter
 3. Add references/ if supporting docs are needed
 4. Add scripts/ if automation helpers are useful
-5. Update root CLAUDE.md skills table if appropriate
+5. Add the skill to the relevant agent's `skills:` list in `.claude/agents/`
+6. Add `Skill(<name>)` to `.claude/settings.json` allow list
+7. Update this CLAUDE.md skill inventory table
 
 ---
 
@@ -193,17 +205,10 @@ This repository uses an **agent-first** interaction model. Users interact throug
 ### How It Works
 
 ```
-User → /troubleshoot → dispatch skill → troubleshooter agent → composes: sre, k8s, loki, prometheus
-User → /implement    → dispatch skill → implementer agent    → composes: flux-gitops, app-template, terragrunt, ...
-User → /design       → dispatch skill → designer agent       → composes: kubesearch, architecture-review
+User → /troubleshoot → command → troubleshooter agent → composes: sre, k8s, loki, prometheus, promotion-pipeline, network-policy
+User → /implement    → command → implementer agent    → composes: flux-gitops, app-template, terragrunt, k8s, kubesearch, ...
+User → /design       → command → designer agent       → composes: kubesearch, architecture-review, k8s
 ```
-
-### Skill Invocability
-
-| Configuration | User /command | Agent Composition | Use Case |
-|---------------|---------------|-------------------|----------|
-| Dispatch skill (`disable-model-invocation: true`) | Yes | No | Entry points: troubleshoot, implement, design |
-| Background skill (`user-invocable: false`) | No | Yes | Domain knowledge composed by agents |
 
 ### Agents
 
@@ -211,9 +216,9 @@ Agents are defined in `.claude/agents/` and compose skills for their domain:
 
 | Agent | Role | Skills | Model | Mode |
 |-------|------|--------|-------|------|
-| `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline | inherit | default (read-only tools) |
-| `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, cnpg-database, gateway-routing, versions-renovate | inherit | default (full tools) |
-| `designer` | Principal architect | kubesearch, architecture-review | opus | plan (read-only) |
+| `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline, network-policy | inherit | default (read-only tools) |
+| `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, cnpg-database, gateway-routing, versions-renovate, kubesearch, promotion-pipeline, gha-pipelines, network-policy | inherit | default (full tools) |
+| `designer` | Principal architect | kubesearch, architecture-review, k8s | opus | plan (read-only) |
 
 ---
 

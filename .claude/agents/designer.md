@@ -10,6 +10,7 @@ permissionMode: plan
 skills:
   - kubesearch
   - architecture-review
+  - k8s
 memory: project
 ---
 
