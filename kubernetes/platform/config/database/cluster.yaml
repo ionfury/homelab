@@ -25,8 +25,25 @@ spec:
       - host all all 172.16.0.0/12 scram-sha-256
 
   storage:
-    storageClass: fast
+    storageClass: ephemeral
     size: ${database_volume_size}
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://cnpg-platform-backups/
+      endpointURL: http://${garage_s3_endpoint}
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-platform-s3-credentials
+          key: access-key-id
+        secretAccessKey:
+          name: cnpg-platform-s3-credentials
+          key: secret-access-key
+      wal:
+        compression: gzip
+      data:
+        compression: gzip
+    retentionPolicy: "14d"
 
   resources:
     requests:

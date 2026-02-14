@@ -50,7 +50,7 @@ spec:
     persistentVolumeClaimSpec:
       accessModes:
         - ReadWriteOnce
-      storageClassName: fast
+      storageClassName: ephemeral
       resources:
         requests:
           storage: ${dragonfly_volume_size:-1Gi}
