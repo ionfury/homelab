@@ -43,6 +43,13 @@ spec:
         version: "${authelia_version}"
         url: https://charts.authelia.com
       dependsOn: [cloudnative-pg, secret-generator, lldap]
+    - name: valheim
+      namespace: valheim
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
