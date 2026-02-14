@@ -75,12 +75,15 @@ spec:
           )
 
     # CNPG operator is running (manages database clusters)
+    # Filter to Running pods only — completed old-revision pods from operator
+    # upgrades would otherwise cause false-positive failures.
     - name: cnpg-operator-healthy
       kind: Pod
       namespaceSelector:
         name: database
       resource:
         labelSelector: app.kubernetes.io/name=cloudnative-pg
+        fieldSelector: status.phase=Running
       test:
         expr: >
           dyn(results).all(pod,
