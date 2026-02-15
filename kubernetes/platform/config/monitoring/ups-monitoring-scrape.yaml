@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: snmp-exporter-ups-targets
+  labels:
+    release: kube-prometheus-stack
+spec:
+  metricsPath: /snmp
+  params:
+    module: ["cyberpower"]
+    auth: ["public_v2"]
+  staticConfigs:
+    - targets: ["ups.citadel.tomnowak.work"]
+  relabelings:
+    - sourceLabels: [__address__]
+      targetLabel: __param_target
+    - sourceLabels: [__param_target]
+      targetLabel: instance
+    - targetLabel: __address__
+      replacement: prometheus-snmp-exporter.monitoring.svc:9116
+  scrapeInterval: 60s
+  scrapeTimeout: 30s

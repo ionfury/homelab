@@ -29,3 +29,6 @@ resources:
   - hardware-monitoring-scrape.yaml
   - hardware-monitoring-alerts.yaml
   - hardware-monitoring-egress.yaml
+  - ups-monitoring-secret.yaml
+  - ups-monitoring-scrape.yaml
+  - ups-monitoring-alerts.yaml

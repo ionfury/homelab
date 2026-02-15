@@ -3,3 +3,20 @@
 priorityClassName: platform
 serviceMonitor:
   enabled: false  # Using standalone ScrapeConfig for Flux variable substitution
+# Override default config with SSM-backed snmp.yml that includes both
+# standard modules (if_mib, public_v2) and CyberPower UPS module
+extraArgs:
+  - "--config.file=/etc/snmp_exporter_custom/snmp.yml"
+extraSecretMounts:
+  - name: custom-snmp-config
+    mountPath: /etc/snmp_exporter_custom/snmp.yml
+    subPath: snmp.yml
+    secretName: snmp-exporter-config
+    readOnly: true
+    defaultMode: 420
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
+  limits:
+    memory: 256Mi
