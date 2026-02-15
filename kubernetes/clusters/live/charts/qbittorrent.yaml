@@ -21,8 +21,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/home-operations/qbittorrent
-          # renovate: datasource=docker depName=ghcr.io/home-operations/qbittorrent
-          tag: 5.1.4
+          tag: "${qbittorrent_version}"
         env:
           QBT_WEBUI_PORT: "8080"
           QBT_BitTorrent__Session__DefaultSavePath: /media/downloads/complete

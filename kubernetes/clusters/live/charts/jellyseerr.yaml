@@ -19,8 +19,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/seerr-team/seerr
-          # renovate: datasource=docker depName=ghcr.io/seerr-team/seerr
-          tag: 3.0.1
+          tag: "${seerr_version}"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false

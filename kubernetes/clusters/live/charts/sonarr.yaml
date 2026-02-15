@@ -19,8 +19,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/home-operations/sonarr
-          # renovate: datasource=docker depName=ghcr.io/home-operations/sonarr
-          tag: 4.0.16.2946
+          tag: "${sonarr_version}"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

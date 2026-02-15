@@ -19,8 +19,7 @@ controllers:
       app:
         image:
           repository: jellyfin/jellyfin
-          # renovate: datasource=docker depName=jellyfin/jellyfin
-          tag: 10.11.6
+          tag: "${jellyfin_version}"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false

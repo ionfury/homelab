@@ -19,8 +19,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/home-operations/prowlarr
-          # renovate: datasource=docker depName=ghcr.io/home-operations/prowlarr
-          tag: 2.3.2.5245
+          tag: "${prowlarr_version}"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
