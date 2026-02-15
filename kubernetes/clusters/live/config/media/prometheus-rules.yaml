@@ -1,0 +1,42 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: media-alerts
+  namespace: media
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: media.rules
+      rules:
+        - alert: JellyfinDown
+          expr: |
+            absent(up{job="jellyfin"}) or up{job="jellyfin"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Jellyfin media server is unreachable"
+
+        - alert: QbittorrentDown
+          expr: |
+            absent(up{job="qbittorrent"}) or up{job="qbittorrent"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "qBittorrent download client is unreachable"
+
+        - alert: MediaVolumeNearlyFull
+          expr: |
+            (
+              kubelet_volume_stats_used_bytes{namespace="media", persistentvolumeclaim="media-library"}
+              / kubelet_volume_stats_capacity_bytes{namespace="media", persistentvolumeclaim="media-library"}
+            ) > 0.9
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Media library volume usage exceeds 90%"
