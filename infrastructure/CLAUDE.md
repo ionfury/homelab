@@ -177,6 +177,19 @@ The `inventory.hcl` file defines all physical machines:
 
 ---
 
+## AWS Authentication
+
+Terragrunt uses S3 for remote state and DynamoDB for locking. All state operations require valid AWS credentials.
+
+```bash
+export AWS_PROFILE=terragrunt
+export AWS_DEFAULT_REGION=us-east-2
+```
+
+Verify with: `aws sts get-caller-identity`
+
+---
+
 ## Code Style (HCL)
 
 - Use `hcl2json` + `jq` for scripted access to HCL data

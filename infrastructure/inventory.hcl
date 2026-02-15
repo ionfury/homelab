@@ -77,7 +77,7 @@ locals {
         mode               = "active-backup"
       }]
     }
-    node1 = { // Supermicro 20C@2.4GHz 64Gi
+    node1 = { // Supermicro 20C@2.2GHz 128Gi
       cluster = "none"
       type    = "none"
       install = {
@@ -85,8 +85,8 @@ locals {
       }
       volumes = []
       bonds = [{
-        link_permanentAddr = [""]
-        addresses          = [""]
+        link_permanentAddr = ["0c:c4:7a:a4:f3:a2"]
+        addresses          = ["192.168.10.142"]
         vlans              = [10]
         mtu                = 1500
         mode               = "active-backup"
