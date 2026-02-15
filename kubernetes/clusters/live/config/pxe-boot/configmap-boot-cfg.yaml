@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pxe-boot-cfg
+  namespace: pxe-boot
+data:
+  boot.cfg: |
+    #!ipxe
+    # Skip main netboot.xyz menu — auto-redirect to custom user menu
+    set menu custom-user

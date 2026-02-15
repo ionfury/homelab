@@ -3,10 +3,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - zipline
-  - immich
-  - valheim
-  - factorio
-  - satisfactory
-  - pxe-boot
-  - cluster-config-resourceset.yaml
+  - namespace.yaml
+  - network-policy.yaml
+  - configmap-custom-ipxe.yaml
+  - configmap-boot-cfg.yaml

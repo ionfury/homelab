@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pxe-boot-custom-ipxe
+  namespace: pxe-boot
+data:
+  custom.ipxe: |
+    #!ipxe
+    # Homelab PXE Boot Menu
+    # Flux substitutes talos_version and talos_pxe_schematic_id from versions.env
+
+    :menu
+    menu Homelab PXE Boot
+    item --gap --                --- Talos Linux ---
+    item talos                   Boot Talos ${talos_version} (maintenance mode)
+    item --gap --                --- Utilities ---
+    item local                   Boot from local disk
+    item shell                   Drop to iPXE shell
+    item netbootxyz              Return to netboot.xyz menu
+    choose --default talos --timeout 10000 selected || goto local
+    goto $${selected}
+
+    :talos
+    chain https://pxe.factory.talos.dev/pxe/${talos_pxe_schematic_id}/${talos_version}/metal-amd64 || goto failed
+
+    :local
+    exit
+
+    :shell
+    shell
+    goto menu
+
+    :netbootxyz
+    chain menu.ipxe || goto menu
+
+    :failed
+    echo Boot failed, retrying in 5 seconds...
+    sleep 5
+    goto menu
