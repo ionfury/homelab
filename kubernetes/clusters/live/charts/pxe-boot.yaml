@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  pxe-boot:
+    type: deployment
+    replicas: 1
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/netbootxyz/netbootxyz
+          tag: "${netbootxyz_version}"
+        env:
+          # Keep all TFTP traffic on port 69 (essential for LoadBalancer compatibility)
+          TFTPD_OPTS: "--tftp-single-port"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 80
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 80
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 80
+              periodSeconds: 10
+
+service:
+  app:
+    controller: pxe-boot
+    type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: ${pxe_ip}
+    ports:
+      tftp:
+        port: 69
+        protocol: UDP
+      http:
+        port: 80
+        protocol: TCP
+
+persistence:
+  config:
+    type: emptyDir
+    globalMounts:
+      - path: /config
+  custom-ipxe:
+    type: configMap
+    name: pxe-boot-custom-ipxe
+    globalMounts:
+      - path: /config/menus/custom/custom.ipxe
+        subPath: custom.ipxe
+        readOnly: true
+  boot-cfg:
+    type: configMap
+    name: pxe-boot-cfg
+    globalMounts:
+      - path: /config/menus/local/boot.cfg
+        subPath: boot.cfg
+        readOnly: true

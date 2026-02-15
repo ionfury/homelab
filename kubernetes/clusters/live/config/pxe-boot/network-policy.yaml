@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: pxe-boot-server
+  namespace: pxe-boot
+spec:
+  description: "PXE boot: TFTP UDP 69 + HTTP TCP 80 from LAN"
+  endpointSelector: { }
+  ingress:
+    - fromCIDR:
+        - ${cluster_node_subnet}
+      toPorts:
+        - ports:
+            - port: "69"
+              protocol: UDP
+            - port: "80"
+              protocol: TCP

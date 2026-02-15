@@ -16,3 +16,4 @@ configMapGenerator:
       - valheim.yaml=valheim.yaml
       - factorio.yaml=factorio.yaml
       - satisfactory.yaml=satisfactory.yaml
+      - pxe-boot.yaml=pxe-boot.yaml

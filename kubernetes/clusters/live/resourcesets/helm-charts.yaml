@@ -64,6 +64,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: []
+    - name: pxe-boot
+      namespace: pxe-boot
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
