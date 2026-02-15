@@ -145,7 +145,7 @@ locals {
       bonds = [{
         link_permanentAddr = ["ac:1f:6b:2d:bf:ee"]
         addresses          = ["192.168.10.253"]
-        vlans              = [10]
+        vlans              = [10, 20]
         mtu                = 1500
         mode               = "active-backup"
       }]
@@ -173,7 +173,7 @@ locals {
       bonds = [{
         link_permanentAddr = ["ac:1f:6b:2d:bf:bc"]
         addresses          = ["192.168.10.203"]
-        vlans              = [10]
+        vlans              = [10, 20]
         mtu                = 1500
         mode               = "active-backup"
       }]
@@ -200,7 +200,7 @@ locals {
       bonds = [{
         link_permanentAddr = ["ac:1f:6b:2d:bb:c8"]
         addresses          = ["192.168.10.201"]
-        vlans              = [10]
+        vlans              = [10, 20]
         mtu                = 1500
         mode               = "active-backup"
       }]
