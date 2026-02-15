@@ -8,9 +8,9 @@ controllers:
     pod:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
@@ -18,9 +18,9 @@ controllers:
     containers:
       app:
         image:
-          repository: fallenbagel/jellyseerr
-          # renovate: datasource=docker depName=fallenbagel/jellyseerr
-          tag: 2.7.3
+          repository: ghcr.io/seerr-team/seerr
+          # renovate: datasource=docker depName=ghcr.io/seerr-team/seerr
+          tag: 3.0.1
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
