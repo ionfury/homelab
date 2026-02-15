@@ -17,8 +17,7 @@ controllers:
       app:
         image:
           repository: wolveix/satisfactory-server
-          # renovate: datasource=docker depName=wolveix/satisfactory-server
-          tag: v1.9.10
+          tag: "${satisfactory_server_version}"
         env:
           MAXPLAYERS: "4"
           MAXTICKRATE: "30"
