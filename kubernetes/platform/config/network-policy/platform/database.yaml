@@ -39,6 +39,15 @@ spec:
             - port: "9187"
               protocol: TCP
   egress:
+    # Allow Kubernetes API access (CNPG upgrade jobs poll cluster status)
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
     # Allow S3 backup to Garage
     - toEndpoints:
         - matchLabels:
