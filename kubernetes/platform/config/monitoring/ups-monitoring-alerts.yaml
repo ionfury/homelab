@@ -1,0 +1,106 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ups-monitoring-alerts
+  labels:
+    app.kubernetes.io/name: ups-monitoring
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: ups.targets
+      rules:
+        - alert: UpsSnmpTargetDown
+          expr: up{job="scrapeconfig/monitoring/snmp-exporter-ups-targets"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "UPS SNMP target {{ $labels.instance }} unreachable"
+            description: >-
+              SNMP exporter cannot reach UPS at {{ $labels.instance }} for 5+ minutes.
+              Check UPS network connectivity and SNMP service status.
+
+    - name: ups.power
+      rules:
+        - alert: UpsOnBattery
+          expr: upsBaseOutputStatus == 3
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "UPS {{ $labels.instance }} is running on battery power"
+            description: >-
+              The UPS at {{ $labels.instance }} has switched to battery power,
+              indicating a utility power failure. Check mains power immediately.
+
+        - alert: UpsOutputOverload
+          expr: upsAdvanceOutputLoad > 80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "UPS {{ $labels.instance }} output load above 80%"
+            description: >-
+              UPS output load at {{ $labels.instance }} is at {{ $value }}%.
+              Consider redistributing load or upgrading UPS capacity.
+
+        - alert: UpsOutputCriticalLoad
+          expr: upsAdvanceOutputLoad > 95
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "UPS {{ $labels.instance }} output load critical (>95%)"
+            description: >-
+              UPS output load at {{ $labels.instance }} is at {{ $value }}%.
+              Immediate action required to prevent overload shutdown.
+
+    - name: ups.battery
+      rules:
+        - alert: UpsBatteryLow
+          expr: upsAdvanceBatteryCapacity < 30
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "UPS {{ $labels.instance }} battery capacity below 30%"
+            description: >-
+              Battery capacity at {{ $labels.instance }} is {{ $value }}%.
+              System may shut down if utility power is not restored.
+
+        - alert: UpsBatteryReplacementNeeded
+          expr: upsAdvanceBatteryReplaceIndicator == 2
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "UPS {{ $labels.instance }} battery replacement needed"
+            description: >-
+              The UPS at {{ $labels.instance }} reports that battery replacement
+              is required. Schedule replacement to maintain backup power capability.
+
+    - name: ups.temperature
+      rules:
+        - alert: UpsHighTemperature
+          expr: upsAdvanceBatteryTemperature > 40
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "UPS {{ $labels.instance }} temperature above 40C"
+            description: >-
+              Internal temperature of UPS at {{ $labels.instance }} is {{ $value }}C.
+              Check ambient temperature and UPS ventilation.
+
+        - alert: UpsCriticalTemperature
+          expr: upsAdvanceBatteryTemperature > 50
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "UPS {{ $labels.instance }} temperature critically high (>50C)"
+            description: >-
+              Internal temperature of UPS at {{ $labels.instance }} is {{ $value }}C.
+              Risk of thermal shutdown. Immediate investigation required.
