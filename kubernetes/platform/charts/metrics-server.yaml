@@ -2,6 +2,8 @@
 # https://raw.githubusercontent.com/kubernetes-sigs/metrics-server/master/charts/metrics-server/values.yaml
 priorityClassName: system-cluster-critical
 replicas: 2
+args:
+  - --kubelet-insecure-tls
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
