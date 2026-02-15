@@ -15,3 +15,4 @@ configMapGenerator:
       - lldap.yaml=lldap.yaml
       - valheim.yaml=valheim.yaml
       - factorio.yaml=factorio.yaml
+      - satisfactory.yaml=satisfactory.yaml

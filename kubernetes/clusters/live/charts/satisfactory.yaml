@@ -1,0 +1,76 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  satisfactory:
+    type: deployment
+    replicas: 1
+
+    pod:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: wolveix/satisfactory-server
+          tag: "${satisfactory_server_version}"
+        env:
+          MAXPLAYERS: "4"
+          MAXTICKRATE: "30"
+          AUTOSAVENUM: "5"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 4Gi
+          limits:
+            memory: 16Gi
+        probes:
+          # Allow 15min for first-time Steam download (~8Gi)
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - test -f /config/gamefiles/FactoryGame.exe
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              failureThreshold: 60
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command:
+                  - pgrep
+                  - -f
+                  - FactoryServer
+              periodSeconds: 30
+          readiness:
+            enabled: false
+
+service:
+  app:
+    controller: satisfactory
+    type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: ${satisfactory_ip}
+    ports:
+      game-udp:
+        port: 7777
+        protocol: UDP
+      game-tcp:
+        port: 7777
+        protocol: TCP
+
+persistence:
+  data:
+    existingClaim: satisfactory-data
+    globalMounts:
+      - path: /config
