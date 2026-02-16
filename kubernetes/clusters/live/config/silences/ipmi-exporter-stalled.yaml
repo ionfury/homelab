@@ -1,0 +1,17 @@
+---
+# prometheus-ipmi-exporter HelmRelease is stalled due to K8s 1.35
+# rejecting cpu: null as a zero limit. Until the fix lands and the
+# exporter deploys, IPMI scrape targets are unreachable.
+apiVersion: observability.giantswarm.io/v1alpha2
+kind: Silence
+metadata:
+  name: ipmi-exporter-stalled
+  namespace: monitoring
+spec:
+  matchers:
+    - name: alertname
+      matchType: "=~"
+      value: "IpmiTargetDown|TargetDown"
+    - name: job
+      matchType: "=~"
+      value: ".*ipmi.*"
