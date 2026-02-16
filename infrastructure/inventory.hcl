@@ -125,6 +125,9 @@ locals {
     node41 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
+      labels = {
+        "egress-gateway.homelab/vpn" = "true"
+      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
@@ -153,6 +156,9 @@ locals {
     node42 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
+      labels = {
+        "egress-gateway.homelab/vpn" = "true"
+      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
@@ -181,6 +187,9 @@ locals {
     node43 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
+      labels = {
+        "egress-gateway.homelab/vpn" = "true"
+      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }

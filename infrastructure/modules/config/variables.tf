@@ -111,6 +111,7 @@ variable "machines" {
   type = map(object({
     cluster = string
     type    = string
+    labels  = optional(map(string), {})
     install = object({
       selector     = string
       architecture = optional(string, "amd64")
