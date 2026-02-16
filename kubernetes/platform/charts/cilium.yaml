@@ -68,10 +68,6 @@ rollOutCiliumPods: true
 # Return ICMP "Destination Unreachable" instead of silently dropping denied traffic.
 # Provides faster client-side failure detection with our implicit default-deny model.
 policyDenyResponse: icmp
-bpf:
-  masquerade: true
-egressGateway:
-  enabled: true
 routingMode: native
 securityContext:
   capabilities:
