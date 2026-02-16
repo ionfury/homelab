@@ -10,10 +10,14 @@ pod:
     - name: oidc-jwk
       mountPath: /secrets/oidc-jwk
       readOnly: true
+    - name: notification
+      mountPath: /config
   extraVolumes:
     - name: oidc-jwk
       secret:
         secretName: authelia-oidc-jwk
+    - name: notification
+      emptyDir: { }
   securityContext:
     pod:
       runAsNonRoot: true
@@ -100,7 +104,7 @@ configMap:
     ldap:
       enabled: true
       implementation: custom
-      address: ldap://lldap-app.authelia.svc.cluster.local:3890
+      address: ldap://lldap.authelia.svc.cluster.local:3890
       base_dn: dc=homelab,dc=local
       additional_users_dn: ou=people
       users_filter: "(&(|({username_attribute}={input})({email_attribute}={input}))(objectClass=person))"

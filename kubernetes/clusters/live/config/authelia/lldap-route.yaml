@@ -13,5 +13,5 @@ spec:
     - "lldap.${internal_domain}"
   rules:
     - backendRefs:
-        - name: lldap-app
+        - name: lldap
           port: 17170
