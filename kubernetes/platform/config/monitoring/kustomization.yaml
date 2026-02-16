@@ -32,3 +32,4 @@ resources:
   - ups-monitoring-config.yaml
   - ups-monitoring-scrape.yaml
   - ups-monitoring-alerts.yaml
+  - backup-health-dashboard.yaml

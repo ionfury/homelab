@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -33,3 +34,58 @@ spec:
             severity: critical
           annotations:
             summary: "CNPG replica {{ $labels.pod }} WAL receiver down"
+
+        # WAL Archiving Lag - pending files above healthy threshold
+        - alert: CNPGWALArchivingLagHigh
+          expr: cnpg_collector_pg_wal_archive_status{value="ready"} > 10
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CNPG cluster {{ $labels.cluster }} WAL archiving lagging"
+            description: >-
+              {{ $value }} WAL files pending archival for cluster {{ $labels.cluster }}.
+              WAL archive lag degrades RPO. Check Garage connectivity and barman health.
+
+        # WAL Archiving Stalled - critical backlog
+        - alert: CNPGWALArchivingStalled
+          expr: cnpg_collector_pg_wal_archive_status{value="ready"} > 100
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CNPG cluster {{ $labels.cluster }} WAL archiving stalled"
+            description: >-
+              {{ $value }} WAL files pending archival for cluster {{ $labels.cluster }}.
+              Archiving appears stalled. RPO is severely degraded. Check Garage health
+              and barman object store connectivity immediately.
+
+        # Base Backup Staleness - no successful backup within 48h
+        - alert: CNPGBackupStale
+          expr: |
+            (time() - cnpg_collector_last_available_backup_timestamp) > 172800
+            and cnpg_collector_last_available_backup_timestamp > 0
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CNPG cluster {{ $labels.cluster }} backup older than 48h"
+            description: >-
+              Last available backup for cluster {{ $labels.cluster }} is
+              {{ $value | humanizeDuration }} old (threshold: 48h). Check
+              ScheduledBackup resource and barman object store connectivity.
+
+        # Backup Failed - most recent attempt was a failure
+        - alert: CNPGBackupFailed
+          expr: |
+            cnpg_collector_last_failed_backup_timestamp
+            > cnpg_collector_last_available_backup_timestamp
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CNPG cluster {{ $labels.cluster }} latest backup failed"
+            description: >-
+              The most recent backup attempt for cluster {{ $labels.cluster }} failed.
+              A failed backup is more recent than the last successful one.
+              Check CNPG operator logs and barman backup connectivity to Garage.
