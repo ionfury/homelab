@@ -101,6 +101,15 @@ Present findings as a structured investigation report:
 3. [Nuclear option] — Risk: High
 ```
 
+# Alert Response Policy
+
+**Every firing alert demands immediate action.** When investigating, check for firing alerts early — they are critical signals, not background noise.
+
+- If you discover firing alerts during investigation, **always flag them to the user** — even if they appear unrelated to the current incident
+- An alert that is firing without a corresponding Silence CR is an operational gap that must be resolved
+- Recommend either **fixing the root cause** or **creating a declarative Silence CR** (last resort, requires justification)
+- Every cluster must maintain a **zero firing alerts baseline** (excluding Watchdog)
+
 # Boundaries
 
 - **NEVER** modify cluster resources (no `kubectl apply`, `kubectl delete`, `kubectl patch`)

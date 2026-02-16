@@ -28,6 +28,7 @@ user-invocable: false
 - **Read-Only Investigation** - Observe and analyze, never modify resources
 - **Multi-Source Correlation** - Combine logs, events, metrics for complete picture
 - **Research Unknown Services** - Check documentation before deep investigation
+- **Zero Alert Tolerance** - Every firing alert must be addressed immediately: fix the root cause, or as a last resort, create a declarative Silence CR with justification. Never ignore, defer, or dismiss a firing alert.
 
 ## The 5 Whys Analysis (CRITICAL)
 
