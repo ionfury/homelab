@@ -3,14 +3,18 @@
 priorityClassName: platform
 serviceMonitor:
   enabled: false  # Using standalone ScrapeConfig for Flux variable substitution
-# Load all SNMP configs via glob: the built-in /etc/snmp_exporter/snmp.yml
-# (provides if_mib, etc.) plus the custom cyberpower module mounted alongside it.
+# Load both the built-in /etc/snmp_exporter/snmp.yml (provides default auths
+# and modules like if_mib) and the custom cyberpower module mounted alongside
+# it. The custom file contains ONLY the cyberpower module definition; the
+# public_v2 auth it needs already exists in the default config. Using a glob
+# lets snmp_exporter merge maps from both files via sequential UnmarshalStrict
+# calls -- duplicate map keys across files cause startup failures.
 extraArgs:
   - "--config.file=/etc/snmp_exporter/*.yml"
 extraConfigmapMounts:
   - name: cyberpower-snmp-config
     mountPath: /etc/snmp_exporter/cyberpower.yml
-    subPath: snmp.yml
+    subPath: cyberpower.yml
     configMap: snmp-exporter-cyberpower-config
     readOnly: true
     defaultMode: 420
