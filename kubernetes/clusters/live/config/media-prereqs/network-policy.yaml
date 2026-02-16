@@ -103,7 +103,7 @@ metadata:
   name: media-arr
   namespace: media
 spec:
-  description: "Sonarr/Radarr/Prowlarr: internal gateway ingress, HTTPS egress"
+  description: "Sonarr/Radarr/Prowlarr: internal gateway ingress, HTTP+HTTPS egress for indexers"
   endpointSelector:
     matchExpressions:
       - key: app.kubernetes.io/name
@@ -125,10 +125,13 @@ spec:
             - port: "9696"
               protocol: TCP
   egress:
+    # Many indexers and trackers still use HTTP — HTTPS alone is insufficient
     - toEntities:
         - world
       toPorts:
         - ports:
+            - port: "80"
+              protocol: TCP
             - port: "443"
               protocol: TCP
 ---
