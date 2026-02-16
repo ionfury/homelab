@@ -17,6 +17,19 @@ docs/
 
 ---
 
+## Architecture Documents
+
+Architecture docs describe **how the system works today** — living documents updated as the system evolves. Unlike plans (point-in-time proposals) or runbooks (emergency procedures), these capture current design, rationale, and relationships.
+
+| Document | Domain | Purpose |
+|----------|--------|---------|
+| `backup-strategy.md` | Storage | Storage class taxonomy, data protection matrix, backup data flows |
+| `network-segmentation.md` | Network | Two-tier Cilium policy model, profiles, shared resource access |
+| `promotion-pipeline.md` | CI/CD | OCI artifact promotion from PR merge to live deployment |
+| `secret-management.md` | Security | Four-tier secret architecture (generator, ESO, app-secrets, replicator) |
+
+---
+
 ## Runbook Inventory
 
 | Runbook | Trigger Condition | Est. Time | Related Docs |
@@ -47,21 +60,6 @@ Physical setup checklist for new Supermicro hardware: BIOS settings, IPMI config
 
 **terragrunt-validation-state-issues.md**
 Resolve "partial state" errors during `terragrunt validate`. Usually caused by missing dependencies or stale cache.
-
----
-
-## Architecture Documents
-
-Architecture documents describe how the system works today and the conscious tradeoffs behind those decisions. Unlike plans (which are pre-implementation proposals), architecture docs reflect the implemented reality and are updated as the system evolves.
-
-| Document | Focus | Key Sections |
-|----------|-------|-------------|
-| `backup-strategy.md` | Storage classification and data protection | Storage class taxonomy, data protection matrix, backup data flows, tradeoffs |
-
-### Architecture Summaries
-
-**backup-strategy.md**
-Complete storage and backup strategy: five storage classes with tiered protection, per-workload data protection matrix, backup data flow diagrams (Longhorn, CNPG, Dragonfly), conscious tradeoffs, and per-cluster sizing differences.
 
 ---
 
@@ -101,9 +99,9 @@ Is this knowledge...
 │
 ├─ Declarative knowledge about the system?
 │  └─ CLAUDE.md (appropriate directory)
-│     - How the system works
-│     - Architecture and design decisions
+│     - How the system works (for AI agents)
 │     - Constraints and anti-patterns
+│     - Quick reference tables
 │     Examples: ResourceSet patterns, testing philosophy
 │
 ├─ A multi-step workflow for normal operations?
