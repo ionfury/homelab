@@ -6,7 +6,7 @@ metadata:
   name: satisfactory-game-server
   namespace: satisfactory
 spec:
-  description: "Allow Satisfactory: UDP/TCP 7777 ingress from internet"
+  description: "Satisfactory: game traffic ingress + HTTP egress for SteamCMD downloads"
   endpointSelector: { }
   ingress:
     - fromEntities:
@@ -16,4 +16,12 @@ spec:
             - port: "7777"
               protocol: UDP
             - port: "7777"
+              protocol: TCP
+  egress:
+    # SteamCMD requires HTTP (port 80) for game file downloads from Steam CDN
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
               protocol: TCP
