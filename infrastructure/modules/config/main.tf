@@ -109,7 +109,10 @@ locals {
           wipe              = lookup(machine.install, "wipe", true)
         }
       )
-      labels              = local.longhorn_enabled ? [local.longhorn_create_default_disk_label] : []
+      labels = concat(
+        local.longhorn_enabled ? [local.longhorn_create_default_disk_label] : [],
+        [for k, v in lookup(machine, "labels", {}) : { key = k, value = v }]
+      )
       kubelet_extraMounts = local.machine_kubelet_mounts[name]
       files               = local.spegel_enabled ? [local.spegel_containerd_config] : []
       annotations         = local.machine_longhorn_annotations[name]
