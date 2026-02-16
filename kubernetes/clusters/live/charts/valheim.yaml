@@ -19,7 +19,7 @@ controllers:
         image:
           repository: ghcr.io/lloesche/valheim-server
           # renovate: datasource=docker depName=ghcr.io/lloesche/valheim-server
-          tag: latest@sha256:0ceab2ad3a524a76e9a3edfc0e1e7ddab2cbdbc7ef7ae93ccc62e5ad65da8e09
+          tag: latest
         env:
           # Server configuration
           SERVER_NAME: "Valheim Dedicated"

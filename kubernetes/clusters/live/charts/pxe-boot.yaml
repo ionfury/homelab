@@ -9,7 +9,7 @@ controllers:
     containers:
       app:
         image:
-          repository: ghcr.io/netbootxyz/netbootxyz
+          repository: netbootxyz/netbootxyz
           tag: "${netbootxyz_version}"
         env:
           # Keep all TFTP traffic on port 69 (essential for LoadBalancer compatibility)
