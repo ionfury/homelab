@@ -130,3 +130,33 @@ spec:
           annotations:
             summary: "Longhorn replica rebuild stalled on {{ $labels.volume }}"
             description: "Volume {{ $labels.volume }} has been rebuilding for over 30 minutes at {{ $value }}%. This may indicate disk I/O issues or network problems."
+
+        # Backup Staleness - volume has backup but no recent success
+        - alert: LonghornBackupStale
+          expr: |
+            (time() - longhorn_volume_last_backup_at) > 129600
+            and longhorn_volume_last_backup_at > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} backup is stale"
+            description: >-
+              Volume {{ $labels.volume }} (PVC {{ $labels.pvc }}, ns {{ $labels.pvc_namespace }})
+              last successful backup was {{ $value | humanizeDuration }} ago (threshold: 36h).
+              Check recurring backup job status and backup target connectivity.
+
+        # Backup Never Completed - volume exists but has never been backed up
+        - alert: LonghornBackupNeverCompleted
+          expr: |
+            longhorn_volume_last_backup_at == 0
+            and longhorn_volume_robustness >= 0
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} has never been backed up"
+            description: >-
+              Volume {{ $labels.volume }} reports a last backup timestamp of 0,
+              meaning no backup has ever completed. Verify recurring job configuration
+              and backup target availability.
