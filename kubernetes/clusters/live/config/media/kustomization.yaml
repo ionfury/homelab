@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - jellyfin-external.yaml
+  - jellyfin-internal.yaml
+  - jellyseerr-external.yaml
+  - jellyseerr-internal.yaml
+  - sonarr-internal.yaml
+  - radarr-internal.yaml
+  - prowlarr-internal.yaml
+  - qbittorrent-internal.yaml
+  - canary-jellyfin.yaml
+  - canary-jellyseerr.yaml
+  - prometheus-rules.yaml

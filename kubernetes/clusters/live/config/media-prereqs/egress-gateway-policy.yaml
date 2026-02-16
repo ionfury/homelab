@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumEgressGatewayPolicy
+metadata:
+  name: media-vpn-egress
+spec:
+  selectors:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: qbittorrent
+  destinationCIDRs:
+    - "0.0.0.0/0"
+  excludedCIDRs:
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.10.0/24"
+  egressGateway:
+    nodeSelector:
+      matchLabels:
+        egress-gateway.homelab/vpn: "true"
+    interface: bond0.20

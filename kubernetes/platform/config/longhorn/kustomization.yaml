@@ -17,4 +17,5 @@ resources:
   - storage-classes/fast-local.yaml
   - storage-classes/fast-nr.yaml
   - storage-classes/fast.yaml
+  - storage-classes/slow-local.yaml
   - storage-classes/slow.yaml

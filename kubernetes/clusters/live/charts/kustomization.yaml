@@ -17,3 +17,9 @@ configMapGenerator:
       - factorio.yaml=factorio.yaml
       - satisfactory.yaml=satisfactory.yaml
       - pxe-boot.yaml=pxe-boot.yaml
+      - qbittorrent.yaml=qbittorrent.yaml
+      - prowlarr.yaml=prowlarr.yaml
+      - sonarr.yaml=sonarr.yaml
+      - radarr.yaml=radarr.yaml
+      - jellyfin.yaml=jellyfin.yaml
+      - jellyseerr.yaml=jellyseerr.yaml
