@@ -11,7 +11,7 @@ spec:
   inputs:
     # --- restricted: standard controllers with no privileged requirements ---
     - name: cert-manager
-      dataplane: standard
+      dataplane: ambient
       security: restricted
       networkPolicy: false
     - name: external-secrets
@@ -65,7 +65,7 @@ spec:
       security: privileged
       networkPolicy: false
     - name: istio-system
-      dataplane: standard
+      dataplane: ambient
       security: privileged
       networkPolicy: false
     - name: monitoring
