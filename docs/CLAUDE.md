@@ -1,6 +1,6 @@
 # Documentation - Claude Reference
 
-The `docs/` directory contains operational runbooks, architectural plans, and supporting assets.
+The `docs/` directory contains operational runbooks, architecture documents, plans, and supporting assets.
 
 ---
 
@@ -8,9 +8,9 @@ The `docs/` directory contains operational runbooks, architectural plans, and su
 
 ```
 docs/
-├── architecture/       # Living system design descriptions
+├── architecture/       # Living descriptions of current system design
 ├── runbooks/           # Emergency and operational procedures
-├── plans/              # Point-in-time design proposals
+├── plans/              # Pre-implementation design proposals
 │   └── .archive/       # Superseded plans
 └── images/             # Supporting images and diagrams
 ```
@@ -23,19 +23,10 @@ Architecture docs describe **how the system works today** — living documents u
 
 | Document | Domain | Purpose |
 |----------|--------|---------|
+| `backup-strategy.md` | Storage | Storage class taxonomy, data protection matrix, backup data flows |
 | `network-segmentation.md` | Network | Two-tier Cilium policy model, profiles, shared resource access |
 | `promotion-pipeline.md` | CI/CD | OCI artifact promotion from PR merge to live deployment |
 | `secret-management.md` | Security | Four-tier secret architecture (generator, ESO, app-secrets, replicator) |
-
-### Format Guidelines
-
-Architecture docs should:
-- **Open with a one-line summary** of what the system does
-- **Explain design philosophy** — the WHY before the WHAT
-- **Use tables for reference data** — quick lookup over prose
-- **Include diagrams** for flows and relationships (ASCII art preferred for git-friendliness)
-- **End with related resources** — link to operational docs, runbooks, and source files
-- **Stay current** — update when the system changes (stale architecture docs are worse than none)
 
 ---
 
@@ -85,7 +76,7 @@ Resolve "partial state" errors during `terragrunt validate`. Usually caused by m
 
 ---
 
-## Runbook vs CLAUDE.md vs Skill
+## Documentation Decision Tree
 
 Use this decision tree to determine where documentation belongs:
 
@@ -99,19 +90,19 @@ Is this knowledge...
 │     - Procedures with potential data loss risk
 │     Examples: Disaster recovery, emergency policy bypass
 │
+├─ A living description of current system design?
+│  └─ ARCHITECTURE (docs/architecture/)
+│     - How the system works today and why
+│     - Conscious tradeoffs and their rationale
+│     - Updated as the system evolves
+│     Examples: Backup strategy, network segmentation, secret management
+│
 ├─ Declarative knowledge about the system?
 │  └─ CLAUDE.md (appropriate directory)
 │     - How the system works (for AI agents)
 │     - Constraints and anti-patterns
 │     - Quick reference tables
 │     Examples: ResourceSet patterns, testing philosophy
-│
-├─ A system design description for humans?
-│  └─ ARCHITECTURE DOC (docs/architecture/)
-│     - Living system descriptions (how it works today)
-│     - Design rationale and trade-offs
-│     - Cross-cutting system relationships
-│     Examples: Network segmentation model, promotion pipeline, secret tiers
 │
 ├─ A multi-step workflow for normal operations?
 │  └─ SKILL (.claude/skills/)
@@ -120,13 +111,58 @@ Is this knowledge...
 │     - Task automation guidance
 │     Examples: Adding a Helm release, debugging Flux
 │
-└─ An architectural design or proposal?
+└─ A pre-implementation design proposal?
     └─ PLAN (docs/plans/)
-       - Design documents
+       - Design documents before implementation
        - Implementation proposals
-       - Architectural decisions
+       - Moved to .archive/ once implemented
        Examples: Network policy architecture, promotion pipeline
 ```
+
+---
+
+## Architecture Document Format Guidelines
+
+### Template Structure
+
+```markdown
+# Architecture: <Title>
+
+Brief introduction -- what this document covers and that it is a living document.
+
+## <Core Concept>
+Description of the system design with tables, diagrams, and rationale.
+
+## Conscious Tradeoffs
+Numbered list of deliberate architectural decisions:
+- **Decision:** What was decided
+- **Why:** Reasoning behind the choice
+- **Trade-off:** What was accepted as a cost
+
+## Per-Cluster Differences
+How the architecture varies across dev/integration/live.
+
+## Key File References
+Table mapping source files to their purpose in this architecture.
+```
+
+### Style Guidelines
+
+- **Living documents**: Architecture docs describe the current state, not a proposal. Update them when the system changes.
+- **Tradeoffs are first-class**: Every non-obvious decision gets a "Conscious Tradeoffs" entry explaining the reasoning and accepted costs.
+- **Reference source files**: Always link to the actual configuration files that implement what the document describes.
+- **Mark in-progress changes**: Use blockquotes (`> **Note:**`) to flag sections that reflect target state from in-progress work.
+- **Explain WHY, not just WHAT**: The configuration files show what exists. Architecture docs explain why it exists and why alternatives were rejected.
+
+### Naming Conventions
+
+Pattern: `<system-or-concern>.md` (kebab-case)
+
+| Good | Bad |
+|------|-----|
+| `backup-strategy.md` | `backups.md` |
+| `network-segmentation.md` | `netpol.md` |
+| `secret-management.md` | `secrets.md` |
 
 ---
 
@@ -174,6 +210,15 @@ Links to related runbooks, CLAUDE.md sections, or skills.
 ---
 
 ## Naming Conventions
+
+### Architecture Documents
+
+Pattern: `<system-or-concern>.md` (kebab-case)
+
+| Good | Bad |
+|------|-----|
+| `backup-strategy.md` | `backups.md` |
+| `network-segmentation.md` | `netpol.md` |
 
 ### Runbooks
 

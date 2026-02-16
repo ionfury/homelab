@@ -491,7 +491,7 @@ Each major directory has its own CLAUDE.md with domain-specific patterns:
 | [.github/CLAUDE.md](.github/CLAUDE.md) | CI/CD workflows, OCI artifact promotion pipeline |
 | [.taskfiles/CLAUDE.md](.taskfiles/CLAUDE.md) | Task commands, dev cluster safety |
 | [.claude/skills/CLAUDE.md](.claude/skills/CLAUDE.md) | Skill architecture and inventory |
-| [docs/CLAUDE.md](docs/CLAUDE.md) | Runbook organization, architecture docs, guidelines |
+| [docs/CLAUDE.md](docs/CLAUDE.md) | Documentation organization: architecture, runbooks, plans |
 | [infrastructure/CLAUDE.md](infrastructure/CLAUDE.md) | Architecture overview, testing philosophy |
 | [infrastructure/stacks/CLAUDE.md](infrastructure/stacks/CLAUDE.md) | Stack lifecycles and definitions |
 | [infrastructure/units/CLAUDE.md](infrastructure/units/CLAUDE.md) | Unit patterns and dependencies |
