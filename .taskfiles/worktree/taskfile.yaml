@@ -11,6 +11,7 @@ tasks:
       WORKTREE_PATH: "{{.ROOT_DIR}}/../{{.REPO_NAME}}-{{.NAME}}"
     cmds:
       - git worktree add "{{.WORKTREE_PATH}}" -b "{{.NAME}}"
+      - test ! -f "{{.ROOT_DIR}}/.claude/settings.local.json" || ln -sf "{{.ROOT_DIR}}/.claude/settings.local.json" "{{.WORKTREE_PATH}}/.claude/settings.local.json"
       - echo "Worktree created at {{.WORKTREE_PATH}}"
       - echo "Starting Claude Code..."
       - cmd: claude
