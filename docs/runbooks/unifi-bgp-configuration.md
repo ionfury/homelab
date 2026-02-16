@@ -11,24 +11,29 @@ Configure BGP peering between UniFi Dream Machine and Kubernetes clusters runnin
 
 ## Architecture Overview
 
-```
-UniFi Router (ASN 64512)          Kubernetes Clusters
-192.168.10.1                      ┌─────────────────────────┐
-       │                          │ live (ASN 64513)        │
-       │◄─── BGP eBGP ───────────►│ node41: 192.168.10.253  │
-       │                          │ node42: 192.168.10.203  │
-       │                          │ node43: 192.168.10.201  │
-       │                          └─────────────────────────┘
-       │                          ┌─────────────────────────┐
-       │◄─── BGP eBGP ───────────►│ integration (ASN 64514) │
-       │                          │ node46: 192.168.10.233  │
-       │                          │ node47: 192.168.10.247  │
-       │                          │ node48: 192.168.10.151  │
-       │                          └─────────────────────────┘
-       │                          ┌─────────────────────────┐
-       │◄─── BGP eBGP ───────────►│ dev (ASN 64515)         │
-       │                          │ node45: 192.168.10.252  │
-       │                          └─────────────────────────┘
+```mermaid
+flowchart LR
+    R["UniFi Router\nASN 64512\n192.168.10.1"]
+
+    subgraph live["live (ASN 64513)"]
+        L1["node41: 192.168.10.253"]
+        L2["node42: 192.168.10.203"]
+        L3["node43: 192.168.10.201"]
+    end
+
+    subgraph integration["integration (ASN 64514)"]
+        I1["node46: 192.168.10.233"]
+        I2["node47: 192.168.10.247"]
+        I3["node48: 192.168.10.151"]
+    end
+
+    subgraph dev["dev (ASN 64515)"]
+        D1["node45: 192.168.10.252"]
+    end
+
+    R <-->|"BGP eBGP"| live
+    R <-->|"BGP eBGP"| integration
+    R <-->|"BGP eBGP"| dev
 ```
 
 ## Configuration Steps

@@ -28,25 +28,21 @@ This document defines the architectural approach for implementing network segmen
 
 Network policy is split into two tiers with different management approaches:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        PLATFORM TIER                            │
-│  Hand-crafted CiliumNetworkPolicy per component                 │
-│  High-touch, PR-reviewed, specific to each service              │
-│                                                                 │
-│  flux-system, prometheus, grafana, alertmanager, loki,          │
-│  cert-manager, external-secrets, ingress-nginx, longhorn-system │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              │ (well-defined interfaces)
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      APPLICATION TIER                           │
-│  Namespace-profile-based CiliumClusterwideNetworkPolicy         │
-│  Low-touch, labels/annotations, composable                      │
-│                                                                 │
-│  All off-the-shelf apps, user workloads                         │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph platform["PLATFORM TIER"]
+        direction LR
+        P1["Hand-crafted CiliumNetworkPolicy per component\nHigh-touch, PR-reviewed, specific to each service"]
+        P2["flux-system, prometheus, grafana, alertmanager, loki,\ncert-manager, external-secrets, ingress-nginx, longhorn-system"]
+    end
+
+    subgraph application["APPLICATION TIER"]
+        direction LR
+        A1["Namespace-profile-based CiliumClusterwideNetworkPolicy\nLow-touch, labels/annotations, composable"]
+        A2["All off-the-shelf apps, user workloads"]
+    end
+
+    platform -->|"well-defined interfaces"| application
 ```
 
 ### Platform Tier

@@ -274,15 +274,20 @@ app_template_version=3.7.3
 
 Terragrunt and Tuppr both read from `versions.env`, ensuring no drift:
 
-```
-Scenario: Version Upgrade via PR
-──────────────────────────────────
-1. PR updates versions.env → talos_version=v1.12.2
-2. PR merges, Flux syncs new ConfigMap to cluster
-3. Tuppr sees mismatch → executes upgrade to v1.12.2
-4. Node now at v1.12.2
-5. Next Terragrunt run reads versions.env → v1.12.2
-6. Terragrunt sees node already at v1.12.2 → NO-OP
+```mermaid
+sequenceDiagram
+    participant PR as PR / versions.env
+    participant Flux
+    participant Tuppr
+    participant Node
+    participant TG as Terragrunt
+
+    PR->>Flux: Merge updates talos_version=v1.12.2
+    Flux->>Flux: Syncs new ConfigMap to cluster
+    Tuppr->>Node: Sees mismatch → executes upgrade to v1.12.2
+    Note over Node: Now at v1.12.2
+    TG->>PR: Reads versions.env → v1.12.2
+    TG->>Node: Sees node already at v1.12.2 → NO-OP
 ```
 
 ### Adding/Updating Versions
@@ -446,33 +451,25 @@ Istio mesh mTLS certificates are issued by cert-manager via [istio-csr](https://
 
 ### Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  AWS SSM Parameter Store                                    │
-│  /homelab/kubernetes/shared/istio-mesh-ca                   │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ ExternalSecret pulls on bootstrap
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Cluster (dev / integration / live)                         │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Secret: istio-mesh-root-ca (cert-manager ns)       │   │
-│  └──────────────────────┬──────────────────────────────┘   │
-│                         │                                   │
-│                         ▼                                   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  CA ClusterIssuer (istio-mesh-ca)                   │   │
-│  └──────────────────────┬──────────────────────────────┘   │
-│                         │                                   │
-│                         ▼                                   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  istio-csr (cert-manager namespace)                 │   │
-│  │         │                                           │   │
-│  │    ┌────┴────┐                                      │   │
-│  │    ▼         ▼                                      │   │
-│  │  istiod   ztunnel ──► workload SPIFFE identities    │   │
-│  └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph ssm["AWS SSM Parameter Store"]
+        S["/homelab/kubernetes/shared/istio-mesh-ca"]
+    end
+
+    ssm -->|"ExternalSecret pulls on bootstrap"| SEC
+
+    subgraph cluster["Cluster (dev / integration / live)"]
+        SEC["Secret: istio-mesh-root-ca\n(cert-manager ns)"]
+        CA["CA ClusterIssuer\n(istio-mesh-ca)"]
+
+        subgraph csr["istio-csr (cert-manager namespace)"]
+            ISTIOD["istiod"]
+            ZTUNNEL["ztunnel"] --> SPIFFE["workload SPIFFE identities"]
+        end
+
+        SEC --> CA --> csr
+    end
 ```
 
 ### Key Configuration
