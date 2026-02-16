@@ -36,9 +36,9 @@ controllers:
             spec:
               exec:
                 command:
-                  - /bin/sh
-                  - -c
-                  - test -f /config/gamefiles/FactoryGame.exe
+                  - pgrep
+                  - -f
+                  - FactoryServer
               initialDelaySeconds: 30
               periodSeconds: 15
               failureThreshold: 60
