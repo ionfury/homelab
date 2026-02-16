@@ -511,7 +511,8 @@ spec:
 
 - **Always include a comment** explaining why the silence exists (architectural limitation, expected behavior, etc.)
 - Every cluster must maintain a **zero firing alerts baseline** (excluding Watchdog)
-- Silences are a last resort -- prefer fixing the root cause over silencing
+- **Silences are a LAST RESORT** — every effort must be made to fix the root cause before resorting to a silence. Only silence when the alert genuinely cannot be fixed: architectural limitations (e.g., single-node Spegel), expected environmental behavior, or confirmed upstream bugs
+- **Never leave alerts firing without action** — either fix the cause or create a Silence CR. An ignored alert degrades trust in the entire monitoring system and leads to alert fatigue where real incidents get missed
 
 ### Adding a Silence to a Cluster
 

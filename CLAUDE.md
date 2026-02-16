@@ -307,6 +307,29 @@ For dev cluster permissions, pre-flight checks, and safety procedures, see [.tas
 - **NEVER** apply changes directly to the cluster - always use the GitOps approach through Flux
 - **NEVER** hallucinate YAML fields - use `kubectl explain`, official docs, or YAML schema validation
 
+## Alert Response
+
+**Every firing alert demands immediate action. Ignored alerts are unacceptable.**
+
+A firing alert means something is wrong — either with the system or with the alert definition. Both require resolution:
+
+- **NEVER** ignore a firing alert — it erodes trust in the entire monitoring system
+- **NEVER** leave alerts firing "for now" or defer them as follow-up work
+- **NEVER** treat alerts as informational noise — if an alert isn't actionable, it's misconfigured
+- **ALWAYS** either **fix the root cause** or **create a declarative Silence CR** with a comment explaining why
+
+**Response priority:**
+1. **Fix the root cause** — this is always the correct first response
+2. **Create a declarative Silence CR** — LAST RESORT, only when the alert genuinely cannot be fixed (architectural limitation, expected behavior in this environment, upstream bug). The Silence must include a comment explaining the justification
+
+**Every cluster must maintain a zero firing alerts baseline** (excluding Watchdog, which validates Alertmanager health). If an alert is firing, the work is not done.
+
+**Invalid reasons to ignore an alert:**
+- "It's a known issue" — then silence it declaratively with a comment
+- "It doesn't affect anything" — then the alert is misconfigured; fix or silence it
+- "We'll fix it later" — fix it now, or silence it now with a tracked justification
+- "It's not related to my change" — it's still firing; investigate or flag it
+
 ## Verification
 
 - **NEVER** guess resource names, strings, IPs, or values - VERIFY against source files
