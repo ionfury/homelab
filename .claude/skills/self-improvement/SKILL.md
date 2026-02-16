@@ -161,6 +161,8 @@ Match the existing style:
 - Use bullet points for lists
 - Use code blocks for examples
 - Keep entries concise - this is reference material
+- Use Mermaid diagrams for flows, architectures, and decision trees — never create new ASCII art diagrams
+- See root CLAUDE.md "Diagram Standards" section for Mermaid type selection and formatting rules
 
 ### For skill additions
 

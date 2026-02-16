@@ -26,50 +26,42 @@ The promotion pipeline uses OCI artifacts for immutable, auditable deployments.
 
 ### Pipeline Flow
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         PR merged to main                           │
-└─────────────────────────────────┬───────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  build-platform-artifact.yaml                                       │
-│  ├─ Discovers latest stable tag, bumps patch for next version       │
-│  ├─ flux push artifact → ghcr.io/.../platform:X.Y.Z-rc.N           │
-│  ├─ flux tag artifact → sha-<short-sha>                            │
-│  └─ flux tag artifact → integration-<short-sha>                    │
-└─────────────────────────────────┬───────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Integration Cluster                                                │
-│  ├─ OCIRepository polls for semver ">= 0.0.0-0" (includes RCs)     │
-│  ├─ Detects new X.Y.Z-rc.N artifact (higher than last stable)      │
-│  └─ Flux reconciles platform                                        │
-└─────────────────────────────────┬───────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Flux Alert (validation-success)                                     │
-│  ├─ Watches platform Kustomization for "Reconciliation finished"     │
-│  ├─ Provider posts commit status (context: kustomization/platform/*) │
-│  └─ Workflow has idempotency guard for repeated reconciliation events │
-└─────────────────────────────────┬───────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  tag-validated-artifact.yaml                                        │
-│  ├─ flux tag artifact → validated-<short-sha> (traceability)       │
-│  └─ flux tag artifact → X.Y.Z (stable semver, RC suffix stripped)  │
-└─────────────────────────────────┬───────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Live Cluster                                                       │
-│  ├─ OCIRepository polls for semver ">= 0.0.0" (stable only)        │
-│  ├─ Detects new 0.1.N stable semver tag                            │
-│  └─ Flux reconciles platform (production deployment)                │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    PR[PR merged to main] --> build
+
+    subgraph build["build-platform-artifact.yaml"]
+        B1["Discovers latest stable tag, bumps patch"] --> B2["flux push artifact → ghcr.io/.../platform:X.Y.Z-rc.N"]
+        B2 --> B3["flux tag artifact → sha-‹short-sha›"]
+        B3 --> B4["flux tag artifact → integration-‹short-sha›"]
+    end
+
+    build --> integ
+
+    subgraph integ["Integration Cluster"]
+        I1["OCIRepository polls for semver ≥ 0.0.0-0 (includes RCs)"] --> I2["Detects new X.Y.Z-rc.N artifact"]
+        I2 --> I3["Flux reconciles platform"]
+    end
+
+    integ --> alert
+
+    subgraph alert["Flux Alert (validation-success)"]
+        A1["Watches platform Kustomization for 'Reconciliation finished'"] --> A2["Provider posts commit status\n(context: kustomization/platform/*)"]
+        A2 --> A3["Idempotency guard for repeated events"]
+    end
+
+    alert --> tag
+
+    subgraph tag["tag-validated-artifact.yaml"]
+        T1["flux tag artifact → validated-‹short-sha›"] --> T2["flux tag artifact → X.Y.Z\n(stable semver, RC suffix stripped)"]
+    end
+
+    tag --> livecluster
+
+    subgraph livecluster["Live Cluster"]
+        L1["OCIRepository polls for semver ≥ 0.0.0 (stable only)"] --> L2["Detects new stable semver tag"]
+        L2 --> L3["Flux reconciles platform\n(production deployment)"]
+    end
 ```
 
 ### Artifact Tagging Strategy
@@ -115,19 +107,18 @@ higher than the previous stable release in semver ordering.
 
 ### Artifact Stuck in Integration?
 
-```
-Is the artifact in GHCR?
-│
-├─ NO → Check build-platform-artifact.yaml run
-│       └─ Did the workflow trigger?
-│           ├─ NO → Was kubernetes/ modified?
-│           └─ YES → Check workflow logs for push errors
-│
-└─ YES → Is OCIRepository seeing it?
-         └─ kubectl get ocirepository -n flux-system
-             ├─ NO match → Check semver constraint
-             └─ Match found → Check Kustomization status
-                 └─ kubectl get kustomization -n flux-system
+```mermaid
+flowchart TD
+    A{Is the artifact in GHCR?}
+
+    A -->|NO| B[Check build-platform-artifact.yaml run]
+    B --> C{Did the workflow trigger?}
+    C -->|NO| D[Was kubernetes/ modified?]
+    C -->|YES| E[Check workflow logs for push errors]
+
+    A -->|YES| F{"Is OCIRepository seeing it?\nkubectl get ocirepository -n flux-system"}
+    F -->|NO match| G[Check semver constraint]
+    F -->|Match found| H{"Check Kustomization status\nkubectl get kustomization -n flux-system"}
 ```
 
 ### Validation Not Triggering Promotion?

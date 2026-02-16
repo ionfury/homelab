@@ -80,43 +80,19 @@ Resolve "partial state" errors during `terragrunt validate`. Usually caused by m
 
 Use this decision tree to determine where documentation belongs:
 
-```
-Is this knowledge...
+```mermaid
+flowchart TD
+    A{Is this knowledge...}
 
-├─ An emergency/incident procedure?
-│  └─ RUNBOOK (docs/runbooks/)
-│     - Step-by-step recovery actions
-│     - Time-sensitive operations
-│     - Procedures with potential data loss risk
-│     Examples: Disaster recovery, emergency policy bypass
-│
-├─ A living description of current system design?
-│  └─ ARCHITECTURE (docs/architecture/)
-│     - How the system works today and why
-│     - Conscious tradeoffs and their rationale
-│     - Updated as the system evolves
-│     Examples: Backup strategy, network segmentation, secret management
-│
-├─ Declarative knowledge about the system?
-│  └─ CLAUDE.md (appropriate directory)
-│     - How the system works (for AI agents)
-│     - Constraints and anti-patterns
-│     - Quick reference tables
-│     Examples: ResourceSet patterns, testing philosophy
-│
-├─ A multi-step workflow for normal operations?
-│  └─ SKILL (.claude/skills/)
-│     - Procedural how-to guides
-│     - Repeatable development workflows
-│     - Task automation guidance
-│     Examples: Adding a Helm release, debugging Flux
-│
-└─ A pre-implementation design proposal?
-    └─ PLAN (docs/plans/)
-       - Design documents before implementation
-       - Implementation proposals
-       - Moved to .archive/ once implemented
-       Examples: Network policy architecture, promotion pipeline
+    A -->|"Emergency/incident procedure?"| RB["**RUNBOOK** — docs/runbooks/\nStep-by-step recovery actions\nTime-sensitive operations\nProcedures with potential data loss risk"]
+
+    A -->|"Living description of current design?"| ARCH["**ARCHITECTURE** — docs/architecture/\nHow the system works today and why\nConscious tradeoffs and their rationale\nUpdated as the system evolves"]
+
+    A -->|"Declarative knowledge about system?"| CMD["**CLAUDE.md** — appropriate directory\nHow the system works (for AI agents)\nConstraints and anti-patterns\nQuick reference tables"]
+
+    A -->|"Multi-step workflow for normal ops?"| SKILL["**SKILL** — .claude/skills/\nProcedural how-to guides\nRepeatable development workflows\nTask automation guidance"]
+
+    A -->|"Pre-implementation design proposal?"| PLAN["**PLAN** — docs/plans/\nDesign documents before implementation\nMoved to .archive/ once implemented"]
 ```
 
 ---

@@ -207,22 +207,13 @@ All changes flow through pull requests using **worktree-based isolation**:
 
 The `main` branch represents the desired state for production. Merging to `main` triggers OCI artifact-based promotion:
 
-```
-PR merged to main
-       ↓
-  GHA builds OCI artifact
-  (packages kubernetes/)
-       ↓
-  integration cluster
-  (auto-deploys via ImagePolicy)
-       ↓
-  canary-checker validation
-  (Flux health + platform checks)
-       ↓
-  GHA tags artifact as validated
-       ↓
-  live cluster
-  (auto-deploys via ImagePolicy)
+```mermaid
+flowchart TD
+    A[PR merged to main] --> B["GHA builds OCI artifact\n(packages kubernetes/)"]
+    B --> C["integration cluster\n(auto-deploys via ImagePolicy)"]
+    C --> D["canary-checker validation\n(Flux health + platform checks)"]
+    D --> E[GHA tags artifact as validated]
+    E --> F["live cluster\n(auto-deploys via ImagePolicy)"]
 ```
 
 1. **Artifact build**: GHA packages `kubernetes/` directory as OCI artifact, tags as `integration-<sha>`
@@ -467,17 +458,12 @@ See [kubernetes/platform/CLAUDE.md](kubernetes/platform/CLAUDE.md) for detailed 
 
 ### Data Flow
 
-```
-kubernetes/platform/versions.env  ─────────────────────────────┐
-    │                                                          │
-    ├──→ infrastructure/stacks/*/  (Terragrunt reads versions) │
-    │         │                                                │
-    │         └──→ generates .cluster-vars.env per cluster     │
-    │                    │                                     │
-    │                    ▼                                     │
-    │    kubernetes/clusters/<cluster>/.cluster-vars.env       │
-    │                                                          │
-    └──→ kubernetes/platform/ (Flux substitutes versions) ◄────┘
+```mermaid
+flowchart LR
+    V["kubernetes/platform/versions.env"] --> S["infrastructure/stacks/*\n(Terragrunt reads versions)"]
+    S --> G["generates .cluster-vars.env\nper cluster"]
+    G --> C["kubernetes/clusters/‹cluster›/\n.cluster-vars.env"]
+    V --> F["kubernetes/platform/\n(Flux substitutes versions)"]
 ```
 
 ---
@@ -554,6 +540,31 @@ Code should be self-documenting. Comments and messages explain the WHY, not the 
 - **Comments explain reasoning**: Why this approach? Why not the obvious alternative?
 - **Omit the obvious**: Don't comment what the code clearly does
 - **No redundancy**: If the code says it, don't repeat it in a comment
+
+## Diagram Standards
+
+**Use Mermaid for all flow, architecture, decision tree, sequence, and topology diagrams.** GitHub renders Mermaid natively in markdown — zero tooling required, version-control-friendly, and richer output than ASCII art.
+
+**ASCII remains acceptable for:** directory trees and terminal output mockups (these render better as monospace text).
+
+### Diagram Type Selection
+
+| Content | Mermaid Type | Direction |
+|---------|-------------|-----------|
+| Deployment pipelines, promotion flows | `flowchart TD` | Top-down |
+| Network topologies, data flows | `flowchart LR` | Left-right |
+| Decision trees | `flowchart TD` | Top-down, use `{}` for decisions |
+| Temporal interactions between components | `sequenceDiagram` | — |
+| System architecture with boundaries | `flowchart` + `subgraph` | TD or LR |
+
+### Formatting Rules
+
+- Use `flowchart` (not the deprecated `graph` keyword)
+- Use `TD` (top-down) for pipelines and decision trees, `LR` (left-right) for topologies and data flows
+- Use `subgraph` to visually group related components (clusters, tiers, namespaces)
+- Use `{}` for decision diamonds, `[]` for process nodes, `([])` for rounded nodes
+- Keep node labels concise — use `\n` for line breaks within labels
+- Use quoted edge labels for clarity: `-->|"label"|`
 
 ## Commits
 
