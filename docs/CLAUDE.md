@@ -8,11 +8,34 @@ The `docs/` directory contains operational runbooks, architectural plans, and su
 
 ```
 docs/
+├── architecture/       # Living system design descriptions
 ├── runbooks/           # Emergency and operational procedures
-├── plans/              # Architectural design documents
+├── plans/              # Point-in-time design proposals
 │   └── .archive/       # Superseded plans
 └── images/             # Supporting images and diagrams
 ```
+
+---
+
+## Architecture Documents
+
+Architecture docs describe **how the system works today** — living documents updated as the system evolves. Unlike plans (point-in-time proposals) or runbooks (emergency procedures), these capture current design, rationale, and relationships.
+
+| Document | Domain | Purpose |
+|----------|--------|---------|
+| `network-segmentation.md` | Network | Two-tier Cilium policy model, profiles, shared resource access |
+| `promotion-pipeline.md` | CI/CD | OCI artifact promotion from PR merge to live deployment |
+| `secret-management.md` | Security | Four-tier secret architecture (generator, ESO, app-secrets, replicator) |
+
+### Format Guidelines
+
+Architecture docs should:
+- **Open with a one-line summary** of what the system does
+- **Explain design philosophy** — the WHY before the WHAT
+- **Use tables for reference data** — quick lookup over prose
+- **Include diagrams** for flows and relationships (ASCII art preferred for git-friendliness)
+- **End with related resources** — link to operational docs, runbooks, and source files
+- **Stay current** — update when the system changes (stale architecture docs are worse than none)
 
 ---
 
@@ -78,10 +101,17 @@ Is this knowledge...
 │
 ├─ Declarative knowledge about the system?
 │  └─ CLAUDE.md (appropriate directory)
-│     - How the system works
-│     - Architecture and design decisions
+│     - How the system works (for AI agents)
 │     - Constraints and anti-patterns
+│     - Quick reference tables
 │     Examples: ResourceSet patterns, testing philosophy
+│
+├─ A system design description for humans?
+│  └─ ARCHITECTURE DOC (docs/architecture/)
+│     - Living system descriptions (how it works today)
+│     - Design rationale and trade-offs
+│     - Cross-cutting system relationships
+│     Examples: Network segmentation model, promotion pipeline, secret tiers
 │
 ├─ A multi-step workflow for normal operations?
 │  └─ SKILL (.claude/skills/)
