@@ -10,7 +10,7 @@ spec:
   metricsPath: /snmp
   params:
     module: ["cyberpower"]
-    auth: ["public_v2"]
+    auth: ["public_v1"]
   staticConfigs:
     - targets: ["ups.citadel.tomnowak.work"]
   relabelings:
