@@ -42,7 +42,7 @@ spec:
     - name: oauth2-proxy-config
       namespace: oauth2-proxy
       path: kubernetes/platform/config/oauth2-proxy
-      dependsOn: [oauth2-proxy, external-secrets-stores, canary-checker]
+      dependsOn: [external-secrets-stores, canary-checker]
     - name: monitoring-config
       namespace: monitoring
       path: kubernetes/platform/config/monitoring
