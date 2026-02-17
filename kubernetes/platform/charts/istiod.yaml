@@ -22,6 +22,11 @@ meshConfig:
         includeRequestHeadersInCheck:
           - authorization
           - cookie
+          - x-forwarded-proto
+          - x-forwarded-host
+          - x-forwarded-for
+        includeAdditionalHeadersInCheck:
+          x-forwarded-proto: "https"
 
 # Disable built-in CA - certificates are issued by istio-csr via cert-manager
 pilot:
