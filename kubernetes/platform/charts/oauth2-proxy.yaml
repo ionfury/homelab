@@ -16,9 +16,10 @@ config:
     cookie_expire = "168h"
     cookie_secure = true
     cookie_samesite = "lax"
-    upstreams = ["static://202"]
+    upstreams = ["static://200"]
     set_xauthrequest = true
     skip_provider_button = true
+    reverse_proxy = true
     email_domains = ["*"]
     redirect_url = "https://oauth2-proxy.${internal_domain}/oauth2/callback"
     whitelist_domains = [".${internal_domain}"]

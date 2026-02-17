@@ -27,10 +27,9 @@ spec:
             - port: "44180"
               protocol: TCP
   egress:
-    # To GitHub (OAuth token exchange + user validation)
-    - toFQDNs:
-        - matchName: github.com
-        - matchName: api.github.com
+    # To external services (GitHub OAuth token exchange + user validation)
+    - toEntities:
+        - world
       toPorts:
         - ports:
             - port: "443"
