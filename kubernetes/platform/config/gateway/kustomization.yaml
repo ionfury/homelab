@@ -10,3 +10,4 @@ resources:
   - coraza-wasm-plugin.yaml
   - coraza-config.yaml
   - coraza-waf-rules.yaml
+  - platform-auth-policy.yaml

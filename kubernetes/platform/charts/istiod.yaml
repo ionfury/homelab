@@ -3,6 +3,26 @@
 # yaml-language-server: $schema=https://json.schemastore.org/helm-values.json
 profile: ambient
 
+meshConfig:
+  extensionProviders:
+    - name: oauth2-proxy
+      envoyExtAuthz:
+        service: oauth2-proxy.oauth2-proxy.svc.cluster.local
+        port: 4180
+        headersToDownstreamOnDeny:
+          - content-type
+          - set-cookie
+        headersToUpstreamOnAllow:
+          - authorization
+          - cookie
+          - x-auth-request-user
+          - x-auth-request-email
+        headersToDownstreamOnAllow:
+          - set-cookie
+        includeRequestHeadersInCheck:
+          - authorization
+          - cookie
+
 # Disable built-in CA - certificates are issued by istio-csr via cert-manager
 pilot:
   env:

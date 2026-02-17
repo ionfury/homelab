@@ -9,7 +9,6 @@ resources:
   - alertmanager-route.yaml
   - alertmanager-canary.yaml
   - grafana-admin-secret.yaml
-  - grafana-oidc-secret-replication.yaml
   - grafana-route.yaml
   - grafana-canary.yaml
   - prometheus-route.yaml

@@ -189,6 +189,13 @@ spec:
         version: "${spegel_version}"
         url: oci://ghcr.io/spegel-org/helm-charts
       dependsOn: [cilium]
+    - name: oauth2-proxy
+      namespace: oauth2-proxy
+      chart:
+        name: oauth2-proxy
+        version: "${oauth2_proxy_version}"
+        url: https://oauth2-proxy.github.io/manifests
+      dependsOn: [istiod, external-secrets]
     - name: tuppr
       namespace: system-upgrade
       chart:

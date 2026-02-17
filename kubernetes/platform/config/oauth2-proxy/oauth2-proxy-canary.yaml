@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/canaries.flanksource.com/canary_v1.json
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-oauth2-proxy
+spec:
+  schedule: "@every 1m"
+  http:
+    - name: oauth2-proxy-gateway-health
+      url: https://oauth2-proxy.${internal_domain}/ping
+      responseCodes: [200]
+      maxSSLExpiry: 7
+      thresholdMillis: 5000

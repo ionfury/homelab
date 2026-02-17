@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/security.istio.io/authorizationpolicy_v1.json
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: platform-ui-auth
+  namespace: istio-gateway
+spec:
+  targetRefs:
+    - kind: Gateway
+      group: gateway.networking.k8s.io
+      name: internal
+  action: CUSTOM
+  provider:
+    name: oauth2-proxy
+  rules:
+    - to:
+        - operation:
+            hosts:
+              - "prometheus.${internal_domain}"
+              - "alertmanager.${internal_domain}"
+              - "longhorn.${internal_domain}"
+              - "hubble.${internal_domain}"
+              - "garage.${internal_domain}"
+              - "grafana.${internal_domain}"
