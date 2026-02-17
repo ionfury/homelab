@@ -125,9 +125,6 @@ locals {
     node41 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
-      labels = {
-        "egress-gateway.homelab/vpn" = "true"
-      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
@@ -148,7 +145,7 @@ locals {
       bonds = [{
         link_permanentAddr = ["ac:1f:6b:2d:bf:ee"]
         addresses          = ["192.168.10.253"]
-        vlans              = [10, 20]
+        vlans              = [10]
         mtu                = 1500
         mode               = "active-backup"
       }]
@@ -156,9 +153,6 @@ locals {
     node42 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
-      labels = {
-        "egress-gateway.homelab/vpn" = "true"
-      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
@@ -179,7 +173,7 @@ locals {
       bonds = [{
         link_permanentAddr = ["ac:1f:6b:2d:bf:bc"]
         addresses          = ["192.168.10.203"]
-        vlans              = [10, 20]
+        vlans              = [10]
         mtu                = 1500
         mode               = "active-backup"
       }]
@@ -187,9 +181,6 @@ locals {
     node43 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "live"
       type    = "controlplane"
-      labels = {
-        "egress-gateway.homelab/vpn" = "true"
-      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
@@ -209,7 +200,7 @@ locals {
       bonds = [{
         link_permanentAddr = ["ac:1f:6b:2d:bb:c8"]
         addresses          = ["192.168.10.201"]
-        vlans              = [10, 20]
+        vlans              = [10]
         mtu                = 1500
         mode               = "active-backup"
       }]

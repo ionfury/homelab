@@ -98,7 +98,7 @@ run "inventory_labels_applied" {
         cluster = "test-cluster"
         type    = "controlplane"
         labels = {
-          "egress-gateway.homelab/vpn" = "true"
+          "topology.homelab/rack" = "rack1"
         }
         install = { selector = "disk.model = *" }
         bonds = [{
@@ -112,7 +112,7 @@ run "inventory_labels_applied" {
   assert {
     condition = anytrue([
       for l in output.machines["node1"].labels :
-      l.key == "egress-gateway.homelab/vpn" && l.value == "true"
+      l.key == "topology.homelab/rack" && l.value == "rack1"
     ])
     error_message = "Inventory labels should appear in machine labels"
   }
@@ -129,7 +129,7 @@ run "inventory_labels_merged_with_longhorn" {
         cluster = "test-cluster"
         type    = "controlplane"
         labels = {
-          "egress-gateway.homelab/vpn" = "true"
+          "topology.homelab/rack" = "rack1"
         }
         install = { selector = "disk.model = *" }
         bonds = [{
@@ -151,7 +151,7 @@ run "inventory_labels_merged_with_longhorn" {
   assert {
     condition = anytrue([
       for l in output.machines["node1"].labels :
-      l.key == "egress-gateway.homelab/vpn" && l.value == "true"
+      l.key == "topology.homelab/rack" && l.value == "rack1"
     ])
     error_message = "Inventory labels should be present alongside longhorn labels"
   }
@@ -173,7 +173,7 @@ run "inventory_labels_in_talos_config" {
         cluster = "test-cluster"
         type    = "controlplane"
         labels = {
-          "egress-gateway.homelab/vpn" = "true"
+          "topology.homelab/rack" = "rack1"
         }
         install = { selector = "disk.model = *" }
         bonds = [{
@@ -187,7 +187,7 @@ run "inventory_labels_in_talos_config" {
   assert {
     condition = alltrue([
       for m in output.talos.talos_machines :
-      strcontains(join("\n", m.configs), "egress-gateway.homelab/vpn")
+      strcontains(join("\n", m.configs), "topology.homelab/rack")
     ])
     error_message = "Talos machine config should contain inventory label key"
   }
@@ -221,8 +221,8 @@ run "multiple_inventory_labels" {
         cluster = "test-cluster"
         type    = "controlplane"
         labels = {
-          "egress-gateway.homelab/vpn" = "true"
-          "topology.homelab/zone"      = "rack1"
+          "topology.homelab/rack" = "rack1"
+          "topology.homelab/zone" = "zone-a"
         }
         install = { selector = "disk.model = *" }
         bonds = [{
@@ -241,7 +241,7 @@ run "multiple_inventory_labels" {
   assert {
     condition = anytrue([
       for l in output.machines["node1"].labels :
-      l.key == "egress-gateway.homelab/vpn" && l.value == "true"
+      l.key == "topology.homelab/rack" && l.value == "rack1"
     ])
     error_message = "First inventory label should be present"
   }
@@ -249,7 +249,7 @@ run "multiple_inventory_labels" {
   assert {
     condition = anytrue([
       for l in output.machines["node1"].labels :
-      l.key == "topology.homelab/zone" && l.value == "rack1"
+      l.key == "topology.homelab/zone" && l.value == "zone-a"
     ])
     error_message = "Second inventory label should be present"
   }

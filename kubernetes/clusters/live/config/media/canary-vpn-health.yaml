@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/canaries.flanksource.com/canary_v1.json
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-qbittorrent-vpn
+  namespace: media
+spec:
+  schedule: "@every 1m"
+  http:
+    - name: gluetun-vpn-health
+      url: http://qbittorrent.media.svc.cluster.local:9999/
+      responseCodes: [200]
+      thresholdMillis: 5000

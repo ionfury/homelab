@@ -9,13 +9,58 @@ controllers:
 
     pod:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 568
-        runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
+
+    initContainers:
+      gluetun:
+        restartPolicy: Always
+        image:
+          repository: ghcr.io/qdm12/gluetun
+          tag: "${gluetun_version}"
+        env:
+          VPN_SERVICE_PROVIDER: nordvpn
+          VPN_TYPE: openvpn
+          OPENVPN_USER:
+            valueFrom:
+              secretKeyRef:
+                name: nordvpn-credentials
+                key: OPENVPN_USER
+          OPENVPN_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: nordvpn-credentials
+                key: OPENVPN_PASSWORD
+          SERVER_COUNTRIES: United States
+          SERVER_CATEGORIES: P2P
+          DNS_KEEP_NAMESERVER: "on"
+          FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
+          HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          capabilities:
+            add: [NET_ADMIN]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 9999
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 30
 
     containers:
       app:
@@ -28,6 +73,9 @@ controllers:
           QBT_BitTorrent__Session__TempPath: /media/downloads/incomplete
           QBT_BitTorrent__Session__TempPathEnabled: "true"
         securityContext:
+          runAsUser: 568
+          runAsGroup: 568
+          runAsNonRoot: true
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
@@ -72,6 +120,8 @@ service:
     ports:
       http:
         port: 8080
+      health:
+        port: 9999
 
 persistence:
   config:
@@ -90,3 +140,11 @@ persistence:
       qbittorrent:
         app:
           - path: /media
+  gluetun-data:
+    type: emptyDir
+    advancedMounts:
+      qbittorrent:
+        gluetun:
+          - path: /tmp/gluetun
+        app:
+          - path: /tmp/gluetun
