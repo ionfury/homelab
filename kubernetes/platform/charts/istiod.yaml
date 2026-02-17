@@ -12,6 +12,7 @@ meshConfig:
         headersToDownstreamOnDeny:
           - content-type
           - set-cookie
+          - location
         headersToUpstreamOnAllow:
           - authorization
           - cookie
@@ -27,6 +28,7 @@ meshConfig:
           - x-forwarded-for
         includeAdditionalHeadersInCheck:
           x-forwarded-proto: "https"
+          X-Auth-Request-Redirect: "https://%REQ(:authority)%%REQ(:path)%"
 
 # Disable built-in CA - certificates are issued by istio-csr via cert-manager
 pilot:
