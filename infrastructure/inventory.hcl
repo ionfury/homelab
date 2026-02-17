@@ -92,13 +92,32 @@ locals {
         mode               = "active-backup"
       }]
     }
-    node2 = { // Supermicro 20C@2.2GHz 128Gi
-      cluster = "none"
-      type    = "none"
+    node2 = { // Supermicro 2xE5-2630v4 40T@2.2GHz 128Gi
+      cluster = "live"
+      type    = "worker"
       install = {
-        selector = ""
+        selector = "disk.dev_path == '/dev/sda'"
       }
-      volumes = []
+      volumes = [
+        { # 480GB MegaRAID SSD virtual drive
+          name     = "megaraid-ssd-480gb-0"
+          selector = "disk.dev_path == '/dev/sdb'"
+          maxSize  = "100%"
+          tags     = ["fast", "ssd", "any"]
+        },
+        { # 16TB MegaRAID HDD virtual drive
+          name     = "megaraid-hdd-16tb-0"
+          selector = "disk.dev_path == '/dev/sdc'"
+          maxSize  = "100%"
+          tags     = ["slow", "hdd", "any"]
+        },
+        { # 16TB MegaRAID HDD virtual drive
+          name     = "megaraid-hdd-16tb-1"
+          selector = "disk.dev_path == '/dev/sdd'"
+          maxSize  = "100%"
+          tags     = ["slow", "hdd", "any"]
+        }
+      ]
       bonds = [{
         link_permanentAddr = ["0c:c4:7a:a4:f1:d2"]
         addresses          = ["192.168.10.182"]
