@@ -7,4 +7,4 @@ resources:
   - media-library-pvc.yaml
   - secrets.yaml
   - network-policy.yaml
-  - egress-gateway-policy.yaml
+  - nordvpn-credentials.yaml

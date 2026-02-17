@@ -13,4 +13,5 @@ resources:
   - qbittorrent-internal.yaml
   - canary-jellyfin.yaml
   - canary-jellyseerr.yaml
+  - canary-vpn-health.yaml
   - prometheus-rules.yaml

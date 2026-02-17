@@ -26,9 +26,10 @@ metadata:
   name: media-qbittorrent-egress
   namespace: media
 spec:
-  # Unrestricted world egress for BitTorrent protocol (arbitrary ports, TCP+UDP).
-  # Traffic is routed through VLAN 20 (VPN) by CiliumEgressGatewayPolicy media-vpn-egress.
-  description: "qBittorrent torrent egress (routed via EgressGateway through VLAN 20)"
+  # Unrestricted world egress for Gluetun VPN sidecar to establish OpenVPN tunnel
+  # to NordVPN servers. The kill switch within Gluetun ensures torrent traffic only
+  # flows through the VPN tunnel.
+  description: "qBittorrent Gluetun VPN sidecar egress to NordVPN servers"
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: qbittorrent
