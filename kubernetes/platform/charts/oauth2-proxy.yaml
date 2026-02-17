@@ -11,7 +11,7 @@ config:
   cookieSecret: "override-me"
   configFile: |
     provider = "github"
-    github_user = "ionfury"
+    github_users = ["ionfury"]
     cookie_domains = [".${internal_domain}"]
     cookie_expire = "168h"
     cookie_secure = true
@@ -19,9 +19,9 @@ config:
     upstreams = ["static://202"]
     set_xauthrequest = true
     skip_provider_button = true
-    email_domain = ["*"]
+    email_domains = ["*"]
     redirect_url = "https://oauth2-proxy.${internal_domain}/oauth2/callback"
-    whitelist_domain = [".${internal_domain}"]
+    whitelist_domains = [".${internal_domain}"]
 
 extraEnv:
   - name: OAUTH2_PROXY_CLIENT_ID
