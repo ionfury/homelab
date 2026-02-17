@@ -1,0 +1,74 @@
+---
+# https://github.com/oauth2-proxy/manifests/blob/main/helm/oauth2-proxy/values.yaml
+priorityClassName: platform
+
+podAnnotations:
+  reloader.stakater.com/auto: "true"
+
+config:
+  clientID: "override-me"
+  clientSecret: "override-me"
+  cookieSecret: "override-me"
+  configFile: |
+    provider = "github"
+    github_user = "ionfury"
+    cookie_domains = [".${internal_domain}"]
+    cookie_expire = "168h"
+    cookie_secure = true
+    cookie_samesite = "lax"
+    upstreams = ["static://202"]
+    set_xauthrequest = true
+    skip_provider_button = true
+    email_domain = ["*"]
+    redirect_url = "https://oauth2-proxy.${internal_domain}/oauth2/callback"
+    whitelist_domain = [".${internal_domain}"]
+
+extraEnv:
+  - name: OAUTH2_PROXY_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: github-oauth-credentials
+        key: client-id
+  - name: OAUTH2_PROXY_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: github-oauth-credentials
+        key: client-secret
+  - name: OAUTH2_PROXY_COOKIE_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: oauth2-proxy-cookie-secret
+        key: cookie-secret
+
+service:
+  type: ClusterIP
+  portNumber: 4180
+
+metrics:
+  enabled: true
+  port: 44180
+  servicemonitor:
+    enabled: true
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 2000
+  runAsGroup: 2000
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+      - ALL
+
+podSecurityContext:
+  fsGroup: 2000
+  fsGroupChangePolicy: OnRootMismatch
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 64Mi

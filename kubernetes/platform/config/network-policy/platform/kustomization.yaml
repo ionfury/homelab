@@ -10,4 +10,5 @@ resources:
   - kromgo.yaml
   - longhorn-system.yaml
   - monitoring.yaml
+  - oauth2-proxy.yaml
   - system-upgrade.yaml

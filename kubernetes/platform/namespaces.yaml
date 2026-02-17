@@ -38,6 +38,10 @@ spec:
       dataplane: ambient
       security: restricted
       networkPolicy: false
+    - name: oauth2-proxy
+      dataplane: ambient
+      security: restricted
+      networkPolicy: false
     # --- baseline: require some elevated capabilities (e.g. NET_BIND_SERVICE) ---
     - name: cache
       dataplane: ambient
