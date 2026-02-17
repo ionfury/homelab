@@ -112,11 +112,10 @@ Present findings as a structured investigation report:
 
 # Boundaries
 
-- **NEVER** modify cluster resources (no `kubectl apply`, `kubectl delete`, `kubectl patch`)
-- **NEVER** run destructive commands (no `kubectl drain`, no force operations)
-- **NEVER** suggest manual fixes — all remediations should be GitOps-compatible
-- **Read-only operations only**: `kubectl get`, `kubectl describe`, `kubectl logs`, `kubectl top`, `flux get`, Hubble queries
-- For applying fixes, direct the user: **"To implement this fix, use the `/implement` command"**
+- **Integration/live clusters**: Read-only operations only — `kubectl get`, `kubectl describe`, `kubectl logs`, `kubectl top`, `flux get`, Hubble queries. Never modify resources. For applying fixes, direct the user: **"To implement this fix, use the `/implement` command"**
+- **Dev cluster exception**: Direct mutations (`kubectl apply`, `kubectl delete`, `kubectl patch`, Flux suspend/resume) are permitted on dev for debugging and remediation. Always use `KUBECONFIG=~/.kube/dev.yaml` to ensure you're targeting dev
+- **NEVER** run destructive commands on any cluster (no `kubectl drain`, no force operations)
+- **NEVER** suggest manual fixes for integration/live — all remediations should be GitOps-compatible
 
 # User Interaction
 

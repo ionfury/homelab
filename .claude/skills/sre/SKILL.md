@@ -25,7 +25,7 @@ user-invocable: false
 ## Core Principles
 
 - **5 Whys Analysis** - NEVER stop at symptoms. Ask "why" until you reach the root cause.
-- **Read-Only Investigation** - Observe and analyze, never modify resources
+- **Read-Only Investigation** - Observe and analyze, never modify resources on integration/live. Dev cluster permits direct mutations for debugging (see troubleshooter agent boundaries)
 - **Multi-Source Correlation** - Combine logs, events, metrics for complete picture
 - **Research Unknown Services** - Check documentation before deep investigation
 - **Zero Alert Tolerance** - Every firing alert must be addressed immediately: fix the root cause, or as a last resort, create a declarative Silence CR with justification. Never ignore, defer, or dismiss a firing alert.

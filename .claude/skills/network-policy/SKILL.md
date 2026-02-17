@@ -258,7 +258,8 @@ After creating, add to `kubernetes/platform/config/network-policy/platform/kusto
 - **NEVER** hardcode IP addresses — use endpoint selectors and entities
 - **NEVER** allow `any` port — always specify explicit port lists
 - **NEVER** disable enforcement without following the escape hatch runbook
-- **NEVER** apply network policy changes via `kubectl` — always through GitOps
+- **NEVER** apply network policy changes via `kubectl` on integration/live — always through GitOps
+- **Dev cluster exception**: Direct `kubectl apply` of network policies is permitted on dev for testing
 
 ---
 

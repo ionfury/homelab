@@ -385,34 +385,50 @@ Fix any errors before proceeding.
 
 ## Phase 5: Test on Dev
 
-### 5.1 Direct Helm Install
+The dev cluster is a sandbox — iterate freely until the deployment works.
 
-Bypass Flux to test immediately on dev cluster:
+### 5.1 Suspend Flux (if needed)
+
+If Flux would reconcile over your changes, suspend the relevant Kustomization:
 
 ```bash
-# Get values from rendered kustomization
+task k8s:flux-suspend -- <kustomization-name>
+```
+
+### 5.2 Deploy Directly
+
+Install or upgrade the chart directly on dev:
+
+```bash
+# Standard Helm repo
 KUBECONFIG=~/.kube/dev.yaml helm install <app-name> <repo>/<chart> \
   -n <namespace> --create-namespace \
   -f kubernetes/platform/charts/<app-name>.yaml \
   --version <version>
-```
 
-For OCI charts:
-```bash
+# OCI chart
 KUBECONFIG=~/.kube/dev.yaml helm install <app-name> oci://registry/<path>/<chart> \
   -n <namespace> --create-namespace \
   -f kubernetes/platform/charts/<app-name>.yaml \
   --version <version>
 ```
 
-### 5.2 Wait for Pods
+For iterating on values, use `helm upgrade`:
+```bash
+KUBECONFIG=~/.kube/dev.yaml helm upgrade <app-name> <repo>/<chart> \
+  -n <namespace> \
+  -f kubernetes/platform/charts/<app-name>.yaml \
+  --version <version>
+```
+
+### 5.3 Wait for Pods
 
 ```bash
 KUBECONFIG=~/.kube/dev.yaml kubectl -n <namespace> \
   wait --for=condition=Ready pod -l app.kubernetes.io/name=<app-name> --timeout=300s
 ```
 
-### 5.3 Verify Network Connectivity
+### 5.4 Verify Network Connectivity
 
 **CRITICAL**: Network policies are enforced - verify traffic flows correctly:
 
@@ -435,7 +451,7 @@ hubble observe --from-namespace <namespace> --to-namespace database --since 2m
 - Missing access label → database/S3 traffic blocked
 - Wrong profile → external API calls blocked (use `internal-egress` or `standard`)
 
-### 5.4 Verify Monitoring
+### 5.5 Verify Monitoring
 
 Use the helper scripts:
 
@@ -453,26 +469,27 @@ Use the helper scripts:
 .claude/skills/deploy-app/scripts/check-canary.sh <app-name>
 ```
 
-### 5.5 User Confirmation
+### 5.6 Iterate
 
-Use AskUserQuestion to report:
-- Pod status (Ready/NotReady)
-- Network connectivity (Hubble drops)
-- ServiceMonitor discovery status
-- Alert status
-- Canary status (if applicable)
-
-Ask whether to proceed with PR creation.
+If something isn't right, fix the manifests/values and re-apply. This is the dev sandbox — iterate until it works. Update Helm values, ResourceSet configs, network policy labels, etc. and re-deploy.
 
 ---
 
-## Phase 6: Cleanup & PR
+## Phase 6: Validate GitOps & PR
 
-### 6.1 Uninstall from Dev
+### 6.1 Reconcile and Validate
+
+Before opening a PR, prove the manifests work through the GitOps path:
 
 ```bash
+# Uninstall the direct helm install
 KUBECONFIG=~/.kube/dev.yaml helm uninstall <app-name> -n <namespace>
+
+# Resume Flux and validate clean convergence
+task k8s:reconcile-validate
 ```
+
+If reconciliation fails, fix the manifests and try again. The goal is a clean state where Flux can deploy everything from git.
 
 ### 6.2 Commit Changes
 
