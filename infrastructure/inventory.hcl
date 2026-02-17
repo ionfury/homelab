@@ -95,9 +95,6 @@ locals {
     node2 = { // Supermicro 2xE5-2630v4 40T@2.2GHz 128Gi
       cluster = "live"
       type    = "worker"
-      labels = {
-        "egress-gateway.homelab/vpn" = "true"
-      }
       install = {
         selector = "disk.dev_path == '/dev/sda'"
       }
@@ -124,7 +121,7 @@ locals {
       bonds = [{
         link_permanentAddr = ["0c:c4:7a:a4:f1:d2"]
         addresses          = ["192.168.10.182"]
-        vlans              = [10, 20]
+        vlans              = [10]
         mtu                = 1500
         mode               = "active-backup"
       }]
