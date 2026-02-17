@@ -256,11 +256,29 @@ task renovate:validate
 
 ## Dev Cluster Operations
 
-For dev cluster permissions, pre-flight checks, and safety procedures, see [.taskfiles/CLAUDE.md](.taskfiles/CLAUDE.md#dev-cluster-safety).
+The dev cluster is a **sandbox for rapid iteration**. Claude operates autonomously on dev — applying, debugging, and mutating directly — using the same manifest format as production. Integration and live remain strictly GitOps.
+
+### Dev Sandbox Philosophy
+
+- **Experiment freely**: Apply manifests, install Helm charts, mutate resources directly on dev
+- **Same artifact format**: Always write changes as proper manifests/values files — the same format that will land in the PR. Never use ad-hoc `kubectl edit` or `kubectl patch` as a substitute for writing manifests
+- **Suspend, don't disable**: Use targeted Flux Kustomization suspension (`task k8s:flux-suspend`) to prevent reconciliation from reverting your work-in-progress. Keep the rest of the platform synced
+- **Reconcile before PR**: When experimentation is done, resume Flux and validate clean convergence (`task k8s:reconcile-validate`). This proves your manifests work through the GitOps path
+- **Destroy as last resort**: If the cluster is too dirty to reconcile cleanly, destroy and rebuild (~10 min). This is a smell, not the happy path
+
+### Dev Workflow
+
+```
+Suspend Kustomization → Experiment on dev → Write/refine manifests → Resume Flux → Validate convergence → Open PR
+```
+
+For dev cluster task commands and detailed procedures, see [.taskfiles/CLAUDE.md](.taskfiles/CLAUDE.md#dev-cluster-operations).
+
+### Cluster Permissions
 
 | Cluster | Claude Permissions |
 |---------|-------------------|
-| `dev` | Plan, apply, destroy (with confirmation) |
+| `dev` | **Autonomous**: plan, apply, destroy, kubectl apply/delete, helm install/uninstall, Flux suspend/resume |
 | `integration` | Read-only, validation only |
 | `live` | Read-only, validation only |
 
@@ -295,7 +313,8 @@ For dev cluster permissions, pre-flight checks, and safety procedures, see [.tas
 
 - **NEVER** use `kubectl --force --grace-period=0` or `--ignore-not-found` flags
 - **NEVER** modify CRD definitions without understanding operator compatibility
-- **NEVER** apply changes directly to the cluster - always use the GitOps approach through Flux
+- **NEVER** apply changes directly to integration or live clusters - always use the GitOps approach through Flux
+- **Dev cluster exception**: Direct `kubectl apply`, `helm install`, and Flux suspension are permitted on dev for experimentation (see Dev Cluster Operations above)
 - **NEVER** hallucinate YAML fields - use `kubectl explain`, official docs, or YAML schema validation
 
 ## Alert Response

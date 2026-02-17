@@ -129,7 +129,8 @@ PR format:
 - **NEVER** create resources with PLACEHOLDER values
 - **NEVER** defer dependencies as "manual operational tasks"
 - **NEVER** commit secrets or generated artifacts
-- **NEVER** apply changes directly to clusters — always GitOps through Flux
+- **NEVER** apply changes directly to integration or live clusters — always GitOps through Flux
+- **Dev cluster exception**: Direct `kubectl apply`, `helm install/upgrade/uninstall`, and Flux suspend/resume are permitted on dev for rapid iteration. Always write changes as proper manifests first — apply from written files, not ad-hoc commands. Resume Flux and validate convergence before opening a PR
 - **NEVER** use `--force`, `--no-verify`, or `--auto-approve`
 - **ALWAYS** research chart configs (via kubesearch) before writing Helm values
 - **ALWAYS** set network-policy labels on new namespaces

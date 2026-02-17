@@ -21,13 +21,20 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 
 ## Quick Reference
 
-### Kubernetes Validation (k8s:)
+### Kubernetes Validation & Dev Workflow (k8s:)
 
 ```bash
+# Validation
 task k8s:validate              # Full validation (lint, ResourceSets, charts, kubeconform, deprecations)
 task k8s:deprecations          # Show all deprecated APIs (informational - doesn't fail)
+
+# Dev cluster operations (autonomous)
 task k8s:dry-run-dev           # Server-side dry-run against dev cluster
-task k8s:apply-dev             # Apply to dev cluster (with confirmation)
+task k8s:apply-dev             # Apply expanded ResourceSets to dev cluster
+task k8s:flux-suspend -- <ks>  # Suspend a Flux Kustomization on dev
+task k8s:flux-resume -- <ks>   # Resume a Flux Kustomization on dev
+task k8s:flux-status           # Show Flux Kustomization status on dev
+task k8s:reconcile-validate    # Resume all Flux, reconcile, validate clean state
 ```
 
 ### Infrastructure Validation (tg:)
@@ -105,11 +112,17 @@ For infrastructure changes, always follow this sequence:
 
 ---
 
-## Dev Cluster Safety
+## Dev Cluster Operations
 
-The `dev` cluster is a sandbox environment for testing infrastructure changes. Claude has expanded permissions for dev cluster operations to facilitate testing workflows.
+The `dev` cluster is a **sandbox for rapid iteration**. Claude operates autonomously on dev — applying, debugging, and mutating directly. Integration and live remain strictly read-only.
 
-### Allowed Operations (dev cluster only)
+### Dev Sandbox Workflow
+
+```
+Suspend Kustomization → Experiment on dev → Write/refine manifests → Resume Flux → Validate convergence → Open PR
+```
+
+### Available Operations
 
 ```bash
 # Status checks (run freely)
@@ -124,7 +137,28 @@ task tg:plan-dev                   # Plan dev cluster changes
 task tg:apply-dev                  # Apply dev cluster changes
 task tg:gen-dev                    # Generate dev stack
 task tg:clean-dev                  # Clean dev stack cache
+
+# Kubernetes dev workflow (autonomous)
+task k8s:dry-run-dev               # Server-side dry-run against dev cluster
+task k8s:apply-dev                 # Apply expanded ResourceSets to dev
+task k8s:flux-suspend -- <name>    # Suspend a Flux Kustomization on dev
+task k8s:flux-resume -- <name>     # Resume a Flux Kustomization on dev
+task k8s:flux-status               # Show Flux Kustomization status on dev
+task k8s:reconcile-validate        # Resume all Flux, wait for convergence, validate clean state
+
+# Direct kubectl/helm on dev (autonomous)
+KUBECONFIG=~/.kube/dev.yaml kubectl apply -f <manifest>
+KUBECONFIG=~/.kube/dev.yaml helm install <name> <chart> -n <ns> -f <values>
+KUBECONFIG=~/.kube/dev.yaml helm upgrade <name> <chart> -n <ns> -f <values>
+KUBECONFIG=~/.kube/dev.yaml helm uninstall <name> -n <ns>
 ```
+
+### Key Principles
+
+- **Same manifest format**: Always write changes as proper manifests/values files — never use ad-hoc `kubectl edit` or `kubectl patch` as a substitute for writing the actual files
+- **Suspend, don't disable**: Use `task k8s:flux-suspend` for targeted Kustomization suspension rather than disabling Flux entirely
+- **Reconcile before PR**: Always run `task k8s:reconcile-validate` before opening a PR to prove manifests work through the GitOps path
+- **Destroy as last resort**: If the cluster is too dirty to reconcile, `task tg:apply-dev` can rebuild it (~10 min). This is a smell, not the happy path
 
 ### AWS Credentials
 
@@ -151,14 +185,14 @@ Before running infrastructure operations on dev, verify cluster readiness:
 
 **ALWAYS use AskUserQuestion before:**
 - `task tg:apply-dev` (creates/modifies infrastructure)
-- Any operation that destroys or recreates resources
+- Any operation that destroys or recreates the cluster
 
-This ensures the human operator is aware and approves state-changing operations, even on the dev cluster.
+Kubernetes-level operations (`kubectl apply`, `helm install`, Flux suspend/resume) are **autonomous** on dev and do not require confirmation.
 
 ### Scope Boundaries
 
 | Cluster | Claude Permissions |
 |---------|-------------------|
-| `dev` | Plan, apply, destroy (with confirmation) |
+| `dev` | **Autonomous**: kubectl apply/delete, helm install/uninstall, Flux suspend/resume. **With confirmation**: tg:apply-dev, cluster destroy/recreate |
 | `integration` | Read-only, validation only |
 | `live` | Read-only, validation only |

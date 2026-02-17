@@ -112,9 +112,8 @@ tasks:
       - test -d {{.EXPANDED_DIR}}/resourcesets
 
   apply-dev:
-    desc: Apply manifests to dev cluster (REQUIRES CONFIRMATION)
+    desc: Apply manifests to dev cluster
     deps: [validate]
-    prompt: This will apply manifests to the dev cluster. Continue?
     cmds:
       - |
         echo "Applying to dev cluster..."
@@ -129,6 +128,105 @@ tasks:
       - which kubectl
       - test -f {{.DEV_KUBECONFIG}}
       - test -d {{.EXPANDED_DIR}}/resourcesets
+
+  flux-suspend:
+    desc: Suspend a Flux Kustomization on dev cluster
+    cmds:
+      - |
+        KSNAME="{{.CLI_ARGS}}"
+        if [ -z "$KSNAME" ]; then
+          echo "Usage: task k8s:flux-suspend -- <kustomization-name>"
+          echo ""
+          echo "Available Kustomizations:"
+          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+            -o custom-columns='NAME:.metadata.name,SUSPENDED:.spec.suspend,READY:.status.conditions[?(@.type=="Ready")].status' \
+            --no-headers
+          exit 1
+        fi
+        echo "Suspending Kustomization: $KSNAME"
+        KUBECONFIG={{.DEV_KUBECONFIG}} flux suspend kustomization "$KSNAME" -n flux-system
+        echo "Suspended. Flux will not reconcile $KSNAME until resumed."
+    preconditions:
+      - which flux kubectl
+      - test -f {{.DEV_KUBECONFIG}}
+
+  flux-resume:
+    desc: Resume a suspended Flux Kustomization on dev cluster
+    cmds:
+      - |
+        KSNAME="{{.CLI_ARGS}}"
+        if [ -z "$KSNAME" ]; then
+          echo "Usage: task k8s:flux-resume -- <kustomization-name>"
+          echo ""
+          echo "Suspended Kustomizations:"
+          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+            -o custom-columns='NAME:.metadata.name,SUSPENDED:.spec.suspend' \
+            --no-headers | grep -i true || echo "  (none suspended)"
+          exit 1
+        fi
+        echo "Resuming Kustomization: $KSNAME"
+        KUBECONFIG={{.DEV_KUBECONFIG}} flux resume kustomization "$KSNAME" -n flux-system
+        echo "Resumed. Flux will reconcile $KSNAME on next interval."
+    preconditions:
+      - which flux kubectl
+      - test -f {{.DEV_KUBECONFIG}}
+
+  flux-status:
+    desc: Show Flux Kustomization status on dev cluster
+    cmds:
+      - |
+        echo "Flux Kustomizations on dev cluster:"
+        echo ""
+        KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+          -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,SUSPENDED:.spec.suspend,MESSAGE:.status.conditions[?(@.type=="Ready")].message'
+    preconditions:
+      - which kubectl
+      - test -f {{.DEV_KUBECONFIG}}
+
+  reconcile-validate:
+    desc: Resume all Flux Kustomizations on dev, wait for reconciliation, validate clean state
+    cmds:
+      - |
+        echo "=== Resuming all suspended Kustomizations ==="
+        SUSPENDED=$(KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+          -o jsonpath='{range .items[?(@.spec.suspend==true)]}{.metadata.name}{"\n"}{end}')
+        if [ -z "$SUSPENDED" ]; then
+          echo "No suspended Kustomizations found."
+        else
+          echo "$SUSPENDED" | while read -r ks; do
+            echo "  Resuming: $ks"
+            KUBECONFIG={{.DEV_KUBECONFIG}} flux resume kustomization "$ks" -n flux-system
+          done
+        fi
+        echo ""
+      - |
+        echo "=== Triggering reconciliation ==="
+        KUBECONFIG={{.DEV_KUBECONFIG}} flux reconcile source git flux-system -n flux-system
+        echo ""
+      - |
+        echo "=== Waiting for Kustomizations to reconcile (timeout: 5m) ==="
+        KUBECONFIG={{.DEV_KUBECONFIG}} kubectl wait kustomizations.kustomize.toolkit.fluxcd.io \
+          --all -n flux-system \
+          --for=condition=Ready \
+          --timeout=300s
+        echo ""
+      - |
+        echo "=== Checking HelmRelease status ==="
+        FAILED=$(KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get helmreleases.helm.toolkit.fluxcd.io -A \
+          -o jsonpath='{range .items[?(@.status.conditions[0].status!="True")]}{.metadata.namespace}/{.metadata.name}: {.status.conditions[0].message}{"\n"}{end}')
+        if [ -n "$FAILED" ]; then
+          echo "WARNING: Failed HelmReleases detected:"
+          echo "$FAILED"
+          echo ""
+          echo "Investigate before opening a PR."
+          exit 1
+        fi
+        echo "All HelmReleases healthy."
+        echo ""
+        echo "=== Dev cluster reconciled and validated ==="
+    preconditions:
+      - which flux kubectl
+      - test -f {{.DEV_KUBECONFIG}}
 
   # =============================================================================
   # Internal Tasks
