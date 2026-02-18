@@ -1,0 +1,131 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Check Version Holds
+
+on:
+  schedule:
+    - cron: "0 13 * * 1" # Monday 8am ET (13:00 UTC)
+  push:
+    branches: [main]
+    paths: [".github/version-holds.yaml"]
+  workflow_dispatch:
+
+jobs:
+  check-holds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check upstream issues for resolved holds
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const { execFileSync } = require('child_process');
+
+            const holdsPath = '.github/version-holds.yaml';
+            if (!fs.existsSync(holdsPath)) {
+              core.info('No version-holds.yaml found — nothing to check');
+              return;
+            }
+
+            const holdsJson = execFileSync('yq', ['-o=json', '.', holdsPath], { encoding: 'utf8' });
+            const { holds } = JSON.parse(holdsJson);
+
+            if (!holds || holds.length === 0) {
+              core.info('No holds defined — nothing to check');
+              return;
+            }
+
+            core.info(`Checking ${holds.length} version hold(s)...`);
+
+            for (const hold of holds) {
+              core.info(`\n--- Hold: ${hold.dep} ---`);
+
+              // Parse GitHub issue URL
+              const match = hold.upstream_issue.match(
+                /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)$/
+              );
+              if (!match) {
+                core.warning(`Upstream URL is not a GitHub issue: ${hold.upstream_issue} — skipping`);
+                continue;
+              }
+
+              const [, owner, repo, issueNumber] = match;
+
+              // Check issue state
+              const { data: issue } = await github.rest.issues.get({
+                owner,
+                repo,
+                issue_number: parseInt(issueNumber),
+              });
+
+              core.info(`  State: ${issue.state}`);
+
+              if (issue.state !== 'closed') {
+                core.info('  Issue still open — hold remains');
+                continue;
+              }
+
+              core.info('  Issue CLOSED — checking for existing tracking issue...');
+
+              const title = `Version hold resolved: ${hold.dep} — upstream issue closed`;
+
+              // Idempotency: search for existing open issue with same title
+              const { data: search } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`,
+              });
+
+              if (search.total_count > 0) {
+                core.info('  Tracking issue already exists — skipping');
+                continue;
+              }
+
+              // Ensure label exists
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: 'version-hold',
+                  description: 'Dependency version hold tracking',
+                  color: 'd93f0b',
+                });
+              } catch (e) {
+                if (e.status !== 422) throw e; // 422 = already exists
+              }
+
+              // Create tracking issue
+              const body = [
+                '## Version Hold Resolved',
+                '',
+                `The upstream issue for **${hold.dep}** has been closed, indicating the regression may be fixed.`,
+                '',
+                '| Field | Value |',
+                '|-------|-------|',
+                `| Dependency | \`${hold.dep}\` |`,
+                `| Constraint | \`${hold.constraint}\` |`,
+                `| Reason | ${hold.reason} |`,
+                `| Upstream Issue | ${hold.upstream_issue} |`,
+                '',
+                '## Action Required',
+                '',
+                '1. Remove the hold entry from `.github/version-holds.yaml`',
+                '2. Remove the corresponding `allowedVersions` package rule from `.github/renovate.json5`',
+                '3. Run `task k8s:validate` and `task renovate:validate`',
+                '4. Commit and create a PR',
+                '5. After merge, Renovate will propose updating to the latest version',
+                '6. Verify the new version works before closing this issue',
+                '',
+                'See `docs/runbooks/version-holds.md` for the full procedure.',
+              ].join('\n');
+
+              const { data: created } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['version-hold'],
+              });
+
+              core.info(`  Created tracking issue #${created.number}`);
+            }
