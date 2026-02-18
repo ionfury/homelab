@@ -39,7 +39,7 @@ cluster:
       "${arg.name}": "${arg.value}"
 %{ endfor ~}
 %{ endif ~}
-%{ if length(cluster_etcd_extraArgs) > 0 ~}
+%{ if machine_type == "controlplane" && length(cluster_etcd_extraArgs) > 0 ~}
   etcd:
     extraArgs:
 %{ for arg in cluster_etcd_extraArgs ~}
@@ -82,12 +82,14 @@ machine:
       enabled: true
       forwardKubeDNSToHost: true
       resolveMemberNames: true
+%{ if machine_type == "controlplane" ~}
     kubernetesTalosAPIAccess:
       enabled: true
       allowedRoles:
         - os:admin
       allowedKubernetesNamespaces:
         - system-upgrade
+%{ endif ~}
 %{ if length(machine_labels) > 0 ~}
   nodeLabels:
 %{ for item in machine_labels ~}
