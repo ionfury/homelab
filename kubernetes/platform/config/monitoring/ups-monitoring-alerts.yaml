@@ -12,7 +12,7 @@ spec:
     - name: ups.targets
       rules:
         - alert: UpsSnmpTargetDown
-          expr: up{job="scrapeconfig/monitoring/snmp-exporter-ups-targets"} == 0
+          expr: up{job="scrapeConfig/monitoring/snmp-exporter-ups-targets"} == 0
           for: 5m
           labels:
             severity: warning
