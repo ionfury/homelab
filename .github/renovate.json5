@@ -114,6 +114,15 @@
       // Hardware monitoring exporters
       "matchDepNames": ["prometheus-snmp-exporter", "prometheus-ipmi-exporter", "prometheus-smartctl-exporter"],
       "groupName": "hardware monitoring exporters"
+    },
+    // ============================================================
+    // Version holds — upstream regressions (see .github/version-holds.yaml)
+    // ============================================================
+    {
+      // gluetun v3.41.x: healthcheck regression blocks DNS to kube-dns
+      // Upstream: https://github.com/qdm12/gluetun/issues/3132
+      "matchDepNames": ["gluetun"],
+      "allowedVersions": "!/^v3\\.41\\./"
     }
   ]
 }

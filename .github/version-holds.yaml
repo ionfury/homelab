@@ -1,0 +1,11 @@
+# Version holds — dependencies pinned due to upstream regressions.
+# A scheduled workflow (check-version-holds.yaml) monitors the upstream issues
+# and opens a tracking issue when they close.
+#
+# See docs/runbooks/version-holds.md for the full lifecycle.
+holds:
+  - dep: gluetun
+    constraint: "!/^v3\\.41\\./"
+    reason: "v3.41.x healthcheck regression blocks DNS queries to kube-dns after VPN tunnel establishment"
+    upstream_issue: https://github.com/qdm12/gluetun/issues/3132
+    created: "2026-02-18"
