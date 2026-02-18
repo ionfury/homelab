@@ -17,6 +17,7 @@ For core principles and deployment philosophy, see [CLAUDE.md](../CLAUDE.md).
 | `tag-validated-artifact.yaml` | status event (commit status) | Promote validated artifact to live |
 | `renovate.yaml` | Scheduled (hourly) | Dependency update automation |
 | `label-sync.yaml` | Scheduled/manual | Sync GitHub labels |
+| `check-version-holds.yaml` | Weekly/push (version-holds.yaml)/manual | Monitor upstream issues for held-back versions |
 
 ---
 

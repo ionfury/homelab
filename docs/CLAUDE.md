@@ -40,6 +40,7 @@ Architecture docs describe **how the system works today** — living documents u
 | `resize-volume.md` | Longhorn auto-expansion fails, PVC at capacity | ~5 min | kubernetes/platform/CLAUDE.md |
 | `supermicro-machine-setup.md` | New hardware - initial BIOS/IPMI config | ~20 min | infrastructure/CLAUDE.md |
 | `terragrunt-validation-state-issues.md` | Terragrunt validate fails with partial state | ~10 min | infrastructure/CLAUDE.md |
+| `version-holds.md` | Upstream regression in automerged dependency | ~5 min | `.github/renovate.json5` |
 
 ### Runbook Summaries
 
@@ -60,6 +61,9 @@ Physical setup checklist for new Supermicro hardware: BIOS settings, IPMI config
 
 **terragrunt-validation-state-issues.md**
 Resolve "partial state" errors during `terragrunt validate`. Usually caused by missing dependencies or stale cache.
+
+**version-holds.md**
+Hold back a dependency version due to an upstream regression. Covers the full lifecycle: downgrade, add hold + Renovate constraint, automated monitoring of upstream issue, and removal when fixed.
 
 ---
 

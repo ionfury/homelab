@@ -644,6 +644,7 @@ Operational runbooks for common procedures are in `docs/runbooks/`:
 | `network-policy-escape-hatch.md` | Disable network policies in emergencies |
 | `network-policy-verification.md` | Verify network policy enforcement |
 | `terragrunt-validation-state-issues.md` | Troubleshoot Terragrunt state validation failures |
+| `version-holds.md` | Hold back dependency versions with upstream regressions |
 
 **Knowledge types:**
 - **Runbooks**: Procedural knowledge (step-by-step)

@@ -1,0 +1,123 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Check Version Holds
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"  # Monday 8am ET (13:00 UTC)
+  push:
+    branches: [main]
+    paths: [".github/version-holds.yaml"]
+  workflow_dispatch:
+
+jobs:
+  check-holds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check upstream issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          HOLDS_FILE=".github/version-holds.yaml"
+
+          if [ ! -f "$HOLDS_FILE" ]; then
+            echo "No version-holds.yaml found — nothing to check"
+            exit 0
+          fi
+
+          HOLD_COUNT=$(yq '.holds | length' "$HOLDS_FILE")
+          if [ "$HOLD_COUNT" -eq 0 ]; then
+            echo "No holds defined — nothing to check"
+            exit 0
+          fi
+
+          echo "Checking $HOLD_COUNT version hold(s)..."
+
+          for i in $(seq 0 $((HOLD_COUNT - 1))); do
+            DEP=$(yq -r ".holds[$i].dep" "$HOLDS_FILE")
+            UPSTREAM_URL=$(yq -r ".holds[$i].upstream_issue" "$HOLDS_FILE")
+            CONSTRAINT=$(yq -r ".holds[$i].constraint" "$HOLDS_FILE")
+            REASON=$(yq -r ".holds[$i].reason" "$HOLDS_FILE")
+
+            echo ""
+            echo "--- Hold $((i + 1)): $DEP ---"
+            echo "  Upstream: $UPSTREAM_URL"
+
+            # Parse owner/repo and issue number from GitHub URL
+            # Supports: https://github.com/owner/repo/issues/123
+            if ! echo "$UPSTREAM_URL" | grep -qE '^https://github\.com/[^/]+/[^/]+/issues/[0-9]+$'; then
+              echo "  WARNING: Upstream URL is not a GitHub issue — skipping"
+              continue
+            fi
+
+            OWNER_REPO=$(echo "$UPSTREAM_URL" | sed -E 's|https://github.com/([^/]+/[^/]+)/issues/[0-9]+|\1|')
+            ISSUE_NUMBER=$(echo "$UPSTREAM_URL" | sed -E 's|.*/issues/([0-9]+)$|\1|')
+
+            # Check issue state via GitHub API
+            ISSUE_STATE=$(gh api "repos/$OWNER_REPO/issues/$ISSUE_NUMBER" --jq '.state' 2>/dev/null || echo "error")
+
+            if [ "$ISSUE_STATE" = "error" ]; then
+              echo "  WARNING: Failed to query issue state — skipping"
+              continue
+            fi
+
+            echo "  State: $ISSUE_STATE"
+
+            if [ "$ISSUE_STATE" != "closed" ]; then
+              echo "  Issue still open — hold remains"
+              continue
+            fi
+
+            echo "  Issue CLOSED — checking for existing tracking issue..."
+
+            ISSUE_TITLE="Version hold resolved: $DEP — upstream issue closed"
+
+            # Idempotency: search for existing open issue with the same title
+            EXISTING=$(gh issue list --state open --search "\"$ISSUE_TITLE\" in:title" --json number --jq 'length')
+
+            if [ "$EXISTING" -gt 0 ]; then
+              echo "  Tracking issue already exists — skipping"
+              continue
+            fi
+
+            echo "  Creating tracking issue..."
+
+            # Ensure the version-hold label exists
+            gh label create "version-hold" --description "Dependency version hold tracking" --color "d93f0b" --force
+
+            {
+              echo "## Version Hold Resolved"
+              echo ""
+              echo "The upstream issue for **${DEP}** has been closed, indicating the regression may be fixed."
+              echo ""
+              echo "| Field | Value |"
+              echo "|-------|-------|"
+              echo "| Dependency | \`${DEP}\` |"
+              echo "| Constraint | \`${CONSTRAINT}\` |"
+              echo "| Reason | ${REASON} |"
+              echo "| Upstream Issue | ${UPSTREAM_URL} |"
+              echo ""
+              echo "## Action Required"
+              echo ""
+              echo "1. Remove the hold entry from \`.github/version-holds.yaml\`"
+              echo "2. Remove the corresponding \`allowedVersions\` package rule from \`.github/renovate.json5\`"
+              echo "3. Run \`task k8s:validate\` and \`task renovate:validate\`"
+              echo "4. Commit and create a PR"
+              echo "5. After merge, Renovate will propose updating to the latest version"
+              echo "6. Verify the new version works before closing this issue"
+              echo ""
+              echo "See \`docs/runbooks/version-holds.md\` for the full procedure."
+            } > /tmp/issue-body.md
+
+            gh issue create \
+              --title "$ISSUE_TITLE" \
+              --label "version-hold" \
+              --body-file /tmp/issue-body.md
+
+            echo "  Tracking issue created"
+          done
+
+          echo ""
+          echo "Done."
