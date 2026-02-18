@@ -22,21 +22,15 @@ controllers:
           tag: "${gluetun_version}"
         env:
           VPN_SERVICE_PROVIDER: nordvpn
-          VPN_TYPE: openvpn
-          OPENVPN_USER:
+          VPN_TYPE: wireguard
+          WIREGUARD_PRIVATE_KEY:
             valueFrom:
               secretKeyRef:
-                name: nordvpn-credentials
-                key: OPENVPN_USER
-          OPENVPN_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: nordvpn-credentials
-                key: OPENVPN_PASSWORD
+                name: nordvpn-wireguard-credentials
+                key: WIREGUARD_PRIVATE_KEY
           SERVER_COUNTRIES: United States
           SERVER_CATEGORIES: P2P
           DNS_KEEP_NAMESERVER: "on"
-          DOT: "off"
           FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
           HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
         securityContext:
