@@ -8,3 +8,4 @@ resources:
   - secrets.yaml
   - network-policy.yaml
   - nordvpn-credentials.yaml
+  - nordvpn-wireguard-credentials.yaml
