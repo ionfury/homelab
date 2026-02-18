@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-PROMETHEUS_URL="${PROMETHEUS_URL:-https://prometheus.internal.tomnowak.work}"
+PROMETHEUS_URL="${PROMETHEUS_URL:-http://localhost:9090}"
 
 usage() {
     cat <<EOF
@@ -46,7 +46,7 @@ Output Options:
   --verbose          Show full response including status
 
 Environment:
-  PROMETHEUS_URL     Prometheus base URL [default: https://prometheus.internal.tomnowak.work]
+  PROMETHEUS_URL     Prometheus base URL [default: http://localhost:9090]
 
 Examples:
   # Current CPU usage across all nodes

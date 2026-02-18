@@ -102,14 +102,16 @@ kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 kubectl top pods -n <namespace>
 ```
 
-**Metrics and alerts via internal gateway (preferred over port-forward):**
+**Metrics and alerts via kubectl exec (Prometheus is behind OAuth2 Proxy — DNS URLs won't work for API queries):**
 
 ```bash
 # Check firing alerts
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts[] | select(.state == "firing")'
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/alerts' | jq '.data.alerts[] | select(.state == "firing")'
 
 # Pod restart metrics
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=increase(kube_pod_container_status_restarts_total[1h])>0" | jq '.data.result'
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/query?query=increase(kube_pod_container_status_restarts_total[1h])>0' | jq '.data.result'
 ```
 
 ### Phase 3: Correlation

@@ -640,17 +640,21 @@ task k8s:validate
 
 ### Step 6: Verify After Deployment
 
+Prometheus is behind OAuth2 Proxy — use `kubectl exec` or port-forward for API queries:
+
 ```bash
 # Check ServiceMonitor is discovered
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/targets" | \
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/targets' | \
   jq '.data.activeTargets[] | select(.labels.job | contains("<component>"))'
 
 # Check alert rules are loaded
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/rules" | \
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/rules' | \
   jq '.data.groups[] | select(.name | contains("<component>"))'
 
 # Check canary status
-kubectl get canaries -A | grep <component>
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl get canaries -A | grep <component>
 ```
 
 ---
