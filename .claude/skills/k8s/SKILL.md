@@ -40,59 +40,55 @@ export KUBECONFIG=~/.kube/<cluster>.yaml && kubectl get pods
 KUBECONFIG=~/.kube/<cluster>.yaml kubectl <command>
 ```
 
-## Accessing Internal Services via DNS (Preferred)
+## Accessing Internal Services
 
-Platform services are exposed through the internal ingress gateway over HTTPS. **Always use DNS-based access instead of port-forwarding** when querying Prometheus, Grafana, Alertmanager, and other internal services.
+Platform services are exposed through the internal ingress gateway over HTTPS. DNS URLs are useful for **browser-based access** (Grafana, Hubble UI, Longhorn UI).
 
-| Service | Live | Integration | Dev |
-|---------|------|-------------|-----|
-| Prometheus | `https://prometheus.internal.tomnowak.work` | `https://prometheus.internal.integration.tomnowak.work` | `https://prometheus.internal.dev.tomnowak.work` |
-| Grafana | `https://grafana.internal.tomnowak.work` | `https://grafana.internal.integration.tomnowak.work` | `https://grafana.internal.dev.tomnowak.work` |
-| Alertmanager | `https://alertmanager.internal.tomnowak.work` | `https://alertmanager.internal.integration.tomnowak.work` | `https://alertmanager.internal.dev.tomnowak.work` |
-| Hubble UI | `https://hubble.internal.tomnowak.work` | `https://hubble.internal.integration.tomnowak.work` | `https://hubble.internal.dev.tomnowak.work` |
-| Longhorn UI | `https://longhorn.internal.tomnowak.work` | `https://longhorn.internal.integration.tomnowak.work` | `https://longhorn.internal.dev.tomnowak.work` |
-| Garage Admin | `https://garage.internal.tomnowak.work` | `https://garage.internal.integration.tomnowak.work` | `https://garage.internal.dev.tomnowak.work` |
+**OAuth2 Proxy caveat:** Prometheus, Alertmanager, and some other services are behind OAuth2 Proxy. DNS URLs redirect to an OAuth login page and **cannot be used for API queries via curl**. Use `kubectl exec` or port-forward instead for programmatic access.
+
+| Service | Live | Auth | API Access |
+|---------|------|------|------------|
+| Prometheus | `https://prometheus.internal.tomnowak.work` | OAuth2 Proxy | `kubectl exec` or port-forward |
+| Alertmanager | `https://alertmanager.internal.tomnowak.work` | OAuth2 Proxy | `kubectl exec` or port-forward |
+| Grafana | `https://grafana.internal.tomnowak.work` | Built-in auth | Browser only |
+| Hubble UI | `https://hubble.internal.tomnowak.work` | None | Browser |
+| Longhorn UI | `https://longhorn.internal.tomnowak.work` | None | Browser |
+| Garage Admin | `https://garage.internal.tomnowak.work` | None | Browser |
 
 **Domain pattern:** `<service>.internal.<cluster-suffix>.tomnowak.work`
 - live: `internal.tomnowak.work`
 - integration: `internal.integration.tomnowak.work`
 - dev: `internal.dev.tomnowak.work`
 
-**Usage with curl (use `-k` for self-signed TLS):**
+### Querying Prometheus/Alertmanager API
 
 ```bash
-# Query Prometheus API
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=up" | jq '.data.result'
+# Option 1: kubectl exec (quick, no setup)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/query?query=up' | jq '.data.result'
 
-# Check firing alerts
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts[] | select(.state == "firing")'
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/alerts' | jq '.data.alerts[] | select(.state == "firing")'
 
-# Query Alertmanager
-curl -sk "https://alertmanager.internal.tomnowak.work/api/v2/alerts" | jq .
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring alertmanager-kube-prometheus-stack-0 -c alertmanager -- \
+  wget -qO- 'http://localhost:9093/api/v2/alerts' | jq .
+
+# Option 2: Port-forward (for scripts and repeated queries)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
+curl -s "http://localhost:9090/api/v1/query?query=up" | jq '.data.result'
 ```
 
-**Using the helper scripts with internal DNS:**
+**Using the helper scripts:**
 
 ```bash
-# Prometheus (live cluster)
-export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
+# Prometheus (start port-forward first; script defaults to http://localhost:9090)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
 .claude/skills/prometheus/scripts/promql.sh alerts --firing
 
-# Loki (no HTTPRoute - requires port-forward, see fallback below)
+# Loki (no HTTPRoute — always requires port-forward)
 KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
 export LOKI_URL=http://localhost:3100
 .claude/skills/loki/scripts/logql.sh tail '{namespace="monitoring"}' --since 15m
-```
-
-**Note:** Loki does not have an HTTPRoute on the internal gateway. Use port-forward for Loki access.
-
-### Fallback: Port-Forward Access
-
-Use port-forwarding only when DNS-based access is unavailable (e.g., network issues, local development without VPN):
-
-```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
 ```
 
 # Common kubectl Patterns

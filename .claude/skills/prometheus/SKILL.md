@@ -8,37 +8,38 @@ user-invocable: false
 
 ## Setup
 
-Prometheus is accessible via the internal ingress gateway over HTTPS. **Always use DNS-based access as the default approach.**
+Prometheus and Alertmanager are behind **OAuth2 Proxy** on the internal gateway. DNS URLs (`https://prometheus.internal.tomnowak.work`) redirect to an OAuth login page and **cannot be used for API queries via curl**.
 
-| Cluster | URL |
-|---------|-----|
-| live | `https://prometheus.internal.tomnowak.work` |
-| integration | `https://prometheus.internal.integration.tomnowak.work` |
-| dev | `https://prometheus.internal.dev.tomnowak.work` |
+### Access Methods
+
+**Option 1: kubectl exec (quick, no setup)**
 
 ```bash
-# Set URL to the appropriate cluster (live example)
-export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
+# Query Prometheus API directly inside the pod
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/query?query=up' | jq '.data.result'
+
+# Query Alertmanager API
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring alertmanager-kube-prometheus-stack-0 -c alertmanager -- \
+  wget -qO- 'http://localhost:9093/api/v2/alerts' | jq .
 ```
 
-**Note:** The internal gateway uses a homelab CA certificate. Use `-k` with curl to skip TLS verification, or configure the CA trust. The `promql.sh` script uses `curl -f` internally, so set `CURL_INSECURE=true` or use the `--insecure` flag if needed.
-
-### Fallback: Port-Forward Access
-
-Use port-forwarding only when DNS-based access is unavailable:
+**Option 2: Port-forward (for scripts and repeated queries)**
 
 ```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
 export PROMETHEUS_URL=http://localhost:9090
 ```
+
+The `promql.sh` script defaults to `http://localhost:9090` and works with port-forward out of the box.
 
 ## Quick Queries
 
 Use the bundled script at `.claude/skills/prometheus/scripts/promql.sh`:
 
 ```bash
-# Set URL (default uses internal gateway for live cluster)
-export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
+# Start port-forward first (script defaults to http://localhost:9090)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
 
 # Instant query
 ./scripts/promql.sh query 'up'
@@ -87,14 +88,16 @@ export PROMETHEUS_URL=https://prometheus.internal.tomnowak.work
 ./scripts/promql.sh alerts --verbose
 ```
 
-### Direct curl (alternative)
+### Direct kubectl exec (alternative)
 
 ```bash
-# Instant query (use -k for self-signed TLS)
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/query?query=up" | jq '.data.result'
+# Instant query via kubectl exec (no port-forward needed)
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/query?query=up' | jq '.data.result'
 
 # Alerts
-curl -sk "https://prometheus.internal.tomnowak.work/api/v1/alerts" | jq '.data.alerts'
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/alerts' | jq '.data.alerts'
 ```
 
 ## Reference
