@@ -12,7 +12,7 @@ spec:
     - name: hardware-monitoring.targets
       rules:
         - alert: SnmpTargetDown
-          expr: up{job="scrapeconfig/monitoring/snmp-exporter-targets"} == 0
+          expr: up{job="scrapeConfig/monitoring/snmp-exporter-targets"} == 0
           for: 5m
           labels:
             severity: warning
@@ -23,7 +23,7 @@ spec:
               Check BMC network connectivity, SNMP service status, and community string.
 
         - alert: IpmiTargetDown
-          expr: up{job="scrapeconfig/monitoring/ipmi-exporter-targets"} == 0
+          expr: up{job="scrapeConfig/monitoring/ipmi-exporter-targets"} == 0
           for: 5m
           labels:
             severity: warning
