@@ -1,4 +1,5 @@
 ---
 # https://github.com/home-operations/tuppr
-serviceMonitor:
-  enabled: true
+monitoring:
+  serviceMonitor:
+    enabled: true
