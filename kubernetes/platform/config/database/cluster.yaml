@@ -39,9 +39,6 @@ spec:
         secretAccessKey:
           name: cnpg-platform-s3-credentials
           key: secret-access-key
-        region:
-          name: cnpg-platform-s3-credentials
-          key: region
       wal:
         compression: gzip
       data:
