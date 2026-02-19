@@ -75,6 +75,10 @@ spec:
       namespace: ""
       path: kubernetes/platform/config/network-policy
       dependsOn: [cilium]
+    - name: coredns-ha
+      namespace: kube-system
+      path: kubernetes/platform/config/coredns
+      dependsOn: []  # PDB and Deployment are built-in resources (no CRDs needed)
     - name: priority-classes-config
       namespace: ""
       path: kubernetes/platform/config/priority-classes
