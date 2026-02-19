@@ -39,13 +39,7 @@ controllers:
           SERVER_CATEGORIES: P2P
           DNS_KEEP_NAMESERVER: "on"
           DOT: "off"
-          # Talos v1.12 kernel 6.18 disables CONFIG_NETFILTER_XTABLES_LEGACY,
-          # breaking gluetun's iptables test rule cleanup. Cilium network
-          # policies provide egress enforcement at the cluster level.
-          FIREWALL: "off"
           FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
-          # Allow kubelet probes (9999) and service traffic (8080) through
-          # gluetun's INPUT DROP policy.
           FIREWALL_INPUT_PORTS: "8080,9999"
           HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
         securityContext:
