@@ -160,3 +160,68 @@ spec:
               Volume {{ $labels.volume }} reports a last backup timestamp of 0,
               meaning no backup has ever completed. Verify recurring job configuration
               and backup target availability.
+
+    # Recording rules that aggregate disk metrics by storage pool (fast/slow)
+    # based on disk name patterns from inventory (ssd = fast, hdd = slow).
+    - name: longhorn-pool-recording-rules
+      rules:
+        - record: longhorn:pool_capacity_bytes:sum
+          expr: sum(longhorn_disk_capacity_bytes{disk=~".*ssd.*"}) or vector(0)
+          labels:
+            pool: fast
+
+        - record: longhorn:pool_capacity_bytes:sum
+          expr: sum(longhorn_disk_capacity_bytes{disk=~".*hdd.*"}) or vector(0)
+          labels:
+            pool: slow
+
+        - record: longhorn:pool_usage_bytes:sum
+          expr: sum(longhorn_disk_usage_bytes{disk=~".*ssd.*"}) or vector(0)
+          labels:
+            pool: fast
+
+        - record: longhorn:pool_usage_bytes:sum
+          expr: sum(longhorn_disk_usage_bytes{disk=~".*hdd.*"}) or vector(0)
+          labels:
+            pool: slow
+
+        - record: longhorn:pool_usage_ratio:sum
+          expr: |
+            longhorn:pool_usage_bytes:sum{pool="fast"}
+            / longhorn:pool_capacity_bytes:sum{pool="fast"}
+          labels:
+            pool: fast
+
+        - record: longhorn:pool_usage_ratio:sum
+          expr: |
+            longhorn:pool_usage_bytes:sum{pool="slow"}
+            / longhorn:pool_capacity_bytes:sum{pool="slow"}
+          labels:
+            pool: slow
+
+    # Pool-level alerts for aggregate storage capacity across all disks
+    # in each pool (fast = SSDs, slow = HDDs).
+    - name: longhorn-pool-alerts
+      rules:
+        - alert: LonghornStoragePoolWarning
+          expr: longhorn:pool_usage_ratio:sum > 0.8
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn {{ $labels.pool }} storage pool usage > 80%"
+            description: >-
+              The {{ $labels.pool }} storage pool is at {{ $value | humanizePercentage }} capacity.
+              Plan capacity expansion or migrate volumes to free space.
+
+        - alert: LonghornStoragePoolCritical
+          expr: longhorn:pool_usage_ratio:sum > 0.9
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn {{ $labels.pool }} storage pool usage > 90%"
+            description: >-
+              The {{ $labels.pool }} storage pool is at {{ $value | humanizePercentage }} capacity.
+              New volume scheduling may fail. Immediate action required: expand disks,
+              delete unused volumes, or migrate workloads.
