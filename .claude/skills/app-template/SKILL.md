@@ -378,6 +378,25 @@ controllers:
             enabled: false
 ```
 
+## Resource Limits
+
+Resource limits exist to prevent runaway processes, not to optimize bin-packing. The homelab hardware is heavily over-provisioned — **be generous with limits** rather than running tight to avoid OOMKills and CrashLoopBackOff.
+
+**Guidelines:**
+- **Limits should be 2-4x the expected working set** — leave room for spikes, GC pressure, and startup allocations
+- **Requests should reflect steady-state usage** — this is what the scheduler uses for placement
+- **Never set CPU limits** unless the workload is genuinely CPU-abusive — CPU throttling causes latency spikes and is harder to debug than memory OOMKills
+- **When in doubt, go higher** — an OOMKill costs more in debugging time than 128Mi of unused RAM
+
+**Typical ranges for common workloads:**
+
+| Workload Type | Memory Request | Memory Limit |
+|--------------|----------------|--------------|
+| Lightweight sidecar (gluetun, oauth2-proxy) | 64Mi | 256Mi |
+| Web application | 128-256Mi | 512Mi-1Gi |
+| Media application (qbittorrent, jellyfin) | 512Mi | 2-4Gi |
+| Database (CNPG) | 256Mi | 1-2Gi |
+
 ## StatefulSet with VolumeClaimTemplates
 
 ```yaml

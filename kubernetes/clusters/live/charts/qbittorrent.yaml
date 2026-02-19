@@ -30,7 +30,8 @@ controllers:
                 key: WIREGUARD_PRIVATE_KEY
           SERVER_COUNTRIES: United States
           SERVER_CATEGORIES: P2P
-          DNS_KEEP_NAMESERVER: "off"
+          DNS_KEEP_NAMESERVER: "on"
+          DOT: "off"
           FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
           HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
         securityContext:
@@ -38,13 +39,13 @@ controllers:
           runAsGroup: 0
           runAsNonRoot: false
           capabilities:
-            add: [NET_ADMIN]
+            add: [NET_ADMIN, NET_RAW]
         resources:
           requests:
             cpu: 10m
             memory: 64Mi
           limits:
-            memory: 128Mi
+            memory: 256Mi
         probes:
           startup:
             enabled: true
