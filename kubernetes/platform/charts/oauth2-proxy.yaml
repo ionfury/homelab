@@ -48,7 +48,7 @@ service:
 metrics:
   enabled: true
   port: 44180
-  servicemonitor:
+  serviceMonitor:
     enabled: true
 
 securityContext:
