@@ -1,5 +1,6 @@
 ---
 # https://github.com/oauth2-proxy/manifests/blob/main/helm/oauth2-proxy/values.yaml
+replicaCount: 2
 priorityClassName: platform
 
 podAnnotations:
