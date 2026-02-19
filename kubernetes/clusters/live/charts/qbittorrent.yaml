@@ -8,6 +8,11 @@ controllers:
       reloader.stakater.com/auto: "true"
 
     pod:
+      annotations:
+        # Gluetun's iptables OUTPUT DROP policy conflicts with ztunnel's
+        # DNS redirect (UDP:53 -> 15053). The VPN sidecar doesn't benefit
+        # from mesh features, so opt the pod out of ambient interception.
+        ambient.istio.io/redirection: disabled
       securityContext:
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
