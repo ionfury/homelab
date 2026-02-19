@@ -4,6 +4,7 @@
 controllers:
   qbittorrent:
     type: deployment
+    strategy: Recreate
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -33,6 +34,13 @@ controllers:
           DNS_KEEP_NAMESERVER: "off"
           FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
           HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - (ip rule del table 51820; ip -6 rule del table 51820) || true
         securityContext:
           runAsUser: 0
           runAsGroup: 0
@@ -44,7 +52,7 @@ controllers:
             cpu: 10m
             memory: 64Mi
           limits:
-            memory: 128Mi
+            memory: 256Mi
         probes:
           startup:
             enabled: true
