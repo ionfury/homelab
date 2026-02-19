@@ -25,6 +25,10 @@ deschedulerPolicy:
             constraints:
               - DoNotSchedule
               - ScheduleAnyway
+            defaultConstraints:
+              - maxSkew: 1
+                topologyKey: kubernetes.io/hostname
+                whenUnsatisfiable: ScheduleAnyway
         - name: RemoveFailedPods
           args:
             excludeOwnerKinds:
