@@ -25,6 +25,13 @@ cluster:
       kind: KubeSchedulerConfiguration
       profiles:
         - schedulerName: default-scheduler
+          plugins:
+            score:
+              enabled:
+                - name: PodTopologySpread
+                  weight: 5
+                - name: InterPodAffinity
+                  weight: 5
           pluginConfig:
             - name: PodTopologySpread
               args:
