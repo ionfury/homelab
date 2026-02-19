@@ -6,6 +6,7 @@ global:
     namespace: cert-manager
   priorityClassName: platform
   commonLabels:
+replicaCount: 2
 podLabels:
   networking/allow-egress-internet: "true"
   networking/allow-ingress-prometheus: "true"
@@ -17,12 +18,14 @@ prometheus:
   servicemonitor:
     enabled: true
 webhook:
+  replicaCount: 2
   podLabels:
     networking/allow-ingress-prometheus: "true"
     networking/allow-cluster-egress: "true"
   networkPolicy:
     enabled: false
 cainjector:
+  replicaCount: 2
   podLabels:
     networking/allow-ingress-prometheus: "true"
     networking/allow-cluster-egress: "true"
