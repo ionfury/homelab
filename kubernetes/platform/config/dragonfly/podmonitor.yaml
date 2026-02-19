@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: dragonfly
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - cache
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dragonfly
+  podMetricsEndpoints:
+    - port: admin
+      path: /metrics
+      interval: 30s
