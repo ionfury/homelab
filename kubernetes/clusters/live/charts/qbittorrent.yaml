@@ -30,7 +30,7 @@ controllers:
                 key: WIREGUARD_PRIVATE_KEY
           SERVER_COUNTRIES: United States
           SERVER_CATEGORIES: P2P
-          DNS_KEEP_NAMESERVER: "on"
+          DNS_KEEP_NAMESERVER: "off"
           FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
           HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
         securityContext:
