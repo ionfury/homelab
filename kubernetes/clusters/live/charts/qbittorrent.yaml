@@ -44,6 +44,9 @@ controllers:
           # policies provide egress enforcement at the cluster level.
           FIREWALL: "off"
           FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
+          # Allow kubelet probes (9999) and service traffic (8080) through
+          # gluetun's INPUT DROP policy.
+          FIREWALL_INPUT_PORTS: "8080,9999"
           HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
         securityContext:
           runAsUser: 0
