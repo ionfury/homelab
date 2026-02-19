@@ -32,6 +32,7 @@ meshConfig:
 
 # Disable built-in CA - certificates are issued by istio-csr via cert-manager
 pilot:
+  autoscaleMin: 2
   env:
     ENABLE_CA_SERVER: "false"
 
