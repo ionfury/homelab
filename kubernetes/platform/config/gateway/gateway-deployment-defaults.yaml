@@ -7,3 +7,6 @@ data:
   deployment: |
     spec:
       replicas: ${default_replica_count}
+  podDisruptionBudget: |
+    spec:
+      maxUnavailable: 1
