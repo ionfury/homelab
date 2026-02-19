@@ -5,10 +5,12 @@ kind: CiliumBGPClusterConfig
 metadata:
   name: bgp-policy
 spec:
-  # Select all Linux nodes as potential BGP speakers
+  # Restrict BGP to control-plane nodes whose IPs are configured as
+  # neighbors on the UniFi router. Worker nodes are not in the router's
+  # BGP neighbor list, causing idle peering state.
   nodeSelector:
     matchLabels:
-      kubernetes.io/os: linux
+      node-role.kubernetes.io/control-plane: ""
   bgpInstances:
     - name: instance-1
       localASN: ${bgp_cluster_asn}
