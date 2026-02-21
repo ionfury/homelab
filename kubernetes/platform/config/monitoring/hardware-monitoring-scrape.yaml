@@ -41,6 +41,11 @@ spec:
       targetLabel: __param_target
     - sourceLabels: [__param_target]
       targetLabel: instance
+    # Route node2 to its own IPMI module (different BMC credentials)
+    - sourceLabels: [__address__]
+      regex: "node2-ipmi\\..*"
+      targetLabel: __param_module
+      replacement: node2
     - targetLabel: __address__
       replacement: prometheus-ipmi-exporter.monitoring.svc:9290
   scrapeInterval: 60s
