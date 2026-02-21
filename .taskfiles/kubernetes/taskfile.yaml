@@ -9,11 +9,14 @@ vars:
   HELM_CHARTS_FILE: "{{.ROOT_DIR}}/kubernetes/platform/helm-charts.yaml"
   CLUSTERS_DIR: "{{.ROOT_DIR}}/kubernetes/clusters"
   VERSION_VARS: "{{.ROOT_DIR}}/kubernetes/platform/versions.env"
-  MANIFESTS_DIR: "/tmp/homelab-manifests"
+  # Use unique temp dirs per invocation to prevent races between concurrent tasks
+  MANIFESTS_DIR:
+    sh: mktemp -d "${TMPDIR:-/tmp}/homelab-manifests.XXXXXXXXXX"
   PLATFORM_DIR: "{{.ROOT_DIR}}/kubernetes/platform"
   RESOURCESETS: "namespaces.yaml helm-charts.yaml config.yaml"
   STATIC_PROVIDER: "{{.PLATFORM_DIR}}/.static-provider.yaml"
-  EXPANDED_DIR: "/tmp/homelab-expanded"
+  EXPANDED_DIR:
+    sh: mktemp -d "${TMPDIR:-/tmp}/homelab-expanded.XXXXXXXXXX"
   DEV_KUBECONFIG: "~/.kube/dev.yaml"
   # Test variables for Flux substitution (used by helm templating)
   TEST_CLUSTER_NAME: ci-test
@@ -246,7 +249,7 @@ tasks:
       MANIFESTS_DIR: "{{.MANIFESTS_DIR}}"
       PLATFORM_DIR: "{{.PLATFORM_DIR}}"
     cmds:
-      - rm -rf {{.MANIFESTS_DIR}} && mkdir -p {{.MANIFESTS_DIR}}
+      - mkdir -p {{.MANIFESTS_DIR}}
       - "{{.TASKFILE_DIR}}/scripts/build-manifests.sh"
     preconditions:
       - which kustomize
@@ -254,7 +257,7 @@ tasks:
   _expand-resourcesets:
     internal: true
     cmds:
-      - rm -rf {{.EXPANDED_DIR}}/resourcesets && mkdir -p {{.EXPANDED_DIR}}/resourcesets
+      - mkdir -p {{.EXPANDED_DIR}}/resourcesets
       - |
         for rset in {{.RESOURCESETS}}; do
           echo "Expanding ResourceSet: $rset"
