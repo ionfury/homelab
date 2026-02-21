@@ -6,7 +6,7 @@ metadata:
   name: factorio-game-server
   namespace: factorio
 spec:
-  description: "Factorio: UDP 34197 from internet, RCON TCP 27015 from cluster subnet"
+  description: "Factorio: UDP 34197 game traffic (ingress + egress), RCON TCP 27015 from cluster subnet"
   endpointSelector: { }
   ingress:
     - fromEntities:
@@ -21,3 +21,11 @@ spec:
         - ports:
             - port: "27015"
               protocol: TCP
+  egress:
+    # Game server sends UDP responses and heartbeats to clients
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "34197"
+              protocol: UDP

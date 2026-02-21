@@ -6,7 +6,7 @@ metadata:
   name: valheim-default
   namespace: valheim
 spec:
-  description: "Allow Valheim game server: UDP ingress from internet, HTTPS egress for SteamCMD"
+  description: "Allow Valheim game server: UDP game + Steam matchmaking traffic, HTTPS egress for SteamCMD"
   endpointSelector: { }
   ingress:
     - fromEntities:
@@ -18,7 +18,23 @@ spec:
             - port: "2457"
               protocol: UDP
   egress:
-    # Allow external HTTPS (SteamCMD downloads, Steam API authentication)
+    # Game server sends UDP responses to connected clients
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "2456"
+              protocol: UDP
+            - port: "2457"
+              protocol: UDP
+    # Steam matchmaking and server registration (UDP to Steam backend)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "27028"
+              protocol: UDP
+    # SteamCMD downloads and Steam API authentication
     - toEntities:
         - world
       toPorts:
