@@ -5,5 +5,3 @@ kind: Kustomization
 
 resources:
   - external-secret.yaml
-  - backup-target.yaml
-  - backup-target-credential-secret.yaml
