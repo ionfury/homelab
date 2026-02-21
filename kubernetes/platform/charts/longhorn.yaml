@@ -19,8 +19,10 @@ defaultSettings:
   defaultReplicaCount: ${default_replica_count}
   createDefaultDiskLabeledNodes: true
   storageReservedPercentageForDefaultDisk: 0
+defaultBackupStore:
   backupTarget: s3://homelab-longhorn-backup-${cluster_name}@us-east-2/
   backupTargetCredentialSecret: longhorn-s3-backup-credentials
+  pollInterval: "86400"
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}
