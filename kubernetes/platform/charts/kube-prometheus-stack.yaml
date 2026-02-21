@@ -5,9 +5,6 @@ crds:
 cleanPrometheusOperatorObjectNames: true
 alertmanager:
   enabled: true
-  podDisruptionBudget:
-    enabled: true
-    maxUnavailable: 1
   alertmanagerSpec:
     priorityClassName: platform
     podMetadata:
