@@ -93,7 +93,7 @@ spec:
 
         # Backup State - Error
         - alert: LonghornBackupFailed
-          expr: longhorn_backup_state == 3
+          expr: longhorn_backup_state == 4
           for: 5m
           labels:
             severity: critical
