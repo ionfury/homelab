@@ -43,3 +43,5 @@ configMapGenerator:
       - prometheus-snmp-exporter.yaml=charts/prometheus-snmp-exporter.yaml
       - prometheus-ipmi-exporter.yaml=charts/prometheus-ipmi-exporter.yaml
       - prometheus-smartctl-exporter.yaml=charts/prometheus-smartctl-exporter.yaml
+      - nvidia-device-plugin.yaml=charts/nvidia-device-plugin.yaml
+      - dcgm-exporter.yaml=charts/dcgm-exporter.yaml

@@ -92,6 +92,15 @@ locals {
     if machine.cluster == var.name
   }
 
+  # Detect per-machine GPU presence by checking for NVIDIA extensions
+  machine_has_nvidia = {
+    for name, machine in local.cluster_machines :
+    name => anytrue([
+      for ext in lookup(machine.install, "extensions", []) :
+      startswith(ext, "nonfree-kmod-nvidia")
+    ])
+  }
+
   # Transform machines with feature-specific configuration
   machines = {
     for name, machine in local.cluster_machines :
@@ -114,8 +123,12 @@ locals {
         [for k, v in lookup(machine, "labels", {}) : { key = k, value = v }]
       )
       kubelet_extraMounts = local.machine_kubelet_mounts[name]
-      files               = local.spegel_enabled ? [local.spegel_containerd_config] : []
-      annotations         = local.machine_longhorn_annotations[name]
+      files = concat(
+        local.spegel_enabled ? [local.spegel_containerd_config] : [],
+        local.machine_has_nvidia[name] ? [local.nvidia_containerd_config] : []
+      )
+      kernel_modules = local.machine_has_nvidia[name] ? local.nvidia_kernel_modules : []
+      annotations    = local.machine_longhorn_annotations[name]
     })
   }
 
@@ -142,6 +155,27 @@ locals {
     content     = <<-EOT
       [plugins."io.containerd.cri.v1.images"]
         discard_unpacked_layers = false
+    EOT
+  }
+
+  # NVIDIA GPU kernel modules — loaded on machines with NVIDIA extensions
+  nvidia_kernel_modules = [
+    { name = "nvidia" },
+    { name = "nvidia_uvm" },
+    { name = "nvidia_drm" },
+    { name = "nvidia_modeset" },
+  ]
+
+  # NVIDIA containerd runtime — registers the nvidia handler without making it the default
+  nvidia_containerd_config = {
+    path        = "/etc/cri/conf.d/20-nvidia.part"
+    op          = "create"
+    permissions = "0o666"
+    content     = <<-EOT
+      [plugins."io.containerd.cri.v1.runtime".runtimes.nvidia]
+        runtime_type = "io.containerd.runc.v2"
+      [plugins."io.containerd.cri.v1.runtime".runtimes.nvidia.options]
+        BinaryName = "/usr/bin/nvidia-container-runtime"
     EOT
   }
 
@@ -234,6 +268,7 @@ locals {
           machine_annotations                 = machine.annotations
           machine_files                       = machine.files
           machine_kubelet_extraMounts         = machine.kubelet_extraMounts
+          machine_kernel_modules              = machine.kernel_modules
         })],
 
         # HostnameConfig document

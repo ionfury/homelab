@@ -231,6 +231,20 @@ spec:
         version: "${prometheus_smartctl_exporter_version}"
         url: https://prometheus-community.github.io/helm-charts
       dependsOn: [kube-prometheus-stack]
+    - name: nvidia-device-plugin
+      namespace: gpu-system
+      chart:
+        name: nvidia-device-plugin
+        version: "${nvidia_device_plugin_version}"
+        url: https://nvidia.github.io/k8s-device-plugin
+      dependsOn: [cilium]
+    - name: dcgm-exporter
+      namespace: gpu-system
+      chart:
+        name: dcgm-exporter
+        version: "${dcgm_exporter_version}"
+        url: https://nvidia.github.io/dcgm-exporter/helm-charts
+      dependsOn: [nvidia-device-plugin, kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
