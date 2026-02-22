@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/security.istio.io/authorizationpolicy_v1.json
+# Protect unauthenticated media management UIs with OAuth2 Proxy.
+# Jellyfin and Jellyseerr have built-in auth and are excluded.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: media-app-auth
+  namespace: istio-gateway
+spec:
+  targetRefs:
+    - kind: Gateway
+      group: gateway.networking.k8s.io
+      name: internal
+  action: CUSTOM
+  provider:
+    name: oauth2-proxy
+  rules:
+    - to:
+        - operation:
+            hosts:
+              - "prowlarr.${internal_domain}"
+              - "radarr.${internal_domain}"
+              - "sonarr.${internal_domain}"
+              - "qbittorrent.${internal_domain}"

@@ -4,10 +4,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - zipline
+  - vaultwarden
   - immich
   - valheim
   - factorio
   - satisfactory
+  - minecraft
   - pxe-boot
   - paperless
   - silences

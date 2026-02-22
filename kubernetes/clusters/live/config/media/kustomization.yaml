@@ -14,4 +14,6 @@ resources:
   - canary-jellyfin.yaml
   - canary-jellyseerr.yaml
   - canary-vpn-health.yaml
+  - media-auth-policy.yaml
   - prometheus-rules.yaml
+  - exportarr-alerts.yaml
