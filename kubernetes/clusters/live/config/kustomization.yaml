@@ -9,5 +9,6 @@ resources:
   - factorio
   - satisfactory
   - pxe-boot
+  - paperless
   - silences
   - cluster-config-resourceset.yaml

@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - data-pvc.yaml
+  - media-pvc.yaml
+  - cnpg-superuser-replica.yaml
+  - paperless-db-credentials.yaml
+  - dragonfly-password-replica.yaml
+  - paperless-secret.yaml
+  - internal-route.yaml
