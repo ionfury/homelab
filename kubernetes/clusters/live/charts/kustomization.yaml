@@ -26,6 +26,7 @@ configMapGenerator:
       - jellyfin.yaml=jellyfin.yaml
       - jellyfin-exporter.yaml=jellyfin-exporter.yaml
       - jellyseerr.yaml=jellyseerr.yaml
+      - tandoor.yaml=tandoor.yaml
       - paperless.yaml=paperless.yaml
       - vaultwarden.yaml=vaultwarden.yaml
       - exportarr.yaml=exportarr.yaml
