@@ -64,6 +64,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: []
+    - name: minecraft
+      namespace: minecraft
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator]
     - name: pxe-boot
       namespace: pxe-boot
       chart:
@@ -120,6 +127,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator]
+    - name: exportarr
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [sonarr, radarr, prowlarr]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
