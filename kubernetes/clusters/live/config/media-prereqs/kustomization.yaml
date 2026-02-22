@@ -9,3 +9,4 @@ resources:
   - network-policy.yaml
   - nordvpn-credentials.yaml
   - nordvpn-wireguard-credentials.yaml
+  - jellyfin-exporter-api-token.yaml

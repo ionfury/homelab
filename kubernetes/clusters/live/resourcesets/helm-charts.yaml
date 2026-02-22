@@ -106,6 +106,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
+    - name: jellyfin-exporter
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [jellyfin]
     - name: jellyseerr
       namespace: media
       chart:
