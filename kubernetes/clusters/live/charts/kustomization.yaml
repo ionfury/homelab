@@ -23,3 +23,5 @@ configMapGenerator:
       - radarr.yaml=radarr.yaml
       - jellyfin.yaml=jellyfin.yaml
       - jellyseerr.yaml=jellyseerr.yaml
+      - ollama.yaml=ollama.yaml
+      - open-webui.yaml=open-webui.yaml

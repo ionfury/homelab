@@ -113,6 +113,20 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: []
+    - name: ollama
+      namespace: ai
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [nvidia-device-plugin]
+    - name: open-webui
+      namespace: ai
+      chart:
+        name: open-webui
+        version: "${open_webui_version}"
+        url: "https://helm.openwebui.com"
+      dependsOn: [ollama, cloudnative-pg, secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

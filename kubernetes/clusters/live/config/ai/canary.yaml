@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/canaries.flanksource.com/canary_v1.json
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-open-webui
+  namespace: ai
+spec:
+  schedule: "@every 5m"
+  http:
+    - name: internal-gateway-health
+      url: https://ai.${internal_domain}
+      responseCodes: [200, 302]
+      maxSSLExpiry: 7
+      thresholdMillis: 10000

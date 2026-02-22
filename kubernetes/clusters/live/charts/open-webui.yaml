@@ -1,0 +1,127 @@
+---
+# Open WebUI Helm chart values
+# Chart docs: https://github.com/open-webui/helm-charts
+
+ollama:
+  enabled: false
+
+ollamaUrls:
+  - "http://ollama.ai.svc.cluster.local:11434"
+
+pipelines:
+  enabled: false
+
+websocket:
+  enabled: true
+  manager: redis
+  url: ""
+  redis:
+    enabled: false
+
+# Database: init container creates DB on shared CNPG cluster (Authelia pattern)
+databaseUrl: ""
+
+extraEnvVars:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: open-webui-db-credentials
+        key: password
+  - name: DATABASE_URL
+    value: "postgresql://open-webui:$(DB_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/open-webui"
+  - name: DRAGONFLY_PASS
+    valueFrom:
+      secretKeyRef:
+        name: dragonfly-password
+        key: password
+  - name: WEBSOCKET_REDIS_URL
+    value: "redis://:$(DRAGONFLY_PASS)@dragonfly.cache.svc.cluster.local:6379/1"
+  - name: WEBUI_URL
+    value: "https://ai.${internal_domain}"
+  - name: ENABLE_SIGNUP
+    value: "false"
+  - name: DEFAULT_USER_ROLE
+    value: "user"
+  - name: ENABLE_OPENAI_API
+    value: "false"
+
+sso:
+  enabled: true
+  enableSignup: true
+  oidc:
+    enabled: true
+    clientId: open-webui
+    clientExistingSecret: open-webui-oidc-client-secret
+    clientExistingSecretKey: client-secret
+    providerUrl: "https://auth.${internal_domain}/.well-known/openid-configuration"
+    providerName: Homelab
+    scopes: "openid email profile groups"
+
+extraInitContainers:
+  - name: init-db
+    # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
+    image: ghcr.io/home-operations/postgres-init:18
+    env:
+      - name: INIT_POSTGRES_HOST
+        value: platform-rw.database.svc.cluster.local
+      - name: INIT_POSTGRES_SUPER_USER
+        value: postgres
+      - name: INIT_POSTGRES_SUPER_PASS
+        valueFrom:
+          secretKeyRef:
+            name: cnpg-superuser-replica
+            key: password
+      - name: INIT_POSTGRES_USER
+        value: open-webui
+      - name: INIT_POSTGRES_PASS
+        valueFrom:
+          secretKeyRef:
+            name: open-webui-db-credentials
+            key: password
+      - name: INIT_POSTGRES_DBNAME
+        value: open-webui
+    securityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: [ALL]
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+ingress:
+  enabled: false
+
+replicaCount: 1
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  failureThreshold: 20
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /health/db
+    port: http
+  periodSeconds: 10
