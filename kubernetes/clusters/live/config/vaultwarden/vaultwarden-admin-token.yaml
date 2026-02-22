@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vaultwarden-admin-token
+  namespace: vaultwarden
+  annotations:
+    secret-generator.v1.mittwald.de/autogenerate: ADMIN_TOKEN
+    secret-generator.v1.mittwald.de/length: "48"
+    secret-generator.v1.mittwald.de/encoding: base64
+data: { }

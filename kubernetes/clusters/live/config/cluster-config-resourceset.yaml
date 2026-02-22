@@ -21,7 +21,7 @@ spec:
       dependsOn: [platform, secret-generator, external-secrets-stores]
     - name: media-config
       path: kubernetes/clusters/live/config/media
-      dependsOn: [bazarr, jellyfin, jellyseerr, sonarr, radarr, prowlarr, qbittorrent, canary-checker, kube-prometheus-stack]
+      dependsOn: [bazarr, jellyfin, jellyseerr, sonarr, radarr, prowlarr, qbittorrent, exportarr, canary-checker, kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
