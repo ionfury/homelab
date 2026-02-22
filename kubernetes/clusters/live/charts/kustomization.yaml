@@ -27,3 +27,4 @@ configMapGenerator:
       - jellyseerr.yaml=jellyseerr.yaml
       - vaultwarden.yaml=vaultwarden.yaml
       - exportarr.yaml=exportarr.yaml
+      - excalidraw.yaml=excalidraw.yaml

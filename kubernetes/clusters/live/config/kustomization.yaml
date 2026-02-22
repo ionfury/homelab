@@ -11,5 +11,6 @@ resources:
   - satisfactory
   - minecraft
   - pxe-boot
+  - excalidraw
   - silences
   - cluster-config-resourceset.yaml
