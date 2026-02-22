@@ -1,0 +1,170 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  paperless:
+    type: deployment
+    replicas: 1
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        env:
+          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
+          INIT_POSTGRES_SUPER_USER: postgres
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_USER: paperless
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-credentials
+                key: password
+          INIT_POSTGRES_DBNAME: paperless
+
+      # postgres-init only grants ALL ON DATABASE, which doesn't include
+      # CREATE ON SCHEMA public (required since PostgreSQL 15+)
+      schema-grants:
+        dependsOn: init-db
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        command: ["psql"]
+        args:
+          - --host=platform-rw.database.svc.cluster.local
+          - --username=postgres
+          - --dbname=paperless
+          - --command=GRANT ALL ON SCHEMA public TO paperless; ALTER DATABASE paperless OWNER TO paperless;
+        env:
+          PGPASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/paperless-ngx/paperless-ngx
+          tag: "${paperless_ngx_version}"
+        env:
+          # General
+          PAPERLESS_URL: "https://paperless.${internal_domain}"
+          PAPERLESS_PORT: "8000"
+          PAPERLESS_TIME_ZONE: "America/Chicago"
+          PAPERLESS_OCR_LANGUAGE: "eng"
+          PAPERLESS_TASK_WORKERS: "2"
+          PAPERLESS_THREADS_PER_WORKER: "2"
+          # Disable consumer directory — web upload only
+          PAPERLESS_CONSUMER_POLLING: "0"
+          # Secret key for session cookies and CSRF tokens
+          PAPERLESS_SECRET_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-secret
+                key: secret-key
+          # Database — dedicated app user via secret-generator
+          PAPERLESS_DBPASS:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-credentials
+                key: password
+          PAPERLESS_DBHOST: platform-pooler-rw.database.svc.cluster.local
+          PAPERLESS_DBPORT: "5432"
+          PAPERLESS_DBNAME: paperless
+          PAPERLESS_DBUSER: paperless
+          # Redis — shared Dragonfly instance with auth
+          DRAGONFLY_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: dragonfly-password
+                key: password
+          PAPERLESS_REDIS:
+            dependsOn: DRAGONFLY_PASSWORD
+            value: "redis://:$(DRAGONFLY_PASSWORD)@dragonfly.cache.svc.cluster.local:6379"
+          # Storage paths
+          PAPERLESS_DATA_DIR: "/data"
+          PAPERLESS_MEDIA_ROOT: "/media"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+              periodSeconds: 10
+
+service:
+  app:
+    controller: paperless
+    ports:
+      http:
+        port: 8000
+
+persistence:
+  data:
+    existingClaim: paperless-data
+  media:
+    existingClaim: paperless-media
+  tmp:
+    type: emptyDir
+    globalMounts:
+      - path: /tmp

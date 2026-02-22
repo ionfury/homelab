@@ -141,8 +141,15 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [sonarr, radarr, prowlarr]
+    - name: paperless
+      namespace: paperless
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [cloudnative-pg, secret-generator]
     - name: excalidraw
-      namespace: excalidraw
+      namespace: 
       chart:
         name: app-template
         version: "${app_template_version}"
