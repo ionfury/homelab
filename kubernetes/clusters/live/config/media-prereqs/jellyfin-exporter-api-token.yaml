@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+# Jellyfin API token for the jellyfin-exporter Prometheus metrics exporter.
+# Stored in AWS SSM as a plain string.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: jellyfin-exporter-api-token
+  namespace: media
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: aws-ssm
+  target:
+    name: jellyfin-exporter-api-token
+  data:
+    - secretKey: JELLYFIN_TOKEN
+      remoteRef:
+        key: /homelab/kubernetes/${cluster_name}/jellyfin-exporter/api-token

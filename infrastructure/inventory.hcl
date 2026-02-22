@@ -92,11 +92,15 @@ locals {
         mode               = "active-backup"
       }]
     }
-    node2 = { // Supermicro 2xE5-2630v4 40T@2.2GHz 128Gi
+    node2 = { // Supermicro 2xE5-2630v4 40T@2.2GHz 128Gi + Tesla P4 8GB
       cluster = "live"
       type    = "worker"
+      labels = {
+        "nvidia.com/gpu.present" = "true"
+      }
       install = {
-        selector = "disk.dev_path == '/dev/sda'"
+        selector   = "disk.dev_path == '/dev/sda'"
+        extensions = ["nonfree-kmod-nvidia-production", "nvidia-container-toolkit-production"]
       }
       volumes = [
         { # 480GB MegaRAID SSD virtual drive

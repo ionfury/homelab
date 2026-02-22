@@ -2,13 +2,10 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
 # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
 controllers:
-  jellyfin:
+  bazarr:
     type: deployment
 
     pod:
-      runtimeClassName: nvidia
-      nodeSelector:
-        nvidia.com/gpu.present: "true"
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
@@ -21,29 +18,28 @@ controllers:
     containers:
       app:
         image:
-          repository: jellyfin/jellyfin
-          tag: "${jellyfin_version}"
+          repository: ghcr.io/home-operations/bazarr
+          tag: "${bazarr_version}"
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           capabilities:
             drop: [ALL]
         resources:
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 50m
+            memory: 256Mi
           limits:
-            memory: 4Gi
-            nvidia.com/gpu: 1
+            memory: 1Gi
         probes:
           startup:
             enabled: true
             custom: true
             spec:
               httpGet:
-                path: /health
-                port: 8096
-              initialDelaySeconds: 10
+                path: /api/system/ping
+                port: 6767
+              initialDelaySeconds: 5
               periodSeconds: 5
               failureThreshold: 30
           liveness:
@@ -51,40 +47,45 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /health
-                port: 8096
+                path: /api/system/ping
+                port: 6767
               periodSeconds: 30
           readiness:
             enabled: true
             custom: true
             spec:
               httpGet:
-                path: /health
-                port: 8096
+                path: /api/system/ping
+                port: 6767
               periodSeconds: 10
 
 service:
   app:
-    controller: jellyfin
+    controller: bazarr
     ports:
       http:
-        port: 8096
+        port: 6767
 
 persistence:
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
-    size: 20Gi
+    size: 2Gi
     storageClass: fast
     advancedMounts:
-      jellyfin:
+      bazarr:
         app:
           - path: /config
   media:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
-      jellyfin:
+      bazarr:
         app:
           - path: /media
-            readOnly: true
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      bazarr:
+        app:
+          - path: /tmp

@@ -114,6 +114,7 @@ variable "machines" {
     labels  = optional(map(string), {})
     install = object({
       selector     = string
+      extensions   = optional(list(string), [])
       architecture = optional(string, "amd64")
       platform     = optional(string, "metal")
       sbc          = optional(string, "")
