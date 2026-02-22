@@ -11,3 +11,4 @@ resources:
   - dragonfly-password-replica.yaml
   - paperless-secret.yaml
   - internal-route.yaml
+  - canary.yaml
