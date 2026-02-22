@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+# API keys for exportarr to authenticate with *arr applications.
+# Stored in AWS SSM as a JSON object with per-app API keys.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: exportarr-api-keys
+  namespace: media
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: aws-ssm
+  target:
+    name: exportarr-api-keys
+  data:
+    - secretKey: sonarr-api-key
+      remoteRef:
+        key: /homelab/kubernetes/live/exportarr-api-keys
+        property: sonarr-api-key
+    - secretKey: radarr-api-key
+      remoteRef:
+        key: /homelab/kubernetes/live/exportarr-api-keys
+        property: radarr-api-key
+    - secretKey: prowlarr-api-key
+      remoteRef:
+        key: /homelab/kubernetes/live/exportarr-api-keys
+        property: prowlarr-api-key
