@@ -106,6 +106,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: []
+    - name: bazarr
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
     - name: radarr
       namespace: media
       chart:
@@ -149,7 +156,7 @@ spec:
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator]
     - name: excalidraw
-      namespace: 
+      namespace:
       chart:
         name: app-template
         version: "${app_template_version}"
