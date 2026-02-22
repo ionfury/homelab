@@ -123,12 +123,9 @@ locals {
         [for k, v in lookup(machine, "labels", {}) : { key = k, value = v }]
       )
       kubelet_extraMounts = local.machine_kubelet_mounts[name]
-      files = concat(
-        local.spegel_enabled ? [local.spegel_containerd_config] : [],
-        local.machine_has_nvidia[name] ? [local.nvidia_containerd_config] : []
-      )
-      kernel_modules = local.machine_has_nvidia[name] ? local.nvidia_kernel_modules : []
-      annotations    = local.machine_longhorn_annotations[name]
+      files               = local.spegel_enabled ? [local.spegel_containerd_config] : []
+      kernel_modules      = local.machine_has_nvidia[name] ? local.nvidia_kernel_modules : []
+      annotations         = local.machine_longhorn_annotations[name]
     })
   }
 
@@ -165,19 +162,6 @@ locals {
     { name = "nvidia_drm" },
     { name = "nvidia_modeset" },
   ]
-
-  # NVIDIA containerd runtime — registers the nvidia handler without making it the default
-  nvidia_containerd_config = {
-    path        = "/etc/cri/conf.d/20-nvidia.part"
-    op          = "create"
-    permissions = "0o666"
-    content     = <<-EOT
-      [plugins."io.containerd.cri.v1.runtime".runtimes.nvidia]
-        runtime_type = "io.containerd.runc.v2"
-      [plugins."io.containerd.cri.v1.runtime".runtimes.nvidia.options]
-        BinaryName = "/usr/bin/nvidia-container-runtime"
-    EOT
-  }
 
   # Generate link aliases per machine (one per physical MAC address in bonds)
   machine_link_aliases = {

@@ -131,8 +131,8 @@ run "nvidia_kernel_modules" {
   }
 }
 
-# Machine with NVIDIA extensions gets containerd runtime config
-run "nvidia_containerd_config" {
+# GPU machines need no custom containerd config — nvidia-container-toolkit extension handles it
+run "nvidia_no_containerd_config" {
   command = plan
 
   variables {
@@ -154,18 +154,8 @@ run "nvidia_containerd_config" {
   }
 
   assert {
-    condition     = length(output.machines["gpu-node"].files) == 1
-    error_message = "GPU machine should have 1 containerd config file"
-  }
-
-  assert {
-    condition     = output.machines["gpu-node"].files[0].path == "/etc/cri/conf.d/20-nvidia.part"
-    error_message = "NVIDIA containerd config should be at /etc/cri/conf.d/20-nvidia.part"
-  }
-
-  assert {
-    condition     = strcontains(output.machines["gpu-node"].files[0].content, "nvidia-container-runtime")
-    error_message = "Config should reference nvidia-container-runtime"
+    condition     = length(output.machines["gpu-node"].files) == 0
+    error_message = "GPU machine should have no containerd config files (extension handles runtime registration)"
   }
 }
 
@@ -241,12 +231,12 @@ run "mixed_cluster_gpu_selective" {
   }
 
   assert {
-    condition     = length(output.machines["gpu-worker"].files) == 1
-    error_message = "GPU worker should have 1 containerd config file"
+    condition     = length(output.machines["gpu-worker"].files) == 0
+    error_message = "GPU worker should have no containerd config files"
   }
 }
 
-# GPU config combined with spegel - both files present on GPU node
+# GPU node with spegel — only spegel containerd config (no nvidia config needed)
 run "nvidia_with_spegel" {
   command = plan
 
@@ -269,8 +259,8 @@ run "nvidia_with_spegel" {
   }
 
   assert {
-    condition     = length(output.machines["gpu-node"].files) == 2
-    error_message = "GPU machine with spegel should have 2 files (spegel + nvidia)"
+    condition     = length(output.machines["gpu-node"].files) == 1
+    error_message = "GPU machine with spegel should have 1 file (spegel only)"
   }
 
   assert {
@@ -279,14 +269,6 @@ run "nvidia_with_spegel" {
       f.path == "/etc/cri/conf.d/20-customization.part"
     ])
     error_message = "Spegel containerd config should be present"
-  }
-
-  assert {
-    condition = anytrue([
-      for f in output.machines["gpu-node"].files :
-      f.path == "/etc/cri/conf.d/20-nvidia.part"
-    ])
-    error_message = "NVIDIA containerd config should be present"
   }
 }
 
