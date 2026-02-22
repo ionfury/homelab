@@ -22,7 +22,7 @@ spec:
             description: "The exportarr exporter for {{ $labels.job }} has been unreachable for 5 minutes."
         - alert: ArrApplicationUnreachable
           expr: |
-            exportarr_system_status{} == 0
+            {__name__=~"(sonarr|radarr|prowlarr)_system_status"} == 0
           for: 5m
           labels:
             severity: warning
