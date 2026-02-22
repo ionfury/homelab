@@ -42,6 +42,7 @@ prometheus:
   prometheusSpec:
     priorityClassName: platform
     replicas: 2
+    podAntiAffinity: ""
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
