@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  jellyfin-exporter:
+    type: deployment
+    replicas: 1
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: rebelcore/jellyfin-exporter
+          tag: "${jellyfin_exporter_version}"
+        env:
+          JELLYFIN_ADDRESS: http://jellyfin-app.media.svc:8096
+        envFrom:
+          - secretRef:
+              name: jellyfin-exporter-api-token
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 9594
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 10
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 9594
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 9594
+              periodSeconds: 10
+
+service:
+  app:
+    controller: jellyfin-exporter
+    ports:
+      metrics:
+        port: 9594
+
+serviceMonitor:
+  app:
+    serviceName: jellyfin-exporter-app
+    endpoints:
+      - port: metrics
+        interval: 60s
+        scrapeTimeout: 30s

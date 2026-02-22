@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: gpu-system-default
+  namespace: gpu-system
+spec:
+  description: "Allow GPU system: device plugin registers extended resources via kube-apiserver"
+  endpointSelector: { }
+  egress:
+    # Allow Kubernetes API access (device plugin registers nvidia.com/gpu resources)
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP

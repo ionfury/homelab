@@ -92,6 +92,15 @@ locals {
     if machine.cluster == var.name
   }
 
+  # Detect per-machine GPU presence by checking for NVIDIA extensions
+  machine_has_nvidia = {
+    for name, machine in local.cluster_machines :
+    name => anytrue([
+      for ext in lookup(machine.install, "extensions", []) :
+      startswith(ext, "nonfree-kmod-nvidia")
+    ])
+  }
+
   # Transform machines with feature-specific configuration
   machines = {
     for name, machine in local.cluster_machines :
@@ -115,6 +124,7 @@ locals {
       )
       kubelet_extraMounts = local.machine_kubelet_mounts[name]
       files               = local.spegel_enabled ? [local.spegel_containerd_config] : []
+      kernel_modules      = local.machine_has_nvidia[name] ? local.nvidia_kernel_modules : []
       annotations         = local.machine_longhorn_annotations[name]
     })
   }
@@ -144,6 +154,14 @@ locals {
         discard_unpacked_layers = false
     EOT
   }
+
+  # NVIDIA GPU kernel modules — loaded on machines with NVIDIA extensions
+  nvidia_kernel_modules = [
+    { name = "nvidia" },
+    { name = "nvidia_uvm" },
+    { name = "nvidia_drm" },
+    { name = "nvidia_modeset" },
+  ]
 
   # Generate link aliases per machine (one per physical MAC address in bonds)
   machine_link_aliases = {
@@ -234,6 +252,7 @@ locals {
           machine_annotations                 = machine.annotations
           machine_files                       = machine.files
           machine_kubelet_extraMounts         = machine.kubelet_extraMounts
+          machine_kernel_modules              = machine.kernel_modules
         })],
 
         # HostnameConfig document

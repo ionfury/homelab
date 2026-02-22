@@ -6,6 +6,9 @@ controllers:
     type: deployment
 
     pod:
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
@@ -31,6 +34,7 @@ controllers:
             memory: 512Mi
           limits:
             memory: 4Gi
+            nvidia.com/gpu: 1
         probes:
           startup:
             enabled: true

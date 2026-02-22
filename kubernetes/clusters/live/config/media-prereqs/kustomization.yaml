@@ -10,3 +10,4 @@ resources:
   - nordvpn-credentials.yaml
   - nordvpn-wireguard-credentials.yaml
   - exportarr-api-keys.yaml
+  - jellyfin-exporter-api-token.yaml
