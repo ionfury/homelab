@@ -22,3 +22,21 @@ spec:
             severity: warning
           annotations:
             summary: "Media library volume usage exceeds 90%"
+        - alert: JellyfinExporterDown
+          expr: |
+            up{job="jellyfin-exporter-app", namespace="media"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Jellyfin Prometheus exporter is down"
+            description: "The jellyfin-exporter has been unreachable for more than 10 minutes."
+        - alert: JellyfinServerDown
+          expr: |
+            jellyfin_up{namespace="media"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Jellyfin server is not reachable from the exporter"
+            description: "The jellyfin-exporter reports that Jellyfin is unreachable for more than 5 minutes."

@@ -83,6 +83,13 @@ machine:
 %{ endif ~}
   install:
     wipe: ${lookup(machine_install, "wipe", true)}
+%{ if length(machine_kernel_modules) > 0 ~}
+  kernel:
+    modules:
+%{ for mod in machine_kernel_modules ~}
+      - name: ${mod.name}
+%{ endfor ~}
+%{ endif ~}
   features:
     stableHostname: false
     hostDNS:

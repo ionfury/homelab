@@ -1,0 +1,120 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+defaultPodOptions:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  excalidraw:
+    type: deployment
+    replicas: 1
+
+    containers:
+      app:
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
+        image:
+          repository: excalidraw/excalidraw
+          # renovate: datasource=docker depName=excalidraw/excalidraw
+          tag: sha-4bfc5bb
+        # Replace the hardcoded collaboration URL with the self-hosted room server.
+        # The official image bakes https://oss-collab.excalidraw.com into the JS
+        # assets at build time, so we sed-replace it at container startup.
+        command:
+          - /bin/sh
+          - -c
+          - |
+            find /usr/share/nginx/html/assets -type f -name '*.js' \
+              -exec sed -i 's|https://oss-collab\.excalidraw\.com|https://draw-ws.${external_domain}|g' {} + && \
+            nginx -g 'daemon off;'
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 80
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 80
+              periodSeconds: 10
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 80
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 10
+
+  room:
+    type: deployment
+    replicas: 1
+
+    containers:
+      app:
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
+        image:
+          repository: excalidraw/excalidraw-room
+          # renovate: datasource=docker depName=excalidraw/excalidraw-room
+          tag: sha-03ff435
+        env:
+          PORT: "80"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 80
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 80
+              periodSeconds: 10
+
+service:
+  app:
+    controller: excalidraw
+    ports:
+      http:
+        port: 80
+  room:
+    controller: room
+    ports:
+      http:
+        port: 80

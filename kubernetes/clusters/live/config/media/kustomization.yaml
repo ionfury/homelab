@@ -3,6 +3,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - bazarr-internal.yaml
   - jellyfin-external.yaml
   - jellyfin-internal.yaml
   - jellyseerr-external.yaml
@@ -15,5 +16,6 @@ resources:
   - canary-jellyseerr.yaml
   - canary-vpn-health.yaml
   - media-auth-policy.yaml
+  - jellyfin-dashboard.yaml
   - prometheus-rules.yaml
   - exportarr-alerts.yaml
