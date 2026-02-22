@@ -113,6 +113,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: []
+    - name: exportarr
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [sonarr, radarr, prowlarr]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

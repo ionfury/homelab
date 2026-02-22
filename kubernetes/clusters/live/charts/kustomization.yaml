@@ -23,3 +23,4 @@ configMapGenerator:
       - radarr.yaml=radarr.yaml
       - jellyfin.yaml=jellyfin.yaml
       - jellyseerr.yaml=jellyseerr.yaml
+      - exportarr.yaml=exportarr.yaml
