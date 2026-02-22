@@ -21,5 +21,6 @@ configMapGenerator:
       - prowlarr.yaml=prowlarr.yaml
       - sonarr.yaml=sonarr.yaml
       - radarr.yaml=radarr.yaml
+      - bazarr.yaml=bazarr.yaml
       - jellyfin.yaml=jellyfin.yaml
       - jellyseerr.yaml=jellyseerr.yaml
