@@ -41,11 +41,25 @@ data "talos_image_factory_extensions_versions" "machine_version" {
 resource "talos_image_factory_schematic" "machine_schematic" {
   for_each = { for k, v in local.machines : k => v.install }
 
+  # Validate that the Image Factory resolved at least as many extensions as requested.
+  # Fewer means an extension name is wrong or unavailable for this Talos version.
+  # The API does substring matching (e.g. "iscsi-tools" also matches "trident-iscsi-tools"),
+  # so resolved count may exceed requested count — that's expected.
+  # Only checked when extensions are explicitly requested — empty filter returns all available.
+  lifecycle {
+    precondition {
+      condition     = length(each.value.extensions) == 0 || length(data.talos_image_factory_extensions_versions.machine_version[each.key].extensions_info) >= length(each.value.extensions)
+      error_message = "Extension count mismatch: requested ${length(each.value.extensions)} extensions [${join(", ", each.value.extensions)}] but Image Factory resolved only ${length(data.talos_image_factory_extensions_versions.machine_version[each.key].extensions_info)} for Talos ${var.talos_version}. Check extension names are valid."
+    }
+  }
+
   schematic = yamlencode(
     {
       customization = {
         systemExtensions = {
-          officialExtensions = try(data.talos_image_factory_extensions_versions.machine_version[each.key].extensions_info[*].name, [])
+          # Use resolved extensions only when explicitly requested.
+          # Empty filter returns all available extensions — never include those.
+          officialExtensions = length(each.value.extensions) > 0 ? data.talos_image_factory_extensions_versions.machine_version[each.key].extensions_info[*].name : []
         }
         extraKernelArgs = concat(each.value.extra_kernel_args)
         secureboot = {

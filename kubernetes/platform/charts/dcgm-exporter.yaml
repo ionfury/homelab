@@ -1,0 +1,17 @@
+---
+# DCGM Exporter — GPU metrics for Prometheus
+# Runs as a DaemonSet on GPU nodes, exposes DCGM metrics
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  additionalLabels:
+    release: kube-prometheus-stack
+
+nodeSelector:
+  nvidia.com/gpu.present: "true"
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule

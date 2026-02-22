@@ -66,10 +66,15 @@ machine-learning:
   enabled: true
   controllers:
     main:
+      pod:
+        runtimeClassName: nvidia
+        nodeSelector:
+          nvidia.com/gpu.present: "true"
       containers:
         main:
           image:
             repository: ghcr.io/immich-app/immich-machine-learning
+            tag: "${immich_ml_cuda_tag}"
             pullPolicy: IfNotPresent
           env:
             TRANSFORMERS_CACHE: /cache
@@ -81,6 +86,7 @@ machine-learning:
               memory: 1Gi
             limits:
               memory: 4Gi
+              nvidia.com/gpu: 1
   persistence:
     cache:
       enabled: true
