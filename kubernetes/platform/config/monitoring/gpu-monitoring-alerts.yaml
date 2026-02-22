@@ -1,0 +1,67 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gpu-monitoring-alerts
+  labels:
+    app.kubernetes.io/name: gpu-monitoring
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: gpu-monitoring.health
+      rules:
+        - alert: GpuDevicePluginDown
+          expr: |
+            absent(up{job=~".*nvidia-device-plugin.*"} == 1)
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "NVIDIA device plugin is not running"
+            description: >-
+              The NVIDIA device plugin has been unreachable for 10+ minutes.
+              GPU resources will not be allocatable to pods.
+              Check the nvidia-device-plugin DaemonSet in gpu-system namespace.
+
+        - alert: DcgmExporterDown
+          expr: |
+            absent(up{job=~".*dcgm-exporter.*"} == 1)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "DCGM exporter is not running"
+            description: >-
+              The DCGM GPU metrics exporter has been unreachable for 10+ minutes.
+              GPU metrics and alerts will not function.
+              Check the dcgm-exporter DaemonSet in gpu-system namespace.
+
+    - name: gpu-monitoring.temperature
+      rules:
+        - alert: GpuTemperatureHigh
+          expr: |
+            DCGM_FI_DEV_GPU_TEMP > 85
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "GPU temperature critical on {{ $labels.instance }}"
+            description: >-
+              GPU {{ $labels.gpu }} on {{ $labels.instance }} is at {{ $value }}C
+              (threshold: 85C). Check GPU cooling, airflow, and ambient temperature.
+
+    - name: gpu-monitoring.memory
+      rules:
+        - alert: GpuMemoryUsageHigh
+          expr: |
+            (DCGM_FI_DEV_FB_USED / (DCGM_FI_DEV_FB_USED + DCGM_FI_DEV_FB_FREE)) * 100 > 90
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU VRAM usage above 90% on {{ $labels.instance }}"
+            description: >-
+              GPU {{ $labels.gpu }} on {{ $labels.instance }} VRAM usage is at {{ $value | printf "%.0f" }}%.
+              Time-sliced workloads may experience OOM errors.
+              Consider reducing time-slicing replicas or limiting concurrent GPU workloads.

@@ -1,0 +1,1375 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-jellyfin
+  namespace: media
+  labels:
+    grafana_dashboard: "true"
+  annotations:
+    grafana_folder: "Media"
+data:
+  jellyfin.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": true,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "index": 1,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "index": 0,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "green", "value": 1 }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 0, "y": 0 },
+          "id": 12,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "jellyfin_up{instance=~\"$instance\"}",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "transparent": true,
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed" },
+              "displayName": "Movies",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 5, "x": 4, "y": 0 },
+          "id": 13,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "jellyfin_media_count{type=\"Movie\", instance=~\"$instance\"}",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Movies",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed" },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 5, "x": 9, "y": 0 },
+          "id": 14,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "jellyfin_media_count{type=\"BoxSet\", instance=~\"$instance\"}",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Collections",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed" },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 5, "x": 14, "y": 0 },
+          "id": 15,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "jellyfin_media_count{type=\"Series\", instance=~\"$instance\"}",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "TV Shows",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed" },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 5, "x": 19, "y": 0 },
+          "id": 16,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "jellyfin_media_count{type=\"Episode\", instance=~\"$instance\"}",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "TV Show Episodes",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 5 },
+          "id": 4,
+          "options": {
+            "alignValue": "left",
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "auto",
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum by (user_device, item_index_clean, type) (\n  label_replace(\n    label_join(\n      label_join(\n        label_join(\n          jellyfin_now_playing_state{instance=~\"$instance\"},\n          \"item_index\",\n          \" \",\n          \"series_season\",\n          \"series_episode\"\n        ),\n        \"full_name\",\n        \" - \",\n        \"series_title\",\n        \"item_index\",\n        \"title\"\n      ),\n      \"user_device\",\n      \" - \",\n      \"username\",\n      \"device\"\n    ),\n    \"item_index_clean\",\n    \"$1\",\n    \"full_name\",\n    \"^[- ]*(.*?)[- ]*$\"\n  )\n)\n",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Now Playing - Movies",
+          "transformations": [
+            { "id": "seriesToRows", "options": {} },
+            {
+              "id": "extractFields",
+              "options": { "keepTime": false, "replace": false, "source": "Metric" }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  { "config": { "id": "isNotNull", "options": {} }, "fieldName": "user_device" }
+                ],
+                "match": "any",
+                "type": "include"
+              }
+            },
+            {
+              "id": "calculateField",
+              "options": {
+                "alias": "Item",
+                "mode": "reduceRow",
+                "reduce": { "include": ["item_index_clean"], "reducer": "lastNotNull" }
+              }
+            },
+            {
+              "id": "calculateField",
+              "options": {
+                "alias": "Name",
+                "mode": "reduceRow",
+                "reduce": { "include": ["user_device"], "reducer": "lastNotNull" }
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  { "config": { "id": "equal", "options": { "value": "Movie" } }, "fieldName": "type" }
+                ],
+                "match": "any",
+                "type": "include"
+              }
+            },
+            {
+              "id": "partitionByValues",
+              "options": { "fields": ["Name"], "keepFields": true }
+            },
+            {
+              "id": "filterFieldsByName",
+              "options": { "include": { "pattern": "item_index_clean|Time (.*)" } }
+            },
+            {
+              "id": "renameByRegex",
+              "options": { "regex": "item_index_clean (.*)", "renamePattern": "$1" }
+            }
+          ],
+          "type": "state-timeline"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 14 },
+          "id": 21,
+          "options": {
+            "alignValue": "left",
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "auto",
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum by (user_device, item_index_clean, type) (\n  label_replace(\n    label_join(\n      label_join(\n        label_join(\n          jellyfin_now_playing_state{instance=~\"$instance\"},\n          \"item_index\",\n          \" \",\n          \"series_season\",\n          \"series_episode\"\n        ),\n        \"full_name\",\n        \" - \",\n        \"series_title\",\n        \"item_index\",\n        \"title\"\n      ),\n      \"user_device\",\n      \" - \",\n      \"username\",\n      \"device\"\n    ),\n    \"item_index_clean\",\n    \"$1\",\n    \"full_name\",\n    \"^[- ]*(.*?)[- ]*$\"\n  )\n)\n",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Now Playing - TV Shows",
+          "transformations": [
+            { "id": "seriesToRows", "options": {} },
+            {
+              "id": "extractFields",
+              "options": { "keepTime": false, "replace": false, "source": "Metric" }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  { "config": { "id": "isNotNull", "options": {} }, "fieldName": "user_device" }
+                ],
+                "match": "any",
+                "type": "include"
+              }
+            },
+            {
+              "id": "calculateField",
+              "options": {
+                "alias": "Item",
+                "mode": "reduceRow",
+                "reduce": { "include": ["item_index_clean"], "reducer": "lastNotNull" }
+              }
+            },
+            {
+              "id": "calculateField",
+              "options": {
+                "alias": "Name",
+                "mode": "reduceRow",
+                "reduce": { "include": ["user_device"], "reducer": "lastNotNull" }
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  { "config": { "id": "equal", "options": { "value": "Episode" } }, "fieldName": "type" }
+                ],
+                "match": "any",
+                "type": "include"
+              }
+            },
+            {
+              "id": "partitionByValues",
+              "options": { "fields": ["Name"], "keepFields": true }
+            },
+            {
+              "id": "filterFieldsByName",
+              "options": { "include": { "pattern": "item_index_clean|Time (.*)" } }
+            },
+            {
+              "id": "renameByRegex",
+              "options": { "regex": "item_index_clean (.*)", "renamePattern": "$1" }
+            }
+          ],
+          "type": "state-timeline"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 23 },
+          "id": 22,
+          "options": {
+            "alignValue": "left",
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "auto",
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum by (user_device, item_index_clean, type) (\n  label_replace(\n    label_join(\n      label_join(\n        label_join(\n          jellyfin_now_playing_state{instance=~\"$instance\"},\n          \"item_index\",\n          \" \",\n          \"series_season\",\n          \"series_episode\"\n        ),\n        \"full_name\",\n        \" - \",\n        \"series_title\",\n        \"item_index\",\n        \"title\"\n      ),\n      \"user_device\",\n      \" - \",\n      \"username\",\n      \"device\"\n    ),\n    \"item_index_clean\",\n    \"$1\",\n    \"full_name\",\n    \"^[- ]*(.*?)[- ]*$\"\n  )\n)\n",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Now Playing - Live TV",
+          "transformations": [
+            { "id": "seriesToRows", "options": {} },
+            {
+              "id": "extractFields",
+              "options": { "keepTime": false, "replace": false, "source": "Metric" }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  { "config": { "id": "isNotNull", "options": {} }, "fieldName": "user_device" }
+                ],
+                "match": "any",
+                "type": "include"
+              }
+            },
+            {
+              "id": "calculateField",
+              "options": {
+                "alias": "Item",
+                "mode": "reduceRow",
+                "reduce": { "include": ["item_index_clean"], "reducer": "lastNotNull" }
+              }
+            },
+            {
+              "id": "calculateField",
+              "options": {
+                "alias": "Name",
+                "mode": "reduceRow",
+                "reduce": { "include": ["user_device"], "reducer": "lastNotNull" }
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  { "config": { "id": "equal", "options": { "value": "TvChannel" } }, "fieldName": "type" }
+                ],
+                "match": "any",
+                "type": "include"
+              }
+            },
+            {
+              "id": "partitionByValues",
+              "options": { "fields": ["Name"], "keepFields": true }
+            },
+            {
+              "id": "filterFieldsByName",
+              "options": { "include": { "pattern": "item_index_clean|Time (.*)" } }
+            },
+            {
+              "id": "renameByRegex",
+              "options": { "regex": "item_index_clean (.*)", "renamePattern": "$1" }
+            }
+          ],
+          "type": "state-timeline"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": { "type": "auto" },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 32 },
+          "id": 2,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "enablePagination": true,
+              "fields": "",
+              "reducer": ["sum"],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(jellyfin_user_active{instance=~\"$instance\"}) by (username, client, device, version)",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Clients",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": { "Time": true, "Value": true },
+                "includeByName": {},
+                "indexByName": {
+                  "Time": 0,
+                  "Value": 5,
+                  "client": 2,
+                  "device": 4,
+                  "username": 1,
+                  "version": 3
+                },
+                "renameByName": {
+                  "client": "Client",
+                  "device": "Device",
+                  "username": "Username",
+                  "version": "Version"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "left",
+                "cellOptions": { "type": "auto" },
+                "filterable": false,
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Total Plays" },
+                "properties": [{ "id": "custom.width", "value": 150 }]
+              }
+            ]
+          },
+          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 32 },
+          "id": 17,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "enablePagination": true,
+              "fields": "",
+              "reducer": ["sum"],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": [{ "desc": false, "displayName": "Username" }]
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "jellyfin_activity_count{instance=~\"$instance\"}",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "User Activity",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "instance": true,
+                  "job": true,
+                  "user_id": true
+                },
+                "includeByName": {},
+                "indexByName": {
+                  "Time": 0,
+                  "Value": 5,
+                  "__name__": 1,
+                  "instance": 2,
+                  "job": 3,
+                  "last_seen": 6,
+                  "total_play_time": 7,
+                  "total_time": 8,
+                  "username": 4
+                },
+                "renameByName": {
+                  "Value": "Total Plays",
+                  "last_seen": "Last Seen",
+                  "total_play_time": "Total Time",
+                  "total_time": "Total Time",
+                  "username": "Username"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
+          "id": 6,
+          "panels": [],
+          "title": "System Charts",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "none" },
+                "thresholdsStyle": { "mode": "off" }
+              },
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 0, "y": 43 },
+          "id": 5,
+          "options": {
+            "legend": { "calcs": ["mean"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "rate(node_vmstat_pgpgin{instance=\"$instance\"}[$interval]) * 1024 or irate(node_vmstat_pgpgin{instance=\"$instance\"}[5m]) * 1024",
+              "interval": "$interval",
+              "legendFormat": "Page In",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "rate(node_vmstat_pgpgout{instance=\"$instance\"}[$interval]) * 1024 or irate(node_vmstat_pgpgout{instance=\"$instance\"}[5m]) * 1024",
+              "interval": "$interval",
+              "legendFormat": "Page Out",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "I/O Activity",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 60,
+                "gradientMode": "none",
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "normal" },
+                "thresholdsStyle": { "mode": "off" }
+              },
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 8, "y": 43 },
+          "id": 7,
+          "options": {
+            "legend": { "calcs": ["mean"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "node_memory_MemTotal_bytes{instance=\"$instance\"} - (node_memory_MemFree_bytes{instance=\"$instance\"} + node_memory_Buffers{instance=\"$instance\"} + node_memory_Cached{instance=\"$instance\"})",
+              "interval": "$interval",
+              "legendFormat": "Used",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "node_memory_MemFree_bytes{instance=\"$instance\"}",
+              "interval": "$interval",
+              "legendFormat": "Free",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "node_memory_Buffers{instance=\"$instance\"}",
+              "interval": "$interval",
+              "legendFormat": "Buffers",
+              "range": true,
+              "refId": "D"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "node_memory_Cached{instance=\"$instance\"}",
+              "interval": "$interval",
+              "legendFormat": "Cached",
+              "range": true,
+              "refId": "E"
+            }
+          ],
+          "title": "Memory Distribution",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 60,
+                "gradientMode": "none",
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "normal" },
+                "thresholdsStyle": { "mode": "off" }
+              },
+              "decimals": 1,
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Load 1m" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#58140C", "mode": "fixed" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Max Core Utilization" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#bf1b00", "mode": "fixed" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "iowait" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#e24d42", "mode": "fixed" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "nice" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#1f78c1", "mode": "fixed" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "softirq" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#806eb7", "mode": "fixed" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "system" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#eab839", "mode": "fixed" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "user" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#508642", "mode": "fixed" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Max Core Utilization" },
+                "properties": [
+                  { "id": "custom.lineWidth", "value": 0 },
+                  { "id": "custom.pointSize", "value": 4 },
+                  { "id": "custom.showPoints", "value": "always" },
+                  { "id": "custom.stacking", "value": { "group": "A", "mode": "none" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Load 1m" },
+                "properties": [
+                  { "id": "color", "value": { "fixedColor": "#58140C", "mode": "fixed" } },
+                  { "id": "custom.fillOpacity", "value": 20 },
+                  { "id": "custom.stacking", "value": { "group": "A", "mode": "none" } },
+                  { "id": "unit", "value": "none" },
+                  { "id": "custom.axisPlacement", "value": "right" }
+                ]
+              },
+              {
+                "matcher": { "id": "byValue", "options": { "op": "gte", "reducer": "allIsZero", "value": 0 } },
+                "properties": [
+                  { "id": "custom.hideFrom", "value": { "legend": true, "tooltip": true, "viz": false } }
+                ]
+              },
+              {
+                "matcher": { "id": "byValue", "options": { "op": "gte", "reducer": "allIsNull", "value": 0 } },
+                "properties": [
+                  { "id": "custom.hideFrom", "value": { "legend": true, "tooltip": true, "viz": false } }
+                ]
+              }
+            ]
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 16, "y": 43 },
+          "id": 8,
+          "options": {
+            "legend": { "calcs": ["mean"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "clamp_max(((avg by (mode) ( (clamp_max(rate(node_cpu_seconds_total{instance=\"$instance\",mode!=\"idle\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{instance=\"$instance\",mode!=\"idle\"}[5m]),1)) ))*100 or (avg_over_time(node_cpu_seconds_total_average{instance=~\"$instance\", mode!=\"total\", mode!=\"idle\"}[$interval]) or avg_over_time(node_cpu_seconds_total_average{instance=~\"$instance\", mode!=\"total\", mode!=\"idle\"}[5m]))),100)",
+              "format": "time_series",
+              "interval": "$interval",
+              "legendFormat": "{{ mode }}",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "clamp_max(max by () (sum  by (cpu) ( (clamp_max(rate(node_cpu_seconds_total{instance=\"$instance\",mode!=\"idle\",mode!=\"iowait\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{instance=\"$instance\",mode!=\"idle\",mode!=\"iowait\"}[5m]),1)) ))*100,100)",
+              "format": "time_series",
+              "hide": true,
+              "interval": "$interval",
+              "legendFormat": "Max Core Utilization",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "node_load1{instance=\"$instance\"}",
+              "format": "time_series",
+              "legendFormat": "Load 1m",
+              "range": true,
+              "refId": "C"
+            }
+          ],
+          "title": "CPU Usage / Load",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "points",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": { "log": 2, "type": "log" },
+                "showPoints": "always",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "none" },
+                "thresholdsStyle": { "mode": "off" }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              },
+              "unit": "ms"
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byValue", "options": { "op": "gte", "reducer": "allIsZero", "value": 0 } },
+                "properties": [
+                  { "id": "custom.hideFrom", "value": { "legend": true, "tooltip": true, "viz": false } }
+                ]
+              },
+              {
+                "matcher": { "id": "byValue", "options": { "op": "gte", "reducer": "allIsNull", "value": 0 } },
+                "properties": [
+                  { "id": "custom.hideFrom", "value": { "legend": true, "tooltip": true, "viz": false } }
+                ]
+              }
+            ]
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 0, "y": 50 },
+          "id": 9,
+          "options": {
+            "legend": { "calcs": ["mean"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum((rate(node_disk_read_time_seconds_total{device!~\"dm-.+\", instance=\"$instance\"}[$interval]) / rate(node_disk_reads_completed_total{device!~\"dm-.+\", instance=\"$instance\"}[$interval])) or (irate(node_disk_read_time_seconds_total{device!~\"dm-.+\", instance=\"$instance\"}[5m]) / irate(node_disk_reads_completed_total{device!~\"dm-.+\", instance=\"$instance\"}[5m])))",
+              "interval": "$interval",
+              "legendFormat": "Read",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum((rate(node_disk_write_time_seconds_total{device!~\"dm-.+\", instance=\"$instance\"}[$interval]) / rate(node_disk_writes_completed_total{device!~\"dm-.+\", instance=\"$instance\"}[$interval])) or (irate(node_disk_write_time_seconds_total{device!~\"dm-.+\", instance=\"$instance\"}[5m]) / irate(node_disk_writes_completed_total{device!~\"dm-.+\", instance=\"$instance\"}[5m])))",
+              "interval": "$interval",
+              "legendFormat": "Write",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "Disk Latency",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "none" },
+                "thresholdsStyle": { "mode": "off" }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Outbound" },
+                "properties": [{ "id": "custom.transform", "value": "negative-Y" }]
+              }
+            ]
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 8, "y": 50 },
+          "id": 10,
+          "options": {
+            "legend": { "calcs": ["mean"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum(rate(node_network_receive_bytes_total{instance=\"$instance\", device!=\"lo\"}[$interval])) or sum(irate(node_network_receive_bytes_total{instance=\"$instance\", device!=\"lo\"}[5m]))",
+              "interval": "$interval",
+              "legendFormat": "Inbound",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum(rate(node_network_transmit_bytes_total{instance=\"$instance\", device!=\"lo\"}[$interval])) or sum(irate(node_network_transmit_bytes_total{instance=\"$instance\", device!=\"lo\"}[5m]))",
+              "interval": "$interval",
+              "legendFormat": "Outbound",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Network Traffic",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "none" },
+                "thresholdsStyle": { "mode": "off" }
+              },
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "red", "value": 80 }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 16, "y": 50 },
+          "id": 11,
+          "options": {
+            "legend": { "calcs": ["mean"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "hideZeros": false, "mode": "multi", "sort": "none" }
+          },
+          "pluginVersion": "12.1.0",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "rate(node_vmstat_pswpin{instance=\"$instance\"}[$interval]) * 4096 or irate(node_vmstat_pswpin{instance=\"$instance\"}[5m]) * 4096",
+              "interval": "$interval",
+              "legendFormat": "Swap In (Reads)",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "rate(node_vmstat_pswpout{instance=\"$instance\"}[$interval]) * 4096 or irate(node_vmstat_pswpout{instance=\"$instance\"}[5m]) * 4096",
+              "interval": "$interval",
+              "legendFormat": "Swap Out (Writes)",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "Swap Activity",
+          "type": "timeseries"
+        }
+      ],
+      "refresh": "5s",
+      "schemaVersion": 41,
+      "tags": ["Jellyfin"],
+      "templating": {
+        "list": [
+          {
+            "auto": true,
+            "auto_count": 30,
+            "auto_min": "10s",
+            "current": { "text": "1m", "value": "1m" },
+            "description": "5s,30s,1m,5m,10m,30m,1h,6h,1d",
+            "label": "Interval",
+            "name": "interval",
+            "options": [
+              { "selected": false, "text": "5s", "value": "5s" },
+              { "selected": false, "text": "30s", "value": "30s" },
+              { "selected": true, "text": "1m", "value": "1m" },
+              { "selected": false, "text": "5m", "value": "5m" },
+              { "selected": false, "text": "10m", "value": "10m" },
+              { "selected": false, "text": "30m", "value": "30m" },
+              { "selected": false, "text": "1h", "value": "1h" },
+              { "selected": false, "text": "6h", "value": "6h" },
+              { "selected": false, "text": "1d", "value": "1d" }
+            ],
+            "query": "5s,30s,1m,5m,10m,30m,1h,6h,1d",
+            "refresh": 2,
+            "type": "interval"
+          },
+          {
+            "current": {},
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "definition": "label_values(jellyfin_up,instance)",
+            "includeAll": false,
+            "label": "Instance",
+            "name": "instance",
+            "options": [],
+            "query": {
+              "qryType": 1,
+              "query": "label_values(jellyfin_up,instance)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            },
+            "refresh": 1,
+            "regex": "",
+            "type": "query"
+          }
+        ]
+      },
+      "time": { "from": "now/d", "to": "now" },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Jellyfin",
+      "uid": "jellyfin-exporter",
+      "version": 1
+    }

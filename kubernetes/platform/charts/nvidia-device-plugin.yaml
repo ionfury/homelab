@@ -1,0 +1,29 @@
+---
+# NVIDIA Device Plugin with time-slicing (4 virtual GPUs per physical GPU)
+# Enables GPU sharing across multiple pods (jellyfin, immich-ml, etc.)
+
+# RuntimeClass "nvidia" — pods must explicitly opt in via runtimeClassName
+runtimeClassName: nvidia
+
+# Time-slicing configuration — creates 4 virtual GPU slots per physical GPU
+config:
+  map:
+    default: |-
+      version: v1
+      flags:
+        migStrategy: none
+      sharing:
+        timeSlicing:
+          renameByDefault: false
+          resources:
+            - name: nvidia.com/gpu
+              replicas: 4
+
+# Schedule only on GPU-equipped nodes
+nodeSelector:
+  nvidia.com/gpu.present: "true"
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule

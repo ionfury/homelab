@@ -23,7 +23,9 @@ configMapGenerator:
       - sonarr.yaml=sonarr.yaml
       - radarr.yaml=radarr.yaml
       - jellyfin.yaml=jellyfin.yaml
+      - jellyfin-exporter.yaml=jellyfin-exporter.yaml
       - jellyseerr.yaml=jellyseerr.yaml
       - paperless.yaml=paperless.yaml
       - vaultwarden.yaml=vaultwarden.yaml
       - exportarr.yaml=exportarr.yaml
+      - excalidraw.yaml=excalidraw.yaml

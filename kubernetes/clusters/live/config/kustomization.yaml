@@ -12,5 +12,6 @@ resources:
   - minecraft
   - pxe-boot
   - paperless
+  - excalidraw
   - silences
   - cluster-config-resourceset.yaml
