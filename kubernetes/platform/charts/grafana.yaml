@@ -175,6 +175,9 @@ dashboards:
       gnetId: 11312
       revision: 9
       datasource: Prometheus
+    exportarr:
+      url: https://raw.githubusercontent.com/onedr0p/exportarr/master/examples/grafana/dashboard2.json
+      datasource: Prometheus
     unpackerr:
       # renovate: depName="Unpackerr"
       gnetId: 18817

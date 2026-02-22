@@ -16,6 +16,7 @@ configMapGenerator:
       - valheim.yaml=valheim.yaml
       - factorio.yaml=factorio.yaml
       - satisfactory.yaml=satisfactory.yaml
+      - minecraft.yaml=minecraft.yaml
       - pxe-boot.yaml=pxe-boot.yaml
       - qbittorrent.yaml=qbittorrent.yaml
       - prowlarr.yaml=prowlarr.yaml
@@ -23,4 +24,6 @@ configMapGenerator:
       - radarr.yaml=radarr.yaml
       - jellyfin.yaml=jellyfin.yaml
       - jellyseerr.yaml=jellyseerr.yaml
+      - vaultwarden.yaml=vaultwarden.yaml
+      - exportarr.yaml=exportarr.yaml
       - excalidraw.yaml=excalidraw.yaml
