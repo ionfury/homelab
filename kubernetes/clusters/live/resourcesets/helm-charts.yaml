@@ -156,7 +156,7 @@ spec:
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator]
     - name: excalidraw
-      namespace: 
+      namespace:
       chart:
         name: app-template
         version: "${app_template_version}"
