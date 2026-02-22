@@ -1,0 +1,153 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  minecraft:
+    type: statefulset
+    replicas: 1
+
+    pod:
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: itzg/minecraft-server
+          tag: "${minecraft_server_version}"
+        env:
+          # Server type — Paper with GeyserMC for Java + Bedrock crossplay
+          TYPE: PAPER
+          VERSION: "${minecraft_game_version}"
+          EULA: "TRUE"
+          # GeyserMC + Floodgate for Bedrock crossplay
+          PLUGINS: |
+            https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot
+            https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
+          # Performance tuning for 5-10 concurrent players
+          USE_AIKAR_FLAGS: "true"
+          MEMORY: "4G"
+          # RCON for backup coordination and admin
+          ENABLE_RCON: "true"
+          RCON_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: minecraft-rcon-password
+                key: password
+          # Server identity
+          MOTD: "Homelab Minecraft"
+          MAX_PLAYERS: "10"
+          DIFFICULTY: normal
+          # Container runs as UID 1000 internally via gosu
+          UID: "1000"
+          GID: "1000"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 4Gi
+          limits:
+            memory: 6Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 25565
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              failureThreshold: 60
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 25565
+              periodSeconds: 30
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 25565
+              periodSeconds: 10
+
+      backup:
+        image:
+          repository: itzg/mc-backup
+          tag: "${minecraft_backup_version}"
+        env:
+          # RCON connection for coordinated saves
+          RCON_HOST: localhost
+          RCON_PORT: "25575"
+          RCON_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: minecraft-rcon-password
+                key: password
+          # Backup schedule and retention
+          BACKUP_INTERVAL: "6h"
+          PRUNE_BACKUPS_DAYS: "7"
+          PAUSE_IF_NO_PLAYERS: "true"
+          # Paths
+          SRC_DIR: /data/world
+          DEST_DIR: /backups
+          BACKUP_METHOD: tar
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        probes:
+          startup:
+            enabled: false
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+
+service:
+  game:
+    controller: minecraft
+    type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: ${minecraft_ip}
+    ports:
+      java:
+        port: 25565
+        protocol: TCP
+      bedrock:
+        port: 19132
+        protocol: UDP
+      rcon:
+        port: 25575
+        protocol: TCP
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass: fast
+    advancedMounts:
+      minecraft:
+        app:
+          - path: /data
+        backup:
+          - path: /data
+            readOnly: true
+  backups:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: fast
+    advancedMounts:
+      minecraft:
+        backup:
+          - path: /backups
