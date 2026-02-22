@@ -1,0 +1,72 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  ollama:
+    type: deployment
+
+    pod:
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+
+    containers:
+      app:
+        image:
+          repository: ollama/ollama
+          tag: "${ollama_version}"
+        env:
+          OLLAMA_HOST: "0.0.0.0"
+          OLLAMA_NUM_PARALLEL: "2"
+          OLLAMA_MAX_LOADED_MODELS: "1"
+          OLLAMA_KEEP_ALIVE: "10m"
+          NVIDIA_VISIBLE_DEVICES: all
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+          limits:
+            memory: 8Gi
+            nvidia.com/gpu: 1
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 11434
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 11434
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 11434
+              periodSeconds: 10
+
+service:
+  ollama:
+    controller: ollama
+    ports:
+      http:
+        port: 11434
+
+persistence:
+  models:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 100Gi
+    globalMounts:
+      - path: /root/.ollama

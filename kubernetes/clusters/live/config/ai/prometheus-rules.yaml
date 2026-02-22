@@ -1,0 +1,28 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ai-alerts
+  namespace: ai
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: ai.rules
+      rules:
+        - alert: OllamaDown
+          expr: kube_deployment_status_replicas_available{namespace="ai", deployment="ollama"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Ollama LLM inference server has no available replicas"
+
+        - alert: OpenWebuiDown
+          expr: kube_deployment_status_replicas_available{namespace="ai", deployment="open-webui"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Open WebUI chat interface has no available replicas"

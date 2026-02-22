@@ -22,6 +22,12 @@ spec:
     - name: media-config
       path: kubernetes/clusters/live/config/media
       dependsOn: [bazarr, jellyfin-exporter, jellyfin, jellyseerr, sonarr, radarr, prowlarr, qbittorrent, exportarr, canary-checker, kube-prometheus-stack]
+    - name: ai-prereqs
+      path: kubernetes/clusters/live/config/ai-prereqs
+      dependsOn: [platform, secret-generator, external-secrets-stores]
+    - name: ai-config
+      path: kubernetes/clusters/live/config/ai
+      dependsOn: [open-webui, ollama, canary-checker, kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

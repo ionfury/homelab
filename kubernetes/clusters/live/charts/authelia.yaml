@@ -203,6 +203,26 @@ configMap:
             - authorization_code
           token_endpoint_auth_method: client_secret_basic
           claims_policy: grafana
+        - client_id: open-webui
+          client_name: Open WebUI
+          client_secret:
+            path: /secrets/open-webui-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://ai.${internal_domain}/oauth/oidc/callback
+          scopes:
+            - openid
+            - profile
+            - groups
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_basic
 
   regulation:
     max_retries: 3
@@ -222,3 +242,4 @@ secret:
     authelia-db-credentials: { }
     dragonfly-password: { }
     grafana-oidc-client-secret: { }
+    open-webui-oidc-client-secret: { }

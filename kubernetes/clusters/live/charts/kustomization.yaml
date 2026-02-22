@@ -28,6 +28,8 @@ configMapGenerator:
       - jellyseerr.yaml=jellyseerr.yaml
       - tandoor.yaml=tandoor.yaml
       - paperless.yaml=paperless.yaml
+      - ollama.yaml=ollama.yaml
+      - open-webui.yaml=open-webui.yaml
       - vaultwarden.yaml=vaultwarden.yaml
       - exportarr.yaml=exportarr.yaml
       - excalidraw.yaml=excalidraw.yaml
