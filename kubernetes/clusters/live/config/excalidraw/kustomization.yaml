@@ -6,3 +6,4 @@ resources:
   - namespace.yaml
   - external-route.yaml
   - room-external-route.yaml
+  - canary.yaml

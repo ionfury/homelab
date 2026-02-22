@@ -1,6 +1,11 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
 # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+defaultPodOptions:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+
 controllers:
   excalidraw:
     type: deployment
@@ -8,6 +13,12 @@ controllers:
 
     containers:
       app:
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
         image:
           repository: excalidraw/excalidraw
           # renovate: datasource=docker depName=excalidraw/excalidraw
@@ -62,6 +73,12 @@ controllers:
 
     containers:
       app:
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
         image:
           repository: excalidraw/excalidraw-room
           # renovate: datasource=docker depName=excalidraw/excalidraw-room
