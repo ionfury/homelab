@@ -15,6 +15,13 @@ spec:
       name: platform
       namespace: flux-system
   inputs:
+    - name: vaultwarden
+      namespace: vaultwarden
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [cloudnative-pg, secret-generator]
     - name: zipline
       namespace: zipline
       chart:

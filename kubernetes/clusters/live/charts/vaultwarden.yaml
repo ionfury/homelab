@@ -1,0 +1,153 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  vaultwarden:
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        env:
+          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
+          INIT_POSTGRES_SUPER_USER: postgres
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_USER: vaultwarden
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-db-credentials
+                key: password
+          INIT_POSTGRES_DBNAME: vaultwarden
+
+      schema-grants:
+        dependsOn: init-db
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        command: ["psql"]
+        args:
+          - --host=platform-rw.database.svc.cluster.local
+          - --username=postgres
+          - --dbname=vaultwarden
+          - --command=GRANT ALL ON SCHEMA public TO vaultwarden; ALTER DATABASE vaultwarden OWNER TO vaultwarden;
+        env:
+          PGPASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+
+    containers:
+      app:
+        image:
+          repository: vaultwarden/server
+          tag: "${vaultwarden_version}"
+        env:
+          # Core configuration
+          DOMAIN: "https://vault.${external_domain}"
+          SIGNUPS_ALLOWED: "false"
+          INVITATIONS_ALLOWED: "true"
+          SHOW_PASSWORD_HINT: "false"
+          # Admin panel — token from secret-generator
+          ADMIN_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-admin-token
+                key: ADMIN_TOKEN
+          # Database — PostgreSQL via shared CNPG platform cluster
+          DATABASE_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-db-credentials
+                key: password
+          DATABASE_URL:
+            dependsOn: DATABASE_PASSWORD
+            value: "postgresql://vaultwarden:$(DATABASE_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/vaultwarden"
+          # Websocket notifications (enabled by default in recent versions)
+          ENABLE_WEBSOCKET: "true"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /alive
+                port: 80
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /alive
+                port: 80
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /alive
+                port: 80
+              periodSeconds: 10
+
+service:
+  app:
+    controller: vaultwarden
+    ports:
+      http:
+        port: 80
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    storageClass: fast
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    globalMounts:
+      - path: /data
