@@ -41,6 +41,16 @@ prometheus:
     enabled: false
   prometheusSpec:
     priorityClassName: platform
+    replicas: 2
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: prometheus
+              topologyKey: kubernetes.io/hostname
     podMetadata:
       labels:
         networking/allow-ingress-internal: "true"

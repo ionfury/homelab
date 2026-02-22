@@ -19,6 +19,7 @@ defaultSettings:
   defaultReplicaCount: ${default_replica_count}
   createDefaultDiskLabeledNodes: true
   storageReservedPercentageForDefaultDisk: 0
+  nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
 defaultBackupStore:
   backupTarget: s3://homelab-longhorn-backup-${cluster_name}@us-east-2/
   backupTargetCredentialSecret: longhorn-s3-backup-credentials
