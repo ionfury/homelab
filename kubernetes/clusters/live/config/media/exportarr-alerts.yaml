@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: exportarr-alerts
+  namespace: media
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: exportarr.rules
+      rules:
+        - alert: ExportarrTargetDown
+          expr: up{job=~"exportarr-.*"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Exportarr target {{ $labels.job }} is down"
+            description: "The exportarr exporter for {{ $labels.job }} has been unreachable for 5 minutes."
+        - alert: ArrApplicationUnreachable
+          expr: |
+            exportarr_system_status{} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "*arr application {{ $labels.job }} reports unhealthy status"
+            description: "Exportarr reports that the *arr application behind {{ $labels.job }} is not healthy."

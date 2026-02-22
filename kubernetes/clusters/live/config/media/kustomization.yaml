@@ -15,3 +15,4 @@ resources:
   - canary-jellyseerr.yaml
   - canary-vpn-health.yaml
   - prometheus-rules.yaml
+  - exportarr-alerts.yaml
