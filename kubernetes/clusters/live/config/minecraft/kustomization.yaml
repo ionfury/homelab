@@ -4,10 +4,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-  - media-library-pvc.yaml
-  - secrets.yaml
+  - secret.yaml
   - network-policy.yaml
-  - nordvpn-credentials.yaml
-  - nordvpn-wireguard-credentials.yaml
-  - exportarr-api-keys.yaml
-  - jellyfin-exporter-api-token.yaml
