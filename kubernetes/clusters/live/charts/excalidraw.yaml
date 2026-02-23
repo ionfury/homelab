@@ -117,6 +117,15 @@ persistence:
       room:
         app:
           - path: /tmp
+  # Nginx tries to chown /var/cache/nginx/client_temp at startup, which
+  # fails when all capabilities (including CHOWN) are dropped. An emptyDir
+  # sidesteps this by providing a pre-owned writable directory.
+  nginx-cache:
+    type: emptyDir
+    advancedMounts:
+      excalidraw:
+        app:
+          - path: /var/cache/nginx
 
 service:
   app:
