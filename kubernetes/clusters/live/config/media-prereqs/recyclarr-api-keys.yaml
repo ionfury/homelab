@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+# Sonarr and Radarr API keys for Recyclarr to sync TRaSH Guides profiles.
+# Stored in AWS SSM as individual plain strings.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: recyclarr-api-keys
+  namespace: media
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: aws-ssm
+  target:
+    name: recyclarr-api-keys
+  data:
+    - secretKey: sonarr-api-key
+      remoteRef:
+        key: /homelab/kubernetes/${cluster_name}/recyclarr/sonarr-api-key
+    - secretKey: radarr-api-key
+      remoteRef:
+        key: /homelab/kubernetes/${cluster_name}/recyclarr/radarr-api-key

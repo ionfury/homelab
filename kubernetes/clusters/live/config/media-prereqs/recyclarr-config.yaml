@@ -1,0 +1,148 @@
+---
+# Recyclarr configuration for syncing TRaSH Guides quality profiles and custom formats.
+# Environment variables (SONARR_API_KEY, RADARR_API_KEY) are injected by the CronJob pod spec.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recyclarr-config
+  namespace: media
+data:
+  recyclarr.yml: |
+    sonarr:
+      main:
+        base_url: http://sonarr-app.media.svc:8989
+        api_key: !env_var SONARR_API_KEY
+
+        quality_definition:
+          type: series
+
+        quality_profiles:
+          - name: WEB-1080p
+            reset_unmatched_scores:
+              enabled: true
+
+        custom_formats:
+          # Unwanted
+          - trash_ids:
+              - 85c61753df5da1fb2aab6f2a47c8b789 # DV (WEBDL)
+              - 9b27ab6c6f2f29a3282c0e28a3e26e55 # DV HDR10Plus
+              - 7878c33f1fca4bc0b3a42c4b2674c5db # DV HDR10
+              - 6d0d8de7b57e35518ac0308b0ddf404e # DV
+              - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
+              - bb019e1cd00f304f80571c630e4be3ba # HDR (undefined)
+              - 3497f2e847b8ea2da074e8afb9c35905 # HDR10
+              - a3d82bf24ed956a1ce68a716e4bc9e41 # HDR10Plus
+              - 2b239ed870daba8126a53bd3f457571e # HLG
+              - 17e889ce13117940092308f48b48b45b # PQ
+            assign_scores_to:
+              - name: WEB-1080p
+                score: 0
+
+          # Streaming Services
+          - trash_ids:
+              - d660701077794679fd59e8bdf4ce3a29 # AMZN
+              - f67c9ca88f463a48346062e8ad07713f # ATVP
+              - 77a7b25585c18af08f60b1547bb9b4fb # CC
+              - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
+              - 89358767a60cc28783ab36d3d1848587 # DSNP
+              - 7a235133c87f7da4c8ccccbe915e60aa # HBO
+              - a880d6abc21e7c16884f3ae393f84179 # HMAX
+              - f6cce30f1733d5c8194222a7507f2571 # HULU
+              - 0ac24a2a68a9700bcb7ece4e5ff7c4d3 # iT
+              - 81d1fbf600e2540cee87f3a23f9d3c1c # MAX
+              - d34870697c9db575f17700c6a4f0fb76 # NF
+              - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
+              - c67a75ae4a1715f2bb4d492c17f80112 # PMTP
+              - ae58039e1319178e6be73571571d74b1 # SHO
+              - 1bbe48db9b44c9b56bbad028f73e8c1e # STAN
+              - 56ee4e48e28e3e3b3f8a15feaa44a5b4 # VDL
+            assign_scores_to:
+              - name: WEB-1080p
+
+          # HQ Release Groups
+          - trash_ids:
+              - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
+              - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
+              - d84935abd3f8556dcd51d4f27e22f1a6 # WEB Tier 03
+            assign_scores_to:
+              - name: WEB-1080p
+
+          # Misc
+          - trash_ids:
+              - ec8fa7296b64e8cd390a1600f4c2510c # Repack/Proper
+              - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
+              - 44e7c4de10ae50265753082c5dc2eefb # Repack v3
+            assign_scores_to:
+              - name: WEB-1080p
+
+    radarr:
+      main:
+        base_url: http://radarr-app.media.svc:7878
+        api_key: !env_var RADARR_API_KEY
+
+        quality_definition:
+          type: movie
+
+        quality_profiles:
+          - name: HD Bluray + WEB
+            reset_unmatched_scores:
+              enabled: true
+
+        custom_formats:
+          # Unwanted
+          - trash_ids:
+              - b8cd450cbfa689c0259a01d9e29ba3d6 # 3D
+              - ed38b889b31be83fda192888e2286d83 # BR-DISK
+              - 90a6f9a284dff5103f6346090e6280c8 # LQ
+              - e204b80c87be9497c8f48d3919e5cd38 # LQ (Release Title)
+              - bfd8eb01832d646a0a89c4deb46f8564 # Upscaled
+              - dc98083571037e17b732880188e3945e # x265 (HD)
+              - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
+              - 9b64dff695c2115f3bb01b3b1b5489d1 # 10bit
+            assign_scores_to:
+              - name: HD Bluray + WEB
+
+          # Movie Versions
+          - trash_ids:
+              - 0f12c086e289cf966fa5948eac571f44 # Hybrid
+              - 570bc9ebecd92723d2d21500f4be314c # Remaster
+              - eca37840c13c6ef2dd0262b141a5482f # 4K Remaster
+              - e0c07d59beb37348e975a930d5e50319 # Criterion Collection
+              - 9d27d9d2181838f76dee150882bdc58c # Masters of Cinema
+              - db9b4c4b53d312a3ca5f1378f6440fc9 # Vinegar Syndrome
+            assign_scores_to:
+              - name: HD Bluray + WEB
+
+          # HQ Release Groups
+          - trash_ids:
+              - c20f169ef63c5f40c2def54abaf4438e # WEB Tier 01
+              - 403816d65392c79236dcb6dd591aeda4 # WEB Tier 02
+              - af94e0fe497124d1f9ce732069ec8c3b # WEB Tier 03
+            assign_scores_to:
+              - name: HD Bluray + WEB
+
+          # Streaming Services
+          - trash_ids:
+              - b3b3a6ac74ecbd56bcdbefa4799fb9df # AMZN
+              - 40e9380490e748672c2522eaaeb692f7 # ATVP
+              - cc5e51a9e85a6296ceefe097a77f12f4 # BCORE
+              - 84272245b2988854bfb76a16e60baea5 # DSNP
+              - 509e5f41146e278f9eab1f8db4c9f1cf # HBO
+              - 5763d1b0ce84aff3b21038c4c9f2f90b # HMAX
+              - 526d445d4c16214309f0fd2b3be18a89 # Hulu
+              - 2a6039655313bf5dab1e43523b62c374 # MA
+              - 6a061313d22e51e0f25b7cd4dc065233 # MAX
+              - 170b1d363bd8516fbf3a3eb05d4c8571 # NF
+              - c9fd353f8f5f1baf56dc601c4cb29920 # PCOK
+              - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
+              - bf7e73dd1d85b12cc4e6a709c71652ed # Pathe
+              - c2863d2a50c9acad1fb50e53ece60571 # STAN
+            assign_scores_to:
+              - name: HD Bluray + WEB
+
+          # Misc
+          - trash_ids:
+              - e7718d7a3ce595f289bfee26adc178f1 # Repack/Proper
+              - ae43b294509409a6a13919dedd4764c4 # Repack2
+            assign_scores_to:
+              - name: HD Bluray + WEB

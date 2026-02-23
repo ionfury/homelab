@@ -33,6 +33,7 @@ configMapGenerator:
       - ollama.yaml=ollama.yaml
       - open-webui.yaml=open-webui.yaml
       - vaultwarden.yaml=vaultwarden.yaml
+      - recyclarr.yaml=recyclarr.yaml
       - exportarr.yaml=exportarr.yaml
       - excalidraw.yaml=excalidraw.yaml
       - homepage.yaml=homepage.yaml
