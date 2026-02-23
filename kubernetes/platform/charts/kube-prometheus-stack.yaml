@@ -51,6 +51,7 @@ prometheus:
                 matchLabels:
                   app.kubernetes.io/name: prometheus
               topologyKey: kubernetes.io/hostname
+    podAntiAffinity: ""
     podMetadata:
       labels:
         networking/allow-ingress-internal: "true"
