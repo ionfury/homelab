@@ -5,6 +5,11 @@ kind: HTTPRoute
 metadata:
   name: qbittorrent-internal
   namespace: media
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "qBittorrent"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "qbittorrent.svg"
 spec:
   parentRefs:
     - name: internal

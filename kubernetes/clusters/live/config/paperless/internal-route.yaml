@@ -5,6 +5,11 @@ kind: HTTPRoute
 metadata:
   name: paperless-internal
   namespace: paperless
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Paperless-ngx"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/icon: "paperless-ngx.svg"
 spec:
   parentRefs:
     - name: internal

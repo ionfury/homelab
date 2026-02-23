@@ -33,3 +33,4 @@ configMapGenerator:
       - vaultwarden.yaml=vaultwarden.yaml
       - exportarr.yaml=exportarr.yaml
       - excalidraw.yaml=excalidraw.yaml
+      - homepage.yaml=homepage.yaml

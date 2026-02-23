@@ -14,5 +14,6 @@ resources:
   - tandoor
   - paperless
   - excalidraw
+  - homepage
   - silences
   - cluster-config-resourceset.yaml

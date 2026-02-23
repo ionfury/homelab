@@ -5,6 +5,11 @@ kind: HTTPRoute
 metadata:
   name: prowlarr-internal
   namespace: media
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Prowlarr"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "prowlarr.svg"
 spec:
   parentRefs:
     - name: internal

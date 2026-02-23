@@ -1,0 +1,114 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+defaultPodOptions:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+
+serviceAccount:
+  homepage:
+    enabled: true
+
+controllers:
+  homepage:
+    type: deployment
+    replicas: 1
+
+    containers:
+      app:
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
+        image:
+          repository: ghcr.io/gethomepage/homepage
+          tag: "${homepage_version}"
+        env:
+          # Required: homepage rejects requests not matching allowed hosts
+          HOMEPAGE_ALLOWED_HOSTS: "home.${internal_domain}"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+              periodSeconds: 10
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 10
+
+service:
+  app:
+    controller: homepage
+    ports:
+      http:
+        port: 3000
+
+configMaps:
+  config:
+    data:
+      kubernetes.yaml: |
+        mode: cluster
+        gateway: true
+      settings.yaml: |
+        title: Homelab
+        theme: dark
+        color: slate
+        headerStyle: clean
+        layout:
+          - Platform:
+              icon: mdi-server
+          - Media:
+              icon: mdi-multimedia
+          - Apps:
+              icon: mdi-apps
+          - AI:
+              icon: mdi-robot
+      widgets.yaml: |
+        - kubernetes:
+            cluster:
+              show: true
+              cpu: true
+              memory: true
+              showLabel: true
+              label: homelab
+            nodes:
+              show: false
+      services.yaml: ""
+      bookmarks.yaml: ""
+      docker.yaml: ""
+      custom.css: ""
+      custom.js: ""
+
+persistence:
+  config:
+    type: configMap
+    name: homepage
+    globalMounts:
+      - path: /app/config
