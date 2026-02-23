@@ -83,6 +83,8 @@ service:
   game:
     controller: valheim
     type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: ${valheim_ip}
     ports:
       gameplay:
         port: 2456
