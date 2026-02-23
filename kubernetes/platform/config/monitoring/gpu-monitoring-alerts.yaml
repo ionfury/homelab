@@ -13,16 +13,23 @@ spec:
       rules:
         - alert: GpuDevicePluginDown
           expr: |
-            absent(up{job=~".*nvidia-device-plugin.*"} == 1)
+            (
+              kube_daemonset_status_number_available{daemonset="nvidia-device-plugin", namespace="gpu-system"}
+              /
+              kube_daemonset_status_desired_number_scheduled{daemonset="nvidia-device-plugin", namespace="gpu-system"}
+            ) < 1
+            or
+            absent(kube_daemonset_status_desired_number_scheduled{daemonset="nvidia-device-plugin", namespace="gpu-system"})
           for: 10m
           labels:
             severity: critical
           annotations:
-            summary: "NVIDIA device plugin is not running"
+            summary: "NVIDIA device plugin is not fully available"
             description: >-
-              The NVIDIA device plugin has been unreachable for 10+ minutes.
-              GPU resources will not be allocatable to pods.
-              Check the nvidia-device-plugin DaemonSet in gpu-system namespace.
+              The NVIDIA device plugin DaemonSet in gpu-system has unavailable
+              replicas for 10+ minutes. GPU resources will not be allocatable
+              to pods on affected nodes. Check the nvidia-device-plugin
+              DaemonSet: kubectl get ds -n gpu-system nvidia-device-plugin.
 
         - alert: DcgmExporterDown
           expr: |
