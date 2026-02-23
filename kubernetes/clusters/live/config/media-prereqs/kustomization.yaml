@@ -7,6 +7,7 @@ resources:
   - media-library-pvc.yaml
   - secrets.yaml
   - network-policy.yaml
+  - tdarr-network-policy.yaml
   - nordvpn-credentials.yaml
   - nordvpn-wireguard-credentials.yaml
   - exportarr-api-keys.yaml

@@ -2,10 +2,13 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
 # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
 controllers:
-  jellyfin:
+  tdarr-node:
     type: deployment
 
     pod:
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
@@ -18,8 +21,14 @@ controllers:
     containers:
       app:
         image:
-          repository: jellyfin/jellyfin
-          tag: "${jellyfin_version}"
+          repository: ghcr.io/haveagitgat/tdarr_node
+          tag: "${tdarr_node_version}"
+        env:
+          TZ: UTC
+          nodeName: gpu-worker
+          serverURL: "http://tdarr-app.media.svc.cluster.local:8266"
+          NVIDIA_DRIVER_CAPABILITIES: all
+          NVIDIA_VISIBLE_DEVICES: all
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -27,18 +36,18 @@ controllers:
             drop: [ALL]
         resources:
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 500m
+            memory: 2Gi
           limits:
             memory: 4Gi
+            nvidia.com/gpu: 1
         probes:
           startup:
             enabled: true
             custom: true
             spec:
-              httpGet:
-                path: /health
-                port: 8096
+              tcpSocket:
+                port: 8267
               initialDelaySeconds: 10
               periodSeconds: 5
               failureThreshold: 30
@@ -46,41 +55,28 @@ controllers:
             enabled: true
             custom: true
             spec:
-              httpGet:
-                path: /health
-                port: 8096
+              tcpSocket:
+                port: 8267
               periodSeconds: 30
           readiness:
             enabled: true
             custom: true
             spec:
-              httpGet:
-                path: /health
-                port: 8096
+              tcpSocket:
+                port: 8267
               periodSeconds: 10
 
-service:
-  app:
-    controller: jellyfin
-    ports:
-      http:
-        port: 8096
-
 persistence:
-  config:
-    type: persistentVolumeClaim
-    accessMode: ReadWriteOnce
-    size: 20Gi
-    storageClass: fast
-    advancedMounts:
-      jellyfin:
-        app:
-          - path: /config
   media:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
-      jellyfin:
+      tdarr-node:
         app:
           - path: /media
-            readOnly: true
+  transcode-cache:
+    type: emptyDir
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /app/transcode_cache

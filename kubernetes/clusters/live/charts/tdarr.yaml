@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
 # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
 controllers:
-  jellyfin:
+  tdarr:
     type: deployment
 
     pod:
@@ -18,8 +18,14 @@ controllers:
     containers:
       app:
         image:
-          repository: jellyfin/jellyfin
-          tag: "${jellyfin_version}"
+          repository: ghcr.io/haveagitgat/tdarr
+          tag: "${tdarr_version}"
+        env:
+          TZ: UTC
+          serverIP: "0.0.0.0"
+          serverPort: "8266"
+          webUIPort: "8265"
+          internalNode: "false"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -28,17 +34,17 @@ controllers:
         resources:
           requests:
             cpu: 100m
-            memory: 512Mi
+            memory: 256Mi
           limits:
-            memory: 4Gi
+            memory: 2Gi
         probes:
           startup:
             enabled: true
             custom: true
             spec:
               httpGet:
-                path: /health
-                port: 8096
+                path: /api/v2/status
+                port: 8265
               initialDelaySeconds: 10
               periodSeconds: 5
               failureThreshold: 30
@@ -47,40 +53,57 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /health
-                port: 8096
+                path: /api/v2/status
+                port: 8265
               periodSeconds: 30
           readiness:
             enabled: true
             custom: true
             spec:
               httpGet:
-                path: /health
-                port: 8096
+                path: /api/v2/status
+                port: 8265
               periodSeconds: 10
 
 service:
   app:
-    controller: jellyfin
+    controller: tdarr
     ports:
       http:
-        port: 8096
+        port: 8265
+      server:
+        port: 8266
 
 persistence:
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
-    size: 20Gi
+    size: 5Gi
     storageClass: fast
     advancedMounts:
-      jellyfin:
+      tdarr:
         app:
-          - path: /config
+          - path: /app/configs
+  server:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: fast
+    advancedMounts:
+      tdarr:
+        app:
+          - path: /app/server
   media:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
-      jellyfin:
+      tdarr:
         app:
           - path: /media
             readOnly: true
+  transcode-cache:
+    type: emptyDir
+    advancedMounts:
+      tdarr:
+        app:
+          - path: /app/transcode_cache
