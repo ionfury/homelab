@@ -5,6 +5,11 @@ kind: HTTPRoute
 metadata:
   name: excalidraw-external
   namespace: excalidraw
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Excalidraw"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/icon: "excalidraw.svg"
 spec:
   parentRefs:
     - name: external

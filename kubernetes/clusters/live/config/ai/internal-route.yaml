@@ -5,6 +5,11 @@ kind: HTTPRoute
 metadata:
   name: open-webui-internal
   namespace: ai
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Open WebUI"
+    gethomepage.dev/group: "AI"
+    gethomepage.dev/icon: "open-webui.svg"
 spec:
   parentRefs:
     - name: internal
