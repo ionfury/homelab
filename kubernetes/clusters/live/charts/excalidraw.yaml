@@ -30,7 +30,7 @@ controllers:
           - /bin/sh
           - -c
           - |
-            find /usr/share/nginx/html/assets -type f -name '*.js' \
+            find /usr/share/nginx/html/static/js -type f -name '*.js' \
               -exec sed -i 's|https://oss-collab\.excalidraw\.com|https://draw-ws.${external_domain}|g' {} + && \
             nginx -g 'daemon off;'
         resources:
@@ -85,6 +85,7 @@ controllers:
           tag: sha-03ff435
         env:
           PORT: "80"
+          YARN_CACHE_FOLDER: /tmp/.yarn-cache
         resources:
           requests:
             cpu: 10m
@@ -106,6 +107,16 @@ controllers:
               tcpSocket:
                 port: 80
               periodSeconds: 10
+
+persistence:
+  # Writable /tmp for excalidraw-room: yarn needs a cache directory
+  # (readOnlyRootFilesystem blocks default cache paths)
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      room:
+        app:
+          - path: /tmp
 
 service:
   app:

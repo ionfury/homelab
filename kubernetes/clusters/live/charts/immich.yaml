@@ -66,6 +66,7 @@ machine-learning:
   enabled: true
   controllers:
     main:
+      strategy: Recreate
       pod:
         runtimeClassName: nvidia
         nodeSelector:
