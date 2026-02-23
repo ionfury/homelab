@@ -155,6 +155,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [sonarr, radarr, prowlarr]
+    - name: unpackerr
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [sonarr, radarr]
     - name: paperless
       namespace: paperless
       chart:

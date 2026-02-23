@@ -19,3 +19,4 @@ resources:
   - jellyfin-dashboard.yaml
   - prometheus-rules.yaml
   - exportarr-alerts.yaml
+  - unpackerr-alerts.yaml

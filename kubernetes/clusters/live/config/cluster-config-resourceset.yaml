@@ -21,7 +21,7 @@ spec:
       dependsOn: [platform, secret-generator, external-secrets-stores]
     - name: media-config
       path: kubernetes/clusters/live/config/media
-      dependsOn: [bazarr, jellyfin-exporter, jellyfin, jellyseerr, sonarr, radarr, prowlarr, qbittorrent, exportarr, canary-checker, kube-prometheus-stack]
+      dependsOn: [bazarr, jellyfin-exporter, jellyfin, jellyseerr, sonarr, radarr, prowlarr, qbittorrent, exportarr, unpackerr, canary-checker, kube-prometheus-stack]
     - name: ai-prereqs
       path: kubernetes/clusters/live/config/ai-prereqs
       dependsOn: [platform, secret-generator, external-secrets-stores]

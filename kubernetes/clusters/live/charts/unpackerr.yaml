@@ -1,0 +1,106 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  unpackerr:
+    type: deployment
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/unpackerr/unpackerr
+          tag: "${unpackerr_version}"
+        env:
+          # Metrics endpoint
+          UN_WEBSERVER_METRICS: "true"
+          UN_WEBSERVER_LOG_FILE: /dev/null
+          # Sonarr integration
+          UN_SONARR_0_URL: http://sonarr-app.media.svc:8989
+          UN_SONARR_0_PATHS_0: /media/downloads/complete/sonarr
+          UN_SONARR_0_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: unpackerr-api-keys
+                key: sonarr-api-key
+          # Radarr integration
+          UN_RADARR_0_URL: http://radarr-app.media.svc:7878
+          UN_RADARR_0_PATHS_0: /media/downloads/complete/radarr
+          UN_RADARR_0_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: unpackerr-api-keys
+                key: radarr-api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 5656
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 10
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 5656
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 5656
+              periodSeconds: 10
+
+service:
+  app:
+    controller: unpackerr
+    ports:
+      metrics:
+        port: 5656
+
+serviceMonitor:
+  app:
+    serviceName: unpackerr-app
+    endpoints:
+      - port: metrics
+        interval: 60s
+        scrapeTimeout: 30s
+
+persistence:
+  media:
+    type: persistentVolumeClaim
+    existingClaim: media-library
+    advancedMounts:
+      unpackerr:
+        app:
+          - path: /media

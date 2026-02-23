@@ -32,5 +32,6 @@ configMapGenerator:
       - open-webui.yaml=open-webui.yaml
       - vaultwarden.yaml=vaultwarden.yaml
       - exportarr.yaml=exportarr.yaml
+      - unpackerr.yaml=unpackerr.yaml
       - excalidraw.yaml=excalidraw.yaml
       - homepage.yaml=homepage.yaml

@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: unpackerr-alerts
+  namespace: media
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: unpackerr.rules
+      rules:
+        - alert: UnpackerrDown
+          expr: up{job="unpackerr-app", namespace="media"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Unpackerr metrics endpoint is down"
+            description: "The unpackerr metrics endpoint has been unreachable for more than 10 minutes."
