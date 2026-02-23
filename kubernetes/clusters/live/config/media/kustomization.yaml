@@ -8,6 +8,7 @@ resources:
   - jellyfin-internal.yaml
   - jellyseerr-external.yaml
   - jellyseerr-internal.yaml
+  - tdarr-internal.yaml
   - sonarr-internal.yaml
   - radarr-internal.yaml
   - prowlarr-internal.yaml
