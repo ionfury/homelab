@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: huntarr-internal
+  namespace: media
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Huntarr"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "huntarr.svg"
+spec:
+  parentRefs:
+    - name: internal
+      namespace: istio-gateway
+  hostnames:
+    - "huntarr.${internal_domain}"
+  rules:
+    - backendRefs:
+        - name: huntarr
+          port: 9705
