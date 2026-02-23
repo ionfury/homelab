@@ -1,0 +1,62 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+# Recyclarr: syncs TRaSH Guides quality profiles and custom formats to Sonarr/Radarr
+controllers:
+  recyclarr:
+    type: cronjob
+    cronjob:
+      schedule: "@daily"
+      successfulJobsHistory: 3
+      failedJobsHistory: 3
+
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/recyclarr/recyclarr
+          tag: "${recyclarr_version}"
+        args: ["sync"]
+        env:
+          SONARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: recyclarr-api-keys
+                key: sonarr-api-key
+          RADARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: recyclarr-api-keys
+                key: radarr-api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+
+persistence:
+  config:
+    type: configMap
+    name: recyclarr-config
+    advancedMounts:
+      recyclarr:
+        app:
+          - path: /config/recyclarr.yml
+            subPath: recyclarr.yml
+            readOnly: true
