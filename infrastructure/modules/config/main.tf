@@ -341,9 +341,10 @@ locals {
 
   # Cilium values for bootstrap - uses kubernetes platform as single source of truth
   cilium_values = templatestring(var.cilium_values_template, {
-    cluster_name       = var.name
-    cluster_pod_subnet = var.networking.pod_subnet
-    internal_domain    = var.networking.internal_tld
+    cluster_name          = var.name
+    cluster_pod_subnet    = var.networking.pod_subnet
+    internal_domain       = var.networking.internal_tld
+    default_replica_count = tostring(min(3, length(local.machines)))
   })
 
   # Cluster environment variables for flux post-build substitution (non-version)

@@ -1,4 +1,7 @@
 ---
+# This template is dual-use: consumed by Flux (in-cluster substitution) AND
+# by the Terragrunt config module (infrastructure/modules/config/main.tf).
+# Any new template variables must be added to both consumers.
 # https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/values.yaml
 # yaml-language-server: $schema=https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/values.schema.json
 autoDirectNodeRoutes: true
