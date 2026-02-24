@@ -33,6 +33,7 @@ These skills are composed by agents internally. They are not invoked directly by
 | `sync-claude` | Validate Claude docs against codebase state | orchestrator | - | discover-claude-docs.sh, extract-references.sh |
 | `taskfiles` | Task runner syntax, patterns, and conventions | implementer | schema.md, cli.md, styleguide.md, task-catalog.md | - |
 | `terragrunt` | Infrastructure operations with Terragrunt/OpenTofu | implementer | stacks.md, units.md | - |
+| `security-testing` | Adversarial security testing methodology and attack surface inventory | security-tester | attack-surface.md | - |
 | `versions-renovate` | Version management and Renovate annotation configuration | implementer | - | - |
 
 ---
@@ -219,6 +220,7 @@ Agents are defined in `.claude/agents/` and compose skills for their domain:
 | `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline, network-policy | inherit | default (read-only tools) |
 | `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, cnpg-database, gateway-routing, versions-renovate, kubesearch, promotion-pipeline, gha-pipelines, network-policy | inherit | default (full tools) |
 | `designer` | Principal architect | kubesearch, architecture-review, k8s | opus | plan (read-only) |
+| `security-tester` | Adversarial red team tester | security-testing, k8s, network-policy, prometheus, loki, sre, gateway-routing | opus | default (read-only tools) |
 
 ---
 
