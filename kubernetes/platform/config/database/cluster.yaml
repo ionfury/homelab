@@ -13,6 +13,69 @@ spec:
   superuserSecret:
     name: cnpg-platform-superuser
 
+  managed:
+    roles:
+      - name: authelia
+        ensure: present
+        login: true
+        passwordSecret:
+          name: authelia-role-password
+      - name: lldap
+        ensure: present
+        login: true
+        passwordSecret:
+          name: lldap-role-password
+      - name: sonarr
+        ensure: present
+        login: true
+        passwordSecret:
+          name: sonarr-role-password
+      - name: radarr
+        ensure: present
+        login: true
+        passwordSecret:
+          name: radarr-role-password
+      - name: prowlarr
+        ensure: present
+        login: true
+        passwordSecret:
+          name: prowlarr-role-password
+      - name: bazarr
+        ensure: present
+        login: true
+        passwordSecret:
+          name: bazarr-role-password
+      - name: jellyseerr
+        ensure: present
+        login: true
+        passwordSecret:
+          name: jellyseerr-role-password
+      - name: zipline
+        ensure: present
+        login: true
+        passwordSecret:
+          name: zipline-role-password
+      - name: tandoor
+        ensure: present
+        login: true
+        passwordSecret:
+          name: tandoor-role-password
+      - name: paperless
+        ensure: present
+        login: true
+        passwordSecret:
+          name: paperless-role-password
+      - name: vaultwarden
+        ensure: present
+        login: true
+        passwordSecret:
+          name: vaultwarden-role-password
+      - name: open-webui
+        ensure: present
+        login: true
+        passwordSecret:
+          name: open-webui-role-password
+
   postgresql:
     parameters:
       shared_buffers: "256MB"

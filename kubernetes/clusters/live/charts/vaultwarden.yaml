@@ -19,56 +19,6 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
-    initContainers:
-      init-db:
-        image:
-          repository: ghcr.io/home-operations/postgres-init
-          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
-          tag: "18"
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: [ALL]
-        env:
-          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
-          INIT_POSTGRES_SUPER_USER: postgres
-          INIT_POSTGRES_SUPER_PASS:
-            valueFrom:
-              secretKeyRef:
-                name: cnpg-superuser-replica
-                key: password
-          INIT_POSTGRES_USER: vaultwarden
-          INIT_POSTGRES_PASS:
-            valueFrom:
-              secretKeyRef:
-                name: vaultwarden-db-credentials
-                key: password
-          INIT_POSTGRES_DBNAME: vaultwarden
-
-      schema-grants:
-        dependsOn: init-db
-        image:
-          repository: ghcr.io/home-operations/postgres-init
-          tag: "18"
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: [ALL]
-        command: ["psql"]
-        args:
-          - --host=platform-rw.database.svc.cluster.local
-          - --username=postgres
-          - --dbname=vaultwarden
-          - --command=GRANT ALL ON SCHEMA public TO vaultwarden; ALTER DATABASE vaultwarden OWNER TO vaultwarden;
-        env:
-          PGPASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: cnpg-superuser-replica
-                key: password
-
     containers:
       app:
         image:

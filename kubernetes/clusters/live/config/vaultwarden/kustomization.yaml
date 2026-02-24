@@ -6,7 +6,6 @@ resources:
   - namespace.yaml
   - vaultwarden-admin-token.yaml
   - vaultwarden-db-credentials.yaml
-  - cnpg-superuser-replica.yaml
   - internal-route.yaml
   - external-route.yaml
   - canary.yaml
