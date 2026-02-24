@@ -15,11 +15,98 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    initContainers:
+      init-db-main:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        env:
+          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
+          INIT_POSTGRES_SUPER_USER: postgres
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_USER: radarr
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-db-credentials
+                key: password
+          INIT_POSTGRES_DBNAME: radarr-main
+
+      init-db-log:
+        dependsOn: init-db-main
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        env:
+          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
+          INIT_POSTGRES_SUPER_USER: postgres
+          INIT_POSTGRES_SUPER_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+          INIT_POSTGRES_USER: radarr
+          INIT_POSTGRES_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-db-credentials
+                key: password
+          INIT_POSTGRES_DBNAME: radarr-log
+
+      schema-grants:
+        dependsOn: init-db-log
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: "18"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        command: ["psql"]
+        args:
+          - --host=platform-rw.database.svc.cluster.local
+          - --username=postgres
+          - --dbname=radarr-main
+          - --command=GRANT ALL ON SCHEMA public TO radarr; ALTER DATABASE "radarr-main" OWNER TO radarr; ALTER DATABASE "radarr-log" OWNER TO radarr;
+        env:
+          PGPASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: cnpg-superuser-replica
+                key: password
+
     containers:
       app:
         image:
           repository: ghcr.io/home-operations/radarr
           tag: "${radarr_version}"
+        env:
+          RADARR__POSTGRES__HOST: platform-rw.database.svc.cluster.local
+          RADARR__POSTGRES__PORT: "5432"
+          RADARR__POSTGRES__USER: radarr
+          RADARR__POSTGRES__PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-db-credentials
+                key: password
+          RADARR__POSTGRES__MAINDB: radarr-main
+          RADARR__POSTGRES__LOGDB: radarr-log
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
