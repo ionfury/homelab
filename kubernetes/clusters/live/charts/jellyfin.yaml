@@ -76,11 +76,11 @@ persistence:
       jellyfin:
         app:
           - path: /config
-  media:
+  media-library:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
       jellyfin:
         app:
-          - path: /media
+          - path: /media/library
             readOnly: true

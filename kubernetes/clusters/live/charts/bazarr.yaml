@@ -76,13 +76,13 @@ persistence:
       bazarr:
         app:
           - path: /config
-  media:
+  media-library:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
       bazarr:
         app:
-          - path: /media
+          - path: /media/library
   tmp:
     type: emptyDir
     advancedMounts:

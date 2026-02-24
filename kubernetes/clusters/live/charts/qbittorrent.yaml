@@ -137,13 +137,13 @@ persistence:
       qbittorrent:
         app:
           - path: /config
-  media:
+  media-downloads:
     type: persistentVolumeClaim
-    existingClaim: media-library
+    existingClaim: media-downloads
     advancedMounts:
       qbittorrent:
         app:
-          - path: /media
+          - path: /media/downloads
   gluetun-data:
     type: emptyDir
     advancedMounts:
