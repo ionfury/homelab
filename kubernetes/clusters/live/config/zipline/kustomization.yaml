@@ -5,7 +5,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - secret.yaml
-  - cnpg-superuser-replica.yaml
   - zipline-db-credentials.yaml
   - garage-bucket.yaml
   - garage-key.yaml

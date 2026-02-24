@@ -1,0 +1,180 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: authelia-database
+  namespace: database
+spec:
+  name: authelia
+  owner: authelia
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: lldap-database
+  namespace: database
+spec:
+  name: lldap
+  owner: lldap
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: sonarr-main-database
+  namespace: database
+spec:
+  name: sonarr-main
+  owner: sonarr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: sonarr-log-database
+  namespace: database
+spec:
+  name: sonarr-log
+  owner: sonarr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: radarr-main-database
+  namespace: database
+spec:
+  name: radarr-main
+  owner: radarr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: radarr-log-database
+  namespace: database
+spec:
+  name: radarr-log
+  owner: radarr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: prowlarr-main-database
+  namespace: database
+spec:
+  name: prowlarr-main
+  owner: prowlarr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: prowlarr-log-database
+  namespace: database
+spec:
+  name: prowlarr-log
+  owner: prowlarr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: bazarr-database
+  namespace: database
+spec:
+  name: bazarr
+  owner: bazarr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: jellyseerr-database
+  namespace: database
+spec:
+  name: jellyseerr
+  owner: jellyseerr
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: zipline-database
+  namespace: database
+spec:
+  name: zipline
+  owner: zipline
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: tandoor-database
+  namespace: database
+spec:
+  name: tandoor
+  owner: tandoor
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: paperless-database
+  namespace: database
+spec:
+  name: paperless
+  owner: paperless
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: vaultwarden-database
+  namespace: database
+spec:
+  name: vaultwarden
+  owner: vaultwarden
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: open-webui-database
+  namespace: database
+spec:
+  name: open-webui
+  owner: open-webui
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain

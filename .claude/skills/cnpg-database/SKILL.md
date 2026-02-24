@@ -10,7 +10,7 @@ description: |
   extensions for specialized workloads.
 
   Triggers: "database", "postgresql", "postgres", "cnpg", "cloudnative-pg", "pooler",
-  "pgbouncer", "database credentials", "db password", "initdb", "postInitApplicationSQL",
+  "pgbouncer", "database credentials", "db password", "managed roles", "Database CRD",
   "database cluster", "shared database", "dedicated database", "cnpg cluster"
 user-invocable: false
 ---
@@ -32,8 +32,15 @@ dedicated per-application clusters.
 │  ┌────────────────────────────────────┐                             │
 │  │  Shared Platform Cluster           │                             │
 │  │  ├─ platform-0 (primary)           │ ◄── cnpg-platform-superuser │
-│  │  ├─ platform-1 (replica)           │     (secret-generator)      │
+│  │  ├─ platform-1 (replica)           │     (stays in database ns)  │
 │  │  └─ platform-2 (replica)           │                             │
+│  │                                    │                             │
+│  │  Managed Roles (CNPG-controlled):  │                             │
+│  │  ├─ authelia, lldap, sonarr, ...   │ ◄── <app>-role-password     │
+│  │                                    │     (secret-generator)      │
+│  │  Database CRDs (CNPG-controlled):  │                             │
+│  │  ├─ authelia, lldap, sonarr-main,  │                             │
+│  │  │  sonarr-log, radarr-main, ...   │                             │
 │  │                                    │                             │
 │  │  platform-pooler-rw (PgBouncer)    │ ◄── Apps connect here       │
 │  └────────────────────────────────────┘                             │
@@ -47,12 +54,13 @@ dedicated per-application clusters.
 │  ──── kubernetes-replicator ──────────────────────────────────────   │
 │                                                                      │
 │  app namespaces (authelia, zipline, immich, ...)                    │
-│  ┌─────────────────────────────┐                                    │
-│  │  Replica secrets:           │                                    │
-│  │  ├─ cnpg-superuser-replica  │ (from database/cnpg-platform-...)  │
-│  │  ├─ <app>-db-credentials    │ (secret-generator, basic-auth)     │
-│  │  └─ cnpg-immich-database-app│ (from database/immich-database-app)│
-│  └─────────────────────────────┘                                    │
+│  ┌─────────────────────────────────────┐                            │
+│  │  Replica secrets:                   │                            │
+│  │  ├─ <app>-db-credentials            │ (from database/<app>-role- │
+│  │  │                                  │  password via replicator)  │
+│  │  └─ cnpg-immich-database-app        │ (from database/immich-     │
+│  │                                     │  database-app)             │
+│  └─────────────────────────────────────┘                            │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -88,15 +96,19 @@ App needs a PostgreSQL database?
 ## Shared Platform Cluster
 
 The shared cluster is defined at `kubernetes/platform/config/database/` and deployed
-to all clusters via the platform Kustomization.
+to all clusters via the platform Kustomization. It uses **CNPG managed roles** and
+**Database CRDs** to declaratively provision databases and users -- no init containers
+or superuser access needed in app namespaces.
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
-| `cluster.yaml` | CNPG Cluster CR for the shared PostgreSQL instance |
+| `cluster.yaml` | CNPG Cluster CR with managed roles (`spec.managed.roles`) |
+| `databases.yaml` | Database CRDs for each application database |
+| `role-secrets.yaml` | Per-role password secrets (secret-generator + replicator) |
 | `pooler.yaml` | PgBouncer Pooler for connection pooling |
-| `superuser-secret.yaml` | Auto-generated superuser password with replication annotations |
+| `superuser-secret.yaml` | Auto-generated superuser password (stays in database ns only) |
 | `prometheus-rules.yaml` | CNPG-specific PrometheusRules for alerting |
 | `kustomization.yaml` | Kustomize aggregation of all database resources |
 
@@ -117,6 +129,16 @@ spec:
   enableSuperuserAccess: true
   superuserSecret:
     name: cnpg-platform-superuser
+
+  # Declarative role management - CNPG creates/updates these PostgreSQL roles
+  managed:
+    roles:
+      - name: authelia
+        ensure: present
+        login: true
+        passwordSecret:
+          name: authelia-role-password
+      # ... one entry per application
 
   postgresql:
     parameters:
@@ -139,6 +161,54 @@ spec:
   affinity:
     enablePodAntiAffinity: true
     topologyKey: kubernetes.io/hostname
+```
+
+### Database CRDs
+
+Each database is declared as a separate `Database` CR. CNPG creates it if missing or
+adopts it if it already exists (with `databaseReclaimPolicy: retain`):
+
+```yaml
+# kubernetes/platform/config/database/databases.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: authelia-database
+  namespace: database
+spec:
+  name: authelia          # PostgreSQL database name
+  owner: authelia         # Must match a managed role name
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+```
+
+**Note:** Some apps (sonarr, radarr, prowlarr) use multiple databases (e.g. `sonarr-main`,
+`sonarr-log`) but share a single role. Each database gets its own Database CR with the
+same `owner`.
+
+### Role Password Secrets
+
+Each managed role has a corresponding Secret in the `database` namespace. The secret
+uses `secret-generator` for auto-generation and `kubernetes-replicator` for cross-namespace
+replication to the app that needs it:
+
+```yaml
+# kubernetes/platform/config/database/role-secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authelia-role-password
+  namespace: database
+  annotations:
+    secret-generator.v1.mittwald.de/autogenerate: password
+    secret-generator.v1.mittwald.de/encoding: hex
+    secret-generator.v1.mittwald.de/length: "32"
+    replicator.v1.mittwald.de/replication-allowed: "true"
+    replicator.v1.mittwald.de/replication-allowed-namespaces: "authelia"
+type: kubernetes.io/basic-auth
+stringData:
+  username: authelia
 ```
 
 ### PgBouncer Pooler
@@ -174,10 +244,67 @@ postgresql://<username>:<password>@platform-pooler-rw.database.svc:5432/<dbname>
 
 ## Workflow: Add a Database for a New App (Shared Cluster)
 
-### Step 1: Create Database Credentials
+### Step 1: Add Managed Role to Cluster
 
-Create a `kubernetes.io/basic-auth` Secret with `secret-generator` to auto-generate
-the password. Place it in the app's config directory:
+Add a new role entry to `spec.managed.roles` in
+`kubernetes/platform/config/database/cluster.yaml`:
+
+```yaml
+managed:
+  roles:
+    # ... existing roles
+    - name: <app>
+      ensure: present
+      login: true
+      passwordSecret:
+        name: <app>-role-password
+```
+
+### Step 2: Create Role Password Secret
+
+Add a new Secret to `kubernetes/platform/config/database/role-secrets.yaml`:
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <app>-role-password
+  namespace: database
+  annotations:
+    secret-generator.v1.mittwald.de/autogenerate: password
+    secret-generator.v1.mittwald.de/encoding: hex
+    secret-generator.v1.mittwald.de/length: "32"
+    replicator.v1.mittwald.de/replication-allowed: "true"
+    replicator.v1.mittwald.de/replication-allowed-namespaces: "<app-namespace>"
+type: kubernetes.io/basic-auth
+stringData:
+  username: <app>
+```
+
+### Step 3: Create Database CRD
+
+Add a new Database CR to `kubernetes/platform/config/database/databases.yaml`:
+
+```yaml
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: <app>-database
+  namespace: database
+spec:
+  name: <app>
+  owner: <app>
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain
+```
+
+### Step 4: Create App-Namespace Credential Replica
+
+Create a replica Secret in the app's config directory that pulls the password from
+the database namespace:
 
 ```yaml
 # kubernetes/clusters/<cluster>/config/<app>/<app>-db-credentials.yaml
@@ -188,41 +315,12 @@ metadata:
   name: <app>-db-credentials
   namespace: <app-namespace>
   annotations:
-    secret-generator.v1.mittwald.de/autogenerate: password
-    secret-generator.v1.mittwald.de/encoding: hex
-    secret-generator.v1.mittwald.de/length: "32"
+    replicator.v1.mittwald.de/replicate-from: database/<app>-role-password
 type: kubernetes.io/basic-auth
-stringData:
-  username: <app>
+data: { }
 ```
 
-### Step 2: Replicate Superuser Secret
-
-Create a replica of the platform superuser secret in the app's namespace (needed for
-database/user creation via init containers or the app itself):
-
-```yaml
-# kubernetes/clusters/<cluster>/config/<app>/cnpg-superuser-replica.yaml
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cnpg-superuser-replica
-  namespace: <app-namespace>
-  annotations:
-    replicator.v1.mittwald.de/replicate-from: database/cnpg-platform-superuser
-type: Opaque
-data: {}
-```
-
-**Important:** Also update the source secret's `replication-allowed-namespaces` annotation
-in `kubernetes/platform/config/database/superuser-secret.yaml` to include the new namespace:
-
-```yaml
-replicator.v1.mittwald.de/replication-allowed-namespaces: "zipline,authelia,<new-app>"
-```
-
-### Step 3: Add Network Policy Access
+### Step 5: Add Network Policy Access
 
 The app's namespace must have the postgres access label. Add it in `kubernetes/platform/namespaces.yaml`:
 
@@ -234,7 +332,7 @@ The app's namespace must have the postgres access label. Add it in `kubernetes/p
     access.network-policy.homelab/postgres: "true"  # Required for DB access
 ```
 
-### Step 4: Configure App to Use Database
+### Step 6: Configure App to Use Database
 
 The app should connect to the Pooler service, not the Cluster directly:
 
@@ -242,14 +340,14 @@ The app should connect to the Pooler service, not the Cluster directly:
 |---------|-------|
 | Host | `platform-pooler-rw.database.svc` |
 | Port | `5432` |
-| Database | `<app>` (created by app or init container) |
+| Database | `<app>` (created by CNPG Database CRD) |
 | Username | From `<app>-db-credentials` secret (`username` key) |
 | Password | From `<app>-db-credentials` secret (`password` key) |
 
-### Step 5: Register in Kustomization
+### Step 7: Register in Kustomization
 
-Add the new files to the app's `kustomization.yaml` and ensure the parent config
-references the directory.
+Add the new credential replica file to the app's `kustomization.yaml` and ensure the
+parent config references the directory.
 
 ---
 
@@ -320,9 +418,10 @@ spec:
 | Location | `kubernetes/platform/config/database/` | `kubernetes/clusters/<cluster>/config/<app>/` |
 | Namespace | `database` (deployed by platform) | `database` (deployed by cluster config) |
 | Image | Standard PostgreSQL | Custom image with extensions |
-| `inheritedMetadata` | Not needed (uses superuser secret replication) | Required for app secret replication |
-| `bootstrap.initdb` | Not configured (apps create their own DBs) | Configured with database, owner, and extensions |
-| Superuser | Explicit (`cnpg-platform-superuser`) | CNPG auto-generates (`<cluster-name>-superuser`) |
+| Role management | `spec.managed.roles` + Database CRDs | `bootstrap.initdb` creates DB and owner |
+| Credential source | `<app>-role-password` (secret-generator) | `<app>-database-app` (CNPG auto-generated) |
+| `inheritedMetadata` | Not needed (role secrets have explicit replication) | Required for app secret replication |
+| Superuser | Confined to `database` namespace | CNPG auto-generates (`<cluster-name>-superuser`) |
 
 ### Step 2: Replicate App Credentials to Consumer Namespace
 
@@ -339,7 +438,7 @@ metadata:
   namespace: <app-namespace>
   annotations:
     replicator.v1.mittwald.de/replicate-from: database/<app>-database-app
-data: {}
+data: { }
 ```
 
 **Real example:** `kubernetes/clusters/live/config/immich/database-secret-replication.yaml`
@@ -356,18 +455,26 @@ and register files in `kustomization.yaml`.
 ### Shared Cluster Credential Flow
 
 ```
-secret-generator                  kubernetes-replicator
-     │                                   │
-     ▼                                   ▼
-cnpg-platform-superuser ──────► cnpg-superuser-replica
-  (database ns)                   (app ns)
-
-secret-generator
-     │
-     ▼
-<app>-db-credentials
-  (app ns, basic-auth)
+database namespace                          app namespace
+┌──────────────────────┐                    ┌──────────────────────┐
+│ <app>-role-password   │  kubernetes-       │ <app>-db-credentials │
+│ (secret-generator)    │──replicator──────► │ (replica)            │
+│  username: <app>      │                    │  username: <app>     │
+│  password: <random>   │                    │  password: <random>  │
+└──────────────────────┘                    └──────────────────────┘
+         │
+         ▼
+  CNPG Cluster (managed role)
+  uses passwordSecret to set
+  PostgreSQL role password
+         │
+         ▼
+  Database CRD
+  creates DB owned by role
 ```
+
+**Key security property:** The superuser secret (`cnpg-platform-superuser`) never leaves
+the `database` namespace. App namespaces only receive their own role password.
 
 ### Dedicated Cluster Credential Flow
 
@@ -424,12 +531,31 @@ CNPG-specific alerts are defined in `kubernetes/platform/config/database/prometh
 | `primaryUpdateStrategy` | How to handle primary upgrades | `unsupervised` (automatic failover) |
 | `enableSuperuserAccess` | Whether to allow superuser connections | `true` for shared, not set for dedicated |
 | `superuserSecret` | Reference to superuser credentials | `cnpg-platform-superuser` |
+| `managed.roles` | Declarative PostgreSQL role definitions | See Managed Roles section |
 | `storage.storageClass` | Kubernetes StorageClass for PVCs | `fast` |
 | `storage.size` | Volume size per instance | `${database_volume_size}` or `10Gi` |
 | `monitoring.enablePodMonitor` | Auto-create PodMonitor for Prometheus | `true` |
 | `affinity.enablePodAntiAffinity` | Spread instances across nodes | `true` |
 | `postgresql.pg_hba` | Client authentication rules | Allow pod CIDR with SCRAM-SHA-256 |
 | `inheritedMetadata` | Annotations/labels applied to generated secrets | Replication annotations |
+
+### Managed Role Fields
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `name` | PostgreSQL role name | `authelia` |
+| `ensure` | Whether role should exist | `present` |
+| `login` | Whether role can log in | `true` |
+| `passwordSecret.name` | Secret containing the role password | `authelia-role-password` |
+
+### Database CRD Fields
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `spec.name` | PostgreSQL database name | `authelia` |
+| `spec.owner` | Database owner (must be a managed role) | `authelia` |
+| `spec.cluster.name` | Target CNPG Cluster | `platform` |
+| `spec.databaseReclaimPolicy` | What happens when CRD is deleted | `retain` (keeps database) |
 
 ### Pooler Spec Fields
 
@@ -442,7 +568,7 @@ CNPG-specific alerts are defined in `kubernetes/platform/config/database/prometh
 | `pgbouncer.parameters.max_client_conn` | Max client connections | `"1000"` |
 | `pgbouncer.parameters.default_pool_size` | Default server connections per pool | `"25"` |
 
-### Bootstrap initdb Fields
+### Bootstrap initdb Fields (Dedicated Clusters Only)
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -468,6 +594,9 @@ KUBECONFIG=~/.kube/<cluster>.yaml kubectl get pods -n database -l cnpg.io/cluste
 
 # Check pooler status
 KUBECONFIG=~/.kube/<cluster>.yaml kubectl get poolers.postgresql.cnpg.io -n database
+
+# Check managed databases
+KUBECONFIG=~/.kube/<cluster>.yaml kubectl get databases.postgresql.cnpg.io -n database
 ```
 
 ### Common Issues
@@ -481,7 +610,9 @@ KUBECONFIG=~/.kube/<cluster>.yaml kubectl get poolers.postgresql.cnpg.io -n data
 | App can't connect | Secret not replicated | Check replication annotations on source secret |
 | Secret empty after replication | Source namespace wrong | Verify `replicate-from` points to correct `<ns>/<name>` |
 | Extension not found | Wrong image | Verify `imageName` includes the extension |
-| Database not created | Missing `bootstrap.initdb` | Dedicated clusters need explicit bootstrap config |
+| Database not created | Database CRD missing | Add Database CR to `databases.yaml` |
+| Role not created | Missing from managed.roles | Add role entry to `cluster.yaml` |
+| Role password mismatch | Secret not regenerated | Delete the role-password secret, secret-generator will recreate |
 
 ### Checking Connectivity
 
