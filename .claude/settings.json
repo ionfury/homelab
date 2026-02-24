@@ -89,7 +89,10 @@
       "Skill(cnpg-database)",
       "Skill(gateway-routing)",
       "Skill(promotion-pipeline)",
-      "Skill(versions-renovate)"
+      "Skill(versions-renovate)",
+      "Skill(security-testing)",
+      "Bash(hubble:*)",
+      "Bash(nmap:*)"
     ]
   },
   "enabledPlugins": {

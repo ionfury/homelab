@@ -514,6 +514,7 @@ Users interact through 3 specialized agents via commands in `.claude/commands/`:
 | `/troubleshoot` | `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline, network-policy |
 | `/implement` | `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, cnpg-database, gateway-routing, versions-renovate, kubesearch, promotion-pipeline, gha-pipelines, network-policy |
 | `/design` | `designer` | Principal architect (Opus, plan mode) | kubesearch, architecture-review, k8s |
+| `/security-test` | `security-tester` | Adversarial red team tester (Opus) | security-testing, k8s, network-policy, prometheus, loki, sre, gateway-routing |
 
 Agent definitions live in `.claude/agents/`. See [.claude/skills/CLAUDE.md](.claude/skills/CLAUDE.md) for the full agent-first architecture.
 
@@ -543,6 +544,7 @@ Skills are composed by agents internally — not invoked directly by users:
 | `promotion-pipeline` | OCI artifact promotion tracing and rollback | troubleshooter, implementer |
 | `kubesearch` | Researching Helm chart configurations | designer, implementer |
 | `architecture-review` | Technology standards and evaluation criteria | designer |
+| `security-testing` | Adversarial security testing methodology and attack surface inventory | security-tester |
 | `sync-claude` | Validate and sync Claude docs before commits | orchestrator |
 | `self-improvement` | Capture feedback to enhance documentation and skills | orchestrator |
 
