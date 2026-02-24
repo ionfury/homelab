@@ -214,11 +214,11 @@ locals {
           maxSize  = "100%"
           tags     = ["fast", "ssd", "any"]
         },
-        { # 1TB Crucial SSD
-          name     = "crucial-ssd-1tb-1"
+        { # 20TB Seagate HDD
+          name     = "seagate-hdd-20tb-0"
           selector = "disk.dev_path == '/dev/sdb'"
           maxSize  = "100%"
-          tags     = ["fast", "ssd", "any"]
+          tags     = ["slow", "hdd", "any"]
       }]
       bonds = [{
         link_permanentAddr = ["ac:1f:6b:2d:bb:c8"]
