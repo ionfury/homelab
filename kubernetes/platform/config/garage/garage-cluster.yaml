@@ -14,10 +14,10 @@ spec:
 
   storage:
     metadata:
-      storageClassName: fast-nr
+      storageClassName: fast-nb
       size: ${garage_meta_volume_size}
     data:
-      storageClassName: fast-nr
+      storageClassName: fast-nb
       size: ${garage_data_volume_size}
 
   database:

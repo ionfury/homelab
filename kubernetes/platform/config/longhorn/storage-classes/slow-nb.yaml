@@ -2,14 +2,15 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: ephemeral
+  name: slow-nb
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 parameters:
-  numberOfReplicas: "1"
+  numberOfReplicas: ${storage_replica_count}
   fsType: xfs
   staleReplicaTimeout: "30"
   dataLocality: best-effort
-  diskSelector: fast
+  diskSelector: slow
+  recurringJobSelector: '[{"name": "snapshot-frequent", "isGroup": true}, {"name": "filesystem-trim-daily", "isGroup": true}]'
