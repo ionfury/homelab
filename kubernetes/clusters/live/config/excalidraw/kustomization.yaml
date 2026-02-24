@@ -6,4 +6,7 @@ resources:
   - namespace.yaml
   - external-route.yaml
   - room-external-route.yaml
+  - internal-route.yaml
+  - room-internal-route.yaml
   - canary.yaml
+  - prometheus-rules.yaml

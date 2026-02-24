@@ -2,6 +2,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
 # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
 defaultPodOptions:
+  automountServiceAccountToken: false
   securityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -11,11 +12,51 @@ controllers:
     type: deployment
     replicas: 1
 
-    containers:
-      app:
+    initContainers:
+      # Copy static assets into a writable emptyDir and rewrite the collaboration
+      # URL so the main nginx container can serve them with a read-only root
+      # filesystem. The upstream image bakes https://oss-collab.excalidraw.com
+      # into JS assets at build time.
+      rewrite-collab-url:
+        image:
+          repository: excalidraw/excalidraw
+          # renovate: datasource=docker depName=excalidraw/excalidraw
+          tag: sha-4bfc5bb
+        # LIMITATION: The upstream excalidraw image (nginx:alpine) has no USER
+        # directive and requires root for the copy operation. Running as non-root
+        # would require a custom image build. Capabilities are still dropped and
+        # privilege escalation is denied to minimize risk.
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
+        command:
+          - /bin/sh
+          - -c
+          - |
+            cp -a /usr/share/nginx/html/* /mnt/html/ && \
+            find /mnt/html/static/js -type f -name '*.js' \
+              -exec sed -i 's|https://oss-collab\.excalidraw\.com|https://draw-ws.${external_domain}|g' {} +
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+
+    containers:
+      app:
+        # LIMITATION: The upstream excalidraw image (nginx:alpine) has no USER
+        # directive and runs the nginx master process as root for worker
+        # management and port 80 binding. Running as non-root would require a
+        # custom image with an unprivileged nginx config (listen 8080, pid in
+        # /tmp). Capabilities are dropped and privilege escalation is denied to
+        # minimize risk even while running as root.
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: false
           capabilities:
             drop: ["ALL"]
@@ -23,16 +64,6 @@ controllers:
           repository: excalidraw/excalidraw
           # renovate: datasource=docker depName=excalidraw/excalidraw
           tag: sha-4bfc5bb
-        # Replace the hardcoded collaboration URL with the self-hosted room server.
-        # The official image bakes https://oss-collab.excalidraw.com into the JS
-        # assets at build time, so we sed-replace it at container startup.
-        command:
-          - /bin/sh
-          - -c
-          - |
-            find /usr/share/nginx/html/static/js -type f -name '*.js' \
-              -exec sed -i 's|https://oss-collab\.excalidraw\.com|https://draw-ws.${external_domain}|g' {} + && \
-            nginx -g 'daemon off;'
         resources:
           requests:
             cpu: 10m
@@ -71,20 +102,28 @@ controllers:
     type: deployment
     replicas: 1
 
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+
     containers:
       app:
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
-          runAsNonRoot: false
           capabilities:
             drop: ["ALL"]
         image:
           repository: excalidraw/excalidraw-room
           # renovate: datasource=docker depName=excalidraw/excalidraw-room
+          # LIMITATION: Upstream image uses Node.js 12 (EOL since April 2022).
+          # This is a security risk but cannot be fixed without a custom image
+          # build or switching to a maintained fork.
           tag: sha-03ff435
         env:
-          PORT: "80"
+          PORT: "8080"
           YARN_CACHE_FOLDER: /tmp/.yarn-cache
         resources:
           requests:
@@ -98,34 +137,56 @@ controllers:
             custom: true
             spec:
               tcpSocket:
-                port: 80
+                port: 8080
               periodSeconds: 30
           readiness:
             enabled: true
             custom: true
             spec:
               tcpSocket:
-                port: 80
+                port: 8080
               periodSeconds: 10
 
 persistence:
   # Writable /tmp for excalidraw-room: yarn needs a cache directory
-  # (readOnlyRootFilesystem blocks default cache paths)
   tmp:
     type: emptyDir
     advancedMounts:
       room:
         app:
           - path: /tmp
-  # Nginx tries to chown /var/cache/nginx/client_temp at startup, which
-  # fails when all capabilities (including CHOWN) are dropped. An emptyDir
-  # sidesteps this by providing a pre-owned writable directory.
+  # Pre-processed static assets with rewritten collaboration URLs.
+  # The init container copies and patches files here; the main container
+  # serves them read-only.
+  html:
+    type: emptyDir
+    advancedMounts:
+      excalidraw:
+        rewrite-collab-url:
+          - path: /mnt/html
+        app:
+          - path: /usr/share/nginx/html
+            readOnly: true
+  # Nginx runtime directories — required for read-only root filesystem.
+  # nginx needs writable paths for cache, pid file, and temporary upload buffers.
   nginx-cache:
     type: emptyDir
     advancedMounts:
       excalidraw:
         app:
           - path: /var/cache/nginx
+  nginx-run:
+    type: emptyDir
+    advancedMounts:
+      excalidraw:
+        app:
+          - path: /var/run
+  nginx-tmp:
+    type: emptyDir
+    advancedMounts:
+      excalidraw:
+        app:
+          - path: /tmp
 
 service:
   app:
@@ -137,4 +198,4 @@ service:
     controller: room
     ports:
       http:
-        port: 80
+        port: 8080
