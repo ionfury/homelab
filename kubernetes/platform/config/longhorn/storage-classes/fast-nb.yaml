@@ -2,7 +2,7 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: fast-local
+  name: fast-nb
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 reclaimPolicy: Delete
@@ -13,4 +13,4 @@ parameters:
   staleReplicaTimeout: "30"
   dataLocality: best-effort
   diskSelector: fast
-  recurringJobSelector: '[{"name": "snapshot-minimal", "isGroup": true}, {"name": "filesystem-trim-daily", "isGroup": true}]'
+  recurringJobSelector: '[{"name": "snapshot-frequent", "isGroup": true}, {"name": "filesystem-trim-daily", "isGroup": true}]'

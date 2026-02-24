@@ -94,4 +94,4 @@ machine-learning:
       size: 10Gi
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
-      storageClass: ephemeral
+      storageClass: fast-nb

@@ -34,7 +34,7 @@ singleBinary:
   priorityClassName: platform
   persistence:
     enabled: true
-    storageClass: fast-local
+    storageClass: fast-nb
     size: ${loki_volume_size}
 gateway:
   replicas: 0
