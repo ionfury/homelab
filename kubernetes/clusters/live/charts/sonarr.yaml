@@ -76,10 +76,17 @@ persistence:
       sonarr:
         app:
           - path: /config
-  media:
+  media-downloads:
+    type: persistentVolumeClaim
+    existingClaim: media-downloads
+    advancedMounts:
+      sonarr:
+        app:
+          - path: /media/downloads
+  media-library:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
       sonarr:
         app:
-          - path: /media
+          - path: /media/library

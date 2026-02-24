@@ -76,10 +76,17 @@ persistence:
       radarr:
         app:
           - path: /config
-  media:
+  media-downloads:
+    type: persistentVolumeClaim
+    existingClaim: media-downloads
+    advancedMounts:
+      radarr:
+        app:
+          - path: /media/downloads
+  media-library:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
       radarr:
         app:
-          - path: /media
+          - path: /media/library

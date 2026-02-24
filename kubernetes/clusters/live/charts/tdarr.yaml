@@ -93,13 +93,13 @@ persistence:
       tdarr:
         app:
           - path: /app/server
-  media:
+  media-library:
     type: persistentVolumeClaim
     existingClaim: media-library
     advancedMounts:
       tdarr:
         app:
-          - path: /media
+          - path: /media/library
             readOnly: true
   transcode-cache:
     type: emptyDir

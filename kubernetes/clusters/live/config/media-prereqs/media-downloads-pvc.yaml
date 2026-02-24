@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: media-library
+  name: media-downloads
   namespace: media
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: slow-nb
+  storageClassName: fast-nb
   resources:
     requests:
-      storage: 8Ti
+      storage: 1Ti
