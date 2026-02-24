@@ -43,12 +43,13 @@ tasks:
   # =============================================================================
 
   validate:
-    desc: Cluster-independent validation (lint, ResourceSets, Helm charts, kubeconform, deprecations)
+    desc: Cluster-independent validation (lint, ResourceSets, Helm charts, kubeconform, duplicate keys, deprecations)
     cmds:
       - task: _lint
       - task: _expand-resourcesets
       - task: _build-manifests
       - task: _template-all-charts
+      - task: _validate-duplicate-keys
       - task: _validate-kubeconform-base
       - task: _validate-deprecations
 
@@ -293,6 +294,17 @@ tasks:
       - "{{.TASKFILE_DIR}}/scripts/template-all-charts.sh"
     preconditions:
       - which helm yq jq envsubst
+
+  _validate-duplicate-keys:
+    internal: true
+    desc: Detect duplicate YAML mapping keys in helm-templated output
+    deps: [_template-all-charts]
+    cmds:
+      - echo "Checking for duplicate YAML mapping keys in Helm chart output..."
+      - python3 "{{.TASKFILE_DIR}}/scripts/check-duplicate-keys.py" {{.EXPANDED_DIR}}/helm/*.yaml
+    preconditions:
+      - which python3
+      - test -d {{.EXPANDED_DIR}}/helm
 
   _substitute-vars-cluster:
     internal: true
