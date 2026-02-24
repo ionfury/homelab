@@ -13,19 +13,20 @@ controllers:
     replicas: 1
 
     initContainers:
-      # Copy static assets into a writable emptyDir and rewrite the collaboration
-      # URL so the main nginx container can serve them with a read-only root
-      # filesystem. The upstream image bakes https://oss-collab.excalidraw.com
-      # into JS assets at build time.
-      rewrite-collab-url:
+      # Prepare writable volumes for the main nginx container:
+      # 1. Copy static assets and rewrite the collaboration URL so the main
+      #    container can serve them with a read-only root filesystem.
+      # 2. Pre-create nginx cache subdirectories with correct ownership (uid 101)
+      #    so the main container can drop ALL capabilities including CAP_CHOWN.
+      init-nginx:
         image:
           repository: excalidraw/excalidraw
           # renovate: datasource=docker depName=excalidraw/excalidraw
           tag: sha-4bfc5bb
         # LIMITATION: The upstream excalidraw image (nginx:alpine) has no USER
-        # directive and requires root for the copy operation. Running as non-root
-        # would require a custom image build. Capabilities are still dropped and
-        # privilege escalation is denied to minimize risk.
+        # directive and requires root for the copy + chown operations. Running as
+        # non-root would require a custom image build. Capabilities are still
+        # dropped and privilege escalation is denied to minimize risk.
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -38,7 +39,11 @@ controllers:
           - |
             cp -a /usr/share/nginx/html/* /mnt/html/ && \
             find /mnt/html/static/js -type f -name '*.js' \
-              -exec sed -i 's|https://oss-collab\.excalidraw\.com|https://draw-ws.${external_domain}|g' {} +
+              -exec sed -i 's|https://oss-collab\.excalidraw\.com|https://draw-ws.${external_domain}|g' {} + && \
+            for d in client_temp proxy_temp fastcgi_temp uwsgi_temp scgi_temp; do \
+              mkdir -p /mnt/nginx-cache/$d; \
+            done && \
+            chown -R 101:101 /mnt/nginx-cache
         resources:
           requests:
             cpu: 10m
@@ -64,6 +69,10 @@ controllers:
           repository: excalidraw/excalidraw
           # renovate: datasource=docker depName=excalidraw/excalidraw
           tag: sha-4bfc5bb
+        # Bypass the default docker-entrypoint.sh which calls chown on
+        # /var/cache/nginx — the init container pre-creates those directories
+        # with correct ownership so CAP_CHOWN is not needed.
+        command: ["nginx", "-g", "daemon off;"]
         resources:
           requests:
             cpu: 10m
@@ -162,17 +171,21 @@ persistence:
     type: emptyDir
     advancedMounts:
       excalidraw:
-        rewrite-collab-url:
+        init-nginx:
           - path: /mnt/html
         app:
           - path: /usr/share/nginx/html
             readOnly: true
   # Nginx runtime directories — required for read-only root filesystem.
   # nginx needs writable paths for cache, pid file, and temporary upload buffers.
+  # The init container pre-creates subdirectories with nginx uid (101) ownership
+  # so the main container can drop ALL capabilities including CAP_CHOWN.
   nginx-cache:
     type: emptyDir
     advancedMounts:
       excalidraw:
+        init-nginx:
+          - path: /mnt/nginx-cache
         app:
           - path: /var/cache/nginx
   nginx-run:

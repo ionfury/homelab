@@ -14,7 +14,7 @@ spec:
     - name: excalidraw.rules
       rules:
         - alert: ExcalidrawFrontendDown
-          expr: kube_deployment_status_replicas_available{namespace="excalidraw", deployment="excalidraw-excalidraw"} == 0
+          expr: kube_deployment_status_replicas_available{namespace="excalidraw", deployment="excalidraw"} == 0
           for: 5m
           labels:
             severity: critical
@@ -36,12 +36,3 @@ spec:
             severity: warning
           annotations:
             summary: "Excalidraw pod {{ $labels.pod }} has restarted {{ $value | humanize }} times in the last hour"
-
-        - alert: ExcalidrawCanaryFailing
-          expr: canary_check{namespace="excalidraw", name="http-check-excalidraw"} == 1
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Excalidraw canary health check is failing"
-            description: "The synthetic HTTP check for Excalidraw has been failing for more than 5 minutes, indicating the service may be unreachable."
