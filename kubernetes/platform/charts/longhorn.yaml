@@ -20,6 +20,8 @@ defaultSettings:
   createDefaultDiskLabeledNodes: true
   storageReservedPercentageForDefaultDisk: 0
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+  storageOverProvisioningPercentage: 500
+  storageMinimalAvailablePercentage: 10
 defaultBackupStore:
   backupTarget: s3://homelab-longhorn-backup-${cluster_name}@us-east-2/
   backupTargetCredentialSecret: longhorn-s3-backup-credentials
