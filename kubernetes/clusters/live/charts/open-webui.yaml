@@ -57,36 +57,6 @@ sso:
     providerName: Homelab
     scopes: "openid email profile groups"
 
-extraInitContainers:
-  - name: init-db
-    # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
-    image: ghcr.io/home-operations/postgres-init:18
-    env:
-      - name: INIT_POSTGRES_HOST
-        value: platform-rw.database.svc.cluster.local
-      - name: INIT_POSTGRES_SUPER_USER
-        value: postgres
-      - name: INIT_POSTGRES_SUPER_PASS
-        valueFrom:
-          secretKeyRef:
-            name: cnpg-superuser-replica
-            key: password
-      - name: INIT_POSTGRES_USER
-        value: open-webui
-      - name: INIT_POSTGRES_PASS
-        valueFrom:
-          secretKeyRef:
-            name: open-webui-db-credentials
-            key: password
-      - name: INIT_POSTGRES_DBNAME
-        value: open-webui
-    securityContext:
-      runAsNonRoot: true
-      allowPrivilegeEscalation: false
-      readOnlyRootFilesystem: true
-      capabilities:
-        drop: [ALL]
-
 podSecurityContext:
   runAsNonRoot: true
   seccompProfile:

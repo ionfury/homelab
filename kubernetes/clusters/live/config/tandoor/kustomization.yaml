@@ -6,7 +6,6 @@ resources:
   - namespace.yaml
   - tandoor-secret.yaml
   - tandoor-db-credentials.yaml
-  - cnpg-superuser-replica.yaml
   - garage-bucket.yaml
   - garage-key.yaml
   - internal-route.yaml

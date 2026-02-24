@@ -19,55 +19,7 @@ controllers:
           type: RuntimeDefault
 
     initContainers:
-      init-db:
-        image:
-          repository: ghcr.io/home-operations/postgres-init
-          # renovate: datasource=docker depName=ghcr.io/home-operations/postgres-init
-          tag: "18"
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: [ALL]
-        env:
-          INIT_POSTGRES_HOST: platform-rw.database.svc.cluster.local
-          INIT_POSTGRES_SUPER_USER: postgres
-          INIT_POSTGRES_SUPER_PASS:
-            valueFrom:
-              secretKeyRef:
-                name: cnpg-superuser-replica
-                key: password
-          INIT_POSTGRES_USER: lldap
-          INIT_POSTGRES_PASS:
-            valueFrom:
-              secretKeyRef:
-                name: lldap-db-credentials
-                key: password
-          INIT_POSTGRES_DBNAME: lldap
-      schema-grants:
-        dependsOn: init-db
-        image:
-          repository: ghcr.io/home-operations/postgres-init
-          tag: "18"
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: [ALL]
-        command: ["psql"]
-        args:
-          - --host=platform-rw.database.svc.cluster.local
-          - --username=postgres
-          - --dbname=lldap
-          - --command=GRANT ALL ON SCHEMA public TO lldap; ALTER DATABASE lldap OWNER TO lldap; GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO lldap; GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO lldap;
-        env:
-          PGPASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: cnpg-superuser-replica
-                key: password
       db-url:
-        dependsOn: schema-grants
         image:
           repository: busybox
           # renovate: datasource=docker depName=busybox

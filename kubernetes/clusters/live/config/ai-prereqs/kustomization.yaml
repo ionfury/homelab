@@ -6,6 +6,5 @@ resources:
   - namespace.yaml
   - open-webui-oidc-client-secret.yaml
   - open-webui-db-credentials.yaml
-  - cnpg-superuser-replica.yaml
   - dragonfly-secret-replication.yaml
   - network-policy.yaml

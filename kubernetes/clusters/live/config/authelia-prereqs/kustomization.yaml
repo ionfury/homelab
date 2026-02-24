@@ -6,7 +6,6 @@ resources:
   - namespace.yaml
   - lldap-secrets.yaml
   - oidc-certificate.yaml
-  - cnpg-superuser-replica.yaml
   - dragonfly-secret-replication.yaml
   - lldap-db-credentials.yaml
   - authelia-db-credentials.yaml
