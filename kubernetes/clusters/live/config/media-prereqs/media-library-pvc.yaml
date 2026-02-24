@@ -10,4 +10,4 @@ spec:
   storageClassName: slow-nb
   resources:
     requests:
-      storage: 8Ti
+      storage: 10Ti
