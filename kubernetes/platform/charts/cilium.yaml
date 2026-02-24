@@ -48,7 +48,7 @@ socketLB:
   hostNamespaceOnly: true
 operator:
   rollOutPods: true
-  replicas: 2
+  replicas: ${default_replica_count}
   prometheus:
     enabled: true
     serviceMonitor:
