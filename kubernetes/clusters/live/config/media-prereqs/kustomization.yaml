@@ -14,3 +14,5 @@ resources:
   - jellyfin-exporter-api-token.yaml
   - recyclarr-api-keys.yaml
   - recyclarr-config.yaml
+  - cnpg-superuser-replica.yaml
+  - db-credentials.yaml
