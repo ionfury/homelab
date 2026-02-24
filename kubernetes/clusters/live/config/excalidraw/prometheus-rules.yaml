@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: excalidraw-alerts
+  namespace: excalidraw
+  labels:
+    app.kubernetes.io/name: excalidraw
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: excalidraw.rules
+      rules:
+        - alert: ExcalidrawFrontendDown
+          expr: kube_deployment_status_replicas_available{namespace="excalidraw", deployment="excalidraw"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Excalidraw frontend has no available replicas"
+
+        - alert: ExcalidrawRoomDown
+          expr: kube_deployment_status_replicas_available{namespace="excalidraw", deployment="excalidraw-room"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Excalidraw room WebSocket relay has no available replicas"
+
+        - alert: ExcalidrawPodRestarting
+          expr: increase(kube_pod_container_status_restarts_total{namespace="excalidraw"}[1h]) > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Excalidraw pod {{ $labels.pod }} has restarted {{ $value | humanize }} times in the last hour"
