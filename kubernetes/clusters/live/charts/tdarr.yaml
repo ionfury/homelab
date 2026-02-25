@@ -15,29 +15,10 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
-    # s6-overlay preinit checks that /run is owned by the container UID.
-    # emptyDir mount points are always owned by root (uid 0) — Kubernetes
-    # only changes the GID via fsGroup, not the UID. This init container
-    # runs as root with CAP_CHOWN to fix the ownership before the app starts.
-    initContainers:
-      init-run:
-        image:
-          repository: busybox
-          tag: latest
-        command:
-          - /bin/sh
-          - -c
-          - chown 568:568 /run
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: false
-          runAsUser: 0
-          runAsGroup: 0
-          capabilities:
-            drop: ["ALL"]
-            add: ["CHOWN", "DAC_OVERRIDE", "FOWNER"]
-
+    # s6-overlay (LinuxServer.io) requires root to run its init system,
+    # then drops to PUID/PGID via s6-applyuidgid. Capabilities needed:
+    # SETUID/SETGID for user switching, CHOWN/DAC_OVERRIDE/FOWNER for
+    # file ownership fixups during init.
     containers:
       app:
         image:
@@ -45,6 +26,8 @@ controllers:
           tag: "${tdarr_version}"
         env:
           TZ: UTC
+          PUID: "568"
+          PGID: "568"
           serverIP: "0.0.0.0"
           serverPort: "8266"
           webUIPort: "8265"
@@ -52,8 +35,12 @@ controllers:
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          runAsUser: 0
+          runAsGroup: 0
           capabilities:
             drop: [ALL]
+            add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
         resources:
           requests:
             cpu: 100m
@@ -132,5 +119,7 @@ persistence:
           - path: /app/transcode_cache
   run:
     type: emptyDir
-    globalMounts:
-      - path: /run
+    advancedMounts:
+      tdarr:
+        app:
+          - path: /run
