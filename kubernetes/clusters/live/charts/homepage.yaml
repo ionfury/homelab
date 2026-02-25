@@ -43,6 +43,9 @@ controllers:
               httpGet:
                 path: /api/healthcheck
                 port: 3000
+                httpHeaders:
+                  - name: Host
+                    value: "home.${internal_domain}"
               periodSeconds: 30
           readiness:
             enabled: true
@@ -51,6 +54,9 @@ controllers:
               httpGet:
                 path: /api/healthcheck
                 port: 3000
+                httpHeaders:
+                  - name: Host
+                    value: "home.${internal_domain}"
               periodSeconds: 10
           startup:
             enabled: true
@@ -59,6 +65,9 @@ controllers:
               httpGet:
                 path: /api/healthcheck
                 port: 3000
+                httpHeaders:
+                  - name: Host
+                    value: "home.${internal_domain}"
               initialDelaySeconds: 5
               periodSeconds: 5
               failureThreshold: 10

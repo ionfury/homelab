@@ -116,3 +116,7 @@ persistence:
     type: emptyDir
     globalMounts:
       - path: /tmp
+  run:
+    type: emptyDir
+    globalMounts:
+      - path: /run

@@ -116,15 +116,13 @@ service:
     ports:
       http:
         port: 8080
-      metrics:
-        port: 8080
 
 serviceMonitor:
   main:
     enabled: true
     serviceName: app
     endpoints:
-      - port: metrics
+      - port: http
         scheme: http
         path: /metrics
         interval: 60s
