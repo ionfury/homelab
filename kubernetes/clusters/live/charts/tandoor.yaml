@@ -90,6 +90,12 @@ controllers:
               httpGet:
                 path: /accounts/login/
                 port: 8080
+                # Django validates the Host header against ALLOWED_HOSTS.
+                # Kubernetes probes send the pod IP as Host, which Django
+                # rejects with DisallowedHost.
+                httpHeaders:
+                  - name: Host
+                    value: "recipes.${internal_domain}"
               initialDelaySeconds: 15
               periodSeconds: 5
               failureThreshold: 30
@@ -100,6 +106,9 @@ controllers:
               httpGet:
                 path: /accounts/login/
                 port: 8080
+                httpHeaders:
+                  - name: Host
+                    value: "recipes.${internal_domain}"
               periodSeconds: 30
           readiness:
             enabled: true
@@ -108,6 +117,9 @@ controllers:
               httpGet:
                 path: /accounts/login/
                 port: 8080
+                httpHeaders:
+                  - name: Host
+                    value: "recipes.${internal_domain}"
               periodSeconds: 10
 
 service:
