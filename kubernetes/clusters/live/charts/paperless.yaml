@@ -18,6 +18,27 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    # s6-overlay preinit checks that /run is owned by the container UID.
+    # emptyDir mount points are always owned by root (uid 0) — Kubernetes
+    # only changes the GID via fsGroup, not the UID. This init container
+    # runs as root with CAP_CHOWN to fix the ownership before the app starts.
+    initContainers:
+      init-run:
+        image:
+          repository: busybox
+          tag: latest
+        command:
+          - /bin/sh
+          - -c
+          - chown 1000:1000 /run
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
+            add: ["CHOWN"]
+
     containers:
       app:
         image:
