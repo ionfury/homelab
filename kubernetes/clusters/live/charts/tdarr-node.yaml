@@ -31,6 +31,8 @@ controllers:
           TZ: UTC
           PUID: "568"
           PGID: "568"
+          # s6-overlay default 5s timeout is too short — encoder probes take minutes
+          S6_CMD_WAIT_FOR_SERVICES_MAXTIME: "0"
           nodeName: gpu-worker
           serverURL: "http://tdarr.media.svc.cluster.local:8266"
           NVIDIA_DRIVER_CAPABILITIES: all
