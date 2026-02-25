@@ -107,3 +107,7 @@ persistence:
       tdarr:
         app:
           - path: /app/transcode_cache
+  run:
+    type: emptyDir
+    globalMounts:
+      - path: /run

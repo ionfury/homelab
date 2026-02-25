@@ -11,6 +11,9 @@ spec:
       replicator.v1.mittwald.de/replication-allowed: "true"
       replicator.v1.mittwald.de/replication-allowed-namespaces: "immich"
   description: "Immich PostgreSQL with vectorchord for AI vector search"
+  env:
+    - name: AWS_DEFAULT_REGION
+      value: "garage"
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:${vectorchord_version:-17.7-1.0.0}
   instances: ${default_replica_count}
   primaryUpdateStrategy: unsupervised

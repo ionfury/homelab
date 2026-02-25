@@ -25,14 +25,15 @@ controllers:
           tag: sha-4bfc5bb
         # LIMITATION: The upstream excalidraw image (nginx:alpine) has no USER
         # directive and requires root for the copy + chown operations. Running as
-        # non-root would require a custom image build. Capabilities are still
-        # dropped and privilege escalation is denied to minimize risk.
+        # non-root would require a custom image build. CHOWN, DAC_OVERRIDE, and
+        # FOWNER are required for chown -R on nginx cache directories.
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
           runAsNonRoot: false
           capabilities:
             drop: ["ALL"]
+            add: ["CHOWN", "DAC_OVERRIDE", "FOWNER"]
         command:
           - /bin/sh
           - -c

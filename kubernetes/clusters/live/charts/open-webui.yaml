@@ -58,7 +58,6 @@ sso:
     scopes: "openid email profile groups"
 
 podSecurityContext:
-  runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
 
