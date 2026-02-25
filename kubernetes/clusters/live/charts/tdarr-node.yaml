@@ -18,6 +18,10 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    # s6-overlay (LinuxServer.io) requires root to run its init system,
+    # then drops to PUID/PGID via s6-applyuidgid. Capabilities needed:
+    # SETUID/SETGID for user switching, CHOWN/DAC_OVERRIDE/FOWNER for
+    # file ownership fixups during init.
     containers:
       app:
         image:
@@ -25,6 +29,8 @@ controllers:
           tag: "${tdarr_node_version}"
         env:
           TZ: UTC
+          PUID: "568"
+          PGID: "568"
           nodeName: gpu-worker
           serverURL: "http://tdarr-app.media.svc.cluster.local:8266"
           NVIDIA_DRIVER_CAPABILITIES: all
@@ -32,8 +38,12 @@ controllers:
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          runAsUser: 0
+          runAsGroup: 0
           capabilities:
             drop: [ALL]
+            add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
         resources:
           requests:
             cpu: 500m
@@ -80,3 +90,9 @@ persistence:
       tdarr-node:
         app:
           - path: /app/transcode_cache
+  run:
+    type: emptyDir
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /run

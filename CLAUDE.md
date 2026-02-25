@@ -291,6 +291,22 @@ For dev cluster task commands and detailed procedures, see [.taskfiles/CLAUDE.md
 - **NEVER** commit secrets or credentials to Git - they belong in AWS Parameter Store
 - **NEVER** commit generated artifacts (`.rendered/`, `.terragrunt-cache/`, etc.)
 
+## Container Image Standards
+
+**NEVER** deploy container images that use s6-overlay or LinuxServer.io (LSIO) base images. These init systems require root privileges and conflict with Kubernetes security contexts (`runAsNonRoot`, `drop: [ALL]`).
+
+- **NEVER** introduce a new s6-overlay or LSIO-based image without explicit user approval
+- **ALWAYS** prefer upstream/official images designed for rootless operation
+- **ALWAYS** verify new images don't use s6-overlay by checking for `ENTRYPOINT ["/init"]` or LSIO base layers
+
+**Approved exceptions** (upstream provides no rootless alternative):
+
+| Image | Reason | Security Pattern |
+|-------|--------|-----------------|
+| `ghcr.io/haveagitgat/tdarr` | Upstream embeds s6-overlay, no alternative exists | Container-level `runAsUser: 0` + `PUID`/`PGID` env + least-privilege caps (`CHOWN`, `DAC_OVERRIDE`, `FOWNER`, `SETGID`, `SETUID`) |
+| `ghcr.io/haveagitgat/tdarr_node` | Same as tdarr | Same as tdarr |
+| `ghcr.io/paperless-ngx/paperless-ngx` | Upstream embeds s6-overlay, rootless alt has OCR limitations | Init container with `runAsUser: 0` + `CAP_CHOWN`/`DAC_OVERRIDE`/`FOWNER` for `/run` ownership |
+
 ## Destructive Operations (Require EXPLICIT Human Authorization)
 
 - **NEVER** run `terragrunt apply` or `tofu apply` without explicit human approval
