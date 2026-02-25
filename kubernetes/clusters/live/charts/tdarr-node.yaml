@@ -32,7 +32,7 @@ controllers:
           PUID: "568"
           PGID: "568"
           nodeName: gpu-worker
-          serverURL: "http://tdarr-app.media.svc.cluster.local:8266"
+          serverURL: "http://tdarr.media.svc.cluster.local:8266"
           NVIDIA_DRIVER_CAPABILITIES: all
           NVIDIA_VISIBLE_DEVICES: all
         securityContext:
