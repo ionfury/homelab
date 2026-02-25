@@ -34,7 +34,7 @@ controllers:
           runAsNonRoot: false
           capabilities:
             drop: ["ALL"]
-            add: ["CHOWN"]
+            add: ["CHOWN", "DAC_OVERRIDE", "FOWNER"]
 
     containers:
       app:
