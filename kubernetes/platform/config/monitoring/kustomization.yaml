@@ -34,4 +34,5 @@ resources:
   - backup-health-dashboard.yaml
   - garage-s3-dashboard.yaml
   - power-accounting-dashboard.yaml
+  - hardware-health-dashboard.yaml
   - gpu-monitoring-alerts.yaml
