@@ -119,6 +119,30 @@ dashboardProviders:
         editable: true
         options:
           path: /var/lib/grafana/dashboards/platform-services
+      - name: database
+        orgId: 1
+        folder: Database
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/database
+      - name: power
+        orgId: 1
+        folder: Power
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/power
+      - name: sre
+        orgId: 1
+        folder: SRE
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/sre
 dashboards:
   kubernetes:
     kubernetes-global:
@@ -201,6 +225,11 @@ dashboards:
       gnetId: 11454
       revision: 14
       datasource: Prometheus
+    longhorn:
+      # renovate: depName="Longhorn Dashboard"
+      gnetId: 22705
+      revision: 1
+      datasource: Prometheus
   hardware:
     smartctl-exporter:
       # renovate: depName="SMARTctl Exporter Dashboard"
@@ -210,6 +239,16 @@ dashboards:
         - { name: DS_PROMETHEUS, value: Prometheus }
     node-feature-discovery:
       url: https://raw.githubusercontent.com/kubernetes-sigs/node-feature-discovery/master/examples/grafana-dashboard.json
+      datasource: Prometheus
+    ipmi-exporter:
+      # renovate: depName="IPMI Exporter"
+      gnetId: 15765
+      revision: 2
+      datasource: Prometheus
+    nvidia-dcgm-exporter:
+      # renovate: depName="NVIDIA DCGM Exporter Dashboard"
+      gnetId: 12239
+      revision: 2
       datasource: Prometheus
   applications:
     miniflux:
@@ -236,6 +275,44 @@ dashboards:
       datasource: Prometheus
     external-secrets:
       url: https://raw.githubusercontent.com/external-secrets/external-secrets/main/docs/snippets/dashboard.json
+      datasource: Prometheus
+    alertmanager:
+      # renovate: depName="Alertmanager"
+      gnetId: 9578
+      revision: 4
+      datasource: Prometheus
+    loki-logs:
+      # renovate: depName="Loki Logs Dashboard"
+      gnetId: 15324
+      revision: 1
+      datasource: Prometheus
+  database:
+    cloudnative-pg:
+      # renovate: depName="CloudNativePG"
+      gnetId: 20417
+      revision: 4
+      datasource: Prometheus
+    dragonfly:
+      # renovate: depName="Dragonfly"
+      gnetId: 11692
+      revision: 1
+      datasource: Prometheus
+  power:
+    apc-ups-snmp:
+      # renovate: depName="APC UPS (SNMP)"
+      gnetId: 12340
+      revision: 1
+      datasource: Prometheus
+  sre:
+    kubernetes-capacity-planning:
+      # renovate: depName="Kubernetes Capacity Planning"
+      gnetId: 5499
+      revision: 1
+      datasource: Prometheus
+    golden-signals:
+      # renovate: depName="Monitoring Golden Signals"
+      gnetId: 21073
+      revision: 1
       datasource: Prometheus
 sidecar:
   dashboards:
