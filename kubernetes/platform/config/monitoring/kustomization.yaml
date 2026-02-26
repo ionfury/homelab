@@ -32,4 +32,5 @@ resources:
   - ups-monitoring-scrape.yaml
   - ups-monitoring-alerts.yaml
   - backup-health-dashboard.yaml
+  - garage-s3-dashboard.yaml
   - gpu-monitoring-alerts.yaml
