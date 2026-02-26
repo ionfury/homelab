@@ -1,0 +1,924 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/v1/configmap.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-platform-signals
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"
+  annotations:
+    grafana_folder: SRE
+data:
+  platform-signals.json: |-
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [
+        {
+          "asDropdown": true,
+          "icon": "external link",
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [],
+          "targetBlank": true,
+          "title": "Related Dashboards",
+          "type": "link",
+          "url": ""
+        }
+      ],
+      "panels": [
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+          "id": 1,
+          "title": "Gateway Traffic (Latency / Traffic / Errors)",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Total HTTP requests per second through internal and external Istio gateways.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "req/s",
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "scheme",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+          "id": 2,
+          "options": {
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\", source_workload=~\"internal-istio.*\"}[5m]))",
+              "legendFormat": "Internal Gateway",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\", source_workload=~\"external-istio.*\"}[5m]))",
+              "legendFormat": "External Gateway",
+              "refId": "B"
+            }
+          ],
+          "title": "Gateway Request Rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Percentage of non-5xx responses through each gateway. Values below 99.9% indicate elevated error rates.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "",
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "decimals": 2,
+              "max": 100,
+              "min": 95,
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+          "id": 3,
+          "options": {
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "100 * sum(rate(istio_requests_total{reporter=\"source\", source_workload=~\"internal-istio.*\", response_code!~\"5.*\"}[5m])) / sum(rate(istio_requests_total{reporter=\"source\", source_workload=~\"internal-istio.*\"}[5m]))",
+              "legendFormat": "Internal Gateway",
+              "refId": "A"
+            },
+            {
+              "expr": "100 * sum(rate(istio_requests_total{reporter=\"source\", source_workload=~\"external-istio.*\", response_code!~\"5.*\"}[5m])) / sum(rate(istio_requests_total{reporter=\"source\", source_workload=~\"external-istio.*\"}[5m]))",
+              "legendFormat": "External Gateway",
+              "refId": "B"
+            }
+          ],
+          "title": "Gateway Success Rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "P50, P95, and P99 request latency through the Istio gateways. High latency indicates backend saturation or network issues.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "",
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+          "id": 4,
+          "options": {
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"source\", source_workload=~\"(internal|external)-istio.*\"}[5m])) by (le))/1000",
+              "legendFormat": "p50",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"source\", source_workload=~\"(internal|external)-istio.*\"}[5m])) by (le))/1000",
+              "legendFormat": "p95",
+              "refId": "B"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"source\", source_workload=~\"(internal|external)-istio.*\"}[5m])) by (le))/1000",
+              "legendFormat": "p99",
+              "refId": "C"
+            }
+          ],
+          "title": "Gateway Request Latency",
+          "type": "timeseries"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+          "id": 10,
+          "title": "Database Saturation (CNPG)",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Active database connections as a percentage of max_connections. Above 80% triggers CNPGClusterHighConnections alert.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 60 },
+                  { "color": "orange", "value": 80 },
+                  { "color": "red", "value": 90 }
+                ]
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 10 },
+          "id": 11,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "orientation": "auto"
+          },
+          "targets": [
+            {
+              "expr": "100 * (cnpg_pg_stat_activity_count{datname!=\"\"} / on(cluster) group_left cnpg_pg_settings_setting{name=\"max_connections\"})",
+              "legendFormat": "{{ cluster }} / {{ datname }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Connection Pool Utilization",
+          "type": "gauge"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Replication lag in bytes between primary and replicas. High lag means replicas serve stale data and failover RPO degrades.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "",
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 10 },
+          "id": 12,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "cnpg_pg_replication_lag{cluster=~\".*\"}",
+              "legendFormat": "{{ pod }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Replication Lag",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "WAL files pending archival. Values above 10 trigger CNPGWALArchivingLagHigh alert. Above 100 triggers CNPGWALArchivingStalled.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "WAL files",
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 10 },
+                  { "color": "red", "value": 100 }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 10 },
+          "id": 13,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "cnpg_collector_pg_wal_archive_status{value=\"ready\"}",
+              "legendFormat": "{{ cluster }}",
+              "refId": "A"
+            }
+          ],
+          "title": "WAL Archiving Backlog",
+          "type": "timeseries"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+          "id": 20,
+          "title": "Cache Performance (Dragonfly)",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Dragonfly memory usage as percentage of maxmemory. Above 90% triggers DragonflyHighMemoryUsage alert.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "orange", "value": 90 },
+                  { "color": "red", "value": 95 }
+                ]
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 19 },
+          "id": 21,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "orientation": "auto"
+          },
+          "targets": [
+            {
+              "expr": "100 * (dragonfly_used_memory_bytes{namespace=\"cache\"} / dragonfly_maxmemory_bytes{namespace=\"cache\"})",
+              "legendFormat": "{{ pod }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Dragonfly Memory Utilization",
+          "type": "gauge"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Operations per second processed by Dragonfly. Shows cache traffic load over time.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "ops/s",
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 19 },
+          "id": 22,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "rate(dragonfly_commands_processed_total{namespace=\"cache\"}[5m])",
+              "legendFormat": "{{ pod }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Dragonfly Command Rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Cache hit ratio: proportion of key lookups that returned data vs misses. Higher is better.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 50 },
+                  { "color": "green", "value": 90 }
+                ]
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 19 },
+          "id": 23,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "orientation": "auto"
+          },
+          "targets": [
+            {
+              "expr": "100 * (dragonfly_keyspace_hits_total{namespace=\"cache\"} / (dragonfly_keyspace_hits_total{namespace=\"cache\"} + dragonfly_keyspace_misses_total{namespace=\"cache\"}))",
+              "legendFormat": "{{ pod }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Dragonfly Hit Ratio",
+          "type": "gauge"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+          "id": 30,
+          "title": "Storage Saturation",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Top PVCs by fill percentage. Volumes below 15% free trigger kubelet PVC pressure warnings.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "orange", "value": 85 },
+                  { "color": "red", "value": 95 }
+                ]
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": { "type": "auto" },
+                "inspect": false
+              },
+              "unit": "percent"
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "PVC" },
+                "properties": [{ "id": "custom.width", "value": 280 }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Namespace" },
+                "properties": [{ "id": "custom.width", "value": 140 }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Used %" },
+                "properties": [
+                  { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
+                  { "id": "min", "value": 0 },
+                  { "id": "max", "value": 100 }
+                ]
+              }
+            ]
+          },
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 28 },
+          "id": 31,
+          "options": {
+            "showHeader": true,
+            "sortBy": [{ "desc": true, "displayName": "Used %" }],
+            "footer": { "enablePagination": false }
+          },
+          "targets": [
+            {
+              "expr": "100 * (1 - kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes)",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "PVC Fill Percentage (Top Volumes)",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "endpoint": true,
+                  "instance": true,
+                  "job": true,
+                  "metrics_path": true,
+                  "node": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "namespace": "Namespace",
+                  "persistentvolumeclaim": "PVC",
+                  "Value": "Used %"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": { "sort": [{ "field": "Used %", "desc": true }] }
+            },
+            {
+              "id": "limit",
+              "options": { "limitField": 15 }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Longhorn node storage utilization: allocated storage as percentage of total schedulable capacity per node.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "orange", "value": 85 },
+                  { "color": "red", "value": 95 }
+                ]
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 28 },
+          "id": 32,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "orientation": "auto"
+          },
+          "targets": [
+            {
+              "expr": "100 * (longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes)",
+              "legendFormat": "{{ node }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Longhorn Node Storage Utilization",
+          "type": "gauge"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 38 },
+          "id": 40,
+          "title": "GitOps Health (Flux)",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Number of Flux Kustomizations and HelmReleases not in Ready state. Zero means fully converged.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 },
+                  { "color": "red", "value": 3 }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 39 },
+          "id": 41,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "graphMode": "none",
+            "colorMode": "background",
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "expr": "count(gotk_resource_info{ready=\"False\", type=\"Kustomization\"})",
+              "legendFormat": "Failing Kustomizations",
+              "refId": "A"
+            }
+          ],
+          "title": "Failing Kustomizations",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Number of HelmReleases not in Ready state.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 },
+                  { "color": "red", "value": 3 }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 39 },
+          "id": 42,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "graphMode": "none",
+            "colorMode": "background",
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "expr": "count(gotk_resource_info{ready=\"False\", type=\"HelmRelease\"})",
+              "legendFormat": "Failing HelmReleases",
+              "refId": "A"
+            }
+          ],
+          "title": "Failing HelmReleases",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Number of suspended Flux resources. Suspensions block reconciliation and should be temporary.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "orange", "value": 5 }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 39 },
+          "id": 43,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "graphMode": "none",
+            "colorMode": "background",
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "expr": "count(gotk_resource_info{suspended=\"true\"})",
+              "legendFormat": "Suspended",
+              "refId": "A"
+            }
+          ],
+          "title": "Suspended Resources",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Total number of Flux-managed resources in Ready state vs total. Shows overall platform convergence.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 90 },
+                  { "color": "green", "value": 100 }
+                ]
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 39 },
+          "id": 44,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "graphMode": "area",
+            "colorMode": "background",
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "expr": "100 * count(gotk_resource_info{ready=\"True\"}) / count(gotk_resource_info)",
+              "legendFormat": "Ready %",
+              "refId": "A"
+            }
+          ],
+          "title": "Flux Readiness",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Average reconciliation duration for Flux Kustomizations and HelmReleases over time.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "",
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 43 },
+          "id": 45,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "sum(gotk_reconcile_duration_seconds_sum{kind=\"Kustomization\"}) / sum(gotk_reconcile_duration_seconds_count{kind=\"Kustomization\"})",
+              "legendFormat": "Kustomization avg",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(gotk_reconcile_duration_seconds_sum{kind=\"HelmRelease\"}) / sum(gotk_reconcile_duration_seconds_count{kind=\"HelmRelease\"})",
+              "legendFormat": "HelmRelease avg",
+              "refId": "B"
+            }
+          ],
+          "title": "Flux Reconciliation Duration",
+          "type": "timeseries"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 51 },
+          "id": 50,
+          "title": "Garage S3 Storage",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Garage data disk space available as a percentage of total. Below 20% triggers GarageDiskSpaceWarning; below 10% triggers GarageDiskSpaceCritical.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "orange", "value": 10 },
+                  { "color": "yellow", "value": 20 },
+                  { "color": "green", "value": 40 }
+                ]
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 52 },
+          "id": 51,
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "orientation": "auto"
+          },
+          "targets": [
+            {
+              "expr": "100 * (garage_local_disk_avail{role=\"data\", job=~\".*garage.*\"} / garage_local_disk_total{role=\"data\", job=~\".*garage.*\"})",
+              "legendFormat": "{{ instance }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Garage Disk Available %",
+          "type": "gauge"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "S3 API request rate and error rate from Garage.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "req/s",
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 52 },
+          "id": 52,
+          "options": {
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(api_s3_request_counter{job=~\".*garage.*\"}[5m]))",
+              "legendFormat": "Requests",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(rate(api_s3_error_counter{job=~\".*garage.*\"}[5m]))",
+              "legendFormat": "Errors",
+              "refId": "B"
+            }
+          ],
+          "title": "Garage S3 Request & Error Rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "P99 latency for Garage S3 API requests. Above 5s triggers GarageS3LatencyHigh alert.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "",
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": { "group": "A", "mode": "none" }
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 52 },
+          "id": 53,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(api_s3_request_duration_bucket{job=~\".*garage.*\"}[5m])) by (le))",
+              "legendFormat": "p99",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(api_s3_request_duration_bucket{job=~\".*garage.*\"}[5m])) by (le))",
+              "legendFormat": "p50",
+              "refId": "B"
+            }
+          ],
+          "title": "Garage S3 Request Latency",
+          "type": "timeseries"
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "tags": ["golden-signals", "sre", "platform"],
+      "templating": { "list": [] },
+      "time": { "from": "now-3h", "to": "now" },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Platform Signals",
+      "uid": "platform-signals",
+      "version": 1
+    }
