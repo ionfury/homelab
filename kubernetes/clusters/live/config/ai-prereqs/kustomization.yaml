@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - open-webui-oidc-client-secret.yaml
+  - oidc-secret-replication.yaml
   - open-webui-db-credentials.yaml
   - dragonfly-secret-replication.yaml
   - network-policy.yaml

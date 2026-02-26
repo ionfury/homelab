@@ -13,7 +13,9 @@ resources:
     cpu: 100m
     memory: 64Mi
   limits:
-    # CPU limit intentionally omitted — ipmitool subprocess forks cause brief CPU
-    # spikes incompatible with CFS rate limiting (8acbb894, d052a162).
-    # K8s 1.35 rejects explicit `cpu: null` (treats as 0), so we omit entirely.
+    # Chart template hardcodes `cpu: {{ .Values.resources.limits.cpu }}` rather
+    # than using toYaml, so omitting the key has no effect (chart default 100m
+    # leaks through Helm deep-merge). Set a generous limit instead — ipmitool
+    # subprocesses cause brief CPU spikes that throttle heavily at 100m.
+    cpu: "1"
     memory: 128Mi
