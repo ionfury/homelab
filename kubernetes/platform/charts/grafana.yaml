@@ -175,6 +175,27 @@ dashboards:
       revision: 6
       datasource:
         - { name: DS_PROMETHEUS, value: Prometheus }
+    istio-mesh:
+      url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/istio-mesh-dashboard.gen.json
+      datasource: Prometheus
+    istio-service:
+      url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/istio-service-dashboard.json
+      datasource: Prometheus
+    istio-workload:
+      url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/istio-workload-dashboard.json
+      datasource: Prometheus
+    istio-control-plane:
+      url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/pilot-dashboard.gen.json
+      datasource: Prometheus
+    istio-performance:
+      url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/istio-performance-dashboard.json
+      datasource: Prometheus
+    istio-ztunnel:
+      url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/ztunnel-dashboard.gen.json
+      datasource: Prometheus
+    istio-wasm-extensions:
+      url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/istio-extension-dashboard.json
+      datasource: Prometheus
     unifi-insights:
       # renovate: depName="UniFi-Poller: Client Insights - Prometheus"
       gnetId: 11315
