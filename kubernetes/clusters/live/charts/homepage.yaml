@@ -29,6 +29,9 @@ controllers:
         env:
           # Required: homepage rejects requests not matching allowed hosts
           HOMEPAGE_ALLOWED_HOSTS: "home.${internal_domain}"
+          # Disable file logging to avoid writing to read-only ConfigMap mount
+          # https://github.com/gethomepage/homepage/discussions/5404
+          LOG_TARGETS: stdout
         resources:
           requests:
             cpu: 10m
@@ -121,3 +124,7 @@ persistence:
     name: homepage
     globalMounts:
       - path: /app/config
+  logs:
+    type: emptyDir
+    globalMounts:
+      - path: /app/config/logs
