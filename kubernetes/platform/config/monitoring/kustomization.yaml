@@ -37,3 +37,4 @@ resources:
   - power-accounting-dashboard.yaml
   - hardware-health-dashboard.yaml
   - gpu-monitoring-alerts.yaml
+  - platform-home-dashboard.yaml
