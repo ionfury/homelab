@@ -10,8 +10,6 @@ resources:
   - network-policy.yaml
   - nordvpn-credentials.yaml
   - nordvpn-wireguard-credentials.yaml
-  - exportarr-api-keys.yaml
   - jellyfin-exporter-api-token.yaml
-  - recyclarr-api-keys.yaml
   - recyclarr-config.yaml
   - db-credentials.yaml

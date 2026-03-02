@@ -5,6 +5,9 @@ controllers:
   prowlarr:
     type: deployment
 
+    annotations:
+      reloader.stakater.com/auto: "true"
+
     pod:
       securityContext:
         runAsNonRoot: true
@@ -31,6 +34,11 @@ controllers:
                 key: password
           PROWLARR__POSTGRES__MAINDB: prowlarr-main
           PROWLARR__POSTGRES__LOGDB: prowlarr-log
+          PROWLARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

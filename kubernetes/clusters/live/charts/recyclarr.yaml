@@ -31,13 +31,13 @@ controllers:
           SONARR_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: recyclarr-api-keys
-                key: sonarr-api-key
+                name: sonarr-api-key
+                key: api-key
           RADARR_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: recyclarr-api-keys
-                key: radarr-api-key
+                name: radarr-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

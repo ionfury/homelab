@@ -5,6 +5,9 @@ controllers:
   radarr:
     type: deployment
 
+    annotations:
+      reloader.stakater.com/auto: "true"
+
     pod:
       securityContext:
         runAsNonRoot: true
@@ -31,6 +34,11 @@ controllers:
                 key: password
           RADARR__POSTGRES__MAINDB: radarr-main
           RADARR__POSTGRES__LOGDB: radarr-log
+          RADARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
