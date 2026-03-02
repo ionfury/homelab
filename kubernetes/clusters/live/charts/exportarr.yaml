@@ -28,8 +28,8 @@ controllers:
           API_KEY:
             valueFrom:
               secretKeyRef:
-                name: exportarr-api-keys
-                key: sonarr-api-key
+                name: sonarr-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -84,8 +84,8 @@ controllers:
           API_KEY:
             valueFrom:
               secretKeyRef:
-                name: exportarr-api-keys
-                key: radarr-api-key
+                name: radarr-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -140,8 +140,8 @@ controllers:
           API_KEY:
             valueFrom:
               secretKeyRef:
-                name: exportarr-api-keys
-                key: prowlarr-api-key
+                name: prowlarr-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

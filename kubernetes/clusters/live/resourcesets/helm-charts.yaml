@@ -98,14 +98,14 @@ spec:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: []
+      dependsOn: [secret-generator]
     - name: sonarr
       namespace: media
       chart:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: []
+      dependsOn: [secret-generator]
     - name: bazarr
       namespace: media
       chart:
@@ -119,7 +119,7 @@ spec:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: []
+      dependsOn: [secret-generator]
     - name: jellyfin
       namespace: media
       chart:

@@ -5,6 +5,9 @@ controllers:
   sonarr:
     type: deployment
 
+    annotations:
+      reloader.stakater.com/auto: "true"
+
     pod:
       securityContext:
         runAsNonRoot: true
@@ -31,6 +34,11 @@ controllers:
                 key: password
           SONARR__POSTGRES__MAINDB: sonarr-main
           SONARR__POSTGRES__LOGDB: sonarr-log
+          SONARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: sonarr-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
