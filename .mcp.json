@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "grafana": {
+      "command": "mcp-grafana",
+      "args": ["--disable-oncall", "--disable-admin"],
+      "env": {
+        "GRAFANA_URL": "http://localhost:3000"
+      }
+    }
+  }
+}

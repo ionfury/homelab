@@ -22,6 +22,7 @@ These skills are composed by agents internally. They are not invoked directly by
 | `k8s` | Kubernetes cluster access, kubectl, and Flux operations | troubleshooter, implementer, designer | - | - |
 | `kubesearch` | Research Helm configurations from kubesearch.dev | designer, implementer | - | - |
 | `loki` | Query Loki API for cluster logs and debugging | troubleshooter | queries.md | logql.sh |
+| `grafana-dashboards` | MCP-driven Grafana dashboard authoring with visual iteration | implementer | - | - |
 | `monitoring-authoring` | Author PrometheusRules, ServiceMonitors, AlertmanagerConfig, canary checks | implementer | - | - |
 | `network-policy` | Cilium network policy management, Hubble debugging, escape hatch | troubleshooter, implementer | - | - |
 | `opentofu-modules` | OpenTofu module development and testing patterns | implementer | opentofu-testing.md | - |
@@ -218,7 +219,7 @@ Agents are defined in `.claude/agents/` and compose skills for their domain:
 | Agent | Role | Skills | Model | Mode |
 |-------|------|--------|-------|------|
 | `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline, network-policy | inherit | default (read-only tools) |
-| `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, cnpg-database, gateway-routing, versions-renovate, kubesearch, promotion-pipeline, gha-pipelines, network-policy | inherit | default (full tools) |
+| `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, grafana-dashboards, cnpg-database, gateway-routing, versions-renovate, kubesearch, promotion-pipeline, gha-pipelines, network-policy | inherit | default (full tools) |
 | `designer` | Principal architect | kubesearch, architecture-review, k8s | opus | plan (read-only) |
 | `security-tester` | Adversarial red team tester | security-testing, k8s, network-policy, prometheus, loki, sre, gateway-routing | opus | default (read-only tools) |
 
