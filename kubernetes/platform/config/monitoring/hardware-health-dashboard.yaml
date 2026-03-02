@@ -21,7 +21,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-          "id": 50,
+          "id": 10,
           "title": "Disk Health",
           "type": "row"
         },
@@ -50,7 +50,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 24, "x": 0, "y": 1 },
-          "id": 1,
+          "id": 11,
           "options": {
             "cellHeight": "sm",
             "footer": { "enablePagination": false, "show": false },
@@ -59,7 +59,6 @@ data:
               { "desc": false, "displayName": "Instance" }
             ]
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -118,7 +117,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
-          "id": 2,
+          "id": 12,
           "options": {
             "displayMode": "gradient",
             "minVizHeight": 16,
@@ -134,7 +133,6 @@ data:
             "sizing": "auto",
             "valueMode": "color"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -161,7 +159,7 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 15,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "insertNulls": false,
                 "lineInterpolation": "smooth",
@@ -187,12 +185,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
-          "id": 3,
+          "id": 13,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -230,7 +227,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
-          "id": 4,
+          "id": 14,
           "options": {
             "cellHeight": "sm",
             "footer": { "enablePagination": false, "show": false },
@@ -239,7 +236,6 @@ data:
               { "desc": true, "displayName": "Power-On Hours" }
             ]
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -294,7 +290,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 17 },
-          "id": 5,
+          "id": 15,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -307,7 +303,6 @@ data:
             },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -338,7 +333,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 17 },
-          "id": 6,
+          "id": 16,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -351,7 +346,6 @@ data:
             },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -378,7 +372,7 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 15,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "insertNulls": false,
                 "lineInterpolation": "smooth",
@@ -396,12 +390,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
-          "id": 7,
+          "id": 17,
           "options": {
             "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -422,7 +415,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
-          "id": 51,
+          "id": 20,
           "title": "Server Sensors (IPMI)",
           "type": "row"
         },
@@ -441,7 +434,7 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 15,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "insertNulls": false,
                 "lineInterpolation": "smooth",
@@ -467,12 +460,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 10, "w": 12, "x": 0, "y": 30 },
-          "id": 8,
+          "id": 21,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -499,7 +491,7 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 15,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "insertNulls": false,
                 "lineInterpolation": "smooth",
@@ -524,12 +516,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 10, "w": 12, "x": 12, "y": 30 },
-          "id": 9,
+          "id": 22,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -562,7 +553,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 5, "w": 12, "x": 0, "y": 40 },
-          "id": 10,
+          "id": 23,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -575,7 +566,6 @@ data:
             },
             "textMode": "value_and_name"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -602,7 +592,7 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 15,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "insertNulls": false,
                 "lineInterpolation": "smooth",
@@ -619,13 +609,12 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 5, "w": 12, "x": 12, "y": 40 },
-          "id": 11,
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
+          "id": 24,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -639,8 +628,8 @@ data:
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 45 },
-          "id": 52,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
+          "id": 30,
           "title": "GPU Health (DCGM)",
           "type": "row"
         },
@@ -659,7 +648,7 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 15,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "insertNulls": false,
                 "lineInterpolation": "smooth",
@@ -685,13 +674,12 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 46 },
-          "id": 12,
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 49 },
+          "id": 31,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -722,8 +710,8 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 46 },
-          "id": 13,
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 49 },
+          "id": 32,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -736,7 +724,6 @@ data:
             },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -767,8 +754,8 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 46 },
-          "id": 14,
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 49 },
+          "id": 33,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -781,7 +768,6 @@ data:
             },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -815,8 +801,8 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 12, "x": 12, "y": 50 },
-          "id": 15,
+          "gridPos": { "h": 4, "w": 12, "x": 12, "y": 53 },
+          "id": 34,
           "options": {
             "minVizHeight": 75,
             "minVizWidth": 75,
@@ -830,7 +816,6 @@ data:
             "showThresholdMarkers": true,
             "sizing": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },

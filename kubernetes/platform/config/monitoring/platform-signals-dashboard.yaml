@@ -19,22 +19,66 @@ data:
       "id": null,
       "links": [
         {
-          "asDropdown": true,
-          "icon": "external link",
+          "asDropdown": false,
+          "icon": "dashboard",
           "includeVars": false,
           "keepTime": true,
           "tags": [],
-          "targetBlank": true,
-          "title": "Related Dashboards",
+          "targetBlank": false,
+          "title": "Platform Home",
           "type": "link",
-          "url": ""
+          "url": "/d/platform-home"
+        },
+        {
+          "asDropdown": false,
+          "icon": "dashboard",
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [],
+          "targetBlank": false,
+          "title": "Hardware Health",
+          "type": "link",
+          "url": "/d/hardware-health"
+        },
+        {
+          "asDropdown": false,
+          "icon": "dashboard",
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [],
+          "targetBlank": false,
+          "title": "Backup Health",
+          "type": "link",
+          "url": "/d/backup-health"
+        },
+        {
+          "asDropdown": false,
+          "icon": "dashboard",
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [],
+          "targetBlank": false,
+          "title": "Garage S3",
+          "type": "link",
+          "url": "/d/garage-s3-storage"
+        },
+        {
+          "asDropdown": false,
+          "icon": "dashboard",
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [],
+          "targetBlank": false,
+          "title": "Power Accounting",
+          "type": "link",
+          "url": "/d/power-accounting"
         }
       ],
       "panels": [
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-          "id": 1,
+          "id": 10,
           "title": "Gateway Traffic (Latency / Traffic / Errors)",
           "type": "row"
         },
@@ -60,7 +104,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
-          "id": 2,
+          "id": 11,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -104,7 +148,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
-          "id": 3,
+          "id": 12,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -145,7 +189,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
-          "id": 4,
+          "id": 13,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -173,7 +217,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
-          "id": 10,
+          "id": 20,
           "title": "Database Saturation (CNPG)",
           "type": "row"
         },
@@ -199,7 +243,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 0, "y": 10 },
-          "id": 11,
+          "id": 21,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -241,7 +285,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 8, "y": 10 },
-          "id": 12,
+          "id": 22,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -285,7 +329,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 16, "y": 10 },
-          "id": 13,
+          "id": 23,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -303,7 +347,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
-          "id": 20,
+          "id": 30,
           "title": "Cache Performance (Dragonfly)",
           "type": "row"
         },
@@ -329,7 +373,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 0, "y": 19 },
-          "id": 21,
+          "id": 31,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -371,7 +415,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 8, "y": 19 },
-          "id": 22,
+          "id": 32,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -407,7 +451,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 16, "y": 19 },
-          "id": 23,
+          "id": 33,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -420,7 +464,7 @@ data:
           },
           "targets": [
             {
-              "expr": "100 * (dragonfly_keyspace_hits_total{namespace=\"cache\"} / (dragonfly_keyspace_hits_total{namespace=\"cache\"} + dragonfly_keyspace_misses_total{namespace=\"cache\"}))",
+              "expr": "100 * (rate(dragonfly_keyspace_hits_total{namespace=\"cache\"}[5m]) / (rate(dragonfly_keyspace_hits_total{namespace=\"cache\"}[5m]) + rate(dragonfly_keyspace_misses_total{namespace=\"cache\"}[5m])))",
               "legendFormat": "{{ pod }}",
               "refId": "A"
             }
@@ -431,7 +475,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
-          "id": 30,
+          "id": 40,
           "title": "Storage Saturation",
           "type": "row"
         },
@@ -477,7 +521,7 @@ data:
             ]
           },
           "gridPos": { "h": 10, "w": 12, "x": 0, "y": 28 },
-          "id": 31,
+          "id": 41,
           "options": {
             "showHeader": true,
             "sortBy": [{ "desc": true, "displayName": "Used %" }],
@@ -547,7 +591,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 10, "w": 12, "x": 12, "y": 28 },
-          "id": 32,
+          "id": 42,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -571,7 +615,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 38 },
-          "id": 40,
+          "id": 50,
           "title": "GitOps Health (Flux)",
           "type": "row"
         },
@@ -594,7 +638,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 39 },
-          "id": 41,
+          "id": 51,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -634,7 +678,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 6, "y": 39 },
-          "id": 42,
+          "id": 52,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -674,7 +718,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 39 },
-          "id": 43,
+          "id": 53,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -716,7 +760,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 39 },
-          "id": 44,
+          "id": 54,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -758,7 +802,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 24, "x": 0, "y": 43 },
-          "id": 45,
+          "id": 55,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -781,7 +825,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 51 },
-          "id": 50,
+          "id": 60,
           "title": "Garage S3 Storage",
           "type": "row"
         },
@@ -807,7 +851,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 0, "y": 52 },
-          "id": 51,
+          "id": 61,
           "options": {
             "reduceOptions": {
               "calcs": ["lastNotNull"],
@@ -849,7 +893,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 8, "y": 52 },
-          "id": 52,
+          "id": 62,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -890,7 +934,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 8, "x": 16, "y": 52 },
-          "id": 53,
+          "id": 63,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -917,7 +961,7 @@ data:
       "templating": { "list": [] },
       "time": { "from": "now-3h", "to": "now" },
       "timepicker": {},
-      "timezone": "browser",
+      "timezone": "",
       "title": "Platform Signals",
       "uid": "platform-signals",
       "version": 1

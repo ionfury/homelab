@@ -21,12 +21,13 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-          "id": 100,
+          "id": 10,
           "title": "Cluster Health",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Garage cluster health status. 1 = all nodes communicating, 0 = cluster degraded.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -44,7 +45,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
-          "id": 1,
+          "id": 11,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -53,7 +54,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -67,6 +67,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Garage cluster availability for read/write operations. 0 = service unavailable.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -84,7 +85,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
-          "id": 2,
+          "id": 12,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -93,7 +94,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -107,6 +107,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Number of connected vs total storage nodes in the Garage cluster.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -120,7 +121,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
-          "id": 3,
+          "id": 13,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -129,7 +130,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "value_and_name"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -149,6 +149,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Configured data replication factor across Garage storage nodes.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -162,7 +163,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
-          "id": 4,
+          "id": 14,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -171,12 +172,11 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "garage_replication_factor{job=~\".*garage.*\"}",
-              "legendFormat": "",
+              "legendFormat": "Replication Factor",
               "refId": "A"
             }
           ],
@@ -185,6 +185,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Partition health: quorum partitions can serve requests, all-OK means fully replicated across all nodes.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -200,7 +201,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
-          "id": 5,
+          "id": 15,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -209,7 +210,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "value_and_name"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -229,6 +229,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Running Garage version across cluster nodes.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -242,7 +243,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
-          "id": 6,
+          "id": 16,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -251,7 +252,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -266,12 +266,13 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
-          "id": 101,
+          "id": 20,
           "title": "Storage",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Data partition disk utilization per node. Above 80% triggers capacity planning. Above 90% risks write failures.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -290,7 +291,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 8, "x": 0, "y": 6 },
-          "id": 7,
+          "id": 21,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -299,7 +300,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -313,6 +313,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Metadata partition disk utilization per node. Metadata disks fill slower but are critical for cluster operation.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -331,7 +332,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 8, "x": 8, "y": 6 },
-          "id": 8,
+          "id": 22,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -340,7 +341,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -354,6 +354,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Raw data stored per node over time. Growing trends inform capacity planning.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -366,10 +367,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 20,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -383,12 +384,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 8, "x": 16, "y": 6 },
-          "id": 9,
+          "id": 23,
           "options": {
-            "legend": { "calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom" },
+            "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -403,12 +403,13 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 12 },
-          "id": 102,
+          "id": 30,
           "title": "S3 API",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "S3 API request rate broken down by operation type (GetObject, PutObject, ListObjects, etc.).",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -421,10 +422,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 20,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -438,12 +439,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
-          "id": 10,
+          "id": 31,
           "options": {
-            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -457,6 +457,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "S3 API error responses by HTTP status code. 4xx are client errors, 5xx indicate server issues.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -469,10 +470,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 20,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -486,12 +487,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
-          "id": 11,
+          "id": 32,
           "options": {
-            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -505,6 +505,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "S3 API request latency at p50/p95/p99 percentiles. Above 1s triggers investigation, above 5s is degraded.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -517,10 +518,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 10,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -545,12 +546,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 21 },
-          "id": 12,
+          "id": 33,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -576,6 +576,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Block-level read and write throughput per node. Shows actual storage I/O load.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -588,10 +589,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 20,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -605,12 +606,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
-          "id": 13,
+          "id": 34,
           "options": {
-            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -631,15 +631,17 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
-          "id": 103,
+          "id": 40,
           "title": "Replication & Resync",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Number of blocks pending resynchronization. High values during normal operation indicate replication issues.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
+              "noValue": "N/A",
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -652,7 +654,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 6, "x": 0, "y": 30 },
-          "id": 14,
+          "id": 41,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -661,7 +663,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -675,9 +676,11 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Blocks that failed resynchronization. Any non-zero value requires investigation.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
+              "noValue": "N/A",
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -689,7 +692,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 6, "x": 6, "y": 30 },
-          "id": 15,
+          "id": 42,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -698,7 +701,6 @@ data:
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -712,6 +714,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Partition status trend: all-OK, quorum, and total partitions over time. Dips in all-OK indicate temporary replication degradation.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -724,10 +727,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 20,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -741,12 +744,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 12, "x": 12, "y": 30 },
-          "id": 16,
+          "id": 43,
           "options": {
-            "legend": { "calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom" },
+            "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -773,12 +775,13 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
-          "id": 104,
+          "id": 50,
           "title": "Inter-Node RPC",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Inter-node RPC call latency at p50/p95/p99. High latency indicates network issues between Garage nodes.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -791,10 +794,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 10,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -819,12 +822,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 37 },
-          "id": 17,
+          "id": 51,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -850,6 +852,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Inter-node RPC failures: timeouts and network application errors. Non-zero rates indicate cluster communication issues.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -862,10 +865,10 @@ data:
                 "barAlignment": 0,
                 "drawStyle": "line",
                 "fillOpacity": 20,
-                "gradientMode": "none",
+                "gradientMode": "scheme",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -879,12 +882,11 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 37 },
-          "id": 18,
+          "id": 52,
           "options": {
-            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -903,107 +905,109 @@ data:
           "type": "timeseries"
         },
         {
-          "collapsed": false,
+          "collapsed": true,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 45 },
-          "id": 105,
+          "id": 60,
+          "panels": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "description": "Pending Merkle tree updates per table per node. Non-zero values during normal operation indicate anti-entropy repair activity.",
+              "fieldConfig": {
+                "defaults": {
+                  "color": { "mode": "palette-classic" },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 20,
+                    "gradientMode": "scheme",
+                    "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": { "type": "linear" },
+                    "showPoints": "never",
+                    "spanNulls": false,
+                    "stacking": { "group": "A", "mode": "none" },
+                    "thresholdsStyle": { "mode": "off" }
+                  },
+                  "unit": "short",
+                  "min": 0
+                },
+                "overrides": []
+              },
+              "gridPos": { "h": 8, "w": 12, "x": 0, "y": 46 },
+              "id": 61,
+              "options": {
+                "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom" },
+                "tooltip": { "mode": "multi", "sort": "desc" }
+              },
+              "targets": [
+                {
+                  "datasource": { "type": "prometheus", "uid": "prometheus" },
+                  "expr": "table_merkle_updater_todo_queue_length{job=~\".*garage.*\"}",
+                  "legendFormat": "{{ instance }} / {{ table_name }}",
+                  "refId": "A"
+                }
+              ],
+              "title": "Merkle Tree Updater Queue",
+              "type": "timeseries"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "description": "Garbage collection queue length per table per node. Non-zero values indicate pending cleanup of deleted objects.",
+              "fieldConfig": {
+                "defaults": {
+                  "color": { "mode": "palette-classic" },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 20,
+                    "gradientMode": "scheme",
+                    "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": { "type": "linear" },
+                    "showPoints": "never",
+                    "spanNulls": false,
+                    "stacking": { "group": "A", "mode": "none" },
+                    "thresholdsStyle": { "mode": "off" }
+                  },
+                  "unit": "short",
+                  "min": 0
+                },
+                "overrides": []
+              },
+              "gridPos": { "h": 8, "w": 12, "x": 12, "y": 46 },
+              "id": 62,
+              "options": {
+                "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom" },
+                "tooltip": { "mode": "multi", "sort": "desc" }
+              },
+              "targets": [
+                {
+                  "datasource": { "type": "prometheus", "uid": "prometheus" },
+                  "expr": "table_gc_todo_queue_length{job=~\".*garage.*\"}",
+                  "legendFormat": "{{ instance }} / {{ table_name }}",
+                  "refId": "A"
+                }
+              ],
+              "title": "GC Queue Length",
+              "type": "timeseries"
+            }
+          ],
           "title": "Internal Tables",
           "type": "row"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 20,
-                "gradientMode": "none",
-                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": { "group": "A", "mode": "none" },
-                "thresholdsStyle": { "mode": "off" }
-              },
-              "unit": "short",
-              "min": 0
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 46 },
-          "id": 19,
-          "options": {
-            "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom" },
-            "tooltip": { "mode": "multi", "sort": "desc" }
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "table_merkle_updater_todo_queue_length{job=~\".*garage.*\"}",
-              "legendFormat": "{{ instance }} / {{ table_name }}",
-              "refId": "A"
-            }
-          ],
-          "title": "Merkle Tree Updater Queue",
-          "type": "timeseries"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 20,
-                "gradientMode": "none",
-                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": { "group": "A", "mode": "none" },
-                "thresholdsStyle": { "mode": "off" }
-              },
-              "unit": "short",
-              "min": 0
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 46 },
-          "id": 20,
-          "options": {
-            "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom" },
-            "tooltip": { "mode": "multi", "sort": "desc" }
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "table_gc_todo_queue_length{job=~\".*garage.*\"}",
-              "legendFormat": "{{ instance }} / {{ table_name }}",
-              "refId": "A"
-            }
-          ],
-          "title": "GC Queue Length",
-          "type": "timeseries"
         }
       ],
       "schemaVersion": 39,
