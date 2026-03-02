@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: flux-alerts
+  labels:
+    app.kubernetes.io/name: flux
+spec:
+  groups:
+    - name: flux.rules
+      rules:
+        - alert: FluxHelmReleaseFailing
+          expr: |
+            flux_resource_info{kind="HelmRelease", ready!="True", suspended!="True"} == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "HelmRelease {{ $labels.name }} failing in {{ $labels.exported_namespace }}"
+            description: >-
+              HelmRelease {{ $labels.exported_namespace }}/{{ $labels.name }} has been in a non-ready
+              state for more than 30 minutes (reason: {{ $labels.reason }}). With RetryOnFailure strategy,
+              the release will keep retrying but this indicates a persistent issue that needs investigation.
+
+        - alert: FluxKustomizationFailing
+          expr: |
+            flux_resource_info{kind="Kustomization", ready!="True", suspended!="True"} == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Kustomization {{ $labels.name }} failing in {{ $labels.exported_namespace }}"
+            description: >-
+              Kustomization {{ $labels.exported_namespace }}/{{ $labels.name }} has been in a non-ready
+              state for more than 30 minutes. Check Flux logs and events for reconciliation errors.
