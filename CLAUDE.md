@@ -549,6 +549,7 @@ Skills are composed by agents internally — not invoked directly by users:
 | `taskfiles` | Taskfile syntax and patterns | implementer |
 | `k8s` | Cluster access, kubectl, Flux status, internal URLs | troubleshooter, implementer, designer |
 | `secrets` | Secret provisioning (secret-generator, ExternalSecret, app-secrets) | implementer |
+| `grafana-dashboards` | MCP-driven Grafana dashboard authoring with visual iteration | implementer |
 | `monitoring-authoring` | Author alerts, ServiceMonitors, canary checks | implementer |
 | `cnpg-database` | PostgreSQL cluster provisioning and credentials | implementer |
 | `gateway-routing` | Gateway API routing, TLS, WAF configuration | implementer |

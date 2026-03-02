@@ -359,5 +359,18 @@ serviceMonitor:
   enabled: true
 persistence:
   enabled: false
+imageRenderer:
+  enabled: true
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
 testFramework:
   enabled: false

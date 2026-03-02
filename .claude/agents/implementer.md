@@ -15,6 +15,7 @@ skills:
   - k8s
   - secrets
   - monitoring-authoring
+  - grafana-dashboards
   - cnpg-database
   - gateway-routing
   - versions-renovate
