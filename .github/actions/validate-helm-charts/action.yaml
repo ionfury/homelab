@@ -21,7 +21,7 @@ runs:
   using: "composite"
   steps:
     - name: Validate Helm values YAML
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         CHARTS_DIR: ${{ inputs.charts-dir }}
       with:
@@ -51,7 +51,7 @@ runs:
         version: ${{ inputs.helm-version }}
 
     - name: Helm template critical charts
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         CHARTS_DIR: ${{ inputs.charts-dir }}
         HELM_CHARTS_FILE: ${{ inputs.helm-charts-file }}
