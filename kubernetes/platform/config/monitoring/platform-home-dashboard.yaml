@@ -34,7 +34,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-          "id": 100,
+          "id": 10,
           "title": "Cluster Overview",
           "type": "row"
         },
@@ -57,7 +57,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
-          "id": 1,
+          "id": 11,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -94,7 +94,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
-          "id": 2,
+          "id": 12,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -133,7 +133,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
-          "id": 3,
+          "id": 13,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -172,7 +172,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
-          "id": 4,
+          "id": 14,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -195,7 +195,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
-          "id": 200,
+          "id": 20,
           "title": "Golden Signals",
           "type": "row"
         },
@@ -216,7 +216,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 0, "y": 6 },
-          "id": 5,
+          "id": 21,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -260,7 +260,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 8, "y": 6 },
-          "id": 6,
+          "id": 22,
           "options": {
             "minVizHeight": 75,
             "minVizWidth": 75,
@@ -302,7 +302,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 16, "y": 6 },
-          "id": 7,
+          "id": 23,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -325,13 +325,13 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 10 },
-          "id": 300,
+          "id": 30,
           "title": "Infrastructure",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "description": "Total power consumption from IPMI servers plus GPU power.",
+          "description": "Total power draw measured at the UPS output.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -348,7 +348,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 11 },
-          "id": 8,
+          "id": 31,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -360,7 +360,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(ipmi_dcmi_power_consumption_watts) + sum(DCGM_FI_DEV_POWER_USAGE) or sum(ipmi_dcmi_power_consumption_watts)",
+              "expr": "upsAdvanceOutputPower",
               "legendFormat": "Total",
               "refId": "A"
             }
@@ -378,7 +378,7 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "#EAB839", "value": 60 },
+                  { "color": "yellow", "value": 60 },
                   { "color": "orange", "value": 80 },
                   { "color": "red", "value": 95 }
                 ]
@@ -390,7 +390,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 6, "y": 11 },
-          "id": 9,
+          "id": 32,
           "options": {
             "minVizHeight": 75,
             "minVizWidth": 75,
@@ -413,7 +413,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "description": "Estimated monthly electricity cost at $0.12/kWh.",
+          "description": "Projected monthly electricity cost: (watts / 1000) * 730 hours * $electricity_rate/kWh.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -421,7 +421,7 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "#EAB839", "value": 50 },
+                  { "color": "yellow", "value": 50 },
                   { "color": "red", "value": 100 }
                 ]
               },
@@ -431,7 +431,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 11 },
-          "id": 10,
+          "id": 33,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -443,7 +443,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "((sum(ipmi_dcmi_power_consumption_watts) + sum(DCGM_FI_DEV_POWER_USAGE)) or sum(ipmi_dcmi_power_consumption_watts)) / 1000 * 730 * 0.12",
+              "expr": "upsAdvanceOutputPower / 1000 * 730 * $electricity_rate",
               "legendFormat": "Est. Monthly",
               "refId": "A"
             }
@@ -471,7 +471,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 11 },
-          "id": 11,
+          "id": 34,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -494,7 +494,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
-          "id": 400,
+          "id": 40,
           "title": "Storage & Data",
           "type": "row"
         },
@@ -520,7 +520,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 0, "y": 16 },
-          "id": 12,
+          "id": 41,
           "options": {
             "minVizHeight": 75,
             "minVizWidth": 75,
@@ -561,7 +561,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 8, "y": 16 },
-          "id": 13,
+          "id": 42,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -602,7 +602,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 16, "y": 16 },
-          "id": 14,
+          "id": 43,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -625,7 +625,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 20 },
-          "id": 500,
+          "id": 50,
           "title": "Database & Cache",
           "type": "row"
         },
@@ -649,7 +649,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 0, "y": 21 },
-          "id": 15,
+          "id": 51,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -691,7 +691,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 8, "y": 21 },
-          "id": 16,
+          "id": 52,
           "options": {
             "minVizHeight": 75,
             "minVizWidth": 75,
@@ -734,7 +734,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 16, "y": 21 },
-          "id": 17,
+          "id": 53,
           "options": {
             "minVizHeight": 75,
             "minVizWidth": 75,
@@ -758,7 +758,7 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
-          "id": 600,
+          "id": 60,
           "title": "Backup & Alerts",
           "type": "row"
         },
@@ -781,7 +781,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 8, "x": 0, "y": 26 },
-          "id": 18,
+          "id": 61,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -850,7 +850,7 @@ data:
             ]
           },
           "gridPos": { "h": 6, "w": 16, "x": 8, "y": 26 },
-          "id": 19,
+          "id": 62,
           "options": {
             "showHeader": true,
             "footer": { "enablePagination": false },
@@ -900,10 +900,24 @@ data:
       "refresh": "30s",
       "schemaVersion": 39,
       "tags": ["home", "overview", "executive", "platform"],
-      "templating": { "list": [] },
+      "templating": {
+        "list": [
+          {
+            "current": { "selected": false, "text": "0.15", "value": "0.15" },
+            "description": "Electricity rate in $/kWh for cost estimation",
+            "label": "Electricity Rate ($/kWh)",
+            "name": "electricity_rate",
+            "options": [
+              { "selected": true, "text": "0.15", "value": "0.15" }
+            ],
+            "query": "0.15",
+            "type": "textbox"
+          }
+        ]
+      },
       "time": { "from": "now-1h", "to": "now" },
       "timepicker": {},
-      "timezone": "browser",
+      "timezone": "",
       "title": "Platform Home",
       "uid": "platform-home",
       "version": 1
