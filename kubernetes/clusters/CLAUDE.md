@@ -14,6 +14,7 @@ clusters/<cluster-name>/
 ├── platform.yaml           # References the centralized platform definition
 ├── config.yaml             # Cluster-specific config Kustomization
 ├── helm-charts.yaml        # Flux Kustomization wrapper for cluster-specific Helm releases
+├── versions.env            # Cluster-specific application versions (Renovate-managed)
 ├── resourcesets/            # Cluster-specific ResourceSets (applied with version substitution)
 │   └── helm-charts.yaml    # ResourceSet defining cluster-specific Helm releases
 ├── config/                 # Cluster-specific resources (Silences, PrometheusRules, etc.)
@@ -34,6 +35,7 @@ clusters/<cluster-name>/
 | `platform.yaml` | Kustomization referencing platform source (GitRepository for dev, OCIRepository for others) | Static (git) |
 | `config.yaml` | Kustomization for cluster-specific config resources | Static (git) |
 | `helm-charts.yaml` | Flux Kustomization that applies `resourcesets/` with version substitution | Static (git) |
+| `versions.env` | Cluster-specific app versions (deployed as `cluster-versions` ConfigMap) | Static (git) |
 | `resourcesets/helm-charts.yaml` | ResourceSet for cluster-specific Helm releases | Static (git) |
 | `.cluster-vars.env` | Cluster identity variables (`cluster_name`, `source_kind`, etc.) | Terragrunt |
 
@@ -72,7 +74,7 @@ spec:
 
 ### Helm Releases (`resourcesets/helm-charts.yaml`)
 
-Cluster-specific Helm releases via ResourceSet (mirrors platform pattern). The ResourceSet is wrapped in a Flux Kustomization (`helm-charts.yaml`) that provides `platform-versions` variable substitution, enabling chart versions to reference `versions.env` variables:
+Cluster-specific Helm releases via ResourceSet (mirrors platform pattern). The ResourceSet is wrapped in a Flux Kustomization (`helm-charts.yaml`) that provides variable substitution from both `platform-versions` and `cluster-versions` ConfigMaps:
 
 ```yaml
 # Add entry to resourcesets/helm-charts.yaml inputs array
@@ -81,21 +83,22 @@ inputs:
     namespace: "my-namespace"
     chart:
       name: "app-template"
-      version: "${app_template_version}"  # From versions.env via platform-versions ConfigMap
+      version: "${app_template_version}"  # From platform-versions (shared)
       url: "oci://ghcr.io/bjw-s/helm"
     dependsOn: [kube-prometheus-stack]  # Can depend on platform releases
 ```
 
 **Adding a cluster-specific Helm release:**
-1. Add entry to `resourcesets/helm-charts.yaml` inputs array
-2. Create `charts/<release-name>.yaml` with Helm values
-3. Update `kustomization.yaml` configMapGenerator to include the values file:
+1. Add version to `versions.env` with Renovate annotation (for cluster-specific chart/image versions)
+2. Add entry to `resourcesets/helm-charts.yaml` inputs array
+3. Create `charts/<release-name>.yaml` with Helm values
+4. Update `kustomization.yaml` configMapGenerator to include the values file:
    ```yaml
    - name: cluster-values
      files:
        - my-app.yaml=charts/my-app.yaml
    ```
-4. Use `${version_var}` (no defaults) for chart versions — variables come from `platform-versions` ConfigMap
+5. Use `${version_var}` for chart versions -- platform-shared versions come from `platform-versions`, cluster-specific versions come from `cluster-versions`
 
 ### Dependency Model
 
@@ -124,11 +127,26 @@ source_kind=GitRepository
 
 These variables are injected into the `cluster-vars` ConfigMap and used throughout the platform via `${variable_name}` substitution.
 
+### Per-Cluster Versions
+
+The `versions.env` file in each cluster provides cluster-specific application versions, deployed as the `cluster-versions` ConfigMap. This separates cluster-specific app versions from platform-wide versions:
+
+```env
+# kubernetes/clusters/live/versions.env
+# renovate: datasource=helm depName=immich registryUrl=https://immich-app.github.io/immich-charts
+immich_version=0.10.3
+# renovate: datasource=docker depName=sonarr packageName=ghcr.io/home-operations/sonarr
+sonarr_version=4.0.16.2946
+```
+
+**Variable substitution priority**: Flux applies `platform-versions` first, then `cluster-versions`. If the same key exists in both, the cluster version wins (later ConfigMap in `substituteFrom` takes priority).
+
 ### When to Modify
 
 - **Platform configuration** (shared across clusters): Edit files in `kubernetes/platform/`
 - **Cluster-specific resources**: Add to `config/` directory
 - **Cluster-specific Helm releases**: Add to `helm-charts.yaml` and `charts/`
+- **Cluster-specific app versions**: Edit `versions.env` in the cluster directory
 - **Cluster variables**: Regenerate via Terragrunt (don't edit `.cluster-vars.env` manually)
 
 ---

@@ -17,6 +17,9 @@ spec:
       - kind: ConfigMap
         name: platform-versions
         optional: true
+      - kind: ConfigMap
+        name: cluster-versions
+        optional: true
   prune: true
   sourceRef:
     kind: OCIRepository
