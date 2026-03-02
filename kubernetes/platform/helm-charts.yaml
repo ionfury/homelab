@@ -281,8 +281,8 @@ spec:
             name: << inputs.name >>
       install:
         createNamespace: false
-        remediation:
-          retries: 5
+        strategy:
+          name: RetryOnFailure
         timeout: 10m
       interval: 10m
       maxHistory: 3
@@ -292,8 +292,8 @@ spec:
         keepHistory: false
       upgrade:
         crds: CreateReplace
-        remediation:
-          retries: 5
+        strategy:
+          name: RetryOnFailure
         timeout: 10m
       valuesFrom:
         - kind: ConfigMap
