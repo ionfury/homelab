@@ -21,8 +21,8 @@ controllers:
       init-nginx:
         image:
           repository: excalidraw/excalidraw
-          # renovate: datasource=docker depName=excalidraw/excalidraw
-          tag: sha-4bfc5bb
+          # renovate: datasource=docker depName=excalidraw/excalidraw versioning=loose
+          tag: latest
         # LIMITATION: The upstream excalidraw image (nginx:alpine) has no USER
         # directive and requires root for the copy + chown operations. Running as
         # non-root would require a custom image build. CHOWN, DAC_OVERRIDE, and
@@ -39,7 +39,7 @@ controllers:
           - -c
           - |
             cp -a /usr/share/nginx/html/* /mnt/html/ && \
-            find /mnt/html/static/js -type f -name '*.js' \
+            find /mnt/html/assets -type f -name '*.js' \
               -exec sed -i 's|https://oss-collab\.excalidraw\.com|https://draw-ws.${external_domain}|g' {} + && \
             for d in client_temp proxy_temp fastcgi_temp uwsgi_temp scgi_temp; do \
               mkdir -p /mnt/nginx-cache/$d; \
@@ -48,9 +48,9 @@ controllers:
         resources:
           requests:
             cpu: 10m
-            memory: 32Mi
+            memory: 64Mi
           limits:
-            memory: 128Mi
+            memory: 256Mi
 
     containers:
       app:
@@ -68,8 +68,8 @@ controllers:
             drop: ["ALL"]
         image:
           repository: excalidraw/excalidraw
-          # renovate: datasource=docker depName=excalidraw/excalidraw
-          tag: sha-4bfc5bb
+          # renovate: datasource=docker depName=excalidraw/excalidraw versioning=loose
+          tag: latest
         # Bypass the default docker-entrypoint.sh which calls chown on
         # /var/cache/nginx — the init container pre-creates those directories
         # with correct ownership so CAP_CHOWN is not needed.
@@ -77,9 +77,9 @@ controllers:
         resources:
           requests:
             cpu: 10m
-            memory: 32Mi
+            memory: 64Mi
           limits:
-            memory: 128Mi
+            memory: 256Mi
         probes:
           liveness:
             enabled: true
