@@ -3,14 +3,15 @@
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
-  name: &name backup-frequent
+  name: &name backup-daily
+  namespace: longhorn-system
 spec:
   name: *name
-  cron: "0 */6 * * *"
+  cron: "0 2 * * *"
   task: backup
   groups:
     - *name
-  retain: 28
+  retain: 7
   concurrency: 2
   labels:
     jobname: *name

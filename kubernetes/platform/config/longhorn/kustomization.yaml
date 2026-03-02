@@ -6,8 +6,6 @@ kind: Kustomization
 resources:
   - prometheus-rules.yaml
   - backup/
-  - recurring-jobs/backup-daily.yaml
-  - recurring-jobs/backup-frequent.yaml
   - recurring-jobs/snapshot-daily.yaml
   - recurring-jobs/snapshot-frequent.yaml
   - recurring-jobs/snapshot-minimal.yaml
