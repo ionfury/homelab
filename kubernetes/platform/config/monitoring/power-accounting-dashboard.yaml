@@ -7,7 +7,7 @@ metadata:
   labels:
     grafana_dashboard: "true"
   annotations:
-    grafana_folder: "Hardware"
+    grafana_folder: "Power"
 data:
   power-accounting.json: |
     {
@@ -21,12 +21,13 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-          "id": 20,
+          "id": 10,
           "title": "Power Overview",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Total power draw measured at the UPS output",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -34,8 +35,8 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "yellow", "value": 500 },
-                  { "color": "red", "value": 1000 }
+                  { "color": "yellow", "value": 600 },
+                  { "color": "red", "value": 900 }
                 ]
               },
               "unit": "watt"
@@ -43,7 +44,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 6, "x": 0, "y": 1 },
-          "id": 1,
+          "id": 11,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -56,11 +57,10 @@ data:
             },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(ipmi_dcmi_power_consumption_watts) + sum(DCGM_FI_DEV_POWER_USAGE) or sum(ipmi_dcmi_power_consumption_watts)",
+              "expr": "upsAdvanceOutputPower",
               "legendFormat": "Total Power",
               "refId": "A"
             }
@@ -70,6 +70,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Combined GPU power consumption across all devices",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -86,7 +87,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 6, "x": 6, "y": 1 },
-          "id": 2,
+          "id": 12,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -99,7 +100,6 @@ data:
             },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -108,11 +108,12 @@ data:
               "refId": "A"
             }
           ],
-          "title": "GPU Power Contribution",
+          "title": "GPU Power",
           "type": "stat"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Projected monthly electricity cost: (watts / 1000) * 730 hours * $/kWh",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -120,7 +121,7 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "#EAB839", "value": 50 },
+                  { "color": "yellow", "value": 60 },
                   { "color": "red", "value": 100 }
                 ]
               },
@@ -130,7 +131,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 6, "x": 12, "y": 1 },
-          "id": 3,
+          "id": 13,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -143,21 +144,20 @@ data:
             },
             "textMode": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "((sum(ipmi_dcmi_power_consumption_watts) + sum(DCGM_FI_DEV_POWER_USAGE)) or sum(ipmi_dcmi_power_consumption_watts)) / 1000 * 730 * $electricity_rate",
+              "expr": "upsAdvanceOutputPower / 1000 * 730 * $electricity_rate",
               "legendFormat": "Est. Monthly Cost",
               "refId": "A"
             }
           ],
-          "title": "Estimated Monthly Cost",
-          "description": "Calculated as (total_watts / 1000) * 730 hours * $/kWh rate",
+          "title": "Est. Monthly Cost",
           "type": "stat"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Current UPS load as percentage of rated capacity",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
@@ -165,7 +165,7 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "#EAB839", "value": 60 },
+                  { "color": "yellow", "value": 60 },
                   { "color": "orange", "value": 80 },
                   { "color": "red", "value": 95 }
                 ]
@@ -177,7 +177,7 @@ data:
             "overrides": []
           },
           "gridPos": { "h": 6, "w": 6, "x": 18, "y": 1 },
-          "id": 4,
+          "id": 14,
           "options": {
             "minVizHeight": 75,
             "minVizWidth": 75,
@@ -191,7 +191,6 @@ data:
             "showThresholdMarkers": true,
             "sizing": "auto"
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -206,258 +205,13 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
-          "id": 21,
-          "title": "UPS Status",
-          "type": "row"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "thresholds" },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "red", "value": null },
-                  { "color": "#EAB839", "value": 30 },
-                  { "color": "green", "value": 80 }
-                ]
-              },
-              "unit": "percent",
-              "min": 0,
-              "max": 100
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 5, "w": 6, "x": 0, "y": 8 },
-          "id": 5,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": ["lastNotNull"],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "upsAdvanceBatteryCapacity",
-              "legendFormat": "Battery %",
-              "refId": "A"
-            }
-          ],
-          "title": "UPS Battery Capacity",
-          "type": "stat"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "thresholds" },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "red", "value": null },
-                  { "color": "#EAB839", "value": 300 },
-                  { "color": "green", "value": 600 }
-                ]
-              },
-              "unit": "s"
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 5, "w": 6, "x": 6, "y": 8 },
-          "id": 6,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": ["lastNotNull"],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "upsAdvanceBatteryRunTimeRemaining / 100",
-              "legendFormat": "Runtime",
-              "refId": "A"
-            }
-          ],
-          "title": "UPS Estimated Runtime",
-          "description": "Estimated battery runtime remaining at current load",
-          "type": "stat"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "thresholds" },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "red", "value": null },
-                  { "color": "#EAB839", "value": 110 },
-                  { "color": "green", "value": 118 }
-                ]
-              },
-              "unit": "volt",
-              "decimals": 1
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 5, "w": 6, "x": 12, "y": 8 },
-          "id": 7,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": ["lastNotNull"],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "upsAdvanceInputLineVoltage",
-              "legendFormat": "Input Voltage",
-              "refId": "A"
-            }
-          ],
-          "title": "UPS Input Voltage",
-          "type": "stat"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "thresholds" },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "red", "value": null },
-                  { "color": "#EAB839", "value": 110 },
-                  { "color": "green", "value": 118 }
-                ]
-              },
-              "unit": "volt",
-              "decimals": 1
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 5, "w": 6, "x": 18, "y": 8 },
-          "id": 8,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": ["lastNotNull"],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "upsAdvanceOutputVoltage",
-              "legendFormat": "Output Voltage",
-              "refId": "A"
-            }
-          ],
-          "title": "UPS Output Voltage",
-          "type": "stat"
-        },
-        {
-          "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
-          "id": 22,
-          "title": "Per-Server Power",
-          "type": "row"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 40,
-                "gradientMode": "opacity",
-                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-                "insertNulls": false,
-                "lineInterpolation": "smooth",
-                "lineWidth": 2,
-                "pointSize": 5,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": { "group": "A", "mode": "normal" },
-                "thresholdsStyle": { "mode": "off" }
-              },
-              "unit": "watt",
-              "min": 0
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 14 },
-          "id": 9,
-          "options": {
-            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-            "tooltip": { "mode": "multi", "sort": "desc" }
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "ipmi_dcmi_power_consumption_watts",
-              "legendFormat": "{{ instance }}",
-              "refId": "A"
-            },
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(DCGM_FI_DEV_POWER_USAGE) by (instance)",
-              "legendFormat": "{{ instance }} (GPU)",
-              "refId": "B"
-            }
-          ],
-          "title": "Per-Server Power Draw (Stacked)",
-          "type": "timeseries"
-        },
-        {
-          "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
-          "id": 23,
+          "id": 20,
           "title": "Power Trends",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Total and GPU power draw over time with 24-hour rolling average",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -487,7 +241,7 @@ data:
             },
             "overrides": [
               {
-                "matcher": { "id": "byName", "options": "Average" },
+                "matcher": { "id": "byName", "options": "24h Average" },
                 "properties": [
                   { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } },
                   { "id": "custom.fillOpacity", "value": 0 },
@@ -496,39 +250,316 @@ data:
               }
             ]
           },
-          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 25 },
-          "id": 10,
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 8 },
+          "id": 21,
           "options": {
             "legend": { "calcs": ["mean", "min", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "(sum(ipmi_dcmi_power_consumption_watts) + sum(DCGM_FI_DEV_POWER_USAGE)) or sum(ipmi_dcmi_power_consumption_watts)",
+              "expr": "upsAdvanceOutputPower",
               "legendFormat": "Total Power",
               "refId": "A"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "avg_over_time(((sum(ipmi_dcmi_power_consumption_watts) + sum(DCGM_FI_DEV_POWER_USAGE)) or sum(ipmi_dcmi_power_consumption_watts))[24h:])",
-              "legendFormat": "Average (24h rolling)",
+              "expr": "sum(DCGM_FI_DEV_POWER_USAGE) or vector(0)",
+              "legendFormat": "GPU Power",
               "refId": "B"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "avg_over_time(upsAdvanceOutputPower[24h:])",
+              "legendFormat": "24h Average",
+              "refId": "C"
             }
           ],
-          "title": "Total Power Trend",
+          "title": "Power Trends",
           "type": "timeseries"
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
-          "id": 24,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+          "id": 30,
+          "title": "UPS Health",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "UPS battery charge level",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 30 },
+                  { "color": "green", "value": 80 }
+                ]
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 0, "y": 19 },
+          "id": 31,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "upsAdvanceBatteryCapacity",
+              "legendFormat": "Battery",
+              "refId": "A"
+            }
+          ],
+          "title": "Battery",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Estimated battery runtime remaining at current load",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 300 },
+                  { "color": "green", "value": 600 }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 4, "y": 19 },
+          "id": 32,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "upsAdvanceBatteryRunTimeRemaining / 100",
+              "legendFormat": "Runtime",
+              "refId": "A"
+            }
+          ],
+          "title": "Runtime",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "AC input voltage from wall power (raw value divided by 10)",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 110 },
+                  { "color": "green", "value": 118 }
+                ]
+              },
+              "unit": "volt",
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 8, "y": 19 },
+          "id": 33,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "upsAdvanceInputLineVoltage / 10",
+              "legendFormat": "Input Voltage",
+              "refId": "A"
+            }
+          ],
+          "title": "Input Voltage",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "UPS output voltage delivered to equipment (raw value divided by 10)",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 110 },
+                  { "color": "green", "value": 118 }
+                ]
+              },
+              "unit": "volt",
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 12, "y": 19 },
+          "id": 34,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "upsAdvanceOutputVoltage / 10",
+              "legendFormat": "Output Voltage",
+              "refId": "A"
+            }
+          ],
+          "title": "Output Voltage",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "AC output frequency (raw value divided by 10)",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null }
+                ]
+              },
+              "unit": "hertz",
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 16, "y": 19 },
+          "id": 35,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "upsAdvanceOutputFrequency / 10",
+              "legendFormat": "Frequency",
+              "refId": "A"
+            }
+          ],
+          "title": "Frequency",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "UPS operational status: 2=Online, 3=On Battery",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [
+                { "options": { "2": { "color": "green", "text": "ONLINE" } }, "type": "value" },
+                { "options": { "3": { "color": "orange", "text": "ON BATTERY" } }, "type": "value" },
+                { "options": { "from": 0, "result": { "color": "red", "text": "UNKNOWN" }, "to": 1 }, "type": "range" },
+                { "options": { "from": 4, "result": { "color": "red", "text": "FAULT" }, "to": 99 }, "type": "range" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 20, "y": 19 },
+          "id": 36,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "upsBaseOutputStatus",
+              "legendFormat": "Status",
+              "refId": "A"
+            }
+          ],
+          "title": "UPS Status",
+          "type": "stat"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+          "id": 40,
           "title": "Cost Projections",
           "type": "row"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Projected monthly electricity cost over time based on instantaneous power draw",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -559,26 +590,26 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
-          "id": 11,
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 25 },
+          "id": 41,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "((sum(ipmi_dcmi_power_consumption_watts) + sum(DCGM_FI_DEV_POWER_USAGE)) or sum(ipmi_dcmi_power_consumption_watts)) / 1000 * 730 * $electricity_rate",
+              "expr": "upsAdvanceOutputPower / 1000 * 730 * $electricity_rate",
               "legendFormat": "Projected Monthly Cost",
               "refId": "A"
             }
           ],
-          "title": "Monthly Cost Projection Over Time",
+          "title": "Monthly Cost Over Time",
           "type": "timeseries"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Power consumption breakdown: infrastructure (UPS total minus GPUs) vs GPU power",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -589,13 +620,13 @@ data:
                 "axisLabel": "",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
-                "drawStyle": "bars",
-                "fillOpacity": 60,
-                "gradientMode": "none",
+                "drawStyle": "line",
+                "fillOpacity": 40,
+                "gradientMode": "opacity",
                 "hideFrom": { "legend": false, "tooltip": false, "viz": false },
                 "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": { "type": "linear" },
                 "showPoints": "never",
@@ -603,49 +634,48 @@ data:
                 "stacking": { "group": "A", "mode": "normal" },
                 "thresholdsStyle": { "mode": "off" }
               },
-              "unit": "kwatth",
+              "unit": "watt",
               "min": 0
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 36 },
-          "id": 12,
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 25 },
+          "id": 42,
           "options": {
-            "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+            "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(ipmi_dcmi_power_consumption_watts) / 1000",
-              "legendFormat": "Servers",
+              "expr": "upsAdvanceOutputPower - (sum(DCGM_FI_DEV_POWER_USAGE) or vector(0))",
+              "legendFormat": "Infrastructure",
               "refId": "A"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(DCGM_FI_DEV_POWER_USAGE) / 1000 or vector(0)",
+              "expr": "sum(DCGM_FI_DEV_POWER_USAGE) or vector(0)",
               "legendFormat": "GPUs",
               "refId": "B"
             }
           ],
-          "title": "Energy Consumption by Source (kWh)",
+          "title": "Power Source Over Time",
           "type": "timeseries"
         }
       ],
       "schemaVersion": 39,
-      "tags": ["power", "hardware", "cost", "ipmi", "ups", "gpu"],
+      "tags": ["power", "ups", "cost", "gpu"],
       "templating": {
         "list": [
           {
-            "current": { "selected": false, "text": "0.12", "value": "0.12" },
+            "current": { "selected": false, "text": "0.15", "value": "0.15" },
             "description": "Electricity rate in $/kWh for cost estimation",
             "label": "Electricity Rate ($/kWh)",
             "name": "electricity_rate",
             "options": [
-              { "selected": true, "text": "0.12", "value": "0.12" }
+              { "selected": true, "text": "0.15", "value": "0.15" }
             ],
-            "query": "0.12",
+            "query": "0.15",
             "type": "textbox"
           }
         ]
