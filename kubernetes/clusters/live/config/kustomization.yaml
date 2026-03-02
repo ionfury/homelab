@@ -15,5 +15,6 @@ resources:
   - paperless
   - excalidraw
   - homepage
+  - longhorn-backup-jobs
   - silences
   - cluster-config-resourceset.yaml

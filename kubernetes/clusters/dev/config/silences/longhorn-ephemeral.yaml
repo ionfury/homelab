@@ -1,0 +1,15 @@
+---
+# Dev and integration are ephemeral testing environments where Longhorn storage
+# alerts are expected noise: Prometheus PVCs exceed capacity from snapshot
+# accumulation, and node disk usage climbs due to 3-way replication overhead.
+# These are architectural properties of non-prod, not actionable incidents.
+apiVersion: observability.giantswarm.io/v1alpha2
+kind: Silence
+metadata:
+  name: longhorn-ephemeral
+  namespace: monitoring
+spec:
+  matchers:
+    - name: alertname
+      matchType: "=~"
+      value: "Longhorn.*"
