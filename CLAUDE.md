@@ -482,23 +482,34 @@ mise doctor              # Diagnose environment issues
 
 ## Platform Version Management
 
-`kubernetes/platform/versions.env` is the **single source of truth** for all platform versions:
+Versions are split across two tiers:
 
+- **`kubernetes/platform/versions.env`** -- platform-wide versions shared by all clusters (infrastructure, platform Helm charts, shared container images)
+- **`kubernetes/clusters/<cluster>/versions.env`** -- per-cluster application versions (cluster-specific Helm charts and container image tags)
+
+**Platform versions** (`kubernetes/platform/versions.env`):
 - **Infrastructure versions**: Talos, Kubernetes, Cilium (read by Terragrunt)
-- **Helm chart versions**: All charts deployed via Flux (substituted at reconciliation)
+- **Platform Helm chart versions**: Charts deployed via platform ResourceSet (substituted at reconciliation)
 - **Upgrade operations**: Tuppr reads versions for declarative upgrades
-- **Dependency updates**: Renovate manages version bumps
+- **Shared versions**: `app_template_version` and other versions used by both platform and cluster
 
-See [kubernetes/platform/CLAUDE.md](kubernetes/platform/CLAUDE.md) for detailed version management patterns.
+**Cluster versions** (`kubernetes/clusters/<cluster>/versions.env`):
+- **Cluster-specific Helm chart versions**: Charts in the cluster's ResourceSet (e.g., `immich_version`, `authelia_version`)
+- **Container image tags**: App-specific image tags referenced in cluster chart values
+
+**Dependency updates**: Renovate manages version bumps in both files via inline `# renovate:` annotations.
+
+See [kubernetes/platform/CLAUDE.md](kubernetes/platform/CLAUDE.md) and [kubernetes/clusters/CLAUDE.md](kubernetes/clusters/CLAUDE.md) for detailed patterns.
 
 ### Data Flow
 
 ```mermaid
 flowchart LR
-    V["kubernetes/platform/versions.env"] --> S["infrastructure/stacks/*\n(Terragrunt reads versions)"]
+    PV["kubernetes/platform/versions.env"] --> S["infrastructure/stacks/*\n(Terragrunt reads versions)"]
     S --> G["generates .cluster-vars.env\nper cluster"]
     G --> C["kubernetes/clusters/‹cluster›/\n.cluster-vars.env"]
-    V --> F["kubernetes/platform/\n(Flux substitutes versions)"]
+    PV --> F["kubernetes/platform/\n(Flux substitutes platform versions)"]
+    CV["kubernetes/clusters/‹cluster›/versions.env"] --> CK["kubernetes/clusters/‹cluster›/\n(Flux substitutes cluster versions)"]
 ```
 
 ---

@@ -38,7 +38,7 @@
     // ============================================================
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/platform/versions\\.env$/"],
+      "managerFilePatterns": ["/^kubernetes/(platform|clusters/[^/]+)/versions\\.env$/"],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+packageName=(?<packageName>[^\\s]+))?(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?(?:\\s+registryUrl=(?<registryUrl>[^\\s]+))?(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n[A-Za-z_]+=(?<currentValue>.+)"

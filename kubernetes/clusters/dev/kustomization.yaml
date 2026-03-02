@@ -14,6 +14,13 @@ configMapGenerator:
     behavior: create
     envs:
       - .cluster-vars.env
+  - name: cluster-versions
+    options:
+      disableNameSuffixHash: true
+    namespace: flux-system
+    behavior: create
+    envs:
+      - versions.env
   - name: cluster-values
     options:
       disableNameSuffixHash: true

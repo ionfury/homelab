@@ -244,30 +244,51 @@ cluster: ${cluster_name}
 
 ## Version Management
 
-The `versions.env` file is the **single source of truth** for ALL platform versions. This enables:
+Versions are split across two tiers:
+
+- **`kubernetes/platform/versions.env`** (this directory) -- platform-wide versions shared by all clusters
+- **`kubernetes/clusters/<cluster>/versions.env`** -- per-cluster application versions
+
+### Platform versions.env
+
+This file is the **single source of truth** for platform-wide versions:
 
 - **Terragrunt** reads infrastructure versions for bootstrap (talos, kubernetes, cilium, flux)
 - **Flux** deploys as `platform-versions` ConfigMap and substitutes into helm-charts.yaml
 - **Tuppr** reads Talos/Kubernetes versions for in-cluster upgrades
-- **Renovate** updates ONE file - changes flow through the promotion pipeline
+- **Shared versions** like `app_template_version` used by both platform and cluster releases
 
-### versions.env Structure
+### Per-Cluster versions.env
+
+Each cluster has its own `versions.env` deployed as a `cluster-versions` ConfigMap:
+
+- **Cluster-specific Helm chart versions**: `immich_version`, `authelia_version`, `open_webui_version`
+- **Container image tags**: App-specific image tags referenced in cluster chart values
+- **Renovate** manages both files using the same inline annotation pattern
+
+### Which file for a new version?
+
+| Version used by | File |
+|-----------------|------|
+| Platform `helm-charts.yaml` | `kubernetes/platform/versions.env` |
+| Cluster `resourcesets/helm-charts.yaml` | `kubernetes/clusters/<cluster>/versions.env` |
+| Both platform and cluster | `kubernetes/platform/versions.env` |
+| Infrastructure (Terragrunt, Tuppr) | `kubernetes/platform/versions.env` |
+
+### versions.env Annotation Structure
 
 Each version entry has a `# renovate:` annotation comment on the line above. Renovate's generic regex manager reads these annotations to determine how to update each version.
 
 ```env
 # Infrastructure versions (Terragrunt + Tuppr)
 # renovate: datasource=github-releases depName=talos packageName=siderolabs/talos
-talos_version=v1.12.2
-# renovate: datasource=github-tags depName=kubernetes packageName=kubernetes/kubernetes extractVersion=^v(?<version>.*)$
-kubernetes_version=1.35.0
+talos_version=v1.12.4
 
 # Helm chart versions (Flux substitution)
 # renovate: datasource=helm depName=grafana registryUrl=https://grafana.github.io/helm-charts
 grafana_version=10.5.15
-# renovate: datasource=docker depName=app-template packageName=ghcr.io/bjw-s/helm/app-template
-app_template_version=3.7.3
-# ... all chart versions with annotations
+# renovate: datasource=docker depName=app-template packageName=ghcr.io/bjw-s-labs/helm/app-template
+app_template_version=4.6.2
 ```
 
 ### Natural Convergence
@@ -282,19 +303,20 @@ sequenceDiagram
     participant Node
     participant TG as Terragrunt
 
-    PR->>Flux: Merge updates talos_version=v1.12.2
+    PR->>Flux: Merge updates talos_version=v1.12.4
     Flux->>Flux: Syncs new ConfigMap to cluster
-    Tuppr->>Node: Sees mismatch → executes upgrade to v1.12.2
-    Note over Node: Now at v1.12.2
-    TG->>PR: Reads versions.env → v1.12.2
-    TG->>Node: Sees node already at v1.12.2 → NO-OP
+    Tuppr->>Node: Sees mismatch → executes upgrade to v1.12.4
+    Note over Node: Now at v1.12.4
+    TG->>PR: Reads versions.env → v1.12.4
+    TG->>Node: Sees node already at v1.12.4 → NO-OP
 ```
 
 ### Adding/Updating Versions
 
-1. Edit `versions.env` with the new version
-2. If adding a new Helm chart, update `helm-charts.yaml` with `${new_chart_version}`
-3. Run `task k8s:validate` to verify substitution works
+1. Determine which file the version belongs in (platform vs cluster -- see table above)
+2. Edit the appropriate `versions.env` with the new version and Renovate annotation
+3. If adding a new Helm chart, update the corresponding `helm-charts.yaml` with `${new_chart_version}`
+4. Run `task k8s:validate` to verify substitution works
 
 ---
 
