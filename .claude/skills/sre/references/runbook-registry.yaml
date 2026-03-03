@@ -1,0 +1,62 @@
+---
+# Runbook registry: maps alerts to their runbook sections, triage commands, and symptoms.
+# Used by the SRE agent to quickly locate investigation procedures.
+
+gitops:
+  runbook: docs/runbooks/gitops-alerts.md
+  alerts:
+    FluxHelmReleaseFailing:
+      section: "#flux-reconciliation"
+      severity: warning
+      triage:
+        - "flux get helmreleases -A --status-selector ready=false"
+        - "kubectl describe helmrelease <name> -n <namespace>"
+      symptoms:
+        - "HelmRelease stuck in Failed or Stalled state"
+        - "New chart versions not deploying"
+        - "Helm controller logs show install/upgrade retries exhausted"
+
+    FluxKustomizationFailing:
+      section: "#flux-reconciliation"
+      severity: warning
+      triage:
+        - "flux get kustomizations --status-selector ready=false"
+        - "kubectl describe kustomization <name> -n flux-system"
+      symptoms:
+        - "Kustomization stuck in Ready=False state"
+        - "Downstream HelmReleases not reconciling"
+        - "Kustomize controller logs show build or apply errors"
+
+    ExternalSecretSyncFailure:
+      section: "#secret-synchronization"
+      severity: warning
+      triage:
+        - "kubectl get externalsecret -A -o wide"
+        - "kubectl describe externalsecret <name> -n <namespace>"
+        - "kubectl logs -n kube-system -l app.kubernetes.io/name=external-secrets --tail=50"
+      symptoms:
+        - "ExternalSecret sync error count increasing"
+        - "Applications failing to start due to missing secrets"
+        - "SecretSyncedError in ExternalSecret status"
+
+    ExternalSecretNotReady:
+      section: "#secret-synchronization"
+      severity: warning
+      triage:
+        - "kubectl get externalsecret -A -o wide"
+        - "kubectl describe externalsecret <name> -n <namespace>"
+      symptoms:
+        - "ExternalSecret in Ready=False state for extended period"
+        - "Target Secret not created or contains stale data"
+
+    ClusterSecretStoreUnhealthy:
+      section: "#secret-synchronization"
+      severity: critical
+      triage:
+        - "kubectl get clustersecretstore -o wide"
+        - "kubectl describe clustersecretstore aws-ssm"
+        - "kubectl logs -n kube-system -l app.kubernetes.io/name=external-secrets --tail=50"
+      symptoms:
+        - "ClusterSecretStore aws-ssm in Ready=False state"
+        - "All ExternalSecrets across the cluster failing to sync"
+        - "AWS SSM connectivity or authentication failure"
