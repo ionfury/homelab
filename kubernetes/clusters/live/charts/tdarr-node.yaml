@@ -18,21 +18,18 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
-    # s6-overlay (LinuxServer.io) requires root to run its init system,
-    # then drops to PUID/PGID via s6-applyuidgid. Capabilities needed:
-    # SETUID/SETGID for user switching, CHOWN/DAC_OVERRIDE/FOWNER for
-    # file ownership fixups during init.
+    # Bypass s6-overlay init system by running Tdarr_Node directly.
+    # s6-overlay's stage 250 s6-svwait has an internal timeout that
+    # cannot be overridden by env vars, killing the node during its
+    # encoder probe initialization every time.
     containers:
       app:
         image:
           repository: ghcr.io/haveagitgat/tdarr_node
           tag: "${tdarr_node_version}"
+        command: ["/app/Tdarr_Node/Tdarr_Node"]
         env:
           TZ: UTC
-          PUID: "568"
-          PGID: "568"
-          # s6-overlay default 5s timeout is too short — encoder probes take minutes
-          S6_CMD_WAIT_FOR_SERVICES_MAXTIME: "0"
           nodeName: gpu-worker
           serverURL: "http://tdarr.media.svc.cluster.local:8266"
           NVIDIA_DRIVER_CAPABILITIES: all
@@ -59,7 +56,7 @@ controllers:
             custom: true
             spec:
               tcpSocket:
-                port: 8267
+                port: 15001
               initialDelaySeconds: 10
               periodSeconds: 5
               failureThreshold: 30
@@ -68,14 +65,14 @@ controllers:
             custom: true
             spec:
               tcpSocket:
-                port: 8267
+                port: 15001
               periodSeconds: 30
           readiness:
             enabled: true
             custom: true
             spec:
               tcpSocket:
-                port: 8267
+                port: 15001
               periodSeconds: 10
 
 persistence:
