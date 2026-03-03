@@ -13,7 +13,6 @@ resources:
   - pxe-boot
   - tandoor
   - paperless
-  - excalidraw
   - homepage
   - longhorn-backup-jobs
   - silences
