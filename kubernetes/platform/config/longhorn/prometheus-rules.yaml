@@ -101,16 +101,6 @@ spec:
             summary: "Longhorn backup {{ $labels.backup }} failed"
             description: "Backup {{ $labels.backup }} for volume {{ $labels.volume }} is in error state. Check backup target connectivity and available space."
 
-        # Snapshot Space Warning
-        - alert: LonghornSnapshotSpaceWarning
-          expr: longhorn_snapshot_actual_size_bytes > 10737418240
-          for: 10m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Longhorn snapshot {{ $labels.snapshot }} > 10GB"
-            description: "Snapshot {{ $labels.snapshot }} on volume {{ $labels.volume }} is {{ $value | humanize1024 }}. Consider pruning old snapshots."
-
         # Volume Read-Only (filesystem issue)
         - alert: LonghornVolumeReadOnly
           expr: longhorn_volume_file_system_read_only == 1
