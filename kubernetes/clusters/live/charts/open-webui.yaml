@@ -11,10 +11,13 @@ ollamaUrls:
 pipelines:
   enabled: false
 
+# websocket.enabled=false prevents the chart from generating REDIS_URL and
+# WEBSOCKET_MANAGER env vars at fixed positions that precede DRAGONFLY_PASS
+# from extraEnvVars — causing $(DRAGONFLY_PASS) to resolve as a literal string.
+# We provide all websocket env vars ourselves in extraEnvVars where ordering is
+# controlled (same pattern as databaseUrl: "" below).
 websocket:
-  enabled: true
-  manager: redis
-  url: ""
+  enabled: false
   redis:
     enabled: false
 
@@ -29,6 +32,10 @@ extraEnvVars:
         key: password
   - name: DATABASE_URL
     value: "postgresql://open-webui:$(DB_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/open-webui"
+  - name: ENABLE_WEBSOCKET_SUPPORT
+    value: "True"
+  - name: WEBSOCKET_MANAGER
+    value: "redis"
   - name: DRAGONFLY_PASS
     valueFrom:
       secretKeyRef:
