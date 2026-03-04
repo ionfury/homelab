@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: fluxcd/flux2/action@v2.8.1
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
