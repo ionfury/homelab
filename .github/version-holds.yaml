@@ -9,3 +9,8 @@ holds:
     reason: "v3.41.x healthcheck regression blocks DNS queries to kube-dns after VPN tunnel establishment"
     upstream_issue: https://github.com/qdm12/gluetun/issues/3132
     created: "2026-02-18"
+  - dep: longhorn-instance-manager
+    constraint: n/a
+    reason: "v1.11.0 instance manager memory leak; using hotfix image override until v1.11.1+ includes the fix in chart defaults"
+    upstream_issue: https://github.com/longhorn/longhorn/issues/12573
+    created: "2026-03-03"
