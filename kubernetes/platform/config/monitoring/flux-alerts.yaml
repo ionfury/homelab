@@ -6,6 +6,7 @@ metadata:
   name: flux-alerts
   labels:
     app.kubernetes.io/name: flux
+    release: kube-prometheus-stack
 spec:
   groups:
     - name: flux.rules
@@ -22,6 +23,7 @@ spec:
               HelmRelease {{ $labels.exported_namespace }}/{{ $labels.name }} has been in a non-ready
               state for more than 30 minutes (reason: {{ $labels.reason }}). With RetryOnFailure strategy,
               the release will keep retrying but this indicates a persistent issue that needs investigation.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/gitops-alerts.md#flux-reconciliation"
 
         - alert: FluxKustomizationFailing
           expr: |
@@ -34,3 +36,4 @@ spec:
             description: >-
               Kustomization {{ $labels.exported_namespace }}/{{ $labels.name }} has been in a non-ready
               state for more than 30 minutes. Check Flux logs and events for reconciliation errors.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/gitops-alerts.md#flux-reconciliation"
