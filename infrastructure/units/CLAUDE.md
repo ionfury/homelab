@@ -17,7 +17,8 @@ For architectural context and the separation of concerns between units and modul
 | `aws-set-params` | `modules/aws-set-params` | Stores kubeconfig/talosconfig in AWS SSM | `config`, `talos` |
 | `pki` | `modules/pki` | Generates PKI certificates (Istio mesh CA) | None |
 | `ingress-pki` | `modules/pki` | Generates PKI certificates (ingress CA) | None |
-| `longhorn-storage` | `modules/longhorn-storage` | Provisions S3 backup buckets for all clusters | None |
+| `longhorn-storage` | `modules/longhorn-storage` | Provisions S3 backup buckets for all clusters (Longhorn) | None |
+| `velero-storage` | `modules/velero-storage` | Provisions S3 backup buckets for all clusters (Velero) | None |
 
 ---
 

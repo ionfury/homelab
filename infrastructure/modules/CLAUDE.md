@@ -17,6 +17,7 @@ For architectural context (units vs modules), see [infrastructure/CLAUDE.md](../
 | `pki` | Certificate authority generation and SSM storage | tls, aws | ✅ 1 test |
 | `aws-set-params` | AWS SSM parameter storage | aws | ✅ 1 test |
 | `longhorn-storage` | S3 backup infrastructure for Longhorn volumes | aws | ❌ |
+| `velero-storage` | S3 backup infrastructure for Velero | aws | ✅ 3 tests |
 
 ---
 

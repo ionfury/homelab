@@ -15,6 +15,15 @@ unit "longhorn_storage" {
   }
 }
 
+unit "velero_storage" {
+  source = "../../units/velero-storage"
+  path   = "velero-storage"
+
+  values = {
+    clusters = local.clusters
+  }
+}
+
 unit "pki" {
   source = "../../units/pki"
   path   = "pki"
