@@ -6,6 +6,15 @@ initContainers:
     # renovate: datasource=docker depName=velero/velero-plugin-for-aws
     image: velero/velero-plugin-for-aws:v1.13.2
     imagePullPolicy: IfNotPresent
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 65534
+      seccompProfile:
+        type: RuntimeDefault
     volumeMounts:
       - mountPath: /target
         name: plugins
@@ -52,6 +61,25 @@ containerSecurityContext:
   runAsUser: 65534
   seccompProfile:
     type: RuntimeDefault
+
+kubectl:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+
+upgradeCRDsJob:
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
 
 metrics:
   enabled: true
