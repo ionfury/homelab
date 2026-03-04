@@ -12,6 +12,7 @@ metadata:
     gethomepage.dev/icon: "qbittorrent.svg"
     gethomepage.dev/widget.type: "qbittorrent"
     gethomepage.dev/widget.url: "http://qbittorrent.media.svc:8080"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=qbittorrent"
 spec:
   parentRefs:
     - name: internal

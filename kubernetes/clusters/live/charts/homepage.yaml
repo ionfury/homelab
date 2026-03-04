@@ -193,7 +193,7 @@ configMaps:
                 widget:
                   type: gamedig
                   serverType: minecraft
-                  host: minecraft-game.minecraft.svc.cluster.local
+                  host: minecraft.minecraft.svc.cluster.local
                   port: 25565
             - Valheim:
                 icon: valheim.svg
@@ -201,7 +201,7 @@ configMaps:
                 widget:
                   type: gamedig
                   serverType: valheim
-                  host: valheim-game.valheim.svc.cluster.local
+                  host: valheim.valheim.svc.cluster.local
                   port: 2457
             - Satisfactory:
                 icon: satisfactory.svg
@@ -209,7 +209,7 @@ configMaps:
                 widget:
                   type: gamedig
                   serverType: satisfactory
-                  host: satisfactory-app.satisfactory.svc.cluster.local
+                  host: satisfactory.satisfactory.svc.cluster.local
                   port: 7777
             - Factorio:
                 icon: factorio.svg
@@ -217,7 +217,7 @@ configMaps:
                 widget:
                   type: gamedig
                   serverType: factorio
-                  host: factorio-game.factorio.svc.cluster.local
+                  host: factorio.factorio.svc.cluster.local
                   port: 34197
       bookmarks.yaml: |
         - Infrastructure:

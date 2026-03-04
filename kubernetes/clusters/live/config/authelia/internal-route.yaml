@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/name: "Authelia"
     gethomepage.dev/group: "Apps"
     gethomepage.dev/icon: "authelia.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=authelia"
 spec:
   parentRefs:
     - name: internal

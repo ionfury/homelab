@@ -9,6 +9,7 @@ metadata:
     gethomepage.dev/name: "Garage"
     gethomepage.dev/group: "Platform"
     gethomepage.dev/icon: "minio.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=garage"
 spec:
   parentRefs:
     - name: internal

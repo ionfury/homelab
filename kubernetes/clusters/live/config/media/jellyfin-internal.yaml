@@ -14,6 +14,7 @@ metadata:
     gethomepage.dev/widget.url: "http://jellyfin.media.svc:8096"
     gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
     gethomepage.dev/widget.enableNowPlaying: "true"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=jellyfin"
 spec:
   parentRefs:
     - name: internal

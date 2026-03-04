@@ -13,6 +13,7 @@ metadata:
     gethomepage.dev/widget.type: "sonarr"
     gethomepage.dev/widget.url: "http://sonarr.media.svc:8989"
     gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=sonarr"
 spec:
   parentRefs:
     - name: internal

@@ -13,6 +13,7 @@ metadata:
     gethomepage.dev/widget.type: "radarr"
     gethomepage.dev/widget.url: "http://radarr.media.svc:7878"
     gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=radarr"
 spec:
   parentRefs:
     - name: internal

@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/name: "Vaultwarden"
     gethomepage.dev/group: "Apps"
     gethomepage.dev/icon: "vaultwarden.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=vaultwarden"
 spec:
   parentRefs:
     - name: internal
