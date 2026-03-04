@@ -1,49 +1,88 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: dragonfly-alerts
   labels:
-    prometheus: kube-prometheus-stack
+    app.kubernetes.io/name: dragonfly
     release: kube-prometheus-stack
 spec:
   groups:
-    - name: dragonfly.rules
+    - name: dragonfly-health
       rules:
+        # Fires when any Dragonfly instance is unreachable by Prometheus.
+        # Uses the PodMonitor job label (cache/dragonfly) rather than
+        # pod labels, because the Dragonfly operator does not set an
+        # "app" label that matches the up metric.
         - alert: DragonflyDown
-          expr: up{app="dragonfly", namespace="cache"} == 0
+          expr: up{job="cache/dragonfly"} == 0
           for: 2m
           labels:
             severity: critical
           annotations:
             summary: "Dragonfly instance {{ $labels.pod }} is down"
+            description: >-
+              Dragonfly instance {{ $labels.pod }} has been unreachable for
+              over 2 minutes. Applications using Dragonfly as a cache will
+              fall back to database queries, increasing database load.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#dragonflydown"
 
+    - name: dragonfly-resources
+      rules:
+        # Fires when Dragonfly memory usage exceeds 90% of the configured
+        # maxmemory (768 MB). In cache_mode, Dragonfly evicts keys when
+        # the limit is reached, but sustained high usage may indicate
+        # insufficient capacity.
         - alert: DragonflyHighMemoryUsage
           expr: |
-            (dragonfly_used_memory_bytes{namespace="cache"}
-            / dragonfly_maxmemory_bytes{namespace="cache"}) > 0.9
+            (dragonfly_memory_used_bytes{namespace="cache"}
+            / dragonfly_memory_max_bytes{namespace="cache"}) > 0.9
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Dragonfly memory usage > 90% on {{ $labels.pod }}"
+            summary: "Dragonfly memory usage above 90% on {{ $labels.pod }}"
+            description: >-
+              Dragonfly instance {{ $labels.pod }} is using
+              {{ $value | humanizePercentage }} of its configured maxmemory
+              (768 MB). In cache_mode, keys are evicted at the limit, but
+              sustained pressure may cause elevated eviction rates.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#dragonflyhighmemoryusage"
 
+        # Fires when memory usage is critically high (>95%), indicating
+        # active eviction pressure. Short for duration because eviction
+        # storms can degrade performance quickly.
         - alert: DragonflyHighMemoryUsageCritical
           expr: |
-            (dragonfly_used_memory_bytes{namespace="cache"}
-            / dragonfly_maxmemory_bytes{namespace="cache"}) > 0.95
+            (dragonfly_memory_used_bytes{namespace="cache"}
+            / dragonfly_memory_max_bytes{namespace="cache"}) > 0.95
           for: 2m
           labels:
             severity: critical
           annotations:
-            summary: "Dragonfly memory usage > 95% on {{ $labels.pod }}"
+            summary: "Dragonfly memory usage above 95% on {{ $labels.pod }}"
+            description: >-
+              Dragonfly instance {{ $labels.pod }} is using
+              {{ $value | humanizePercentage }} of its configured maxmemory.
+              Heavy eviction is likely in progress. Consider increasing the
+              maxmemory setting or investigating unexpected key growth.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#dragonflyhighmemoryusagecritical"
 
-        - alert: DragonflyReplicationBroken
-          expr: |
-            dragonfly_connected_replicas{namespace="cache"}
-            < (dragonfly_total_replicas{namespace="cache"} - 1)
-          for: 5m
+    - name: dragonfly-replication
+      rules:
+        # Fires when Dragonfly snapshot backups are failing. The operator
+        # schedules snapshots every 6 hours to S3. Failed backups risk
+        # data loss on pod restart.
+        - alert: DragonflySnapshotsFailing
+          expr: rate(dragonfly_failed_backups_total[1h]) > 0
+          for: 10m
           labels:
-            severity: critical
+            severity: warning
           annotations:
-            summary: "Dragonfly replication broken for {{ $labels.pod }}"
+            summary: "Dragonfly snapshot failures on {{ $labels.pod }}"
+            description: >-
+              Dragonfly instance {{ $labels.pod }} has had snapshot backup
+              failures in the last hour. Snapshots are saved to S3 (Garage)
+              every 6 hours. Check Garage S3 connectivity and Dragonfly logs.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#dragonflysnapshotsfailing"
