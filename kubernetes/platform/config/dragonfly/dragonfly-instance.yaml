@@ -65,7 +65,7 @@ spec:
     persistentVolumeClaimSpec:
       accessModes:
         - ReadWriteOnce
-      storageClassName: fast-nb
+      storageClassName: fast
       resources:
         requests:
           storage: ${dragonfly_volume_size:-1Gi}

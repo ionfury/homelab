@@ -91,7 +91,7 @@ spec:
       - host all all 172.16.0.0/12 scram-sha-256
 
   storage:
-    storageClass: fast-nb
+    storageClass: fast
     size: ${database_volume_size}
 
   backup:
