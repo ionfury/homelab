@@ -7,9 +7,7 @@ podAnnotations:
   reloader.stakater.com/auto: "true"
 
 config:
-  clientID: "override-me"
-  clientSecret: "override-me"
-  cookieSecret: "override-me"
+  proxyVarsAsSecrets: false
   configFile: |
     provider = "github"
     github_users = ["ionfury"]
