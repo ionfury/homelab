@@ -13,7 +13,7 @@ serviceAccount:
 controllers:
   homepage:
     type: deployment
-    replicas: 1
+    replicas: 2
 
     containers:
       app:
