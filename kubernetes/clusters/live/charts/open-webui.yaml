@@ -78,7 +78,7 @@ containerSecurityContext:
 persistence:
   enabled: true
   size: 5Gi
-  storageClass: fast-nb
+  storageClass: fast
 
 ingress:
   enabled: false

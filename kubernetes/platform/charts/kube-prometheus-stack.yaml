@@ -67,7 +67,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: fast-nb
+          storageClassName: fast
           resources:
             requests:
               storage: ${prometheus_volume_size}

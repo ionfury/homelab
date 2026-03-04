@@ -11,7 +11,5 @@ resources:
   - recurring-jobs/snapshot-minimal.yaml
   - recurring-jobs/filesystem-trim-daily.yaml
   - routes/
-  - storage-classes/fast-nb.yaml
   - storage-classes/fast.yaml
-  - storage-classes/slow-nb.yaml
   - storage-classes/slow.yaml

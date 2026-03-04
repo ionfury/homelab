@@ -34,7 +34,7 @@ spec:
         - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
 
   storage:
-    storageClass: fast-nb
+    storageClass: fast
     size: 10Gi
 
   backup:
