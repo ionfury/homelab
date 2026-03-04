@@ -432,34 +432,6 @@ locals {
       ip  = machine.bonds[0].addresses[0]
     }
   }
-
-  # Port forwarding rules for external gateway (live cluster only)
-  port_forwards = var.name == "live" ? {
-    http = {
-      name     = "External Gateway HTTP"
-      dst_port = "80"
-      fwd_ip   = var.networking.external_ingress_ip
-      fwd_port = "80"
-      protocol = "tcp"
-    }
-    https = {
-      name     = "External Gateway HTTPS"
-      dst_port = "443"
-      fwd_ip   = var.networking.external_ingress_ip
-      fwd_port = "443"
-      protocol = "tcp"
-    }
-  } : {}
-
-  # Dynamic DNS for external gateway (live cluster only)
-  dynamic_dns = var.name == "live" ? {
-    external_gateway = {
-      service        = "cloudflare"
-      host_name      = "gw.${var.networking.external_tld}"
-      server         = var.accounts.cloudflare.zone_id
-      password_store = var.accounts.cloudflare.api_token_store
-    }
-  } : {}
   /*
   # SSM parameters to fetch
   params_get = toset([

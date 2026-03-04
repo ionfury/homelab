@@ -17,8 +17,6 @@ dependency "config" {
     unifi = {
       dns_records       = {}
       dhcp_reservations = {}
-      port_forwards     = {}
-      dynamic_dns       = {}
     }
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
@@ -27,7 +25,5 @@ dependency "config" {
 inputs = {
   dns_records       = dependency.config.outputs.unifi.dns_records
   dhcp_reservations = dependency.config.outputs.unifi.dhcp_reservations
-  port_forwards     = dependency.config.outputs.unifi.port_forwards
-  dynamic_dns       = dependency.config.outputs.unifi.dynamic_dns
   unifi             = local.accounts_vars.locals.accounts.unifi
 }
