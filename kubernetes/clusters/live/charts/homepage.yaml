@@ -184,7 +184,7 @@ configMaps:
             cache: 15
         - healthchecks:
             url: https://healthchecks.io
-            key: "{{HOMEPAGE_VAR_HEALTHCHECKS_API_KEY}}"
+            key: "{{`{{HOMEPAGE_VAR_HEALTHCHECKS_API_KEY}}`}}"
       services.yaml: |
         - Gaming:
             - Minecraft:
