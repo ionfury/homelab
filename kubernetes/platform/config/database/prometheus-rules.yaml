@@ -5,28 +5,31 @@ kind: PrometheusRule
 metadata:
   name: cnpg-alerts
   labels:
-    prometheus: kube-prometheus-stack
+    app.kubernetes.io/name: cnpg
     release: kube-prometheus-stack
 spec:
   groups:
-    - name: cnpg.rules
+    - name: cnpg-cluster-health
       rules:
+        # Fires when the primary instance has zero streaming replicas, meaning
+        # all replicas have disconnected and failover capability is lost.
         - alert: CNPGClusterNotHealthy
-          expr: cnpg_pg_replication_streaming == 0
+          expr: |
+            cnpg_pg_replication_streaming_replicas == 0
+            and cnpg_pg_replication_in_recovery == 0
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "CNPG cluster {{ $labels.cluster }} replication not healthy"
+            summary: "CNPG primary {{ $labels.pod }} has no streaming replicas"
+            description: >-
+              The primary instance {{ $labels.pod }} reports zero streaming replicas.
+              All replicas have disconnected from replication. Data redundancy is lost
+              and failover capability is unavailable.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#cnpgclusternothealthy"
 
-        - alert: CNPGClusterHighConnections
-          expr: (cnpg_pg_stat_activity_count / on(cluster) cnpg_pg_settings_setting{name="max_connections"}) > 0.8
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "CNPG cluster {{ $labels.cluster }} connection usage > 80%"
-
+        # Fires when a replica is in recovery mode but its WAL receiver is not
+        # connected, so it cannot follow the primary and will fall behind.
         - alert: CNPGInstanceNotReady
           expr: cnpg_pg_replication_in_recovery == 1 and cnpg_pg_replication_is_wal_receiver_up == 0
           for: 5m
@@ -34,33 +37,72 @@ spec:
             severity: critical
           annotations:
             summary: "CNPG replica {{ $labels.pod }} WAL receiver down"
+            description: >-
+              Replica {{ $labels.pod }} is in recovery mode but its WAL receiver
+              is not connected. The replica cannot follow the primary and will fall
+              behind. If all replicas lose WAL receivers, failover capability is lost.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#cnpginstancenotready"
 
-        # WAL Archiving Lag - pending files above healthy threshold
+    - name: cnpg-connections
+      rules:
+        # Fires when total backend connections approach max_connections. The pooler
+        # (PgBouncer) has 1000 max_client_conn / 25 default_pool_size per database,
+        # but server-side connections are bounded by max_connections (200 platform,
+        # 100 dedicated).
+        - alert: CNPGClusterHighConnections
+          expr: |
+            (
+              sum by (pod) (cnpg_backends_total)
+              / on(pod) cnpg_pg_settings_setting{name="max_connections"}
+            ) > 0.8
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CNPG instance {{ $labels.pod }} connection usage above 80%"
+            description: >-
+              PostgreSQL instance {{ $labels.pod }} is using
+              {{ $value | humanizePercentage }} of max_connections. The pooler
+              (PgBouncer) has 1000 max_client_conn with 25 default_pool_size per
+              database. If server-side connections reach max_connections, new
+              connections will be rejected.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#cnpgclusterhighconnections"
+
+    - name: cnpg-backup-wal
+      rules:
+        # Fires when WAL files pending archival exceed healthy threshold.
+        # Degrades recovery point objective (RPO).
         - alert: CNPGWALArchivingLagHigh
           expr: cnpg_collector_pg_wal_archive_status{value="ready"} > 10
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "CNPG cluster {{ $labels.cluster }} WAL archiving lagging"
+            summary: "CNPG WAL archiving lagging on {{ $labels.pod }}"
             description: >-
-              {{ $value }} WAL files pending archival for cluster {{ $labels.cluster }}.
-              WAL archive lag degrades RPO. Check Garage connectivity and barman health.
+              {{ $value }} WAL files are pending archival on {{ $labels.pod }}.
+              WAL archive lag degrades recovery point objective (RPO). Check Garage
+              S3 connectivity and barman object store health.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#cnpgwalarchivinglaghigh"
 
-        # WAL Archiving Stalled - critical backlog
+        # Fires when WAL backlog is critical (>100 files). pg_wal disk usage will
+        # grow until the volume fills.
         - alert: CNPGWALArchivingStalled
           expr: cnpg_collector_pg_wal_archive_status{value="ready"} > 100
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "CNPG cluster {{ $labels.cluster }} WAL archiving stalled"
+            summary: "CNPG WAL archiving stalled on {{ $labels.pod }}"
             description: >-
-              {{ $value }} WAL files pending archival for cluster {{ $labels.cluster }}.
-              Archiving appears stalled. RPO is severely degraded. Check Garage health
-              and barman object store connectivity immediately.
+              {{ $value }} WAL files are pending archival on {{ $labels.pod }}.
+              Archiving appears stalled. RPO is severely degraded and pg_wal disk
+              usage will grow until the volume fills. Check Garage health and barman
+              object store connectivity immediately.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#cnpgwalarchivingstalled"
 
-        # Base Backup Staleness - no successful backup within 48h
+        # Fires when no successful backup exists within 48 hours. The daily
+        # ScheduledBackup runs at 03:00 UTC, so 48h means two consecutive misses.
         - alert: CNPGBackupStale
           expr: |
             (time() - cnpg_collector_last_available_backup_timestamp) > 172800
@@ -69,13 +111,17 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "CNPG cluster {{ $labels.cluster }} backup older than 48h"
+            summary: "CNPG backup older than 48h on {{ $labels.pod }}"
             description: >-
-              Last available backup for cluster {{ $labels.cluster }} is
-              {{ $value | humanizeDuration }} old (threshold: 48h). Check
-              ScheduledBackup resource and barman object store connectivity.
+              Last available backup for {{ $labels.pod }} is
+              {{ $value | humanizeDuration }} old (threshold: 48h). The daily
+              ScheduledBackup runs at 03:00 UTC. Two consecutive missed backups
+              indicate a persistent issue. Check ScheduledBackup resource, CNPG
+              operator logs, and barman object store connectivity to Garage.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#cnpgbackupstale"
 
-        # Backup Failed - most recent attempt was a failure
+        # Fires when the most recent backup attempt failed, indicating a
+        # transient or persistent issue with the backup pipeline.
         - alert: CNPGBackupFailed
           expr: |
             cnpg_collector_last_failed_backup_timestamp
@@ -84,8 +130,9 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "CNPG cluster {{ $labels.cluster }} latest backup failed"
+            summary: "CNPG latest backup failed on {{ $labels.pod }}"
             description: >-
-              The most recent backup attempt for cluster {{ $labels.cluster }} failed.
-              A failed backup is more recent than the last successful one.
-              Check CNPG operator logs and barman backup connectivity to Garage.
+              The most recent backup attempt for {{ $labels.pod }} failed. A failed
+              backup timestamp is more recent than the last successful one. Check CNPG
+              operator logs and barman backup connectivity to Garage S3.
+            runbook_url: "https://github.com/ionfury/homelab/blob/main/docs/runbooks/database-alerts.md#cnpgbackupfailed"

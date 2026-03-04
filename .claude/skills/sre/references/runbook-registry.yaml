@@ -1,0 +1,66 @@
+# Runbook Registry
+#
+# Maps alert names to their runbook documentation. Used by the troubleshooter
+# agent to quickly locate relevant procedures during incident investigation.
+#
+# Structure: domain -> alerts[] with name, severity, runbook path, and anchor.
+
+domains:
+  database:
+    description: CNPG PostgreSQL and Dragonfly cache alerts
+    runbook: docs/runbooks/database-alerts.md
+    alerts:
+      - name: CNPGClusterNotHealthy
+        severity: critical
+        anchor: "#cnpgclusternothealthy"
+        summary: Primary has zero streaming replicas
+
+      - name: CNPGInstanceNotReady
+        severity: critical
+        anchor: "#cnpginstancenotready"
+        summary: Replica WAL receiver disconnected
+
+      - name: CNPGClusterHighConnections
+        severity: warning
+        anchor: "#cnpgclusterhighconnections"
+        summary: Backend connections above 80% of max_connections
+
+      - name: CNPGWALArchivingLagHigh
+        severity: warning
+        anchor: "#cnpgwalarchivinglaghigh"
+        summary: More than 10 WAL files pending archival
+
+      - name: CNPGWALArchivingStalled
+        severity: critical
+        anchor: "#cnpgwalarchivingstalled"
+        summary: More than 100 WAL files pending archival
+
+      - name: CNPGBackupStale
+        severity: critical
+        anchor: "#cnpgbackupstale"
+        summary: No successful backup within 48 hours
+
+      - name: CNPGBackupFailed
+        severity: warning
+        anchor: "#cnpgbackupfailed"
+        summary: Latest backup attempt failed
+
+      - name: DragonflyDown
+        severity: critical
+        anchor: "#dragonflydown"
+        summary: Instance unreachable by Prometheus
+
+      - name: DragonflyHighMemoryUsage
+        severity: warning
+        anchor: "#dragonflyhighmemoryusage"
+        summary: Memory usage above 90% of maxmemory
+
+      - name: DragonflyHighMemoryUsageCritical
+        severity: critical
+        anchor: "#dragonflyhighmemoryusagecritical"
+        summary: Memory usage above 95% of maxmemory
+
+      - name: DragonflySnapshotsFailing
+        severity: warning
+        anchor: "#dragonflysnapshotsfailing"
+        summary: Snapshot backup failures in last hour
