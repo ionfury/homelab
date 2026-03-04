@@ -10,6 +10,9 @@ metadata:
     gethomepage.dev/name: "Prowlarr"
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "prowlarr.svg"
+    gethomepage.dev/widget.type: "prowlarr"
+    gethomepage.dev/widget.url: "http://prowlarr.media.svc:9696"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
 spec:
   parentRefs:
     - name: internal

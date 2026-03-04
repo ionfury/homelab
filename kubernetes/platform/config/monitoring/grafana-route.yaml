@@ -9,6 +9,10 @@ metadata:
     gethomepage.dev/name: "Grafana"
     gethomepage.dev/group: "Platform"
     gethomepage.dev/icon: "grafana.svg"
+    gethomepage.dev/widget.type: "grafana"
+    gethomepage.dev/widget.url: "http://grafana.monitoring.svc:80"
+    gethomepage.dev/widget.username: "admin"
+    gethomepage.dev/widget.password: "{{HOMEPAGE_VAR_GRAFANA_API_KEY}}"
 spec:
   parentRefs:
     - name: internal

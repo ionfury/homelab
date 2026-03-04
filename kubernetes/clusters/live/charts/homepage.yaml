@@ -32,6 +32,58 @@ controllers:
           # Disable file logging to avoid writing to read-only ConfigMap mount
           # https://github.com/gethomepage/homepage/discussions/5404
           LOG_TARGETS: stdout
+          # Arr stack API keys (replicated from media namespace)
+          HOMEPAGE_VAR_SONARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sonarr-api-key
+                key: api-key
+          HOMEPAGE_VAR_RADARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-api-key
+                key: api-key
+          HOMEPAGE_VAR_PROWLARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-api-key
+                key: api-key
+          HOMEPAGE_VAR_JELLYFIN_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: jellyfin-api-token
+                key: JELLYFIN_TOKEN
+          # External API keys (from AWS SSM via ExternalSecret)
+          HOMEPAGE_VAR_HEALTHCHECKS_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-healthchecks-api-key
+                key: api-key
+          HOMEPAGE_VAR_IMMICH_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-immich-api-key
+                key: api-key
+          HOMEPAGE_VAR_PAPERLESS_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-paperless-api-key
+                key: api-key
+          HOMEPAGE_VAR_JELLYSEERR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-jellyseerr-api-key
+                key: api-key
+          HOMEPAGE_VAR_BAZARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-bazarr-api-key
+                key: api-key
+          HOMEPAGE_VAR_GRAFANA_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-grafana-api-key
+                key: api-key
         resources:
           requests:
             cpu: 10m
@@ -93,16 +145,28 @@ configMaps:
         theme: dark
         color: slate
         headerStyle: clean
+        statusStyle: dot
+        hideVersion: true
         layout:
           - Platform:
               icon: mdi-server
+              columns: 4
           - Media:
               icon: mdi-multimedia
+              columns: 4
           - Apps:
               icon: mdi-apps
+              columns: 3
           - AI:
               icon: mdi-robot
+          - Gaming:
+              icon: mdi-gamepad-variant
+              columns: 4
       widgets.yaml: |
+        - search:
+            provider: google
+            focus: true
+            target: _blank
         - kubernetes:
             cluster:
               show: true
@@ -111,9 +175,64 @@ configMaps:
               showLabel: true
               label: homelab
             nodes:
-              show: false
-      services.yaml: ""
-      bookmarks.yaml: ""
+              show: true
+        - longhorn:
+            url: http://longhorn-frontend.longhorn-system.svc:80
+        - openmeteo:
+            timezone: America/New_York
+            units: imperial
+            cache: 15
+        - healthchecks:
+            url: https://healthchecks.io
+            key: "{{HOMEPAGE_VAR_HEALTHCHECKS_API_KEY}}"
+      services.yaml: |
+        - Gaming:
+            - Minecraft:
+                icon: minecraft.svg
+                description: Java + Bedrock crossplay
+                widget:
+                  type: gamedig
+                  serverType: minecraft
+                  host: minecraft-game.minecraft.svc.cluster.local
+                  port: 25565
+            - Valheim:
+                icon: valheim.svg
+                description: Dedicated server
+                widget:
+                  type: gamedig
+                  serverType: valheim
+                  host: valheim-game.valheim.svc.cluster.local
+                  port: 2457
+            - Satisfactory:
+                icon: satisfactory.svg
+                description: Dedicated server
+                widget:
+                  type: gamedig
+                  serverType: satisfactory
+                  host: satisfactory-app.satisfactory.svc.cluster.local
+                  port: 7777
+            - Factorio:
+                icon: factorio.svg
+                description: Space Age
+                widget:
+                  type: gamedig
+                  serverType: factorio
+                  host: factorio-game.factorio.svc.cluster.local
+                  port: 34197
+      bookmarks.yaml: |
+        - Infrastructure:
+            - GitHub:
+                - icon: github.svg
+                  href: https://github.com/thomasnowak/homelab
+            - AWS Console:
+                - icon: aws.svg
+                  href: https://console.aws.amazon.com
+            - Cloudflare:
+                - icon: cloudflare.svg
+                  href: https://dash.cloudflare.com
+            - Healthchecks.io:
+                - icon: healthchecks.svg
+                  href: https://healthchecks.io
       docker.yaml: ""
       proxmox.yaml: ""
       custom.css: ""

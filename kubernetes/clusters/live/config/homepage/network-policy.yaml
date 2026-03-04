@@ -1,0 +1,92 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: homepage-widget-egress
+  namespace: homepage
+spec:
+  description: "Allow Homepage widget API calls to application namespaces"
+  endpointSelector: { }
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+      toPorts:
+        - ports:
+            - port: "5055"
+              protocol: TCP
+            - port: "6767"
+              protocol: TCP
+            - port: "7878"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+            - port: "8096"
+              protocol: TCP
+            - port: "8265"
+              protocol: TCP
+            - port: "8989"
+              protocol: TCP
+            - port: "9696"
+              protocol: TCP
+            - port: "9999"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "9090"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: longhorn-system
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: immich
+      toPorts:
+        - ports:
+            - port: "2283"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: paperless
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: minecraft
+      toPorts:
+        - ports:
+            - port: "25565"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: valheim
+      toPorts:
+        - ports:
+            - port: "2457"
+              protocol: UDP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: satisfactory
+      toPorts:
+        - ports:
+            - port: "7777"
+              protocol: UDP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: factorio
+      toPorts:
+        - ports:
+            - port: "34197"
+              protocol: UDP

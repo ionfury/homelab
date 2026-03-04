@@ -10,6 +10,8 @@ metadata:
     gethomepage.dev/name: "qBittorrent"
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "qbittorrent.svg"
+    gethomepage.dev/widget.type: "qbittorrent"
+    gethomepage.dev/widget.url: "http://qbittorrent.media.svc:8080"
 spec:
   parentRefs:
     - name: internal

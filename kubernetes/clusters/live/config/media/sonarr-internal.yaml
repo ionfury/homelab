@@ -10,6 +10,9 @@ metadata:
     gethomepage.dev/name: "Sonarr"
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "sonarr.svg"
+    gethomepage.dev/widget.type: "sonarr"
+    gethomepage.dev/widget.url: "http://sonarr.media.svc:8989"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
 spec:
   parentRefs:
     - name: internal

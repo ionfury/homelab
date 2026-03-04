@@ -3,23 +3,20 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: immich-internal
-  namespace: immich
+  name: zipline-internal
+  namespace: zipline
   annotations:
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "Immich"
+    gethomepage.dev/name: "Zipline"
     gethomepage.dev/group: "Apps"
-    gethomepage.dev/icon: "immich.svg"
-    gethomepage.dev/widget.type: "immich"
-    gethomepage.dev/widget.url: "http://immich-server.immich.svc:2283"
-    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_IMMICH_API_KEY}}"
+    gethomepage.dev/icon: "zipline.svg"
 spec:
   parentRefs:
     - name: internal
       namespace: istio-gateway
   hostnames:
-    - "immich.${internal_domain}"
+    - "upload.${internal_domain}"
   rules:
     - backendRefs:
-        - name: immich-server
-          port: 2283
+        - name: zipline
+          port: 3000

@@ -10,6 +10,10 @@ metadata:
     gethomepage.dev/name: "Jellyfin"
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "jellyfin.svg"
+    gethomepage.dev/widget.type: "jellyfin"
+    gethomepage.dev/widget.url: "http://jellyfin.media.svc:8096"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
+    gethomepage.dev/widget.enableNowPlaying: "true"
 spec:
   parentRefs:
     - name: internal
