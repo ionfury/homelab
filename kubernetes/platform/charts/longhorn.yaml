@@ -1,5 +1,11 @@
 ---
 # https://raw.githubusercontent.com/longhorn/charts/master/charts/longhorn/values.yaml
+# Temporary instance manager image override for v1.11.0 memory leak hotfix
+# https://github.com/longhorn/longhorn/issues/12573
+image:
+  longhorn:
+    instanceManager:
+      tag: ${longhorn_instance_manager_tag}
 longhornManager:
   priorityClass: infrastructure-critical
 longhornDriver:
