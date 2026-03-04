@@ -74,7 +74,7 @@ spec:
     - name: velero-config
       namespace: velero
       path: kubernetes/platform/config/velero
-      dependsOn: [velero, external-secrets-stores]
+      dependsOn: [velero, external-secrets-stores, snapshot-controller]
     - name: network-policy-config
       namespace: ""
       path: kubernetes/platform/config/network-policy
