@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/vmware-tanzu/helm-charts/main/charts/velero/values.schema.json
+---
+# CSI plugin is built into Velero core since v1.14 -- only the AWS plugin needs an init container
+initContainers:
+  - name: velero-plugin-for-aws
+    # renovate: datasource=docker depName=velero/velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.13.2
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+snapshotsEnabled: true
+deployNodeAgent: false
+
+configuration:
+  features: EnableCSI
+  backupStorageLocation:
+    - name: aws
+      provider: aws
+      bucket: homelab-velero-backup-${cluster_name}
+      default: true
+      credential:
+        name: velero-s3-credentials
+        key: cloud
+      config:
+        region: us-east-2
+  volumeSnapshotLocation:
+    - name: csi
+      provider: csi
+
+credentials:
+  useSecret: false
+  existingSecret: velero-s3-credentials
+
+priorityClassName: platform
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: false

@@ -71,6 +71,10 @@ spec:
       namespace: system-upgrade
       path: kubernetes/platform/config/tuppr
       dependsOn: [tuppr]
+    - name: velero-config
+      namespace: velero
+      path: kubernetes/platform/config/velero
+      dependsOn: [velero, external-secrets-stores]
     - name: network-policy-config
       namespace: ""
       path: kubernetes/platform/config/network-policy
