@@ -45,7 +45,10 @@ spec:
     - name: velero
       dataplane: ambient
       security: restricted
-      networkPolicy: false
+      networkPolicy:
+        profile: internal-egress
+        enforcement: ""
+      kubeApiAccess: true
     # --- baseline: require some elevated capabilities (e.g. NET_BIND_SERVICE) ---
     - name: cache
       dataplane: ambient

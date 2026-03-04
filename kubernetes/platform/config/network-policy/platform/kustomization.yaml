@@ -13,4 +13,3 @@ resources:
   - monitoring.yaml
   - oauth2-proxy.yaml
   - system-upgrade.yaml
-  - velero.yaml
