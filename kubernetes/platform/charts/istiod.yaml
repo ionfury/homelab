@@ -4,6 +4,9 @@
 profile: ambient
 
 meshConfig:
+  accessLogFile: /dev/stdout
+  accessLogEncoding: JSON
+  enablePrometheusMerge: true
   extensionProviders:
     - name: oauth2-proxy
       envoyExtAuthzHttp:
