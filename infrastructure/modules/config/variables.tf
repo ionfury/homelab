@@ -217,6 +217,12 @@ variable "accounts" {
       repository_path = string
       token_store     = string
     })
+    cloudflare = object({
+      account         = string
+      email           = string
+      api_token_store = string
+      zone_id         = string
+    })
     external_secrets = object({
       id_store     = string
       secret_store = string

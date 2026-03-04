@@ -45,3 +45,4 @@ configMapGenerator:
       - prometheus-smartctl-exporter.yaml=charts/prometheus-smartctl-exporter.yaml
       - nvidia-device-plugin.yaml=charts/nvidia-device-plugin.yaml
       - dcgm-exporter.yaml=charts/dcgm-exporter.yaml
+      - external-dns.yaml=charts/external-dns.yaml

@@ -3,6 +3,8 @@ output "unifi" {
   value = {
     dns_records       = local.dns_records
     dhcp_reservations = local.dhcp_reservations
+    port_forwards     = local.port_forwards
+    dynamic_dns       = local.dynamic_dns
   }
   sensitive = true
 }

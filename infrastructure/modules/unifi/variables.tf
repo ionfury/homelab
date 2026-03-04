@@ -22,3 +22,24 @@ variable "unifi" {
     api_key_store = string
   })
 }
+
+variable "port_forwards" {
+  description = "Port forwarding rules to create."
+  type = map(object({
+    name     = string
+    dst_port = string
+    fwd_ip   = string
+    fwd_port = string
+    protocol = string
+  }))
+}
+
+variable "dynamic_dns" {
+  description = "Dynamic DNS records to create."
+  type = map(object({
+    service        = string
+    host_name      = string
+    server         = string
+    password_store = string
+  }))
+}
