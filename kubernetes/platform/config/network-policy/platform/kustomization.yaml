@@ -5,7 +5,6 @@ kind: Kustomization
 resources:
   - cache.yaml
   - database.yaml
-  - external-dns.yaml
   - gpu-system.yaml
   - garage.yaml
   - istio-gateway.yaml
