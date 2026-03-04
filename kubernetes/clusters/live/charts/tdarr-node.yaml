@@ -6,6 +6,11 @@ controllers:
     type: deployment
 
     pod:
+      labels:
+        # tdarr-node connects to its own service IP, which ztunnel intercepts
+        # and rejects as a recursive call. The node is a GPU transcoding worker
+        # that communicates only with the tdarr server — no mesh benefit.
+        istio.io/dataplane-mode: none
       runtimeClassName: nvidia
       nodeSelector:
         nvidia.com/gpu.present: "true"

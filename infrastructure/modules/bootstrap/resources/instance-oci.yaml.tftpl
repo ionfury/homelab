@@ -31,6 +31,6 @@ instance:
         patch: |
           - op: add
             path: /spec/template/spec/containers/0/args/-
-            value: --helm-cache-max-size=16
+            value: --helm-cache-max-size=32
 healthcheck:
   enabled: true
