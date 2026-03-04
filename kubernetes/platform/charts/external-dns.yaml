@@ -1,0 +1,43 @@
+# upstream: https://github.com/kubernetes-sigs/external-dns/blob/main/charts/external-dns/values.yaml
+provider:
+  name: cloudflare
+
+sources:
+  - gateway-httproute
+
+domainFilters:
+  - "${external_domain}"
+
+policy: upsert-only
+
+registry: txt
+txtOwnerId: "homelab-${cluster_name}"
+txtPrefix: "_externaldns."
+
+interval: "1m"
+
+extraArgs:
+  - --cloudflare-dns-records-per-page=5000
+  - --gateway-namespace=istio-gateway
+  - --default-targets=gw.${external_domain}
+
+env:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token
+        key: token
+
+priorityClassName: platform
+
+serviceMonitor:
+  enabled: true
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
