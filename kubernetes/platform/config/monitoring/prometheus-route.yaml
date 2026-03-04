@@ -9,6 +9,8 @@ metadata:
     gethomepage.dev/name: "Prometheus"
     gethomepage.dev/group: "Platform"
     gethomepage.dev/icon: "prometheus.svg"
+    gethomepage.dev/widget.type: "prometheus"
+    gethomepage.dev/widget.url: "http://prometheus-operated.monitoring.svc:9090"
 spec:
   parentRefs:
     - name: internal

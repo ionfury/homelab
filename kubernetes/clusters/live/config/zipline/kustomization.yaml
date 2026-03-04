@@ -9,3 +9,4 @@ resources:
   - garage-bucket.yaml
   - garage-key.yaml
   - external-route.yaml
+  - internal-route.yaml

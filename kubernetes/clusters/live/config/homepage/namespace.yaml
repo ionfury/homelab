@@ -8,5 +8,5 @@ metadata:
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/warn: restricted
-    network-policy.homelab/profile: internal
+    network-policy.homelab/profile: internal-egress
     access.network-policy.homelab/kube-api: "true"
