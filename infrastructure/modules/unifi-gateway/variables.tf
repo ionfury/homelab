@@ -1,11 +1,12 @@
-variable "external_ingress_ip" {
-  description = "Internal IP of the external ingress gateway (Cilium LB)."
-  type        = string
-}
-
-variable "external_tld" {
-  description = "External TLD for the cluster (e.g. external.tomnowak.work)."
-  type        = string
+variable "port_forwards" {
+  description = "Port forwarding rules to create on the Unifi gateway."
+  type = map(object({
+    name     = string
+    dst_port = string
+    fwd_ip   = string
+    fwd_port = string
+    protocol = string
+  }))
 }
 
 variable "unifi" {

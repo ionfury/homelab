@@ -1,15 +1,9 @@
-resource "unifi_port_forward" "http" {
-  name     = "External Gateway HTTP"
-  dst_port = "80"
-  fwd_ip   = var.external_ingress_ip
-  fwd_port = "80"
-  protocol = "tcp"
-}
+resource "unifi_port_forward" "rule" {
+  for_each = var.port_forwards
 
-resource "unifi_port_forward" "https" {
-  name     = "External Gateway HTTPS"
-  dst_port = "443"
-  fwd_ip   = var.external_ingress_ip
-  fwd_port = "443"
-  protocol = "tcp"
+  name     = each.value.name
+  dst_port = each.value.dst_port
+  fwd_ip   = each.value.fwd_ip
+  fwd_port = each.value.fwd_port
+  protocol = each.value.protocol
 }
