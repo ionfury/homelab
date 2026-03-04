@@ -138,7 +138,8 @@ Infrastructure is organized into stacks with different lifecycles:
 - Each cluster has its own S3 bucket managed by the storage stack
 
 **Storage stack provisions:**
-- S3 buckets: `homelab-longhorn-backup-{dev,integration,live}`
+- S3 buckets: `homelab-longhorn-backup-{dev,integration,live}` (Longhorn)
+- S3 buckets: `homelab-velero-backup-{dev,integration,live}` (Velero, with 90-day lifecycle expiration)
 - IAM users with scoped access per cluster
 - SSM parameters for credential injection
 

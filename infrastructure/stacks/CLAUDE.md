@@ -10,7 +10,7 @@ For architecture context (units vs modules), see [infrastructure/CLAUDE.md](../C
 
 | Stack | Lifecycle | Purpose | Units |
 |-------|-----------|---------|-------|
-| `global` | **Persistent** | Cross-cluster infrastructure (S3 backups, PKI) | longhorn-storage, pki, ingress-pki |
+| `global` | **Persistent** | Cross-cluster infrastructure (S3 backups, PKI) | longhorn-storage, velero-storage, pki, ingress-pki |
 | `dev` | Ephemeral | Development cluster | config, unifi, talos, bootstrap, aws-set-params |
 | `integration` | Ephemeral | Integration/validation cluster | config, unifi, talos, bootstrap, aws-set-params |
 | `live` | Ephemeral | Production cluster | config, unifi, talos, bootstrap, aws-set-params |
@@ -64,6 +64,15 @@ locals {
 unit "longhorn_storage" {
   source = "../../units/longhorn-storage"
   path   = "longhorn-storage"
+
+  values = {
+    clusters = local.clusters
+  }
+}
+
+unit "velero_storage" {
+  source = "../../units/velero-storage"
+  path   = "velero-storage"
 
   values = {
     clusters = local.clusters
