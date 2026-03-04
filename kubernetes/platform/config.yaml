@@ -83,6 +83,10 @@ spec:
       namespace: ""
       path: kubernetes/platform/config/gpu
       dependsOn: []
+    - name: descheduler-config
+      namespace: kube-system
+      path: kubernetes/platform/config/descheduler
+      dependsOn: [descheduler]
     - name: infrastructure-policies-config
       namespace: ""
       path: kubernetes/platform/config/infrastructure-policies
