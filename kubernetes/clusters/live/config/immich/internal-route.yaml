@@ -13,6 +13,7 @@ metadata:
     gethomepage.dev/widget.type: "immich"
     gethomepage.dev/widget.url: "http://immich-server.immich.svc:2283"
     gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_IMMICH_API_KEY}}"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=server"
 spec:
   parentRefs:
     - name: internal

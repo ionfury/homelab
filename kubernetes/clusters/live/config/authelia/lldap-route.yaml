@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/name: "LLDAP"
     gethomepage.dev/group: "Apps"
     gethomepage.dev/icon: "light-ldap.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=lldap"
 spec:
   parentRefs:
     - name: internal

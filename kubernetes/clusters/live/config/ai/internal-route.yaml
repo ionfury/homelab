@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/name: "Open WebUI"
     gethomepage.dev/group: "AI"
     gethomepage.dev/icon: "open-webui.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=open-webui"
 spec:
   parentRefs:
     - name: internal
