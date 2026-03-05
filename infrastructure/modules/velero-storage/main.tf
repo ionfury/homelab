@@ -48,7 +48,7 @@ resource "aws_s3_bucket_public_access_block" "velero_backup" {
   restrict_public_buckets = true
 }
 
-# Lifecycle rule - expire backups after 90 days
+# Lifecycle rule - expire backups after 35 days (safety net beyond Velero's 28-day TTL)
 # Unlike Longhorn, Velero backups are self-contained tarballs. Deleting old
 # objects does not corrupt newer backups, making age-based expiration safe.
 resource "aws_s3_bucket_lifecycle_configuration" "velero_backup" {
@@ -60,11 +60,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "velero_backup" {
     status = "Enabled"
 
     expiration {
-      days = 90
+      days = 35
     }
 
     noncurrent_version_expiration {
-      noncurrent_days = 30
+      noncurrent_days = 7
     }
   }
 }

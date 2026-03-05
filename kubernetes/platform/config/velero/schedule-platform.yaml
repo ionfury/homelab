@@ -1,0 +1,17 @@
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: platform
+  namespace: velero
+spec:
+  schedule: "0 2 * * 0"
+  useOwnerReferencesInBackup: false
+  template:
+    storageLocation: aws
+    volumeSnapshotLocations:
+      - csi
+    snapshotMoveData: true
+    ttl: 672h0m0s
+    includedNamespaces:
+      - garage

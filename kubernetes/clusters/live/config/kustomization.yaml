@@ -15,5 +15,6 @@ resources:
   - paperless
   - homepage
   - longhorn-backup-jobs
+  - velero
   - silences
   - cluster-config-resourceset.yaml

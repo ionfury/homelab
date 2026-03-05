@@ -42,13 +42,6 @@ spec:
       dataplane: ambient
       security: restricted
       networkPolicy: false
-    - name: velero
-      dataplane: ambient
-      security: restricted
-      networkPolicy:
-        profile: internal-egress
-        enforcement: ""
-      kubeApiAccess: true
     # --- baseline: require some elevated capabilities (e.g. NET_BIND_SERVICE) ---
     - name: cache
       dataplane: ambient
@@ -67,6 +60,13 @@ spec:
       security: baseline
       networkPolicy: false
     # --- privileged: require host access, BPF, privileged containers, or device access ---
+    - name: velero
+      dataplane: ambient
+      security: privileged
+      networkPolicy:
+        profile: internal-egress
+        enforcement: ""
+      kubeApiAccess: true
     - name: kube-system
       dataplane: standard
       security: privileged
