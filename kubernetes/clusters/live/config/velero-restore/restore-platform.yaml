@@ -7,4 +7,7 @@ metadata:
 spec:
   # Automatically selects the most recent successful backup from this schedule
   scheduleName: platform
-  existingResourcePolicy: update
+  restorePVs: true
+  includedNamespaces:
+    - garage
+    - database

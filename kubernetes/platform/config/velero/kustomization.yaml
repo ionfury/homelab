@@ -6,3 +6,4 @@ resources:
   - external-secret.yaml
   - volume-snapshot-class.yaml
   - schedule-platform.yaml
+  - prometheus-rules.yaml

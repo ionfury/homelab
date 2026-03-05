@@ -50,7 +50,7 @@ spec:
     - name: database-config
       namespace: database
       path: kubernetes/platform/config/database
-      dependsOn: [cloudnative-pg, garage-config, canary-checker]
+      dependsOn: [cloudnative-pg, garage-config, canary-checker, velero-restore]
     - name: dragonfly-config
       namespace: cache
       path: kubernetes/platform/config/dragonfly

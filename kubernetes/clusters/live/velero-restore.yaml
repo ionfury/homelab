@@ -1,0 +1,30 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: velero-restore
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: velero-config
+  interval: 10m
+  path: kubernetes/clusters/live/config/velero-restore
+  prune: true
+  healthChecks:
+    - apiVersion: batch/v1
+      kind: Job
+      name: velero-restore-gate
+      namespace: velero
+  timeout: 30m
+  sourceRef:
+    kind: OCIRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-vars
+        optional: false
+      - kind: ConfigMap
+        name: platform-versions
+        optional: true
