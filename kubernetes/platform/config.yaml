@@ -33,7 +33,7 @@ spec:
     - name: garage-config
       namespace: garage
       path: kubernetes/platform/config/garage
-      dependsOn: [garage-operator, canary-checker]
+      dependsOn: [garage-operator, canary-checker, velero-restore]
       wait: true
     - name: gateway
       namespace: istio-gateway
