@@ -49,18 +49,18 @@ Every workload with persistent state, its storage class, protection mechanisms, 
 
 | Workload | Storage Class | Volume Size (live) | Velero Backup | App-Level Backup | Backup Target | RPO | Retention |
 |---|---|---|---|---|---|---|---|
-| Immich Library | `slow` | 500Gi | Yes | No | AWS S3 | 6h | 7 days |
+| Immich Library | `slow` | 500Gi | Yes | No | AWS S3 | 7 days | 28 days |
 | Prometheus | `fast` | 50Gi | No | No | Local only | N/A (re-derivable) | N/A |
 | Loki | `fast` | 50Gi | No | No | Local only | N/A (re-derivable) | N/A |
-| Satisfactory | `fast` | 30Gi | Yes | No | AWS S3 | 6h | 7 days |
-| Valheim | `fast` | 10Gi | Yes | Yes (built-in) | AWS S3 + local saves | 6h | 7d + 10 saves |
-| Factorio | `fast` | 10Gi | Yes | No | AWS S3 | 6h | 7 days |
-| Garage Metadata | `fast` | 10Gi | Yes | No | AWS S3 | 6h | 7 days |
-| Garage Data | `fast` | 100Gi | Yes | No | AWS S3 | 6h | 7 days |
+| Satisfactory | `fast` | 30Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Valheim | `fast` | 10Gi | Yes | Yes (built-in) | AWS S3 + local saves | 7 days | 28d + 10 saves |
+| Factorio | `fast` | 10Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Garage Metadata | `fast` | 10Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Garage Data | `fast` | 100Gi | Yes | No | AWS S3 | 7 days | 28 days |
 | Platform PostgreSQL | `fast` | 20Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
 | Immich PostgreSQL | `fast` | 10Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
 | Dragonfly snapshot buffer | `fast` | 2Gi | No | S3 snapshots to Garage | Garage S3 (internal) | 6h | Rolling |
-| Vaultwarden | `fast` | 5Gi | Yes | No | AWS S3 | 6h | 7 days |
+| Vaultwarden | `fast` | 5Gi | Yes | No | AWS S3 | 7 days | 28 days |
 | Immich ML Cache | `fast` | 10Gi | No | None | N/A | N/A (rebuildable) | N/A |
 | Grafana | Stateless | -- | -- | -- | -- | -- | -- |
 | Kromgo | Stateless | -- | -- | -- | -- | -- | -- |
@@ -69,8 +69,8 @@ Every workload with persistent state, its storage class, protection mechanisms, 
 
 - **Velero Backup**: Whether Velero includes this volume in scheduled backup jobs. Controlled by Velero backup schedules and label selectors, not by StorageClass.
 - **App-Level Backup**: Whether the application itself has a backup mechanism independent of Longhorn (e.g., Barman WAL streaming, Dragonfly S3 snapshots, Valheim's built-in save system).
-- **RPO (Recovery Point Objective)**: Maximum data loss in a disaster. "24h" means up to one day of data could be lost (daily backup schedule). "Continuous WAL" means near-zero data loss.
-- **Retention**: How long backups are kept before expiration.
+- **RPO (Recovery Point Objective)**: Maximum data loss in a disaster. "7 days" means up to one week of data could be lost (weekly backup schedule). "Continuous WAL" means near-zero data loss. Weekly RPO is acceptable for this homelab -- we store family data, not customer data.
+- **Retention**: How long backups are kept before expiration. S3 lifecycle expiration (35 days) acts as a safety net beyond Velero's 28-day TTL.
 
 ---
 
@@ -116,7 +116,7 @@ Velero node-agent data mover (reads snapshot, uploads to BSL)
 AWS S3 Bucket (homelab-velero-backup-<cluster>)
 ```
 
-Velero uses CSI snapshots with `snapshotMoveData: true` to move volume data off-site. Two schedules control what gets backed up: `platform` (garage namespace) and `default` (application namespaces).
+Velero uses CSI snapshots with `snapshotMoveData: true` to move volume data off-site. Two weekly schedules (Sunday 02:00 UTC) control what gets backed up: `platform` (garage namespace) and `default` (application namespaces). Weekly frequency keeps S3 costs low (~$9-34/month) while providing off-site disaster recovery for family data.
 
 ### CNPG Path (Database-Level)
 
@@ -176,7 +176,7 @@ These are deliberate architectural decisions, not oversights. Each represents a 
 
 **Why:** Garage is the keystone of the backup chain -- CNPG Barman WAL archives and Dragonfly snapshots both reside in Garage S3 buckets, which are stored on Garage PVCs. Without off-site Garage backup, the entire CNPG and Dragonfly backup chain has no off-site durability. A total cluster loss would lose all database backups and cache snapshots.
 
-**Trade-off:** Additional S3 storage cost for Garage data (~110Gi). Acceptable because Garage stores irreplaceable backup artifacts (WAL archives), and the cost is small compared to the data protection it provides.
+**Trade-off:** Additional S3 storage cost for Garage data (~110Gi per weekly copy, 4 copies retained). Acceptable because Garage stores irreplaceable backup artifacts (WAL archives), and the cost is small compared to the data protection it provides.
 
 ### 3. Prometheus and Loki Are Not Backed Up by Velero
 

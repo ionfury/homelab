@@ -5,14 +5,14 @@ metadata:
   name: default
   namespace: velero
 spec:
-  schedule: "0 */6 * * *"
+  schedule: "0 2 * * 0"
   useOwnerReferencesInBackup: false
   template:
     storageLocation: aws
     volumeSnapshotLocations:
       - csi
     snapshotMoveData: true
-    ttl: 168h0m0s
+    ttl: 672h0m0s
     includedNamespaces:
       - immich
       - satisfactory
