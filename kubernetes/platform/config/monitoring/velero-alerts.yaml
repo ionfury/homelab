@@ -1,0 +1,130 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: velero-alerts
+  labels:
+    app.kubernetes.io/name: velero
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: velero.backup
+      rules:
+        - alert: VeleroBackupStale
+          expr: |
+            (time() - velero_backup_last_successful_timestamp{schedule!=""}) > 108000
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Velero backup stale for schedule {{ $labels.schedule }}"
+            description: >-
+              No successful backup for schedule {{ $labels.schedule }} in the last
+              30 hours ({{ $value | humanizeDuration }}). Weekly schedules run at 02:00
+              on Sundays -- 30h buffer accounts for execution time and retry windows.
+              Check Velero logs and backup storage location connectivity.
+
+        - alert: VeleroBackupFailure
+          expr: |
+            increase(velero_backup_failure_total{schedule!=""}[1h]) > 0
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Velero backup failed for schedule {{ $labels.schedule }}"
+            description: >-
+              A backup for schedule {{ $labels.schedule }} has failed in the last hour.
+              Run `velero backup describe --details` to investigate the failure reason.
+
+        - alert: VeleroBackupPartialFailure
+          expr: |
+            increase(velero_backup_partial_failure_total{schedule!=""}[1h]) > 0
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Velero backup partially failed for schedule {{ $labels.schedule }}"
+            description: >-
+              A backup for schedule {{ $labels.schedule }} completed with partial failures.
+              Some resources may not have been captured. Run `velero backup describe --details`
+              to identify which items failed.
+
+        - alert: VeleroBackupValidationFailure
+          expr: |
+            increase(velero_backup_validation_failure_total{schedule!=""}[1h]) > 0
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Velero backup validation failed for schedule {{ $labels.schedule }}"
+            description: >-
+              A backup for schedule {{ $labels.schedule }} failed validation in the last hour.
+              The backup spec is malformed. Check the Schedule CR definition and Velero logs.
+
+    - name: velero.storage
+      rules:
+        - alert: VeleroBackupStorageLocationUnavailable
+          expr: |
+            velero_backup_location_status_gauge == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Velero BSL {{ $labels.backup_location_name }} is unavailable"
+            description: >-
+              Backup storage location {{ $labels.backup_location_name }} has been unavailable
+              for 5+ minutes. Backups cannot be created or restored. Check S3 endpoint
+              connectivity, credentials (velero-s3-credentials secret), and bucket existence.
+
+    - name: velero.restore
+      rules:
+        - alert: VeleroRestoreFailure
+          expr: |
+            increase(velero_restore_failed_total[1h]) > 0
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Velero restore failed for schedule {{ $labels.schedule }}"
+            description: >-
+              A restore operation has failed in the last hour. Data may not have been
+              recovered. Check `velero restore describe --details` for failure details.
+
+        - alert: VeleroRestorePartialFailure
+          expr: |
+            increase(velero_restore_partial_failure_total[1h]) > 0
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Velero restore partially failed for schedule {{ $labels.schedule }}"
+            description: >-
+              A restore operation completed with partial failures. Some resources may
+              not have been restored. Check `velero restore describe --details`.
+
+    - name: velero.backup-size
+      rules:
+        - alert: VeleroBackupSizeAnomaly
+          expr: |
+            (
+              velero_backup_tarball_size_bytes{schedule!=""}
+              /
+              avg_over_time(velero_backup_tarball_size_bytes{schedule!=""}[7d])
+            ) > 3
+            or
+            (
+              velero_backup_tarball_size_bytes{schedule!=""}
+              /
+              avg_over_time(velero_backup_tarball_size_bytes{schedule!=""}[7d])
+            ) < 0.1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Velero backup size anomaly for schedule {{ $labels.schedule }}"
+            description: >-
+              Backup tarball size for schedule {{ $labels.schedule }} is
+              {{ printf "%.1f" $value }}x the 7-day average. A sudden increase may
+              indicate unexpected data growth; a sudden decrease may indicate missing
+              resources. Investigate with `velero backup describe`.

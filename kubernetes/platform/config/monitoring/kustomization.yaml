@@ -38,4 +38,6 @@ resources:
   - power-accounting-dashboard.yaml
   - hardware-health-dashboard.yaml
   - gpu-monitoring-alerts.yaml
+  - velero-alerts.yaml
+  - velero-dashboard.yaml
   - platform-home-dashboard.yaml
