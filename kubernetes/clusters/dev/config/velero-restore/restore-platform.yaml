@@ -1,0 +1,10 @@
+---
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-platform
+  namespace: velero
+spec:
+  # Automatically selects the most recent successful backup from this schedule
+  scheduleName: platform
+  existingResourcePolicy: update

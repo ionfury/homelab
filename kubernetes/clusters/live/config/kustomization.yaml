@@ -16,5 +16,6 @@ resources:
   - homepage
   - longhorn-backup-jobs
   - velero
+  - velero-restore
   - silences
   - cluster-config-resourceset.yaml
