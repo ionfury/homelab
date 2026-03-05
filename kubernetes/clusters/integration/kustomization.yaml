@@ -6,6 +6,7 @@ resources:
   - platform.yaml
   - config.yaml
   - helm-charts.yaml
+  - velero-restore.yaml
 configMapGenerator:
   - name: cluster-vars
     options:
