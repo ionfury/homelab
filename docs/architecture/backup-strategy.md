@@ -55,11 +55,12 @@ Every workload with persistent state, its storage class, protection mechanisms, 
 | Satisfactory | `fast` | 30Gi | Yes | No | AWS S3 | 6h | 7 days |
 | Valheim | `fast` | 10Gi | Yes | Yes (built-in) | AWS S3 + local saves | 6h | 7d + 10 saves |
 | Factorio | `fast` | 10Gi | Yes | No | AWS S3 | 6h | 7 days |
-| Garage Metadata | `fast` | 10Gi | No | No | Local only (app-replicated) | N/A | N/A |
-| Garage Data | `fast` | 100Gi | No | No | Local only (app-replicated) | N/A | N/A |
+| Garage Metadata | `fast` | 10Gi | Yes | No | AWS S3 | 6h | 7 days |
+| Garage Data | `fast` | 100Gi | Yes | No | AWS S3 | 6h | 7 days |
 | Platform PostgreSQL | `fast` | 20Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
 | Immich PostgreSQL | `fast` | 10Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
 | Dragonfly snapshot buffer | `fast` | 2Gi | No | S3 snapshots to Garage | Garage S3 (internal) | 6h | Rolling |
+| Vaultwarden | `fast` | 5Gi | Yes | No | AWS S3 | 6h | 7 days |
 | Immich ML Cache | `fast` | 10Gi | No | None | N/A | N/A (rebuildable) | N/A |
 | Grafana | Stateless | -- | -- | -- | -- | -- | -- |
 | Kromgo | Stateless | -- | -- | -- | -- | -- | -- |
@@ -83,7 +84,7 @@ Data flows to two distinct S3 endpoints, each serving a different purpose.
 
 - **What goes here:** Velero volume snapshots for selected workloads
 - **How:** Velero connects to AWS S3 via IAM credentials for scheduled and on-demand backups
-- **Bucket naming:** `homelab-longhorn-backup-{dev,integration,live}` (one per cluster)
+- **Bucket naming:** `homelab-velero-backup-{dev,integration,live}` (one per cluster)
 - **Durability:** AWS S3 standard (11 nines)
 - **Why external:** Off-site backup is the last line of defense. If the entire cluster (including Garage) is lost, Velero backups in AWS S3 enable full volume restoration
 
@@ -103,19 +104,19 @@ Data flows to two distinct S3 endpoints, each serving a different purpose.
 ### Velero Path (Volume-Level)
 
 ```
-Application Volume
+Application Volume (Longhorn PVC)
       |
       v
-Longhorn Snapshot (local, scheduled by recurring job)
+CSI VolumeSnapshot (triggered by Velero schedule)
       |
       v
-Velero Backup (orchestration-layer, scheduled or on-demand)
+Velero node-agent data mover (reads snapshot, uploads to BSL)
       |
       v
-AWS S3 Bucket (homelab-longhorn-backup-<cluster>)
+AWS S3 Bucket (homelab-velero-backup-<cluster>)
 ```
 
-Velero selects which workloads to back up via label selectors and schedule definitions, decoupling backup policy from storage provisioning.
+Velero uses CSI snapshots with `snapshotMoveData: true` to move volume data off-site. Two schedules control what gets backed up: `platform` (garage namespace) and `default` (application namespaces).
 
 ### CNPG Path (Database-Level)
 
@@ -133,7 +134,7 @@ PostgreSQL (primary)
                                       Local snapshots (every 4h)
 ```
 
-CNPG databases use `fast` storage with Barman providing continuous WAL archiving for low RPO. The Barman archives live in Garage S3, and Garage's own PVCs have local snapshots for point-in-time recovery. Velero excludes these volumes from scheduled backups since Barman provides superior protection.
+CNPG databases use `fast` storage with Barman providing continuous WAL archiving for low RPO. The Barman archives live in Garage S3, and Garage's PVCs are backed up off-site by the Velero `platform` schedule. Velero excludes database volumes themselves since Barman provides superior RPO.
 
 ### Dragonfly Path (Cache-Level)
 
@@ -169,13 +170,13 @@ These are deliberate architectural decisions, not oversights. Each represents a 
 
 **Trade-off:** Creates a layered dependency -- if Garage is down, new WAL archives cannot be written. Acceptable because Garage runs with `${default_replica_count}` replicas and PostgreSQL retains unarchived WAL segments locally until Garage recovers.
 
-### 2. Garage PVCs Are Not Backed Up by Velero
+### 2. Garage PVCs ARE Backed Up by Velero (Platform Schedule)
 
-**Decision:** Garage PVCs use `fast` storage but are excluded from Velero backup schedules, relying on Garage's internal replication and local Longhorn snapshots.
+**Decision:** Garage PVCs are included in the Velero `platform` backup schedule, providing off-site durability for the data that underpins other backup chains.
 
-**Why:** Garage replicates data at the application layer across nodes. Adding Velero backups on top of that would create redundant off-site copies of data that is already replicated. Local snapshots (every 4h, retain 12) provide point-in-time recovery without the S3 cost.
+**Why:** Garage is the keystone of the backup chain -- CNPG Barman WAL archives and Dragonfly snapshots both reside in Garage S3 buckets, which are stored on Garage PVCs. Without off-site Garage backup, the entire CNPG and Dragonfly backup chain has no off-site durability. A total cluster loss would lose all database backups and cache snapshots.
 
-**Trade-off:** No off-site backup for Garage data. If the entire cluster is lost, Garage data (including CNPG barman archives and Dragonfly snapshots stored within it) would be lost. This is acceptable because Garage data is re-derivable -- CNPG can rebuild from WAL replay, and Dragonfly is a cache.
+**Trade-off:** Additional S3 storage cost for Garage data (~110Gi). Acceptable because Garage stores irreplaceable backup artifacts (WAL archives), and the cost is small compared to the data protection it provides.
 
 ### 3. Prometheus and Loki Are Not Backed Up by Velero
 
@@ -191,7 +192,7 @@ These are deliberate architectural decisions, not oversights. Each represents a 
 
 **Why:** Databases have their own backup mechanism (Barman) that provides better RPO (continuous WAL) than Velero's scheduled backups ever could. Excluding them from Velero avoids paying for redundant backups on data that is already protected by a superior mechanism. Local snapshots (every 4h) provide an additional safety net.
 
-**Trade-off:** Database volumes have no direct off-site backup via Velero. Off-site durability depends on the CNPG->Barman->Garage chain. Mitigated by this documentation and the explicit `backup:` configuration in every CNPG Cluster manifest.
+**Trade-off:** Database volumes have no direct off-site backup via Velero. Off-site durability depends on the CNPG->Barman->Garage chain. Mitigated by Garage's inclusion in the Velero `platform` schedule (off-site Barman archives) and the explicit `backup:` configuration in every CNPG Cluster manifest.
 
 ### 5. Backup Selection Is Managed at the Velero Layer
 
@@ -251,6 +252,9 @@ A disaster recovery exercise plan exists at `docs/plans/longhorn-dr-exercise.md`
 | `kubernetes/platform/config/longhorn/recurring-jobs/` | Platform snapshot and trim schedules |
 | `kubernetes/clusters/*/config/longhorn-backup-jobs/` | Per-cluster backup recurring jobs |
 | `kubernetes/platform/config/longhorn/backup/` | Longhorn S3 backup target credentials |
+| `kubernetes/platform/charts/velero.yaml` | Velero Helm values (node-agent, BSL, VSL) |
+| `kubernetes/platform/config/velero/schedule-platform.yaml` | Platform Velero schedule (garage namespace) |
+| `kubernetes/clusters/live/config/velero/schedule-default.yaml` | Live cluster Velero schedule (app namespaces) |
 | `kubernetes/platform/config/database/cluster.yaml` | Platform CNPG cluster with Barman backup config |
 | `kubernetes/clusters/live/config/immich/immich-cluster.yaml` | Immich-dedicated CNPG cluster with Barman backup |
 | `kubernetes/platform/config/dragonfly/dragonfly-instance.yaml` | Dragonfly S3 snapshot configuration |

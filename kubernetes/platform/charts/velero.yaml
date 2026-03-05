@@ -20,7 +20,17 @@ initContainers:
         name: plugins
 
 snapshotsEnabled: true
-deployNodeAgent: false
+deployNodeAgent: true
+
+nodeAgent:
+  podSecurityContext:
+    runAsUser: 0
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
 
 configuration:
   features: EnableCSI
@@ -89,4 +99,4 @@ upgradeCRDsJob:
 metrics:
   enabled: true
   serviceMonitor:
-    enabled: false
+    enabled: true
