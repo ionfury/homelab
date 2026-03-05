@@ -6,8 +6,9 @@ priorityClassName: platform
 podAnnotations:
   reloader.stakater.com/auto: "true"
 
+proxyVarsAsSecrets: false
+
 config:
-  proxyVarsAsSecrets: false
   configFile: |
     provider = "github"
     github_users = ["ionfury"]
