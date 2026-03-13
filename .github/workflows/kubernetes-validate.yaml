@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: Setup tools
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v4
 
       - name: Validate (cluster-independent)
         run: task k8s:validate
@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: Setup tools
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@v4
 
       - name: Validate cluster
         env:
