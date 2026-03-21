@@ -17,7 +17,6 @@ vars:
   STATIC_PROVIDER: "{{.PLATFORM_DIR}}/.static-provider.yaml"
   EXPANDED_DIR:
     sh: mktemp -d "${TMPDIR:-/tmp}/homelab-expanded.XXXXXXXXXX"
-  DEV_KUBECONFIG: "~/.kube/dev.yaml"
   # Test variables for Flux substitution (used by helm templating)
   TEST_CLUSTER_NAME: ci-test
   TEST_POD_SUBNET: "10.244.0.0/16"
@@ -97,6 +96,44 @@ tasks:
           sort | \
           jq -R -s -c 'split("\n") | map(select(. != ""))'
 
+  kubeconfig-sync:
+    desc: Pull kubeconfigs from AWS SSM and merge into ~/.kube/config with dev/integration/live contexts
+    cmds:
+      - |
+        set -euo pipefail
+        echo "Fetching kubeconfigs from AWS SSM..."
+        aws ssm get-parameter --name /homelab/infrastructure/clusters/dev/kubeconfig \
+          --with-decryption --query Parameter.Value --output text > /tmp/kc-dev.yaml
+        aws ssm get-parameter --name /homelab/infrastructure/clusters/integration/kubeconfig \
+          --with-decryption --query Parameter.Value --output text > /tmp/kc-integration.yaml
+        aws ssm get-parameter --name /homelab/infrastructure/clusters/live/kubeconfig \
+          --with-decryption --query Parameter.Value --output text > /tmp/kc-live.yaml
+      - |
+        set -euo pipefail
+        echo "Renaming contexts to canonical cluster names..."
+        for cluster in dev integration live; do
+          current=$(KUBECONFIG="/tmp/kc-${cluster}.yaml" kubectl config current-context)
+          if [ "$current" != "$cluster" ]; then
+            kubectl config rename-context "$current" "$cluster" --kubeconfig "/tmp/kc-${cluster}.yaml"
+          fi
+        done
+      - |
+        set -euo pipefail
+        echo "Merging kubeconfigs into ~/.kube/config..."
+        [ -f ~/.kube/config ] && cp ~/.kube/config ~/.kube/config.bak
+        KUBECONFIG=/tmp/kc-dev.yaml:/tmp/kc-integration.yaml:/tmp/kc-live.yaml \
+          kubectl config view --flatten > ~/.kube/config
+        chmod 0600 ~/.kube/config
+        rm -f /tmp/kc-dev.yaml /tmp/kc-integration.yaml /tmp/kc-live.yaml
+        echo ""
+        echo "Kubeconfig synced. Available contexts:"
+        kubectl config get-contexts
+    preconditions:
+      - sh: command -v aws
+        msg: "AWS CLI not found"
+      - sh: aws sts get-caller-identity &>/dev/null
+        msg: "AWS credentials not configured — export AWS_PROFILE=terragrunt and AWS_REGION=us-east-2"
+
   dry-run-dev:
     desc: Server-side dry-run against dev cluster
     deps: [validate]
@@ -106,13 +143,14 @@ tasks:
         echo ""
         for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
           echo "Dry-run: $(basename $manifest)"
-          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl apply --dry-run=server -f "$manifest"
+          kubectl --context dev apply --dry-run=server -f "$manifest"
         done
         echo ""
         echo "Server-side dry-run completed successfully"
     preconditions:
       - which kubectl
-      - test -f {{.DEV_KUBECONFIG}}
+      - sh: kubectl config get-contexts dev &>/dev/null
+        msg: "Run 'task k8s:kubeconfig-sync' first to populate ~/.kube/config"
       - test -d {{.EXPANDED_DIR}}/resourcesets
 
   apply-dev:
@@ -124,13 +162,14 @@ tasks:
         echo ""
         for manifest in {{.EXPANDED_DIR}}/resourcesets/*.yaml; do
           echo "Applying: $(basename $manifest)"
-          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl apply -f "$manifest"
+          kubectl --context dev apply -f "$manifest"
         done
         echo ""
         echo "Applied to dev cluster successfully"
     preconditions:
       - which kubectl
-      - test -f {{.DEV_KUBECONFIG}}
+      - sh: kubectl config get-contexts dev &>/dev/null
+        msg: "Run 'task k8s:kubeconfig-sync' first to populate ~/.kube/config"
       - test -d {{.EXPANDED_DIR}}/resourcesets
 
   flux-suspend:
@@ -142,17 +181,18 @@ tasks:
           echo "Usage: task k8s:flux-suspend -- <kustomization-name>"
           echo ""
           echo "Available Kustomizations:"
-          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+          kubectl --context dev get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
             -o custom-columns='NAME:.metadata.name,SUSPENDED:.spec.suspend,READY:.status.conditions[?(@.type=="Ready")].status' \
             --no-headers
           exit 1
         fi
         echo "Suspending Kustomization: $KSNAME"
-        KUBECONFIG={{.DEV_KUBECONFIG}} flux suspend kustomization "$KSNAME" -n flux-system
+        flux --context dev suspend kustomization "$KSNAME" -n flux-system
         echo "Suspended. Flux will not reconcile $KSNAME until resumed."
     preconditions:
       - which flux kubectl
-      - test -f {{.DEV_KUBECONFIG}}
+      - sh: kubectl config get-contexts dev &>/dev/null
+        msg: "Run 'task k8s:kubeconfig-sync' first to populate ~/.kube/config"
 
   flux-resume:
     desc: Resume a suspended Flux Kustomization on dev cluster
@@ -163,17 +203,18 @@ tasks:
           echo "Usage: task k8s:flux-resume -- <kustomization-name>"
           echo ""
           echo "Suspended Kustomizations:"
-          KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+          kubectl --context dev get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
             -o custom-columns='NAME:.metadata.name,SUSPENDED:.spec.suspend' \
             --no-headers | grep -i true || echo "  (none suspended)"
           exit 1
         fi
         echo "Resuming Kustomization: $KSNAME"
-        KUBECONFIG={{.DEV_KUBECONFIG}} flux resume kustomization "$KSNAME" -n flux-system
+        flux --context dev resume kustomization "$KSNAME" -n flux-system
         echo "Resumed. Flux will reconcile $KSNAME on next interval."
     preconditions:
       - which flux kubectl
-      - test -f {{.DEV_KUBECONFIG}}
+      - sh: kubectl config get-contexts dev &>/dev/null
+        msg: "Run 'task k8s:kubeconfig-sync' first to populate ~/.kube/config"
 
   flux-status:
     desc: Show Flux Kustomization status on dev cluster
@@ -181,42 +222,43 @@ tasks:
       - |
         echo "Flux Kustomizations on dev cluster:"
         echo ""
-        KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+        kubectl --context dev get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
           -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,SUSPENDED:.spec.suspend,MESSAGE:.status.conditions[?(@.type=="Ready")].message'
     preconditions:
       - which kubectl
-      - test -f {{.DEV_KUBECONFIG}}
+      - sh: kubectl config get-contexts dev &>/dev/null
+        msg: "Run 'task k8s:kubeconfig-sync' first to populate ~/.kube/config"
 
   reconcile-validate:
     desc: Resume all Flux Kustomizations on dev, wait for reconciliation, validate clean state
     cmds:
       - |
         echo "=== Resuming all suspended Kustomizations ==="
-        SUSPENDED=$(KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
+        SUSPENDED=$(kubectl --context dev get kustomizations.kustomize.toolkit.fluxcd.io -n flux-system \
           -o jsonpath='{range .items[?(@.spec.suspend==true)]}{.metadata.name}{"\n"}{end}')
         if [ -z "$SUSPENDED" ]; then
           echo "No suspended Kustomizations found."
         else
           echo "$SUSPENDED" | while read -r ks; do
             echo "  Resuming: $ks"
-            KUBECONFIG={{.DEV_KUBECONFIG}} flux resume kustomization "$ks" -n flux-system
+            flux --context dev resume kustomization "$ks" -n flux-system
           done
         fi
         echo ""
       - |
         echo "=== Triggering reconciliation ==="
-        KUBECONFIG={{.DEV_KUBECONFIG}} flux reconcile source git flux-system -n flux-system
+        flux --context dev reconcile source git flux-system -n flux-system
         echo ""
       - |
         echo "=== Waiting for Kustomizations to reconcile (timeout: 5m) ==="
-        KUBECONFIG={{.DEV_KUBECONFIG}} kubectl wait kustomizations.kustomize.toolkit.fluxcd.io \
+        kubectl --context dev wait kustomizations.kustomize.toolkit.fluxcd.io \
           --all -n flux-system \
           --for=condition=Ready \
           --timeout=300s
         echo ""
       - |
         echo "=== Checking HelmRelease status ==="
-        FAILED=$(KUBECONFIG={{.DEV_KUBECONFIG}} kubectl get helmreleases.helm.toolkit.fluxcd.io -A \
+        FAILED=$(kubectl --context dev get helmreleases.helm.toolkit.fluxcd.io -A \
           -o jsonpath='{range .items[?(@.status.conditions[0].status!="True")]}{.metadata.namespace}/{.metadata.name}: {.status.conditions[0].message}{"\n"}{end}')
         if [ -n "$FAILED" ]; then
           echo "WARNING: Failed HelmReleases detected:"
@@ -230,7 +272,8 @@ tasks:
         echo "=== Dev cluster reconciled and validated ==="
     preconditions:
       - which flux kubectl
-      - test -f {{.DEV_KUBECONFIG}}
+      - sh: kubectl config get-contexts dev &>/dev/null
+        msg: "Run 'task k8s:kubeconfig-sync' first to populate ~/.kube/config"
 
   # =============================================================================
   # Internal Tasks
