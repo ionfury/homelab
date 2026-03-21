@@ -32,7 +32,7 @@ if ! echo "$CMD" | grep -qE -- '--context (integration|live)'; then
   exit 0
 fi
 
-CLUSTER=$(echo "$CMD" | grep -oP '(?<=--context )(integration|live)')
+CLUSTER=$(echo "$CMD" | grep -oE -- '--context (integration|live)' | awk '{print $2}')
 APPROVAL_TOKEN="/tmp/kubectl-${CLUSTER}-approved"
 
 if [[ -f "$APPROVAL_TOKEN" ]]; then
