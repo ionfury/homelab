@@ -11,28 +11,30 @@
 #   4. Claude retries the kubectl command
 #   5. This hook consumes the token and allows the command (one-shot)
 
-set -euo pipefail
-
 INPUT=$(cat)
 CMD=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
 
-# Only intercept kubectl commands
-if ! echo "$CMD" | grep -qE '\bkubectl\b'; then
+# Extract only lines where kubectl is directly invoked:
+# kubectl appears at start-of-line or after a shell operator (; & ( |)
+# This avoids matching kubectl in heredoc content, strings, or comments.
+KUBECTL_INVOCATIONS=$(echo "$CMD" | grep -E '(^|[;&(|])[[:space:]]*(KUBECONFIG=[^[:space:]]+ +)?kubectl[[:space:]]' || true)
+
+if [ -z "$KUBECTL_INVOCATIONS" ]; then
   exit 0
 fi
 
 # Only intercept mutating subcommands
 MUTATING='\b(apply|delete|patch|edit|replace|create|scale|drain|taint|cordon|uncordon|label|annotate|set)\b'
-if ! echo "$CMD" | grep -qE "$MUTATING"; then
+if ! echo "$KUBECTL_INVOCATIONS" | grep -qE "$MUTATING"; then
   exit 0
 fi
 
 # Only intercept protected clusters (integration, live)
-if ! echo "$CMD" | grep -qE -- '--context (integration|live)'; then
+if ! echo "$KUBECTL_INVOCATIONS" | grep -qE -- '--context (integration|live)'; then
   exit 0
 fi
 
-CLUSTER=$(echo "$CMD" | grep -oE -- '--context (integration|live)' | awk '{print $2}')
+CLUSTER=$(echo "$KUBECTL_INVOCATIONS" | grep -oE -- '--context (integration|live)' | awk '{print $2}' | head -1)
 APPROVAL_TOKEN="/tmp/kubectl-${CLUSTER}-approved"
 
 if [[ -f "$APPROVAL_TOKEN" ]]; then
