@@ -100,9 +100,7 @@
       "Bash(hubble:*)",
       "Bash(nmap:*)",
       "Bash(task k8s:kubeconfig-sync:*)",
-      "Bash(aws ssm get-parameter:*)",
-      "Bash(touch /tmp/kubectl-*-approved:*)",
-      "Bash(rm -f /tmp/kubectl-*-approved:*)"
+      "Bash(aws ssm get-parameter:*)"
     ]
   },
   "hooks": {

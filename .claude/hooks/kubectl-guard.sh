@@ -45,9 +45,10 @@ fi
 echo "BLOCKED: Direct mutation on the '${CLUSTER}' cluster requires explicit approval." >&2
 echo "" >&2
 echo "  This cluster is managed by Flux. Prefer committing to git and letting Flux reconcile." >&2
-echo "  For emergency direct access, approve this specific command by running:" >&2
+echo "  For emergency direct access, YOU must create the approval token:" >&2
 echo "" >&2
-echo "    touch ${APPROVAL_TOKEN}" >&2
+echo "    ! touch ${APPROVAL_TOKEN}" >&2
 echo "" >&2
-echo "  The approval token is one-shot and will be consumed immediately on use." >&2
+echo "  Run this in the Claude Code prompt (the ! prefix runs it as your command," >&2
+echo "  not Claude's). The token is one-shot and will be consumed immediately on use." >&2
 exit 2
