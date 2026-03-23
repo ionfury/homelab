@@ -1,6 +1,6 @@
 # Security Testing Commands
 
-All commands target the dev cluster. Prefix with `KUBECONFIG=~/.kube/dev.yaml`.
+All commands target the dev cluster. Use `kubectl --context dev` (or `flux --context dev` for Flux commands).
 
 ---
 

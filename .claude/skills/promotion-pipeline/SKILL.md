@@ -58,7 +58,7 @@ See [references/pipeline-reference.md](references/pipeline-reference.md) for art
 
 ## Tracing a Change End-to-End
 
-Prefix cluster commands with `KUBECONFIG=~/.kube/<cluster>.yaml`. The build triggers on push to `main` when `kubernetes/**` files change only.
+Use `--context <cluster>` for cluster-specific kubectl/flux commands. The build triggers on push to `main` when `kubernetes/**` files change only.
 
 | Stage | Check | Command |
 |-------|-------|---------|
@@ -110,8 +110,8 @@ Artifact tagged with stable X.Y.Z?
 The `platform-validation` Canary in `monitoring` runs every 60s: `kubernetes-api` (HTTP, expects 200/401) and `flux-pods-healthy` (all Flux pods Running+Ready).
 
 ```bash
-# Check canary status (prefix with KUBECONFIG=~/.kube/integration.yaml)
-kubectl get canaries -n monitoring
+# Check canary status
+kubectl --context integration get canaries -n monitoring
 kubectl describe canary platform-validation -n monitoring
 # canary_check{name="platform-validation"} == 0 means healthy
 ```
@@ -133,7 +133,7 @@ gh workflow run tag-validated-artifact.yaml -f artifact_sha=<7char-sha>
 **Option 1 — Pin OCIRepository** (immediate, must revert pin later):
 ```bash
 flux list artifact oci://ghcr.io/<owner>/homelab/platform | grep -E '^\d+\.\d+\.\d+$'
-KUBECONFIG=~/.kube/live.yaml kubectl patch ocirepository flux-system -n flux-system \
+kubectl --context live patch ocirepository flux-system -n flux-system \
   --type=merge -p '{"spec":{"ref":{"tag":"<previous-stable-tag>"}}}'
 ```
 

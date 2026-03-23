@@ -18,7 +18,7 @@ description: |
 user-invocable: false
 ---
 
-> **Cluster access, KUBECONFIG patterns, and internal service URLs** are in the `k8s` skill.
+> **Cluster access (`--context` patterns) and internal service URLs** are in the `k8s` skill.
 
 # Debugging Kubernetes Incidents
 
@@ -74,7 +74,7 @@ Metrics and alerts (Prometheus is behind OAuth2 Proxy — DNS URLs won't work fo
 
 ```bash
 # Check firing alerts
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+kubectl --context <cluster> exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
   wget -qO- 'http://localhost:9090/api/v1/alerts' | jq '.data.alerts[] | select(.state == "firing")'
 ```
 
@@ -95,7 +95,7 @@ All traffic is implicitly denied. Missing labels are the most common cause of bl
 
 ```bash
 # Setup Hubble access (run once per session)
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n kube-system svc/hubble-relay 4245:80 &
+kubectl --context <cluster> port-forward -n kube-system svc/hubble-relay 4245:80 &
 
 # See dropped traffic in a namespace
 hubble observe --verdict DROPPED --namespace <namespace> --since 5m
@@ -106,16 +106,16 @@ hubble observe --from-namespace <source> --to-namespace <dest> --since 5m
 
 Check namespace labels:
 ```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl get ns <namespace> -o jsonpath='{.metadata.labels}' | jq
+kubectl --context <cluster> get ns <namespace> -o jsonpath='{.metadata.labels}' | jq
 # Required: network-policy.homelab/profile: standard|internal|internal-egress|isolated
 # Optional: access.network-policy.homelab/postgres|garage-s3|kube-api: "true"
 ```
 
 Emergency escape hatch (triggers alert after 5m):
 ```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl label namespace <ns> network-policy.homelab/enforcement=disabled
+kubectl --context <cluster> label namespace <ns> network-policy.homelab/enforcement=disabled
 # Re-enable after fixing:
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl label namespace <ns> network-policy.homelab/enforcement-
+kubectl --context <cluster> label namespace <ns> network-policy.homelab/enforcement-
 ```
 
 See `docs/runbooks/network-policy-escape-hatch.md` for full procedure.
@@ -126,8 +126,8 @@ HelmReleases can get stuck in `Stalled/RetriesExceeded` even after the underlyin
 resolved. Suspend and resume to reset the failure counter:
 
 ```bash
-KUBECONFIG=~/.kube/<cluster>.yaml flux suspend helmrelease <name> -n flux-system
-KUBECONFIG=~/.kube/<cluster>.yaml flux resume helmrelease <name> -n flux-system
+flux --context <cluster> suspend helmrelease <name> -n flux-system
+flux --context <cluster> resume helmrelease <name> -n flux-system
 ```
 
 Common self-healed causes: missing Secret/ConfigMap (ExternalSecret eventually created it),
@@ -149,20 +149,20 @@ the failure mode table. Quick diagnostic flow:
    └─ flux list artifact oci://ghcr.io/<repo>/platform | grep integration
 
 3. Integration OCIRepository seeing new version?
-   └─ KUBECONFIG=~/.kube/integration.yaml kubectl get ocirepository -n flux-system
+   └─ kubectl --context integration get ocirepository -n flux-system
    └─ Semver constraint must be ">= 0.0.0-0" to accept RCs
 
 4. Integration Kustomization healthy?
-   └─ KUBECONFIG=~/.kube/integration.yaml flux get kustomizations -n flux-system
+   └─ flux --context integration get kustomizations -n flux-system
 
 5. Flux Alert fired repository_dispatch?
-   └─ KUBECONFIG=~/.kube/integration.yaml kubectl describe alert validation-success -n flux-system
+   └─ kubectl --context integration describe alert validation-success -n flux-system
 
 6. tag-validated-artifact.yaml ran?
    └─ GitHub Actions → "Tag Validated Artifact" workflow
 
 7. Live OCIRepository seeing stable semver?
-   └─ KUBECONFIG=~/.kube/live.yaml kubectl get ocirepository -n flux-system
+   └─ kubectl --context live get ocirepository -n flux-system
    └─ Semver constraint must be ">= 0.0.0" (stable only, no RCs)
 ```
 

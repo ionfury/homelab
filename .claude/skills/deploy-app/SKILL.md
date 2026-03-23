@@ -193,12 +193,12 @@ The dev cluster is a sandbox — iterate freely.
 **Deploy directly** (suspend Flux first if needed: `task k8s:flux-suspend -- <kustomization-name>`):
 
 ```bash
-KUBECONFIG=~/.kube/dev.yaml helm install <app-name> <repo>/<chart> \
+helm install <app-name> <repo>/<chart> \
   -n <namespace> --create-namespace \
   -f kubernetes/platform/charts/<app-name>.yaml \
   --version <version>
 
-KUBECONFIG=~/.kube/dev.yaml kubectl -n <namespace> \
+kubectl -n <namespace> \
   wait --for=condition=Ready pod -l app.kubernetes.io/name=<app-name> --timeout=300s
 ```
 
@@ -207,7 +207,7 @@ For OCI charts, use `oci://registry/<path>/<chart>`. For iteration, use `helm up
 **Verify network connectivity** (CRITICAL — network policies are enforced):
 
 ```bash
-KUBECONFIG=~/.kube/dev.yaml kubectl port-forward -n kube-system svc/hubble-relay 4245:80 &
+kubectl port-forward -n kube-system svc/hubble-relay 4245:80 &
 hubble observe --verdict DROPPED --namespace <namespace> --since 5m
 hubble observe --from-namespace istio-gateway --to-namespace <namespace> --since 2m
 hubble observe --from-namespace <namespace> --to-namespace database --since 2m
@@ -233,7 +233,7 @@ Iterate until all checks pass. AskUserQuestion to report status and confirm proc
 Uninstall direct helm install → reconcile via Flux → validate clean convergence:
 
 ```bash
-KUBECONFIG=~/.kube/dev.yaml helm uninstall <app-name> -n <namespace>
+helm uninstall <app-name> -n <namespace>
 task k8s:reconcile-validate
 ```
 

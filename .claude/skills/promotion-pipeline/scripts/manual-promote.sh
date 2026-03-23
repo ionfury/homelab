@@ -40,4 +40,4 @@ flux tag artifact \
   --tag "${VERSION}"
 
 echo "Done. Live cluster will pick up ${VERSION} on next OCIRepository poll."
-echo "Verify: KUBECONFIG=~/.kube/live.yaml kubectl get ocirepository flux-system -n flux-system -o jsonpath='{.status.artifact.revision}'"
+echo "Verify: kubectl --context live get ocirepository flux-system -n flux-system -o jsonpath='{.status.artifact.revision}'"

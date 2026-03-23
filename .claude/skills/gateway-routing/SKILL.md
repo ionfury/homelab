@@ -91,7 +91,7 @@ The WAF runs as an Istio WasmPlugin on the external gateway with OWASP CRS at Pa
 **Testing WAF endpoints** — Istio matches on SNI, so raw IP requests are rejected. Use `--resolve`:
 
 ```bash
-GATEWAY_IP=$(KUBECONFIG=~/.kube/<cluster>.yaml kubectl get gateway external -n istio-gateway -o jsonpath='{.metadata.annotations.lbipam\.cilium\.io/ips}')
+GATEWAY_IP=$(kubectl --context <cluster> get gateway external -n istio-gateway -o jsonpath='{.metadata.annotations.lbipam\.cilium\.io/ips}')
 curl -kI --resolve "app.${external_domain}:443:${GATEWAY_IP}" "https://app.${external_domain}/"
 ```
 

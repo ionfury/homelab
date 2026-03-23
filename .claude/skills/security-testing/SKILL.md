@@ -70,10 +70,10 @@ Commands: see [references/test-commands.md#phase-5-supply-chain](references/test
 Run after every test session:
 
 ```bash
-KUBECONFIG=~/.kube/dev.yaml kubectl delete pod sectest fake-prom -n <ns> --ignore-not-found
-KUBECONFIG=~/.kube/dev.yaml kubectl delete httproute sectest-route-injection -n <ns> --ignore-not-found
-KUBECONFIG=~/.kube/dev.yaml kubectl label namespace <ns> network-policy.homelab/enforcement- 2>/dev/null
-KUBECONFIG=~/.kube/dev.yaml kubectl get pods -A | grep sectest
+kubectl --context dev delete pod sectest fake-prom -n <ns> --ignore-not-found
+kubectl --context dev delete httproute sectest-route-injection -n <ns> --ignore-not-found
+kubectl --context dev label namespace <ns> network-policy.homelab/enforcement- 2>/dev/null
+kubectl --context dev get pods -A | grep sectest
 ```
 
 ---

@@ -11,27 +11,27 @@ CLUSTER="${1:?Usage: check-connection.sh <cluster-name> <app-namespace> [app-nam
 APP_NS="${2:?Usage: check-connection.sh <cluster-name> <app-namespace> [app-name]}"
 APP_NAME="${3:-}"
 
-KUBECONFIG=~/.kube/"${CLUSTER}".yaml
+CONTEXT="${CLUSTER}"
 
 echo "=== CNPG Cluster Status ==="
-KUBECONFIG="${KUBECONFIG}" kubectl get clusters.postgresql.cnpg.io -n database
+kubectl --context "${CONTEXT}" get clusters.postgresql.cnpg.io -n database
 
 echo ""
 echo "=== Database Pods ==="
-KUBECONFIG="${KUBECONFIG}" kubectl get pods -n database -l cnpg.io/cluster=platform
+kubectl --context "${CONTEXT}" get pods -n database -l cnpg.io/cluster=platform
 
 echo ""
 echo "=== Managed Databases ==="
-KUBECONFIG="${KUBECONFIG}" kubectl get databases.postgresql.cnpg.io -n database
+kubectl --context "${CONTEXT}" get databases.postgresql.cnpg.io -n database
 
 echo ""
 echo "=== Pooler Status ==="
-KUBECONFIG="${KUBECONFIG}" kubectl get poolers.postgresql.cnpg.io -n database
+kubectl --context "${CONTEXT}" get poolers.postgresql.cnpg.io -n database
 
 if [[ -n "${APP_NAME}" ]]; then
   echo ""
   echo "=== Credential Secret in App Namespace (${APP_NS}) ==="
-  KUBECONFIG="${KUBECONFIG}" kubectl get secret "${APP_NAME}-db-credentials" -n "${APP_NS}" \
+  kubectl --context "${CONTEXT}" get secret "${APP_NAME}-db-credentials" -n "${APP_NS}" \
     -o jsonpath='{.data.username}' | base64 -d && echo " (username decoded)"
 
   echo ""
@@ -40,7 +40,7 @@ if [[ -n "${APP_NAME}" ]]; then
 
   echo ""
   echo "=== Test Connection (psql debug pod) ==="
-  echo "Run: KUBECONFIG=${KUBECONFIG} kubectl run -n ${APP_NS} pg-test --rm -it \\"
+  echo "Run: kubectl --context ${CONTEXT} run -n ${APP_NS} pg-test --rm -it \\"
   echo "  --image=postgres:17 -- psql \"postgresql://<user>:<pass>@platform-pooler-rw.database.svc:5432/<dbname>\""
 fi
 

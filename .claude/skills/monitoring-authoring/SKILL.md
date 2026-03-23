@@ -166,12 +166,12 @@ Check if the chart provides monitoring via Helm values first (`kubesearch <chart
 
 ```bash
 # Check ServiceMonitor is discovered
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+kubectl --context <cluster> exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
   wget -qO- 'http://localhost:9090/api/v1/targets' | \
   jq '.data.activeTargets[] | select(.labels.job | contains("<component>"))'
 
 # Check alert rules are loaded
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+kubectl --context <cluster> exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
   wget -qO- 'http://localhost:9090/api/v1/rules' | \
   jq '.data.groups[] | select(.name | contains("<component>"))'
 ```

@@ -80,8 +80,8 @@ These verify that removing redundant CLAUDE.md content didn't break skill invoca
 
 ### R-06: Cluster access
 **Prompt:** `How do I connect to the dev cluster?`
-**Expected:** Invokes `k8s` skill; kubeconfig path, KUBECONFIG env var pattern
-**Keywords:** `~/.kube`, `KUBECONFIG`, `kubeconfig`, `k8s`
+**Expected:** Invokes `k8s` skill; combined kubeconfig at `~/.kube/config`, `--context dev` pattern
+**Keywords:** `--context`, `dev`, `kubeconfig`, `k8s`
 **Regression risk:** cluster access section removed from clusters/CLAUDE.md; k8s skill not triggered
 
 ### R-07: Terragrunt operations
@@ -158,8 +158,8 @@ These verify that content removed from one CLAUDE.md still surfaces correctly fr
 
 ### D-04: Cluster access method
 **Prompt:** `I'm working in the clusters/ directory. How do I access the integration cluster?`
-**Expected:** KUBECONFIG=~/.kube/integration.yaml; read-only access only
-**Keywords:** `integration`, `~/.kube`, `read-only`, `KUBECONFIG`
+**Expected:** `kubectl --context integration`; read-only access only
+**Keywords:** `integration`, `--context`, `read-only`
 **Regression risk:** Cluster access section removed from clusters/CLAUDE.md; k8s skill must cover this
 
 ### D-05: WAF testing
