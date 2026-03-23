@@ -51,6 +51,12 @@ controllers:
             memory: 128Mi
 
 persistence:
+  config-dir:
+    type: emptyDir
+    advancedMounts:
+      recyclarr:
+        app:
+          - path: /config
   config:
     type: configMap
     name: recyclarr-config

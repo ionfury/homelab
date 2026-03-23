@@ -61,7 +61,7 @@ controllers:
             custom: true
             spec:
               tcpSocket:
-                port: 15001
+                port: 8265
               initialDelaySeconds: 10
               periodSeconds: 5
               failureThreshold: 30
@@ -70,14 +70,14 @@ controllers:
             custom: true
             spec:
               tcpSocket:
-                port: 15001
+                port: 8265
               periodSeconds: 30
           readiness:
             enabled: true
             custom: true
             spec:
               tcpSocket:
-                port: 15001
+                port: 8265
               periodSeconds: 10
 
 persistence:
