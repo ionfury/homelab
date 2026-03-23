@@ -25,7 +25,7 @@ node = "24"
 # NOTE: This section MUST be at the end because TOML nested tables
 # terminate the parent [tools] section's inline definitions
 [tools."github:controlplaneio-fluxcd/flux-operator"]
-version = "0.45.0"
+version = "0.45.1"
 
 [tools."github:controlplaneio-fluxcd/flux-operator".platforms]
 linux-x64 = { asset_pattern = "flux-operator_*_linux_amd64.tar.gz" }
