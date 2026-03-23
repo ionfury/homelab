@@ -54,276 +54,95 @@ Live Cluster
   - Flux reconciles platform (production deployment)
 ```
 
-## Artifact Tagging Strategy
-
-Each artifact accumulates tags as it progresses through the pipeline:
-
-| Tag | Created By | Stage | Purpose |
-|-----|-----------|-------|---------|
-| `X.Y.Z-rc.N` | build workflow | Build | Pre-release semver for integration polling |
-| `sha-<7char>` | build workflow | Build | Immutable commit reference |
-| `integration-<7char>` | build workflow | Build | Marks artifact for integration consumption |
-| `validated-<7char>` | tag workflow | Promotion | Traceability for validated artifacts |
-| `X.Y.Z` | tag workflow | Promotion | Stable semver for live polling |
-
-**Version numbering**: The build workflow queries GHCR for the highest stable `X.Y.Z` tag, bumps patch to `X.Y.(Z+1)`, then creates `X.Y.(Z+1)-rc.N`. When validated, the RC suffix is stripped to produce `X.Y.(Z+1)`.
-
-## Source Types by Cluster
-
-| Cluster | Source Type | Semver Constraint | What It Accepts |
-|---------|------------|-------------------|-----------------|
-| dev | GitRepository | N/A | Git main branch directly |
-| integration | OCIRepository | `>= 0.0.0-0` | All versions including pre-releases (`-rc.N`) |
-| live | OCIRepository | `>= 0.0.0` | Stable versions only (no `-rc` suffix) |
-
-The semver constraint is set in the config module (`infrastructure/modules/config/main.tf`) and applied via flux-operator bootstrap. The `-0` suffix in `>= 0.0.0-0` is what allows pre-release versions per semver specification.
+See [references/pipeline-reference.md](references/pipeline-reference.md) for artifact tagging strategy, source types, failure modes, and key files.
 
 ## Tracing a Change End-to-End
 
-### Stage 1: GitHub Actions Build
+Prefix cluster commands with `KUBECONFIG=~/.kube/<cluster>.yaml`. The build triggers on push to `main` when `kubernetes/**` files change only.
 
-```bash
-# Check if build workflow triggered
-gh run list --workflow=build-platform-artifact.yaml --limit=5
-
-# View specific run details
-gh run view <run-id>
-
-# Check workflow logs
-gh run view <run-id> --log
-```
-
-The build triggers on push to `main` when `kubernetes/**` files change. If no Kubernetes files changed, the workflow does not run.
-
-### Stage 2: OCI Artifact in GHCR
-
-```bash
-# List recent artifacts and their tags
-flux list artifact oci://ghcr.io/<owner>/homelab/platform --limit=10
-
-# Find artifact for a specific commit
-flux list artifact oci://ghcr.io/<owner>/homelab/platform | grep <short-sha>
-```
-
-### Stage 3: Integration Cluster Pickup
-
-```bash
-# Check OCIRepository status (is it seeing the new artifact?)
-KUBECONFIG=~/.kube/integration.yaml kubectl get ocirepository -n flux-system -o wide
-
-# Check what version is currently deployed
-KUBECONFIG=~/.kube/integration.yaml kubectl get ocirepository flux-system -n flux-system -o jsonpath='{.status.artifact.revision}'
-
-# Check platform Kustomization reconciliation
-KUBECONFIG=~/.kube/integration.yaml kubectl get kustomization platform -n flux-system
-
-# Force reconciliation if stuck
-KUBECONFIG=~/.kube/integration.yaml flux reconcile source oci flux-system -n flux-system
-```
-
-### Stage 4: Validation Alert
-
-```bash
-# Check the validation-success Alert status
-KUBECONFIG=~/.kube/integration.yaml kubectl describe alert validation-success -n flux-system
-
-# Check the github-dispatch Provider
-KUBECONFIG=~/.kube/integration.yaml kubectl get providers -n flux-system
-
-# Check if Alert fired recently (events)
-KUBECONFIG=~/.kube/integration.yaml kubectl get events -n flux-system --field-selector involvedObject.name=validation-success
-```
-
-### Stage 5: Tag Workflow
-
-```bash
-# Check if tag workflow triggered
-gh run list --workflow=tag-validated-artifact.yaml --limit=5
-
-# If using workflow_dispatch for manual promotion
-gh workflow run tag-validated-artifact.yaml -f artifact_sha=<7char-sha>
-```
-
-### Stage 6: Live Cluster Pickup
-
-```bash
-# Check OCIRepository status
-KUBECONFIG=~/.kube/live.yaml kubectl get ocirepository -n flux-system -o wide
-
-# Check current deployed version
-KUBECONFIG=~/.kube/live.yaml kubectl get ocirepository flux-system -n flux-system -o jsonpath='{.status.artifact.revision}'
-
-# Check platform Kustomization
-KUBECONFIG=~/.kube/live.yaml kubectl get kustomization platform -n flux-system
-```
+| Stage | Check | Command |
+|-------|-------|---------|
+| 1. GHA Build | Did build workflow trigger? | `gh run list --workflow=build-platform-artifact.yaml --limit=5` |
+| 1. GHA Build | View logs | `gh run view <run-id> --log` |
+| 2. GHCR | List/find artifacts | `flux list artifact oci://ghcr.io/<owner>/homelab/platform --limit=10 \| grep <short-sha>` |
+| 3. Integration | OCIRepository status | `kubectl get ocirepository -n flux-system -o wide` |
+| 3. Integration | Current deployed version | `kubectl get ocirepository flux-system -n flux-system -o jsonpath='{.status.artifact.revision}'` |
+| 3. Integration | Kustomization status | `kubectl get kustomization platform -n flux-system` |
+| 3. Integration | Force reconcile | `flux reconcile source oci flux-system -n flux-system` |
+| 4. Alert | Status/events | `kubectl describe alert validation-success -n flux-system` |
+| 4. Alert | Provider status | `kubectl get providers -n flux-system` |
+| 5. Tag Workflow | Did tag workflow trigger? | `gh run list --workflow=tag-validated-artifact.yaml --limit=5` |
+| 5. Tag Workflow | Manual trigger | `gh workflow run tag-validated-artifact.yaml -f artifact_sha=<7char-sha>` |
+| 6. Live | OCIRepository status | `kubectl get ocirepository -n flux-system -o wide` |
+| 6. Live | Current deployed version | `kubectl get ocirepository flux-system -n flux-system -o jsonpath='{.status.artifact.revision}'` |
+| 6. Live | Kustomization status | `kubectl get kustomization platform -n flux-system` |
 
 ## Debugging: Artifact Stuck in Integration
 
 ```
-Is the OCI artifact in GHCR?
-|
-+-- NO --> Check build-platform-artifact workflow
-|          - Did the workflow trigger? (push to main with kubernetes/ changes)
-|          - Check GHCR auth: GITHUB_TOKEN must have packages:write
-|          - Check workflow logs for "flux push artifact" errors
-|
-+-- YES -> Is integration OCIRepository seeing it?
-           |
-           +-- NO --> Check semver constraint
-           |          - Must be ">= 0.0.0-0" to accept RC versions
-           |          - Run: kubectl get ocirepository -n flux-system -o yaml | grep semver
-           |          - Check OCIRepository .status.conditions for errors
-           |
-           +-- YES -> Is platform Kustomization reconciling?
-                      |
-                      +-- NO --> Check Kustomization status
-                      |          - kubectl describe kustomization platform -n flux-system
-                      |          - Look for dependency failures, schema errors
-                      |
-                      +-- YES -> Is the Alert firing repository_dispatch?
-                                 |
-                                 +-- NO --> Check Alert and Provider
-                                 |          - Alert "validation-success" must watch platform Kustomization
-                                 |          - Provider "github-dispatch" needs flux-system secret with GitHub token
-                                 |          - Token needs repo scope for repository_dispatch
-                                 |
-                                 +-- YES -> Check tag-validated-artifact workflow
-                                            - Idempotency guard: already has validated-<sha> tag?
-                                            - Check workflow logs for tag errors
+Artifact in GHCR?
++-- NO  --> build workflow: did it trigger? GITHUB_TOKEN packages:write? "flux push artifact" errors?
++-- YES --> Integration OCIRepository seeing it?
+    +-- NO  --> semver constraint ">= 0.0.0-0"? Check .status.conditions for errors
+    +-- YES --> Kustomization reconciling?
+        +-- NO  --> kubectl describe kustomization platform -n flux-system; dependency/schema errors?
+        +-- YES --> Alert firing repository_dispatch?
+            +-- NO  --> "validation-success" watches platform Kustomization?
+                        "github-dispatch" provider has GitHub token (repo scope)?
+            +-- YES --> tag workflow: idempotency guard (validated-<sha> already exists)? log errors?
 ```
 
 ## Debugging: Live Not Updating
 
 ```
-Is the artifact tagged with stable semver (X.Y.Z)?
-|
-+-- NO --> Promotion did not complete
-|          - Check tag-validated-artifact workflow ran successfully
-|          - Verify it created both validated-<sha> and X.Y.Z tags
-|
-+-- YES -> Is live OCIRepository seeing the stable tag?
-           |
-           +-- NO --> Check semver constraint
-           |          - Must be ">= 0.0.0" (excludes pre-releases)
-           |          - Verify the stable tag is higher than current deployed version
-           |          - Force poll: flux reconcile source oci flux-system -n flux-system
-           |
-           +-- YES -> Is Kustomization reconciling?
-                      |
-                      +-- NO --> Check Kustomization status and dependencies
-                      +-- YES -> Deployment should be in progress
-                                 - Check HelmRelease statuses: flux get helmreleases -A
-                                 - Check for failing health checks blocking rollout
+Artifact tagged with stable X.Y.Z?
++-- NO  --> tag workflow ran? created both validated-<sha> and X.Y.Z tags?
++-- YES --> Live OCIRepository seeing stable tag?
+    +-- NO  --> semver constraint ">= 0.0.0"? tag higher than current?
+                flux reconcile source oci flux-system -n flux-system
+    +-- YES --> Kustomization reconciling?
+        +-- NO  --> Check status and dependencies
+        +-- YES --> flux get helmreleases -A; health checks blocking rollout?
 ```
 
 ## Canary-Checker Validation
 
-The `platform-validation` Canary in the monitoring namespace runs health checks every 60 seconds:
-
-| Check | Type | What It Validates |
-|-------|------|-------------------|
-| `kubernetes-api` | HTTP | Kubernetes API responds (200 or 401) |
-| `flux-pods-healthy` | Kubernetes | All Flux pods in Running state with Ready condition |
+The `platform-validation` Canary in `monitoring` runs every 60s: `kubernetes-api` (HTTP, expects 200/401) and `flux-pods-healthy` (all Flux pods Running+Ready).
 
 ```bash
-# Check canary status
-KUBECONFIG=~/.kube/integration.yaml kubectl get canaries -n monitoring
-
-# Check individual check results
-KUBECONFIG=~/.kube/integration.yaml kubectl describe canary platform-validation -n monitoring
-
-# Check canary-checker metrics in Prometheus
+# Check canary status (prefix with KUBECONFIG=~/.kube/integration.yaml)
+kubectl get canaries -n monitoring
+kubectl describe canary platform-validation -n monitoring
 # canary_check{name="platform-validation"} == 0 means healthy
 ```
 
-Alerts fire if canary checks fail:
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| `CanaryCheckFailure` | `canary_check == 1` for 2m | critical |
-| `CanaryCheckHighFailureRate` | >20% failure rate over 15m | warning |
+Alerts: `CanaryCheckFailure` (critical, 2m) and `CanaryCheckHighFailureRate` (>20% over 15m, warning).
 
 ## Manual Promotion (Emergency)
 
-When automatic promotion fails, manually tag the artifact:
-
 ```bash
-# Authenticate to GHCR
-echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USER --password-stdin
-
-# Find the integration artifact
-flux list artifact oci://ghcr.io/<owner>/homelab/platform | grep integration
-
-# Tag manually (replace <sha> with 7-char commit SHA)
-flux tag artifact \
-  oci://ghcr.io/<owner>/homelab/platform:integration-<sha> \
-  --tag validated-<sha>
-
-flux tag artifact \
-  oci://ghcr.io/<owner>/homelab/platform:integration-<sha> \
-  --tag <X.Y.Z>  # The stable semver to assign
-```
-
-Alternatively, use `workflow_dispatch` to trigger the tag workflow manually:
-
-```bash
+# Preferred: workflow_dispatch
 gh workflow run tag-validated-artifact.yaml -f artifact_sha=<7char-sha>
+
+# If workflow is broken: GITHUB_TOKEN (packages:write + repo scope), GITHUB_USER, flux CLI required
+.claude/skills/promotion-pipeline/scripts/manual-promote.sh <7char-sha> <X.Y.Z>
 ```
 
 ## Rollback Procedure
 
-### Option 1: Pin OCIRepository to a Specific Version
-
+**Option 1 — Pin OCIRepository** (immediate, must revert pin later):
 ```bash
-# Find previous stable artifact
 flux list artifact oci://ghcr.io/<owner>/homelab/platform | grep -E '^\d+\.\d+\.\d+$'
-
-# Patch live OCIRepository to pin a specific tag
 KUBECONFIG=~/.kube/live.yaml kubectl patch ocirepository flux-system -n flux-system \
-  --type=merge \
-  -p '{"spec":{"ref":{"tag":"<previous-stable-tag>"}}}'
+  --type=merge -p '{"spec":{"ref":{"tag":"<previous-stable-tag>"}}}'
 ```
 
-**Remember to revert the pin** after fixing the issue -- otherwise new promotions will be ignored.
+**Option 2 — Revert the PR** (safest): revert on main, pipeline re-runs naturally through integration to live.
 
-### Option 2: Revert the PR and Let Pipeline Run
-
-The safest rollback is to revert the breaking PR on main. The pipeline will build a new artifact with the reverted state, which will naturally promote through integration to live.
-
-### Option 3: Re-tag a Previous Artifact
-
+**Option 3 — Re-tag a previous artifact** (new tag must be higher than current):
 ```bash
-# Tag a known-good artifact with a higher stable semver
-flux tag artifact \
-  oci://ghcr.io/<owner>/homelab/platform:validated-<old-sha> \
-  --tag <higher-X.Y.Z>
+flux tag artifact oci://ghcr.io/<owner>/homelab/platform:validated-<old-sha> --tag <higher-X.Y.Z>
 ```
-
-This works because the live OCIRepository picks the highest semver. Ensure the new tag is higher than the current one.
-
-## Common Failure Modes
-
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| Build succeeds, integration does not update | OCIRepository semver does not match RC tags | Verify `>= 0.0.0-0` in OCIRepository spec |
-| Validation passes, live does not update | Tag workflow did not create stable semver tag | Check tag-validated-artifact workflow logs |
-| `repository_dispatch` not received by GHA | GitHub token in flux-system secret lacks `repo` scope | Update token with correct scopes |
-| Tag workflow fires repeatedly (~10min) | Alert fires on every Flux reconciliation cycle | Normal -- idempotency guard skips already-validated artifacts |
-| Artifact push fails in build workflow | GHCR auth issue | Check `GITHUB_TOKEN` has `packages:write` permission |
-| Live picks up wrong version | Semver ordering issue with RC numbering | Verify stable tag is strictly higher than current |
-| Integration shows "no matching artifact" | OCIRepository URL or semver misconfigured | Check `oci_url` and `oci_semver` in cluster bootstrap config |
-
-## Key Files Reference
-
-| File | Purpose |
-|------|---------|
-| `.github/workflows/build-platform-artifact.yaml` | Build and push OCI artifact on merge to main |
-| `.github/workflows/tag-validated-artifact.yaml` | Promote validated artifact (tag stable semver) |
-| `kubernetes/platform/config/flux-notifications/canary-alert.yaml` | Alert that triggers repository_dispatch |
-| `kubernetes/platform/config/flux-notifications/github-provider.yaml` | GitHub dispatch provider for Flux alerts |
-| `kubernetes/platform/config/canary-checker/platform-health.yaml` | Platform health validation checks |
-| `infrastructure/modules/config/main.tf` | OCI semver constraints per cluster |
-| `infrastructure/modules/bootstrap/resources/instance-oci.yaml.tftpl` | OCIRepository bootstrap template |
 
 ## Cross-References
 

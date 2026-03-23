@@ -1,0 +1,93 @@
+version: 1
+skill: architecture-review
+description: "Verify evaluation criteria coverage, anti-pattern identification, and existing stack check before recommending new tools"
+tests:
+  - id: ARC-01
+    description: "Checks existing stack before recommending a new caching technology"
+    category: constraint
+    severity: high
+    prompt: |
+      We need a Redis cache for our new application. Should we deploy Redis?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["Dragonfly"]
+        any_of: ["Redis-compatible", "already", "existing", "stack"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must identify that Dragonfly already exists in the stack as a Redis-compatible cache.
+      Should recommend using Dragonfly rather than adding Redis as a duplicate.
+    tags:
+      - trimmed-2026-03-22
+      - architecture-review-skill
+
+  - id: ARC-02
+    description: "Applies all six evaluation criteria when reviewing a technology proposal"
+    category: coverage
+    severity: high
+    prompt: |
+      Evaluate adding HashiCorp Vault to the homelab for secrets management.
+    scoring:
+      mode: both
+      keywords:
+        required: ["monitoring", "backup", "GitOps"]
+        any_of: ["Operational Cost", "Stack Fit", "Principle Alignment", "Complexity Budget", "Failure Modes", "Alternative"]
+      judge_criteria: |
+        Score 0-10. Award points for:
+        - Evaluating Principle Alignment (enterprise, GitOps, automation) (2pts)
+        - Evaluating Stack Fit (overlap with ESO+SSM) (2pts)
+        - Evaluating Operational Cost (monitoring, backup, upgrades) (2pts)
+        - Evaluating Complexity Budget (maintenance burden) (2pts)
+        - Considering alternatives (existing ESO+SSM) (2pts)
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must evaluate against all six criteria. Must identify the existing ESO+SSM stack as an
+      alternative. Must assess monitoring and backup requirements.
+    tags:
+      - trimmed-2026-03-22
+      - architecture-review-skill
+
+  - id: ARC-03
+    description: "Identifies monitoring as day-1 requirement, not day-2"
+    category: constraint
+    severity: high
+    prompt: |
+      We'll add monitoring for this new service later once it's stable. Is that okay?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["ServiceMonitor", "PrometheusRule"]
+        any_of: ["day-1", "not day-2", "Skipping observability", "anti-pattern"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must identify this as an anti-pattern. Monitoring is a day-1 requirement, not day-2.
+      Must mention ServiceMonitor and PrometheusRule as required from the start.
+    tags:
+      - trimmed-2026-03-22
+      - architecture-review-skill
+
+  - id: ARC-04
+    description: "Rejects cloud-only services in favor of self-hosted alternatives"
+    category: constraint
+    severity: high
+    prompt: |
+      Should we use AWS RDS for our application's database to save on management overhead?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["CNPG", "CloudNativePG"]
+        any_of: ["bare-metal", "self-hosted", "cloud-only", "vendor lock"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must reject the cloud-only service approach for a bare-metal homelab. Must recommend
+      the existing CNPG PostgreSQL operator as the self-hosted alternative.
+    tags:
+      - trimmed-2026-03-22
+      - architecture-review-skill

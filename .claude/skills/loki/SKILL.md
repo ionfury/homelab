@@ -1,16 +1,12 @@
 ---
 name: loki
 description: |
-  Query Loki API for cluster logs and debugging. Use when investigating application errors,
-  searching logs, debugging pod issues, or querying log patterns.
+  Query Loki API for cluster logs and debugging. Use when searching logs for errors or patterns,
+  investigating pod or service issues, querying Kubernetes events, debugging Flux reconciliation,
+  or running LogQL queries.
 
-  Use when: (1) Searching logs for errors or patterns, (2) Investigating pod or service issues via logs,
-  (3) Querying Kubernetes events, (4) Debugging Flux reconciliation or platform service failures,
-  (5) Running LogQL queries, (6) Checking log rates or volumes.
-
-  Triggers: "check logs", "search logs", "query loki", "logql", "show me logs",
-  "what happened in", "log errors", "find in logs", "tail logs", "kubernetes events",
-  "recent logs", "log query", "debug logs"
+  Triggers: "check logs", "search logs", "query loki", "logql", "tail logs", "kubernetes events",
+  "log errors", "find in logs", "debug logs"
 user-invocable: false
 ---
 
@@ -94,20 +90,6 @@ export LOKI_URL=http://localhost:3100
 # Top 5 noisiest pods
 ./scripts/logql.sh query 'topk(5, sum by(pod) (rate({namespace=~".+"}[5m])))'
 ```
-
-### Direct curl (alternative)
-
-```bash
-# Instant query
-curl -s "http://localhost:3100/loki/api/v1/query?query=%7Bnamespace%3D%22monitoring%22%7D&limit=10" | jq '.data.result'
-
-# Labels
-curl -s "http://localhost:3100/loki/api/v1/labels" | jq '.data'
-```
-
-## Reference
-
-For homelab-specific LogQL queries (Flux, Cilium, CloudNative-PG, etc.), see [references/queries.md](references/queries.md).
 
 ## Loki Details
 

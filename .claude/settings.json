@@ -98,7 +98,33 @@
       "Skill(versions-renovate)",
       "Skill(security-testing)",
       "Bash(hubble:*)",
-      "Bash(nmap:*)"
+      "Bash(nmap:*)",
+      "Bash(task k8s:kubeconfig-sync:*)",
+      "Bash(aws ssm get-parameter:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/kubectl-guard.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/kubectl-audit.sh"
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {

@@ -23,87 +23,59 @@ For ResourceSet patterns, version management, and platform architecture, see [ku
 
 ## How to Add a New Helm Release
 
-### Step 1: Add to helm-charts.yaml
+Add to `helm-charts.yaml` inputs → create `charts/<release-name>.yaml` values file → register in `kustomization.yaml` configMapGenerator → optionally add `config/<name>/` resources.
 
-Add an entry to the `inputs` array:
+### helm-charts.yaml entry
 
 ```yaml
 inputs:
-  - name: "my-new-chart"           # Unique release name (kebab-case)
-    namespace: "my-namespace"       # Target namespace
+  - name: "my-new-chart"
+    namespace: "my-namespace"
     chart:
-      name: "actual-chart-name"    # Chart name in repository
-      version: "1.0.0"             # Pinned version
-      url: "https://example.com/charts"  # Helm repository URL
-    dependsOn: [cilium]            # Array of release names this depends on
+      name: "actual-chart-name"
+      version: "${my_chart_version}"   # From versions.env via Flux substitution
+      url: "https://example.com/charts"
+    dependsOn: [cilium]
 ```
 
-For OCI registries:
+For OCI registries, prefix url with `oci://`:
 ```yaml
     chart:
-      name: "app-template"
-      version: "3.6.1"
-      url: "oci://ghcr.io/bjw-s/helm"  # Prefix with oci://
+      url: "oci://ghcr.io/bjw-s/helm"
 ```
 
-### Step 2: Create Values File
+The ResourceSet template auto-detects OCI URLs and sets `type: oci` on the HelmRepository.
 
-Create `charts/<release-name>.yaml` with Helm values:
+### Values file
 
+Create `charts/<release-name>.yaml`:
 ```yaml
 # yaml-language-server: $schema=<chart-schema-url>
 ---
-# Helm values for the chart
 replicas: 1
-image:
-  repository: myapp
-  tag: v1.0.0
 ```
 
-### Step 3: Add to kustomization.yaml
-
-Add the values file to the `configMapGenerator`:
+### kustomization.yaml registration
 
 ```yaml
 configMapGenerator:
   - name: platform-values
     files:
-      # ... existing entries
       - charts/my-new-chart.yaml
 ```
 
-### Step 4: Add Config Resources (Optional)
+### PodSecurity compliance
 
-If the chart needs additional resources (secrets, configs), add to `config/`:
-
-```
-config/my-new-chart/
-├── kustomization.yaml
-├── secret.yaml
-└── config.yaml
-```
-
-Then reference in `config.yaml` ResourceSet.
-
-### Step 5: Verify PodSecurity Compliance
-
-Before finalizing values, check the target namespace's PodSecurity level in `namespaces.yaml`:
-
-- [ ] **Identify the namespace security level**: Look for `security: restricted`, `baseline`, or `privileged` in the namespace inputs
-- [ ] **If `restricted`**: Add full security context to chart values (see below)
-- [ ] **Check the container image's default user**: If it runs as root, set `runAsUser: 65534`
-- [ ] **Verify all init containers and sidecars** also have security context set
-
-**Required security context for `restricted` namespaces:**
+Check the target namespace's security level in `namespaces.yaml`. For `restricted` namespaces (cert-manager, external-secrets, system, database, kromgo), every container requires:
 
 ```yaml
-# Pod-level (chart-specific key varies: podSecurityContext, securityContext, pod.securityContext)
+# Pod-level
 podSecurityContext:
   runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
 
-# Container-level (every container)
+# Container-level (every container including init containers)
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
@@ -114,91 +86,47 @@ securityContext:
     type: RuntimeDefault
 ```
 
-**Restricted namespaces**: cert-manager, external-secrets, system, database, kromgo. See [kubernetes/platform/CLAUDE.md](../../kubernetes/platform/CLAUDE.md) for the full list.
-
-**Validation gap**: `task k8s:validate` does NOT catch PodSecurity violations. These are only caught at admission time in the cluster.
+If the image runs as root, set `runAsUser: 65534`. `task k8s:validate` does NOT catch PodSecurity violations — only admission time reveals them.
 
 ## ResourceSet Template Syntax
 
-The `resourcesTemplate` uses Go text/template with `<<` `>>` delimiters:
+The `resourcesTemplate` uses Go text/template with `<<` `>>` delimiters. See [templates.md](templates.md) for full template examples.
 
-```yaml
-resourcesTemplate: |
-  apiVersion: helm.toolkit.fluxcd.io/v2
-  kind: HelmRelease
-  metadata:
-    name: << inputs.name >>
-    namespace: << inputs.provider.namespace >>
-  spec:
-    <<- if inputs.dependsOn >>
-    dependsOn:
-    <<- range $dep := inputs.dependsOn >>
-      - name: << $dep >>
-    <<- end >>
-    <<- end >>
-    chart:
-      spec:
-        chart: << inputs.chart.name >>
-        version: << inputs.chart.version >>
-```
-
-### Template Functions
-
-- `<< inputs.field >>` - Access input field
-- `<<- if condition >>` - Conditional (with `-` to trim whitespace)
-- `<<- range $item := inputs.array >>` - Loop over array
-- `hasPrefix "oci://" inputs.chart.url` - String prefix check
+Key functions:
+- `<< inputs.field >>` — access input field
+- `<<- if condition >>` / `<<- end >>` — conditional (leading `-` trims whitespace)
+- `<<- range $item := inputs.array >>` — loop
+- `hasPrefix "oci://" inputs.chart.url` — string prefix check
 
 ## Dependency Management
 
-### Release Dependencies
-
+Release dependencies (waits for other HelmReleases):
 ```yaml
 inputs:
   - name: "grafana"
-    dependsOn: [kube-prometheus-stack, alloy]  # Waits for these
+    dependsOn: [kube-prometheus-stack, alloy]
 ```
 
-### ResourceSet Dependencies
-
+ResourceSet dependencies (waits for another ResourceSet):
 ```yaml
 spec:
   dependsOn:
     - apiVersion: fluxcd.controlplane.io/v1
       kind: ResourceSet
-      name: platform-namespaces  # Waits for namespaces ResourceSet
+      name: platform-namespaces
 ```
+
+## Version Management
+
+Add a version entry to `kubernetes/platform/versions.env` with a Renovate annotation, then reference via `${variable_name}` in `helm-charts.yaml`. For annotation syntax and datasource selection, see the [versions-renovate skill](../versions-renovate/SKILL.md).
 
 ## Debugging Flux
 
-### Check ResourceSet Status
+Check status: `kubectl get resourcesets -n flux-system` → `kubectl describe resourceset platform-resources -n flux-system`
 
-```bash
-kubectl get resourcesets -n flux-system
-kubectl describe resourceset platform-resources -n flux-system
-```
+Check HelmRelease: `kubectl get helmreleases -A` → `kubectl describe helmrelease <name> -n <namespace>`
 
-### Check HelmRelease Status
-
-```bash
-kubectl get helmreleases -A
-kubectl describe helmrelease <name> -n <namespace>
-```
-
-### Check Reconciliation Logs
-
-```bash
-kubectl logs -n flux-system deploy/flux-controller -f | grep <release-name>
-```
-
-### Force Reconciliation
-
-```bash
-flux reconcile helmrelease <name> -n <namespace>
-flux reconcile kustomization flux-system -n flux-system
-```
-
-### Common Issues
+Force reconciliation: `flux reconcile helmrelease <name> -n <namespace>` or `flux reconcile kustomization flux-system -n flux-system`
 
 | Symptom | Cause | Solution |
 |---------|-------|----------|
@@ -206,27 +134,3 @@ flux reconcile kustomization flux-system -n flux-system
 | `values key not found` | Missing values file | Add to kustomization.yaml configMapGenerator |
 | `chart not found` | Wrong chart name/URL | Verify chart exists in repository |
 | `namespace not found` | Namespace not created | Add to namespaces.yaml |
-
-## Version Management
-
-When adding a new Helm release, you must also add a version entry to `kubernetes/platform/versions.env` with the correct Renovate annotation. Use `${variable_name}` in `helm-charts.yaml` to reference the version:
-
-```yaml
-chart:
-  version: "${my_chart_version}"  # Substituted from platform-versions ConfigMap
-```
-
-For annotation syntax, datasource selection, and debugging Renovate, see the [versions-renovate skill](../versions-renovate/SKILL.md).
-
-## OCI Registry Specifics
-
-When using OCI registries like GHCR:
-
-```yaml
-chart:
-  name: "app-template"           # Just the chart name
-  version: "3.6.1"
-  url: "oci://ghcr.io/bjw-s/helm"  # Registry URL with oci:// prefix
-```
-
-The ResourceSet template automatically detects OCI URLs and sets `type: oci` on the HelmRepository.

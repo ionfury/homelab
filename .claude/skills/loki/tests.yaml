@@ -1,0 +1,144 @@
+version: 1
+skill: loki
+description: "Verifies Loki access method (port-forward required, no HTTPRoute), logql.sh script usage, and common LogQL patterns"
+tests:
+  - id: LOK-01
+    description: "No HTTPRoute exists for Loki — port-forward is required, unlike Prometheus"
+    category: factored
+    severity: critical
+    prompt: |
+      Can I query Loki using an internal DNS URL like I would for Prometheus or Grafana? Or do I need to do something different?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - port-forward
+          - HTTPRoute
+        any_of:
+          - "no"
+          - "loki-headless"
+          - "3100"
+          - "gateway"
+          - "disabled"
+          - "replicas: 0"
+        forbidden:
+          - "https://loki.internal"
+          - "DNS URL works"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Clearly states Loki does NOT have an HTTPRoute on the internal gateway
+        - Explains that port-forward to loki-headless:3100 is required
+        - Contrasts this with Prometheus/Grafana which do have DNS routes
+        - Provides the correct port-forward command or the LOKI_URL export
+        Deduct 5 points if the response implies a DNS URL can be used for Loki.
+        Deduct 3 points if no contrast with Prometheus/Grafana is drawn (the user asked specifically about the difference).
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response must clarify that Loki has no HTTPRoute (gateway component disabled, replicas: 0). Must instruct using kubectl port-forward -n monitoring svc/loki-headless 3100:3100. Should note that Prometheus and Grafana do have DNS routes, making Loki different.
+    tags:
+      - trimmed-2026-03-22
+      - loki-skill
+
+  - id: LOK-02
+    description: "logql.sh script usage for tailing namespace errors"
+    category: coverage
+    severity: high
+    prompt: |
+      Show me how to use the logql.sh script to search for errors in the flux-system namespace over the last 30 minutes.
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - logql.sh
+          - flux-system
+          - error
+        any_of:
+          - "tail"
+          - "--since"
+          - "30m"
+          - "LOKI_URL"
+          - "port-forward"
+          - "3100"
+        forbidden:
+          - "https://loki.internal"
+      judge_criteria: ""
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should show the logql.sh tail command with a flux-system namespace selector and an error filter, with --since 30m or equivalent. Should note that LOKI_URL must be set (via port-forward) before running the script.
+    tags:
+      - trimmed-2026-03-22
+      - loki-skill
+
+  - id: LOK-03
+    description: "LogQL pattern for Kubernetes warning events"
+    category: coverage
+    severity: medium
+    prompt: |
+      How do I query Loki to see Kubernetes warning events from the database namespace over the last hour?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - kubernetes/eventhandler
+          - Warning
+        any_of:
+          - "database"
+          - "job="
+          - "namespace="
+          - "logql.sh"
+          - "tail"
+        forbidden: []
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Uses the correct job label: job="integrations/kubernetes/eventhandler"
+        - Filters for Warning events
+        - Scopes to the database namespace via a label selector or |= filter
+        - Shows a complete logql.sh command or equivalent LogQL expression
+        Deduct 4 points if the eventhandler job label is missing (generic namespace query would miss events).
+        Deduct 2 points if the Warning filter is absent.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should use {job="integrations/kubernetes/eventhandler", namespace="database"} with |= "Warning" and a --since 1h window, shown as a complete logql.sh command. The eventhandler job label is critical for Kubernetes events vs. pod logs.
+    tags:
+      - trimmed-2026-03-22
+      - loki-skill
+
+  - id: LOK-04
+    description: "Log rate metric query — error rate per namespace"
+    category: coverage
+    severity: low
+    prompt: |
+      I want to see which namespaces are generating the most errors right now. How would I write a LogQL aggregation for that?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - rate(
+          - namespace
+          - error
+        any_of:
+          - "sum by"
+          - "5m"
+          - "bytes_rate"
+          - "[5m]"
+          - logql.sh
+          - query
+        forbidden: []
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Uses a LogQL metric query (rate() or bytes_rate()) rather than a log stream query
+        - Aggregates by namespace with sum by(namespace) or equivalent
+        - Filters for errors with |= "error" or |~ "(?i)error"
+        - Shows the query runnable via logql.sh query or curl
+        Deduct 4 points if the response returns individual log lines instead of an aggregated metric.
+        Deduct 2 points if namespace aggregation is missing.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should provide a LogQL metric expression like sum by(namespace) (rate({namespace=~".+"} |= "error" [5m])), runnable via logql.sh query. Should not return raw log lines for this aggregation task.
+    tags:
+      - trimmed-2026-03-22
+      - loki-skill

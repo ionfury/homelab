@@ -1,0 +1,90 @@
+version: 1
+skill: opentofu-modules
+description: "Verify module structure requirements, .tftest.hcl patterns, and correct use of command=plan"
+tests:
+  - id: OTF-01
+    description: "Module structure includes all required files"
+    category: coverage
+    severity: high
+    prompt: |
+      What files does a new OpenTofu module need in this homelab? I'm creating a module called app-secrets.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["variables.tf", "main.tf", "outputs.tf", "versions.tf", "tests/"]
+        forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must list all five required components: variables.tf, main.tf, outputs.tf, versions.tf,
+      and a tests/ directory. Should also mention the .tftest.hcl extension for test files.
+    tags:
+      - trimmed-2026-03-22
+      - opentofu-modules-skill
+
+  - id: OTF-02
+    description: "Uses command=plan in test run blocks, not apply"
+    category: constraint
+    severity: critical
+    prompt: |
+      Write a .tftest.hcl test that verifies a feature flag adds a Talos extension when enabled and removes it when disabled.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["command = plan", "assert", "expect_failures"]
+        forbidden: ["command = apply"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must use command = plan in all run blocks. Must show both enabled and disabled states
+      with appropriate assert blocks. Must not use command = apply.
+    tags:
+      - trimmed-2026-03-22
+      - opentofu-modules-skill
+
+  - id: OTF-03
+    description: "Top-level variables are inherited; run blocks only override what differs"
+    category: factored
+    severity: medium
+    prompt: |
+      How should I structure a .tftest.hcl file with multiple test cases that share the same base configuration?
+    scoring:
+      mode: both
+      keywords:
+        required: ["variables {", "run \""]
+        any_of: ["top-level", "inherited", "override", "Only include"]
+      judge_criteria: |
+        Score 0-10. Award points for:
+        - Explaining top-level variables block applies to all runs (3pts)
+        - Showing run blocks only override differing variables (3pts)
+        - Demonstrating assert against module outputs not internal resources (2pts)
+        - Correct .tftest.hcl syntax in example (2pts)
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must explain top-level variables as shared defaults. Run blocks should only include
+      variables that differ. Assert conditions should reference output values, not resources.
+    tags:
+      - trimmed-2026-03-22
+      - opentofu-modules-skill
+
+  - id: OTF-04
+    description: "Uses expect_failures to test invalid input validation"
+    category: coverage
+    severity: medium
+    prompt: |
+      I have a variable validation that requires version strings to start with 'v'. How do I write a test that verifies invalid input is rejected?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["expect_failures", "command = plan"]
+        any_of: ["var.versions", "expect_failures = [var."]
+      forbidden: ["command = apply"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must use expect_failures with the variable reference. Must use command = plan.
+      Should show the test passing an invalid value that should trigger the validation error.
+    tags:
+      - trimmed-2026-03-22
+      - opentofu-modules-skill

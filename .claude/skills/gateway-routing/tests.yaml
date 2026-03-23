@@ -1,0 +1,149 @@
+version: 1
+skill: gateway-routing
+description: "Verify gateway selection, HTTPRoute structure, TLS provisioning, and WAF behavior"
+tests:
+  - id: GWY-01
+    description: "Internal vs external gateway selection"
+    category: routing
+    severity: critical
+    prompt: |
+      A new application called "dashboard" should be accessible only from inside the home network.
+      A second application called "blog" must be reachable from the public internet.
+      Which gateway should each app use, and what hostname variables are appropriate for each?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - internal
+          - external
+          - internal_domain
+          - external_domain
+        forbidden:
+          - nginx
+          - ingress
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model should prescribe the `internal` gateway with `${internal_domain}` for the intranet-only
+      app, and the `external` gateway with `${external_domain}` for the internet-facing app. It should
+      not suggest Ingress resources or nginx — this homelab uses Gateway API exclusively.
+    tags:
+      - trimmed-2026-03-22
+      - gateway-routing-skill
+
+  - id: GWY-02
+    description: "HTTPRoute YAML structure — required fields"
+    category: coverage
+    severity: critical
+    prompt: |
+      Write a minimal HTTPRoute to expose a service named "grafana" on port 3000 internally.
+      The service lives in the "monitoring" namespace.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - gateway.networking.k8s.io/v1
+          - HTTPRoute
+          - parentRefs
+          - namespace: istio-gateway
+          - internal
+          - internal_domain
+          - backendRefs
+        forbidden:
+          - namespace: monitoring
+          - sectionName: http
+      judge_criteria: |
+        Score 0-10.
+        10: YAML is syntactically correct; parentRefs includes both `name: internal` and
+            `namespace: istio-gateway`; hostname uses `${internal_domain}`; backendRefs names
+            the correct service and port; no extraneous fields.
+        7-9: Minor omission (e.g., missing schema comment) but structure is correct.
+        4-6: Missing `namespace: istio-gateway` in parentRefs, or wrong hostname variable.
+        0-3: Uses Ingress instead of HTTPRoute, or parentRefs is absent.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must produce a valid HTTPRoute with `parentRefs[0].name: internal` and
+      `parentRefs[0].namespace: istio-gateway`. Using only `name: internal` without the namespace
+      is a documented common mistake that causes routes to silently fail. The hostname must use
+      `${internal_domain}` substitution.
+    tags:
+      - trimmed-2026-03-22
+      - gateway-routing-skill
+
+  - id: GWY-03
+    description: "TLS certificate provisioning — no per-route action needed"
+    category: coverage
+    severity: high
+    prompt: |
+      I want to add a new subdomain "metrics.example.internal" for an internal service.
+      What certificate or TLS configuration steps do I need to take?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - wildcard
+        any_of:
+          - "no cert"
+          - "no certificate"
+          - "only creating the HTTPRoute"
+          - "gateway level"
+          - "not required"
+        forbidden:
+          - Certificate
+          - ClusterIssuer
+          - cert-manager
+          - create a certificate
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must explain that wildcard certificates are provisioned at the gateway level, so
+      adding a new subdomain requires only creating the HTTPRoute — no Certificate resource,
+      ClusterIssuer selection, or cert-manager configuration is needed for the new subdomain.
+    tags:
+      - trimmed-2026-03-22
+      - gateway-routing-skill
+
+  - id: GWY-04
+    description: "WAF (Coraza) — external gateway only, false positive suppression"
+    category: dedup
+    severity: high
+    prompt: |
+      A legitimate HTTP request to my externally-exposed application is being blocked with a 403.
+      Logs show WAF rule 942100 is firing. How do I suppress this false positive?
+      Also, does the internal gateway also run Coraza WAF?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - SecRuleRemoveById
+          - 942100
+          - external
+          - directives_map
+        any_of:
+          - "internal gateway"
+          - "internal does not"
+          - "only on the external"
+          - "external gateway only"
+        forbidden:
+          - internal gateway.*WAF
+          - WAF.*internal gateway
+      judge_criteria: |
+        Score 0-10.
+        10: Correctly identifies WAF is external-only; provides exact `SecRuleRemoveById 942100`
+            directive location in coraza-wasm-plugin.yaml `directives_map.default` array;
+            clarifies the internal gateway has no WAF.
+        6-9: Gets the suppression right but is vague about gateway scope.
+        3-5: Mentions SecRuleRemoveById but points to wrong file or wrong config key.
+        0-2: Suggests disabling WAF entirely or doesn't know where the config lives.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model should confirm that Coraza WAF runs only on the external gateway, not the internal
+      one. It should direct the user to add `- SecRuleRemoveById 942100` to the
+      `directives_map.default` array in `coraza-wasm-plugin.yaml`. It should also note that WAF
+      endpoints must be tested with `--resolve` rather than raw IP due to SNI matching.
+    tags:
+      - trimmed-2026-03-22
+      - gateway-routing-skill
+      - dedup-waf

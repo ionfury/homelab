@@ -43,76 +43,23 @@ The `config/` directory organizes non-Helm resources by concern:
 | `secrets/` | Secret generator resources |
 | `tuppr/` | Tuppr upgrade CRs (TalosUpgrade, KubernetesUpgrade) |
 
-**Note**: Alertmanager silences use the per-cluster pattern - see `kubernetes/clusters/CLAUDE.md`.
+Alertmanager silences use the per-cluster pattern - see `kubernetes/clusters/CLAUDE.md`.
 
 ---
 
 ## Adding a New Helm Release
 
-1. Add version to `versions.env` with a `# renovate:` annotation comment (see below)
-2. Add entry to `helm-charts.yaml` with name, namespace, chart details, and dependencies
-3. Create `charts/<chart-name>.yaml` with Helm values
-4. Add the values file to `kustomization.yaml` configMapGenerator
-5. If the chart needs post-install resources, add to `config/` and reference in `config.yaml`
-6. Run `task k8s:validate` and `task renovate:validate`
+> For adding new Helm releases (ResourceSet patterns, variable substitution, HelmRelease YAML), invoke the `flux-gitops` skill.
 
-### Renovate Configuration (Inline Annotations)
-
-Renovate uses a **generic regex manager** that reads `# renovate:` comment annotations directly from `versions.env`. No changes to `.github/renovate.json5` are needed — just add the annotation above the version line:
-
-```env
-# For HTTP Helm repositories
-# renovate: datasource=helm depName=chart-name registryUrl=https://charts.example.io
-new_chart_version=1.0.0
-
-# For OCI Helm registries (ghcr.io, etc.)
-# renovate: datasource=docker depName=chart-name packageName=ghcr.io/org/charts/chart-name
-new_oci_chart_version=2.0.0
-
-# For v-prefixed versions where the stored value has no 'v' prefix
-# renovate: datasource=helm depName=cert-manager extractVersion=^v(?<version>.*)$ registryUrl=https://charts.jetstack.io
-cert_manager_version=1.19.3
-
-# For non-semver versioning (e.g., vectorchord)
-# renovate: datasource=docker depName=cloudnative-vectorchord packageName=ghcr.io/tensorchord/cloudnative-vectorchord versioning=loose
-vectorchord_version=18.1-1.0.0
-```
-
-**Annotation key ordering** (fixed): `datasource depName [packageName] [extractVersion] [registryUrl] [versioning]`
-
-**Key differences:**
-- HTTP registries use `datasource=helm` + `registryUrl=<url>`
-- OCI registries use `datasource=docker` + `packageName=<full-image-path>`
-- GitHub releases/tags use `datasource=github-releases` or `datasource=github-tags` + `packageName=<org/repo>`
-- For v-prefixed versions where the env value omits the `v`, add `extractVersion=^v(?<version>.*)$`
-- For non-standard version schemes, add `versioning=loose`
-
-### ResourceSet Pattern
-
-Helm releases are defined as inputs to a ResourceSet, which generates HelmRelease and HelmRepository resources:
-
-```yaml
-# In helm-charts.yaml
-inputs:
-  - name: "grafana"
-    namespace: "monitoring"
-    chart:
-      name: "grafana"
-      version: "${grafana_version}"
-      url: "https://grafana.github.io/helm-charts"
-    dependsOn: [kube-prometheus-stack]
-```
-
-**Conventions:**
-- Chart versions use `${var}` pattern (variable from `platform-versions` ConfigMap, guaranteed by bootstrap dependency chain)
-- Dependencies between releases use `dependsOn` arrays
-- Values files contain only Helm chart configuration
+Platform constraints:
+- Check namespace security level in `namespaces.yaml` — `restricted` namespaces require full security context (see PodSecurity section).
+- PriorityClass names must never use the `system-` prefix. Use `infrastructure-critical`, `platform`, or `application`.
 
 ---
 
 ## PodSecurity Enforcement
 
-Namespaces use PodSecurity admission to enforce security profiles. The `namespaces.yaml` ResourceSet assigns one of three profiles to each namespace: `restricted`, `baseline`, or `privileged`.
+The `namespaces.yaml` ResourceSet assigns one of three PodSecurity profiles to each namespace:
 
 ### Namespace Security Levels
 
@@ -122,71 +69,13 @@ Namespaces use PodSecurity admission to enforce security profiles. The `namespac
 | `baseline` | istio-gateway, cache, garage, garage-system | Moderate: allows some elevated capabilities (e.g., `NET_BIND_SERVICE`) |
 | `privileged` | kube-system, longhorn-system, istio-system, monitoring, spegel, system-upgrade | Unrestricted: host access, BPF, privileged containers |
 
-### Required Security Context for `restricted` Namespaces
-
-Charts deployed to `restricted` namespaces **MUST** set these fields or pods will be rejected at admission time:
-
-```yaml
-# Pod-level security context
-podSecurityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
-
-# Container-level security context (every container and init container)
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop: ["ALL"]
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 65534          # Only if the image runs as root by default
-  seccompProfile:
-    type: RuntimeDefault
-```
-
-If the container image already runs as a non-root user (check with `docker inspect <image>` or image documentation), you can omit `runAsUser`. If the image runs as root by default, set `runAsUser: 65534` (the `nobody` user).
-
-### Validation Gap
-
-`task k8s:validate` catches YAML schema errors but **cannot** detect PodSecurity admission violations. These are only caught by:
-- **Server-side dry-run**: `task k8s:dry-run-dev` (not currently in CI)
-- **Actual deployment**: Pods rejected at admission time in the cluster
-
-Agents must manually verify security context compliance when deploying to restricted namespaces. Check the target namespace's security level in `namespaces.yaml` before writing chart values.
-
-### PriorityClass Naming Constraints
-
-Custom PriorityClass names must never use the `system-` prefix, which Kubernetes reserves for built-in classes (`system-cluster-critical`, `system-node-critical`). Our tiers are: `infrastructure-critical`, `platform`, `application`. See [config/CLAUDE.md](config/CLAUDE.md) for details.
+For required security context YAML, see the app-template or deploy-app skill.
 
 ---
 
 ## Config Kustomization Dependencies
 
-The `config.yaml` ResourceSet generates Kustomizations for non-Helm resources. These Kustomizations **must** declare `dependsOn` to ensure CRDs exist before resources are created.
-
-### Why Dependencies Matter
-
-Without `dependsOn`, Flux reconciles Kustomizations in parallel. This causes race conditions:
-1. `issuers` Kustomization tries to create ExternalSecret before External Secrets CRDs exist
-2. `external-secrets-stores` fails because ClusterSecretStore CRD doesn't exist yet
-3. Downstream resources (istio-csr, istiod) block waiting for secrets
-
-With proper dependencies, reconciliation happens in order:
-`external-secrets` → `external-secrets-stores` → `issuers` → `istio-csr` → `istiod`
-
-### Adding a Config Kustomization
-
-When adding a new entry to `config.yaml`, always specify `dependsOn`:
-
-```yaml
-# In config.yaml
-inputs:
-  - name: my-config
-    namespace: my-namespace
-    path: kubernetes/platform/config/my-config
-    dependsOn: [required-chart, another-chart]  # CRD providers
-```
+The `config.yaml` ResourceSet generates Kustomizations. Always declare `dependsOn` — without it Flux reconciles in parallel, causing CRD race conditions (e.g., ExternalSecret created before its CRD exists).
 
 ### Dependency Reference
 
@@ -208,63 +97,20 @@ inputs:
 | `kromgo-config` | *(none)* | ConfigMap must exist BEFORE app deployment |
 | `flux-notifications-config` | *(none)* | Uses only core Flux CRDs (always present) |
 
-### Finding CRD Providers
-
-To determine dependencies for a new config Kustomization:
-
-1. **List the CRDs your resources use**: `kubectl explain <resource>` or check `apiVersion`
-2. **Find which HelmRelease provides the CRD**: Check `helm-charts.yaml` for the operator/controller
-3. **Add transitive dependencies**: If your config depends on another config's resources, add that too
-
-Example: `issuers` creates ExternalSecret (from `external-secrets`) referencing ClusterSecretStore (created by `external-secrets-stores`), so it depends on both.
-
----
-
-## Variable Substitution
-
-Flux performs variable substitution at reconciliation time. Use these patterns:
-
-```yaml
-# Simple substitution
-url: https://grafana.${internal_domain}
-
-# Cluster-specific (set in cluster-vars ConfigMap)
-cluster: ${cluster_name}
-```
-
-**Available variables** (from cluster config):
-- `${internal_domain}` - Internal TLD (e.g., internal.dev.tomnowak.work)
-- `${external_domain}` - External TLD
-- `${cluster_name}` - Cluster name (dev, integration, live)
-- `${cluster_id}` - Numeric cluster ID
-
-**Opinion**: Never hardcode domains or cluster names. Always use substitution.
+To find dependencies: list the CRDs your resources use → find which HelmRelease in `helm-charts.yaml` provides them → add transitive dependencies for any config Kustomization your resources reference.
 
 ---
 
 ## Version Management
 
+> For Renovate annotation syntax and datasource selection, invoke the `versions-renovate` skill.
+
+### Two-Tier Structure
+
 Versions are split across two tiers:
 
-- **`kubernetes/platform/versions.env`** (this directory) -- platform-wide versions shared by all clusters
-- **`kubernetes/clusters/<cluster>/versions.env`** -- per-cluster application versions
-
-### Platform versions.env
-
-This file is the **single source of truth** for platform-wide versions:
-
-- **Terragrunt** reads infrastructure versions for bootstrap (talos, kubernetes, cilium, flux)
-- **Flux** deploys as `platform-versions` ConfigMap and substitutes into helm-charts.yaml
-- **Tuppr** reads Talos/Kubernetes versions for in-cluster upgrades
-- **Shared versions** like `app_template_version` used by both platform and cluster releases
-
-### Per-Cluster versions.env
-
-Each cluster has its own `versions.env` deployed as a `cluster-versions` ConfigMap:
-
-- **Cluster-specific Helm chart versions**: `immich_version`, `authelia_version`, `open_webui_version`
-- **Container image tags**: App-specific image tags referenced in cluster chart values
-- **Renovate** manages both files using the same inline annotation pattern
+- **`kubernetes/platform/versions.env`** — platform-wide versions shared by all clusters
+- **`kubernetes/clusters/<cluster>/versions.env`** — per-cluster application versions
 
 ### Which file for a new version?
 
@@ -275,48 +121,9 @@ Each cluster has its own `versions.env` deployed as a `cluster-versions` ConfigM
 | Both platform and cluster | `kubernetes/platform/versions.env` |
 | Infrastructure (Terragrunt, Tuppr) | `kubernetes/platform/versions.env` |
 
-### versions.env Annotation Structure
+### Platform versions.env consumers
 
-Each version entry has a `# renovate:` annotation comment on the line above. Renovate's generic regex manager reads these annotations to determine how to update each version.
-
-```env
-# Infrastructure versions (Terragrunt + Tuppr)
-# renovate: datasource=github-releases depName=talos packageName=siderolabs/talos
-talos_version=v1.12.4
-
-# Helm chart versions (Flux substitution)
-# renovate: datasource=helm depName=grafana registryUrl=https://grafana.github.io/helm-charts
-grafana_version=10.5.15
-# renovate: datasource=docker depName=app-template packageName=ghcr.io/bjw-s-labs/helm/app-template
-app_template_version=4.6.2
-```
-
-### Natural Convergence
-
-Terragrunt and Tuppr both read from `versions.env`, ensuring no drift:
-
-```mermaid
-sequenceDiagram
-    participant PR as PR / versions.env
-    participant Flux
-    participant Tuppr
-    participant Node
-    participant TG as Terragrunt
-
-    PR->>Flux: Merge updates talos_version=v1.12.4
-    Flux->>Flux: Syncs new ConfigMap to cluster
-    Tuppr->>Node: Sees mismatch → executes upgrade to v1.12.4
-    Note over Node: Now at v1.12.4
-    TG->>PR: Reads versions.env → v1.12.4
-    TG->>Node: Sees node already at v1.12.4 → NO-OP
-```
-
-### Adding/Updating Versions
-
-1. Determine which file the version belongs in (platform vs cluster -- see table above)
-2. Edit the appropriate `versions.env` with the new version and Renovate annotation
-3. If adding a new Helm chart, update the corresponding `helm-charts.yaml` with `${new_chart_version}`
-4. Run `task k8s:validate` to verify substitution works
+Terragrunt (bootstrap), Flux (`platform-versions` ConfigMap → `helm-charts.yaml`), Tuppr (Talos/K8s runtime upgrades), and shared versions like `app_template_version` used by both platform and cluster releases.
 
 ---
 
@@ -331,307 +138,26 @@ Tuppr is a Kubernetes controller that executes Talos and Kubernetes upgrades fro
 3. Executes rolling upgrades (one node at a time)
 4. Validates health before proceeding to next node
 
-### Upgrade CRs
-
-```yaml
-# config/tuppr/talos-upgrade.yaml
-apiVersion: tuppr.home-operations/v1alpha1
-kind: TalosUpgrade
-metadata:
-  name: talos
-spec:
-  talos:
-    version: ${talos_version}    # Substituted from platform-versions
-
-# config/tuppr/kubernetes-upgrade.yaml
-apiVersion: tuppr.home-operations/v1alpha1
-kind: KubernetesUpgrade
-metadata:
-  name: kubernetes
-spec:
-  kubernetes:
-    version: ${kubernetes_version}
-```
-
-### Triggering Upgrades
-
-To upgrade Talos or Kubernetes:
-
-1. Update version in `kubernetes/platform/versions.env`
-2. Commit and push (or merge PR to main)
-3. Flux syncs updated `platform-versions` ConfigMap
-4. Tuppr detects version mismatch and executes upgrade
-5. Monitor with: `kubectl -n system-upgrade logs -f -l app.kubernetes.io/name=tuppr`
-
-### Talos API Access
-
-Tuppr requires in-cluster API access to Talos nodes. This is enabled via `kubernetesTalosAPIAccess` in the Talos machine config:
-
-```yaml
-machine:
-  features:
-    kubernetesTalosAPIAccess:
-      enabled: true
-      allowedRoles:
-        - os:admin
-      allowedKubernetesNamespaces:
-        - system-upgrade
-```
-
-### Separation of Concerns
-
-| Component | Responsibility |
-|-----------|----------------|
-| `versions.env` | Single source of truth for ALL versions |
-| Terragrunt | Initial cluster provisioning, reads from versions.env |
-| Flux | Deploys charts at versions from ConfigMap |
-| Tuppr | Runtime Talos/K8s upgrades |
-| Renovate | Updates versions.env (single file) |
+See [references/tuppr.md](references/tuppr.md) for CRD templates and upgrade procedure details.
 
 ---
 
 ## Secrets Management
 
-**Preferred approach**: Generate secrets in-cluster using `secret-generator` (mittwald/kubernetes-secret-generator).
+> For secret provisioning patterns (secret-generator, ExternalSecret, app-secrets module, cross-namespace replication), invoke the `secrets` skill.
 
-### In-Cluster Generated Secrets (Preferred)
-
-For secrets that don't need to exist outside the cluster (API keys, RPC secrets, tokens), use secret-generator annotations:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: my-app-secret
-  annotations:
-    secret-generator.v1.mittwald.de/autogenerate: password,api-key
-    secret-generator.v1.mittwald.de/encoding: hex      # or base64, base32, raw
-    secret-generator.v1.mittwald.de/length: "32"
-data: {}
-```
-
-**Benefits**:
-- Self-contained clusters - no external dependencies for secrets
-- Secrets auto-regenerate on cluster rebuild
-- No need to manage secrets in AWS SSM
-
-### External Secrets (When Required)
-
-Use ExternalSecret only when secrets MUST come from outside the cluster:
-- Credentials for external services (cloud APIs, SaaS integrations)
-- Shared secrets that must be consistent across clusters
-- Secrets needed for disaster recovery bootstrapping
-
-```yaml
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: external-api-credentials
-spec:
-  secretStoreRef:
-    kind: ClusterSecretStore
-    name: aws-ssm
-  data:
-    - secretKey: api-key
-      remoteRef:
-        key: /homelab/kubernetes/${cluster_name}/external-api-key
-```
-
-Path pattern: `/homelab/kubernetes/${cluster_name}/<secret-name>`
-
-### Decision Tree
-
-1. Can this secret be randomly generated? → Use `secret-generator`
-2. Must this secret match a value outside the cluster? → Use `ExternalSecret`
-3. Never commit secrets to git
-
-### Required SSM Parameters for New Clusters
-
-When bootstrapping a new cluster, populate these SSM parameters before the cluster can function fully:
-
-| SSM Path | Description | Format |
-|----------|-------------|--------|
-| `/homelab/kubernetes/<cluster>/cloudflare-api-token` | Cloudflare API token for DNS challenges | JSON: `{"token": "<value>"}` |
-| `/homelab/kubernetes/<cluster>/discord-webhook-secret` | Discord webhook URL for Alertmanager | Plain string: webhook URL |
-| `/homelab/kubernetes/shared/istio-mesh-ca` | Shared Istio mesh root CA (all clusters) | JSON: `{"tls.crt": "<base64>", "tls.key": "<base64>"}` |
-
-**Bootstrap-managed secrets** (created by Terragrunt in kube-system):
-- `external-secrets-access-key` - AWS IAM credentials for External Secrets Operator
-- `heartbeat-ping-url` - Healthchecks.io ping URL (dynamically created per cluster)
-- `flux-system` - GitHub token for Flux GitOps
-
-**ExternalSecret-managed secrets** (synced from AWS SSM):
-- `cloudflare-api-token` (cert-manager) - DNS challenge credentials
-- `alertmanager-discord-webhook` (monitoring) - Discord notifications
-- `istio-mesh-root-ca` (cert-manager) - Shared mesh CA for istio-csr
+See [references/bootstrap-secrets.md](references/bootstrap-secrets.md) for required SSM parameters and managed secrets when bootstrapping a new cluster.
 
 ---
 
-## Istio Mesh PKI (istio-csr)
+## Istio Mesh PKI
 
-Istio mesh mTLS certificates are issued by cert-manager via [istio-csr](https://github.com/cert-manager/istio-csr), providing unified PKI management across both ingress TLS and service mesh identity.
+> See [references/istio-pki.md](references/istio-pki.md) for full architecture, configuration table, and verification commands.
 
-### Architecture
-
-```mermaid
-flowchart TD
-    subgraph ssm["AWS SSM Parameter Store"]
-        S["/homelab/kubernetes/shared/istio-mesh-ca"]
-    end
-
-    ssm -->|"ExternalSecret pulls on bootstrap"| SEC
-
-    subgraph cluster["Cluster (dev / integration / live)"]
-        SEC["Secret: istio-mesh-root-ca\n(cert-manager ns)"]
-        CA["CA ClusterIssuer\n(istio-mesh-ca)"]
-
-        subgraph csr["istio-csr (cert-manager namespace)"]
-            ISTIOD["istiod"]
-            ZTUNNEL["ztunnel"] --> SPIFFE["workload SPIFFE identities"]
-        end
-
-        SEC --> CA --> csr
-    end
-```
-
-### Key Configuration
-
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| CA type | SSM-backed, persistent | Survives cluster rebuilds, shared across all clusters |
-| CA scope | Shared (all clusters) | Enables cross-cluster mTLS trust |
-| Certificate validity | 24 hours | Balance between security and renewal overhead |
-| Renewal window | 12 hours | Renew at 50% lifetime |
-| CA validity | 10 years | Long-lived root, short-lived workload certs |
-
-### How It Works
-
-1. **ExternalSecret** pulls root CA from SSM on cluster bootstrap
-2. **CA ClusterIssuer** references the synced secret
-3. **istio-csr** replaces Istio's built-in CA (`ENABLE_CA_SERVER: "false"` in istiod)
-4. **istiod and ztunnel** request certificates from `cert-manager-istio-csr.cert-manager.svc:443`
-5. **ztunnel** (Ambient mode) authenticates with its own identity but requests certs for workloads via `caTrustedNodeAccounts`
-
-### Files
-
-| Path | Purpose |
-|------|---------|
-| `config/issuers/istio-mesh-ca/` | ExternalSecret and CA ClusterIssuer |
-| `charts/istio-csr.yaml` | istio-csr Helm values |
-| `charts/istiod.yaml` | Disabled built-in CA, points to istio-csr |
-| `charts/istio-ztunnel.yaml` | CA address for Ambient mode |
-
-### Bootstrap
-
-The mesh CA is generated by the `global` infrastructure stack and stored in SSM. Run `task tg:apply-global` before deploying any cluster. The CA backup is written to `~/.secrets/homelab/istio-mesh-ca.json` for disaster recovery.
-
-### Verifying Certificate Issuance
-
-```bash
-# Check ExternalSecret synced
-kubectl -n cert-manager get externalsecret istio-mesh-root-ca
-
-# Check CA ClusterIssuer is ready
-kubectl get clusterissuer istio-mesh-ca
-
-# Check istio-csr is running
-kubectl -n cert-manager get pods -l app=cert-manager-istio-csr
-
-# Check CertificateRequests are being fulfilled
-kubectl get certificaterequests -n istio-system
-```
-
----
-
-## Code Style (YAML/Kubernetes)
-
-- Include schema comment: `# yaml-language-server: $schema=...`
-- Use `---` document separator at file start
-- 2-space indentation
-- Quote strings that could be misinterpreted (especially "true"/"false")
-
-### Naming Conventions
-
-| Resource | Convention | Example |
-|----------|------------|---------|
-| Helm release name | kebab-case, matches chart | `kube-prometheus-stack` |
-| Namespace | kebab-case | `longhorn-system` |
-| Chart values file | kebab-case, matches release | `charts/grafana.yaml` |
+The mesh CA is generated by the `global` infrastructure stack (`task tg:apply-global`) and stored in AWS SSM at `/homelab/kubernetes/shared/istio-mesh-ca`. It is shared across all clusters to enable cross-cluster mTLS trust. istio-csr replaces Istio's built-in CA.
 
 ---
 
 ## Local Validation
 
-Run `task k8s:validate` before committing. This validates:
-
-1. **YAML syntax** - yamllint strict mode
-2. **ResourceSet expansion** - Expands all 3 ResourceSets using `flux-operator build rset`
-3. **Helm chart templating** - Templates ALL 22 charts (including OCI registries)
-4. **Schema validation** - kubeconform validates all generated manifests
-
-```bash
-# Full validation (same as CI)
-task k8s:validate
-
-# With dev cluster dry-run
-task k8s:dry-run-dev
-```
-
-### Static Input Provider
-
-The `.static-provider.yaml` file provides `inputs.provider.namespace` for local ResourceSet expansion. In the cluster, this comes from the Flux ResourceSetInputProvider.
-
----
-
-## Testing WAF-Protected Endpoints
-
-The external gateway uses Coraza WAF (via Istio WasmPlugin). Testing requires SNI-aware requests.
-
-### SNI Requirement
-
-Istio's gateway listener matches on SNI (Server Name Indication). Raw IP requests fail:
-
-```bash
-# WRONG - no SNI, connection reset by peer
-curl -kI "https://192.168.10.53/"
-
-# CORRECT - use --resolve to send proper SNI
-curl -kI --resolve "app.external.dev.tomnowak.work:443:<GATEWAY_IP>" \
-  "https://app.external.dev.tomnowak.work/"
-```
-
-### Attack Pattern Testing
-
-Test that WAF blocks common exploits (expect 403):
-
-```bash
-# SQL Injection
-curl -k --resolve "app.external.dev.tomnowak.work:443:<IP>" \
-  "https://app.external.dev.tomnowak.work/?id=1'%20OR%20'1'='1"
-
-# XSS
-curl -k --resolve "app.external.dev.tomnowak.work:443:<IP>" \
-  "https://app.external.dev.tomnowak.work/?q=<script>alert(1)</script>"
-
-# Command Injection
-curl -k --resolve "app.external.dev.tomnowak.work:443:<IP>" \
-  "https://app.external.dev.tomnowak.work/?cmd=;cat%20/etc/passwd"
-```
-
-### WAF Metrics
-
-Coraza metrics follow this naming pattern:
-
-| Metric | Purpose |
-|--------|---------|
-| `istio_requests_total{response_code="403"}` | Total blocked requests |
-| `waf_filter_tx_interruptions_ruleid_<ID>_phase_<PHASE>` | Per-rule block counts |
-
-### FAIL_OPEN Behavior
-
-The WAF uses `failStrategy: FAIL_OPEN` - if WASM fails to load (wrong digest, image unavailable), traffic flows unfiltered. Check gateway logs for:
-
-```
-error in converting the wasm config to local: cannot fetch Wasm module...
-applying allow RBAC filter
-```
+Run `task k8s:validate` for full validation (YAML lint, ResourceSet expansion, Helm templating, schema validation). Run `task k8s:dry-run-dev` for server-side dry-run against dev (catches PodSecurity violations). The `.static-provider.yaml` provides `inputs.provider.namespace` for local ResourceSet expansion.

@@ -60,9 +60,7 @@ KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometh
 ./scripts/promql.sh health
 ```
 
-## Common Operations
-
-### Check Cluster Health
+## Common Queries
 
 ```bash
 # CPU usage %
@@ -76,33 +74,13 @@ KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometh
 
 # Container restarts (last hour)
 ./scripts/promql.sh query 'increase(kube_pod_container_status_restarts_total[1h]) > 0'
-```
 
-### Check Alerts
-
-```bash
-# All firing alerts
+# Firing alerts
 ./scripts/promql.sh alerts --firing
 
 # Full alert details
 ./scripts/promql.sh alerts --verbose
 ```
-
-### Direct kubectl exec (alternative)
-
-```bash
-# Instant query via kubectl exec (no port-forward needed)
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
-  wget -qO- 'http://localhost:9090/api/v1/query?query=up' | jq '.data.result'
-
-# Alerts
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
-  wget -qO- 'http://localhost:9090/api/v1/alerts' | jq '.data.alerts'
-```
-
-## Reference
-
-For homelab-specific PromQL queries (Longhorn, CloudNative-PG, Cilium, etc.), see [references/queries.md](references/queries.md).
 
 ## Creating Monitoring Resources
 

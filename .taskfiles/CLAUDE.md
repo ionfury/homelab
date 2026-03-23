@@ -24,6 +24,9 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 ### Kubernetes Validation & Dev Workflow (k8s:)
 
 ```bash
+# Kubeconfig setup (run once after credentials refresh)
+task k8s:kubeconfig-sync       # Pull kubeconfigs from AWS SSM, merge to ~/.kube/config with dev/integration/live contexts
+
 # Validation
 task k8s:validate              # Full validation (lint, ResourceSets, charts, kubeconform, deprecations)
 task k8s:deprecations          # Show all deprecated APIs (informational - doesn't fail)
@@ -147,10 +150,10 @@ task k8s:flux-status               # Show Flux Kustomization status on dev
 task k8s:reconcile-validate        # Resume all Flux, wait for convergence, validate clean state
 
 # Direct kubectl/helm on dev (autonomous)
-KUBECONFIG=~/.kube/dev.yaml kubectl apply -f <manifest>
-KUBECONFIG=~/.kube/dev.yaml helm install <name> <chart> -n <ns> -f <values>
-KUBECONFIG=~/.kube/dev.yaml helm upgrade <name> <chart> -n <ns> -f <values>
-KUBECONFIG=~/.kube/dev.yaml helm uninstall <name> -n <ns>
+kubectl --context dev apply -f <manifest>
+helm install <name> <chart> -n <ns> -f <values> --kube-context dev
+helm upgrade <name> <chart> -n <ns> -f <values> --kube-context dev
+helm uninstall <name> -n <ns> --kube-context dev
 ```
 
 ### Key Principles
