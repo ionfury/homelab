@@ -87,35 +87,15 @@ inputs = {
 
 ## Testing & Validation
 
-Testing is non-negotiable. Every change must pass validation before being considered ready.
+> For detailed testing patterns, see [infrastructure/modules/CLAUDE.md](modules/CLAUDE.md) and the `opentofu-modules` skill.
 
-### Required Validation Steps
-
-**ALWAYS run these before requesting commit approval:**
+Run in order before committing:
 
 ```bash
-# 1. Format all code
-task tg:fmt                        # Formats HCL (Terragrunt + OpenTofu)
-
-# 2. Run module tests (for specific module)
-task tg:test-<module>              # Runs OpenTofu native tests
-
-# 3. Validate infrastructure (for specific stack)
-task tg:validate-<stack>           # Validates Terragrunt stack
+task tg:fmt                        # Format HCL (Terragrunt + OpenTofu)
+task tg:test-<module>              # Run OpenTofu native tests for a module
+task tg:validate-<stack>           # Validate Terragrunt stack
 ```
-
-### Validation Tools
-
-| Tool | Purpose | Task |
-|------|---------|------|
-| `tofu fmt` | OpenTofu formatting | `task tg:fmt` |
-| `terragrunt hclfmt` | Terragrunt HCL formatting | `task tg:fmt` |
-| `terragrunt validate` | Stack validation | `task tg:validate-<stack>` |
-
-### Testing Philosophy
-
-- **Fail fast**: Run validation early and often during development
-- **Errors are blockers**: If any validation fails, stop and fix before proceeding
 
 ---
 

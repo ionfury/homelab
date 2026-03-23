@@ -1,0 +1,149 @@
+version: 1
+skill: deploy-app
+description: "Verify end-to-end deployment flow, chart selection, dev testing, and monitoring integration"
+tests:
+  - id: DEP-01
+    description: "End-to-end deployment phase ordering"
+    category: coverage
+    severity: critical
+    prompt: |
+      Give me a high-level overview of the steps to deploy a new application to the homelab
+      Kubernetes cluster. Include everything from initial research to the final PR.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - kubesearch
+          - worktree
+          - versions.env
+          - namespaces.yaml
+          - helm-charts.yaml
+          - kustomization.yaml
+          - k8s:validate
+          - dev
+          - helm install
+          - hubble
+          - PR
+        any_of:
+          - task wt:new
+          - wt:new
+      judge_criteria: |
+        Score 0-10.
+        10: All six phases present in order — research (kubesearch + helm search hub), worktree
+            setup, configure (versions.env, namespaces.yaml, helm-charts.yaml, values file,
+            kustomization.yaml), validate (k8s:validate + renovate:validate), dev test (helm
+            install + hubble network check + monitoring check), GitOps PR (helm uninstall,
+            reconcile-validate, commit, PR).
+        7-9: Five of six phases; minor omission (e.g., skips renovate:validate).
+        4-6: Covers configure and PR but omits dev testing or worktree setup.
+        0-3: Only mentions creating a HelmRelease YAML; skips research and testing entirely.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must describe all six phases in order. Critical checkpoints: kubesearch before
+      writing any YAML, isolated worktree before changes, validation before dev test, and
+      Flux reconcile-validate before opening the PR. Skipping any phase violates the workflow.
+    tags:
+      - trimmed-2026-03-22
+      - deploy-app-skill
+
+  - id: DEP-02
+    description: "Native Helm chart vs app-template selection"
+    category: routing
+    severity: high
+    prompt: |
+      I want to deploy three services:
+      1. "grafana" — has an official Helm chart on grafana.github.io.
+      2. "custom-exporter" — only a container image is published, no chart.
+      3. "old-dashboard" — has a chart last updated 2 years ago.
+      Which deployment approach should each use?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - app-template
+        any_of:
+          - native Helm chart
+          - official chart
+          - existing chart
+          - grafana.*native
+          - use.*chart.*grafana
+        forbidden:
+          - write a Helm chart
+          - create a chart
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model should prescribe: grafana → native Helm chart (official chart exists),
+      custom-exporter → app-template (image only), old-dashboard → consider app-template
+      (unmaintained >1 year). It must not suggest writing a new Helm chart from scratch.
+    tags:
+      - trimmed-2026-03-22
+      - deploy-app-skill
+
+  - id: DEP-03
+    description: "Dev cluster testing — network policy verification is mandatory"
+    category: constraint
+    severity: critical
+    prompt: |
+      I've deployed my application on the dev cluster and the pods are Running. Is there anything
+      else I need to verify before moving on to create the PR?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - hubble
+          - DROPPED
+          - ServiceMonitor
+        any_of:
+          - check-deployment-health.sh
+          - check-servicemonitor.sh
+          - monitoring
+          - network
+          - network policy
+        forbidden:
+          - pods are Running.*done
+          - sufficient
+          - already complete
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must flag that pod readiness alone is not sufficient. It must require Hubble network
+      verification (checking for DROPPED flows from/to the namespace) and monitoring verification
+      (ServiceMonitor discovery, alerts not firing). Both checks are mandatory before proceeding to
+      the GitOps PR phase.
+    tags:
+      - trimmed-2026-03-22
+      - deploy-app-skill
+
+  - id: DEP-04
+    description: "GitOps PR prerequisite — Flux reconcile-validate before commit"
+    category: constraint
+    severity: high
+    prompt: |
+      My app is working on dev via direct helm install. I want to create the PR now. What do I need
+      to do before running git commit?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - helm uninstall
+          - reconcile-validate
+        any_of:
+          - task k8s:reconcile-validate
+          - k8s:reconcile-validate
+          - Flux reconcile
+        forbidden:
+          - commit directly
+          - skip.*uninstall
+          - leave.*running
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must require: (1) `helm uninstall` the direct deploy to avoid conflicts, (2) trigger
+      Flux reconciliation (`task k8s:reconcile-validate`) and verify it converges cleanly, (3) only
+      then commit and push. Skipping the Flux reconcile step would allow a PR to merge with manifests
+      that fail to reconcile via GitOps.
+    tags:
+      - trimmed-2026-03-22
+      - deploy-app-skill

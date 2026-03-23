@@ -4,38 +4,15 @@ Skills are procedural guides that provide step-by-step workflows for complex ope
 
 ---
 
-## Skill Inventory
+## Skills (condensed — see references/skill-inventory.md for full inventory)
 
-### Background Skills (Agent-Composed)
+All skills are agent-loaded (not invoked directly). See [references/skill-inventory.md](references/skill-inventory.md) for full details.
 
-These skills are composed by agents internally. They are not invoked directly by users — agents load them as needed for domain-specific knowledge.
-
-| Skill | Purpose | Composed By | References | Scripts |
-|-------|---------|-------------|------------|---------|
-| `app-template` | Deploy applications using bjw-s/app-template Helm chart | implementer | patterns.md, values-reference.md | - |
-| `architecture-review` | Architecture evaluation criteria and technology standards | designer | technology-decisions.md | - |
-| `cnpg-database` | CNPG PostgreSQL cluster provisioning and credential management | implementer | - | - |
-| `deploy-app` | End-to-end application deployment with monitoring integration | implementer | file-templates.md, monitoring-patterns.md | check-alerts.sh, check-canary.sh, check-deployment-health.sh, check-servicemonitor.sh |
-| `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | implementer | - | - |
-| `gateway-routing` | Gateway API routing, TLS certificates, and WAF configuration | implementer | - | - |
-| `gha-pipelines` | GitHub Actions CI/CD workflows, validation pipelines, OCI promotion | implementer | - | - |
-| `k8s` | Kubernetes cluster access, kubectl, and Flux operations | troubleshooter, implementer, designer | - | - |
-| `kubesearch` | Research Helm configurations from kubesearch.dev | designer, implementer | - | - |
-| `loki` | Query Loki API for cluster logs and debugging | troubleshooter | queries.md | logql.sh |
-| `grafana-dashboards` | MCP-driven Grafana dashboard authoring with visual iteration | implementer | - | - |
-| `monitoring-authoring` | Author PrometheusRules, ServiceMonitors, AlertmanagerConfig, canary checks | implementer | - | - |
-| `network-policy` | Cilium network policy management, Hubble debugging, escape hatch | troubleshooter, implementer | - | - |
-| `opentofu-modules` | OpenTofu module development and testing patterns | implementer | opentofu-testing.md | - |
-| `prometheus` | Query Prometheus API for metrics and alerts | troubleshooter | queries.md | promql.sh |
-| `promotion-pipeline` | OCI artifact promotion pipeline tracing and rollback | troubleshooter, implementer | - | - |
-| `secrets` | Secret provisioning: secret-generator, ExternalSecret, app-secrets | implementer | - | - |
-| `self-improvement` | Capture user feedback to enhance documentation | orchestrator | - | - |
-| `sre` | Kubernetes incident investigation and debugging | troubleshooter | - | cluster-health.sh |
-| `sync-claude` | Validate Claude docs against codebase state | orchestrator | - | discover-claude-docs.sh, extract-references.sh |
-| `taskfiles` | Task runner syntax, patterns, and conventions | implementer | schema.md, cli.md, styleguide.md, task-catalog.md | - |
-| `terragrunt` | Infrastructure operations with Terragrunt/OpenTofu | implementer | stacks.md, units.md | - |
-| `security-testing` | Adversarial security testing methodology and attack surface inventory | security-tester | attack-surface.md | - |
-| `versions-renovate` | Version management and Renovate annotation configuration | implementer | - | - |
+**Deployment / K8s**: `deploy-app`, `flux-gitops`, `app-template`, `k8s`, `gateway-routing`, `network-policy`, `cnpg-database`, `secrets`
+**Infrastructure**: `terragrunt`, `opentofu-modules`, `versions-renovate`, `gha-pipelines`
+**Observability**: `monitoring-authoring`, `grafana-dashboards`, `prometheus`, `loki`, `sre`
+**Research / Authoring**: `kubesearch`, `taskfiles`, `architecture-review`
+**Pipeline / Ops**: `promotion-pipeline`, `security-testing`, `self-improvement`, `sync-claude`, `instruction-eval`
 
 ---
 
@@ -61,10 +38,6 @@ Skills are **procedural knowledge** documents that guide Claude through multi-st
 2. **Workflow Focus**: Skills describe HOW to do something step-by-step, not what exists or why
 3. **Reusable Procedures**: Common operations are codified once and invoked by name
 4. **Supporting Resources**: Skills can include reference docs and helper scripts
-
-Skills are invoked when:
-- An agent composes the skill as part of its domain knowledge
-- Claude determines the skill is relevant to the current task
 
 ---
 
@@ -151,8 +124,7 @@ user-invocable: false          # All background skills should set this
 
 ## When to Create a New Skill
 
-Create a new skill when:
-
+Create when:
 1. **Repeated Procedures**: You've explained the same multi-step workflow more than once
 2. **Complex Workflows**: The procedure has 5+ steps with decision points
 3. **Supporting Resources**: The workflow benefits from reference docs or helper scripts
@@ -162,41 +134,10 @@ Do NOT create a skill when:
 - It's a simple command or pattern (add to CLAUDE.md instead)
 - It's a one-off procedure unlikely to be repeated
 - The content is purely declarative (what/why, not how)
+- A similar skill already exists and could be extended
 
-### Creating a New Skill
-
-1. Create directory: `.claude/skills/<skill-name>/`
-2. Create `SKILL.md` with proper frontmatter
-3. Add references/ if supporting docs are needed
-4. Add scripts/ if automation helpers are useful
-5. Add the skill to the relevant agent's `skills:` list in `.claude/agents/`
-6. Add `Skill(<name>)` to `.claude/settings.json` allow list
-7. Update this CLAUDE.md skill inventory table
-
----
-
-## Skill Maintenance
-
-### When to Update Skills
-
-- When underlying systems change (API updates, new versions)
-- When users report confusion or errors following procedures
-- When better patterns are discovered
-- When referenced paths, commands, or tools change
-
-### Validation
-
-Skills should be validated with the `sync-claude` skill, which checks:
-- File/directory paths mentioned exist
-- Commands referenced are valid
-- Cross-references to other docs are accurate
-
-### Deprecation
-
-To deprecate a skill:
-1. Add notice at top of SKILL.md: `**DEPRECATED**: Use [new-skill] instead`
-2. Keep for one release cycle to allow transition
-3. Remove directory after transition period
+For creating a new skill, follow the skill-creator skill. Full checklist and deprecation
+procedure: see `references/skill-authoring.md`.
 
 ---
 
@@ -204,24 +145,16 @@ To deprecate a skill:
 
 This repository uses an **agent-first** interaction model. Users interact through 3 high-level commands (`/troubleshoot`, `/implement`, `/design`) that dispatch to specialized agents. Skills serve as background knowledge that agents compose internally.
 
-### How It Works
+Users interact through `/troubleshoot`, `/implement`, `/design` commands that dispatch to agents. Agents compose skills internally.
 
-```
-User → /troubleshoot → command → troubleshooter agent → composes: sre, k8s, loki, prometheus, promotion-pipeline, network-policy
-User → /implement    → command → implementer agent    → composes: flux-gitops, app-template, terragrunt, k8s, kubesearch, ...
-User → /design       → command → designer agent       → composes: kubesearch, architecture-review, k8s
-```
+Agents are defined in `.claude/agents/`:
 
-### Agents
-
-Agents are defined in `.claude/agents/` and compose skills for their domain:
-
-| Agent | Role | Skills | Model | Mode |
-|-------|------|--------|-------|------|
-| `troubleshooter` | SRE debugging specialist | sre, k8s, loki, prometheus, promotion-pipeline, network-policy | inherit | default (read-only tools) |
-| `implementer` | Platform engineer | flux-gitops, app-template, terragrunt, opentofu-modules, deploy-app, taskfiles, k8s, secrets, monitoring-authoring, grafana-dashboards, cnpg-database, gateway-routing, versions-renovate, kubesearch, promotion-pipeline, gha-pipelines, network-policy | inherit | default (full tools) |
-| `designer` | Principal architect | kubesearch, architecture-review, k8s | opus | plan (read-only) |
-| `security-tester` | Adversarial red team tester | security-testing, k8s, network-policy, prometheus, loki, sre, gateway-routing | opus | default (read-only tools) |
+| Agent | Role | Model | Mode |
+|-------|------|-------|------|
+| `troubleshooter` | SRE debugging specialist | inherit | read-only |
+| `implementer` | Platform engineer | inherit | full tools |
+| `designer` | Principal architect | opus | plan (read-only) |
+| `security-tester` | Adversarial red team tester | opus | read-only |
 
 ---
 

@@ -1,0 +1,95 @@
+version: 1
+skill: app-template
+description: "Verify when to use app-template, correct values structure, and restricted namespace security context requirements"
+tests:
+  - id: APP-01
+    description: "Recommends app-template when no official Helm chart exists"
+    category: routing
+    severity: high
+    prompt: |
+      I want to deploy a container image called ghcr.io/myorg/custom-tool:v1.0.0 to Kubernetes.
+      There is no official Helm chart for it. What's the best approach?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["app-template", "bjw-s"]
+        any_of: ["controllers", "oci://ghcr.io/bjw-s-labs/helm"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must recommend app-template (bjw-s/app-template) as the solution for deploying container
+      images without a dedicated Helm chart. Should mention the OCI registry source.
+    tags:
+      - trimmed-2026-03-22
+      - app-template-skill
+
+  - id: APP-02
+    description: "Service references controller via controller field, not selector"
+    category: coverage
+    severity: medium
+    prompt: |
+      Write an app-template values.yaml for a web app on port 8080 with a metrics port on 9090.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["controllers:", "service:", "controller: main", "ports:"]
+        any_of: ["http:", "metrics:"]
+      forbidden: ["selector:", "matchLabels:"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must show controllers section with a container, and service section using controller: main
+      to link to the controller. Must not use raw Kubernetes selector syntax.
+    tags:
+      - trimmed-2026-03-22
+      - app-template-skill
+
+  - id: APP-03
+    description: "Applies full restricted security context for restricted namespaces"
+    category: constraint
+    severity: critical
+    prompt: |
+      I'm deploying an app to the system namespace using app-template. What security context do I need?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["allowPrivilegeEscalation: false", "readOnlyRootFilesystem: true", "capabilities:", "drop:", "runAsNonRoot: true", "seccompProfile:"]
+        any_of: ["RuntimeDefault", "defaultPodOptions"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must specify the full restricted security context: allowPrivilegeEscalation false,
+      readOnlyRootFilesystem true, capabilities drop ALL, runAsNonRoot true, and seccompProfile
+      RuntimeDefault at both pod and container level.
+    tags:
+      - trimmed-2026-03-22
+      - app-template-skill
+
+  - id: APP-04
+    description: "Avoids CPU limits, sets generous memory limits"
+    category: coverage
+    severity: medium
+    prompt: |
+      What resource limits should I set for a web application in app-template?
+    scoring:
+      mode: both
+      keywords:
+        required: ["memory"]
+        any_of: ["cpu", "CPU limits", "never set CPU"]
+        forbidden: []
+      judge_criteria: |
+        Score 0-10. Award points for:
+        - Advising against CPU limits due to throttling/latency (3pts)
+        - Recommending limits 2-4x the expected working set (2pts)
+        - Providing concrete memory ranges (128-256Mi request, 512Mi-1Gi limit) (3pts)
+        - Mentioning OOMKill vs throttle tradeoff (2pts)
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must advise against setting CPU limits. Must recommend generous memory limits (2-4x working set).
+      Should provide typical ranges for web application workloads.
+    tags:
+      - trimmed-2026-03-22
+      - app-template-skill

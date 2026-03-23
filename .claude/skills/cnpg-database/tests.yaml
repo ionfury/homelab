@@ -1,0 +1,139 @@
+version: 1
+skill: cnpg-database
+description: "Verify shared vs dedicated cluster selection, credential chain, and check-connection.sh usage"
+tests:
+  - id: CNP-01
+    description: "Shared vs dedicated cluster decision"
+    category: routing
+    severity: critical
+    prompt: |
+      I am deploying two new applications:
+      1. "sonarr" — standard media indexer, no special database features needed.
+      2. "immich" — photo management that requires the pgvecto.rs vector extension.
+      Which CNPG cluster setup should each use, and what is the connection endpoint for the shared one?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - platform-pooler-rw
+          - database.svc
+          - dedicated
+          - imageName
+        any_of:
+          - shared
+          - platform cluster
+        forbidden:
+          - create a new cluster for sonarr
+          - dedicated.*sonarr
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model should direct sonarr to the shared cluster via `platform-pooler-rw.database.svc` and
+      prescribe a dedicated cluster with a custom `imageName` for immich's vector extension. It must
+      not suggest a dedicated cluster for a workload with no special extension requirements.
+    tags:
+      - trimmed-2026-03-22
+      - cnpg-database-skill
+
+  - id: CNP-02
+    description: "Shared cluster credential provisioning — full six-step chain"
+    category: coverage
+    severity: critical
+    prompt: |
+      Walk me through adding a PostgreSQL database for a new application called "radarr" that will
+      run in the "radarr" namespace. Use the shared platform cluster. List every file that must be
+      modified or created.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - cluster.yaml
+          - role-secrets.yaml
+          - databases.yaml
+          - replicator.v1.mittwald.de/replicate-from
+          - access.network-policy.homelab/postgres
+          - namespaces.yaml
+        any_of:
+          - kubernetes/platform/config/database
+          - config/database
+      judge_criteria: |
+        Score 0-10.
+        10: All six steps covered in order — managed role in cluster.yaml, secret-generator secret
+            in role-secrets.yaml with replication allowed, Database CRD in databases.yaml,
+            credential replica in clusters/<cluster>/config/radarr/, network policy access label in
+            namespaces.yaml, registration in kustomization.yaml.
+        7-9: Five of six steps present; minor omission (e.g., kustomization registration).
+        4-6: Core secrets and DB CRD covered but missing network policy label or credential replica.
+        0-3: Only mentions creating a Secret with a password; skips most of the chain.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must walk through all six documented steps: (1) managed role in cluster.yaml,
+      (2) secret-generator secret in role-secrets.yaml with replication annotations,
+      (3) Database CRD in databases.yaml, (4) credential replica in the app cluster config,
+      (5) network policy access label in namespaces.yaml, (6) kustomization registration.
+    tags:
+      - trimmed-2026-03-22
+      - cnpg-database-skill
+
+  - id: CNP-03
+    description: "Dedicated cluster — inheritedMetadata and credential replication differences"
+    category: coverage
+    severity: high
+    prompt: |
+      What is the key difference in credential handling between the shared platform cluster and a
+      dedicated CNPG cluster? Why is `inheritedMetadata` required for dedicated clusters but not
+      for the shared cluster?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - inheritedMetadata
+          - replication-allowed
+          - database-app
+        any_of:
+          - CNPG auto-generates
+          - auto-generated
+          - bootstrap.initdb
+        forbidden:
+          - role-password
+          - secret-generator
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must explain that for dedicated clusters, CNPG auto-generates the `<cluster>-app`
+      secret rather than using secret-generator, so `inheritedMetadata` must carry the
+      `replication-allowed` annotations onto that auto-generated secret to enable cross-namespace
+      replication. The shared cluster uses secret-generator secrets that can have explicit annotations.
+    tags:
+      - trimmed-2026-03-22
+      - cnpg-database-skill
+
+  - id: CNP-04
+    description: "check-connection.sh debugging script usage"
+    category: coverage
+    severity: medium
+    prompt: |
+      An application in the "zipline" namespace cannot connect to the database. How do I run the
+      structured health check for this scenario? What is the exact command?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - check-connection.sh
+        any_of:
+          - "zipline"
+          - "<cluster>"
+          - "<app-namespace>"
+        forbidden:
+          - kubectl exec.*psql
+          - manual
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model should direct the user to `scripts/check-connection.sh <cluster> zipline [app-name]`
+      as the primary debugging entry point, before resorting to manual psql commands. It may also
+      mention the manual connectivity test as a fallback, but the script is the recommended first step.
+    tags:
+      - trimmed-2026-03-22
+      - cnpg-database-skill

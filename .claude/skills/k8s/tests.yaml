@@ -1,0 +1,171 @@
+version: 1
+skill: k8s
+description: "Verify cluster access patterns, Flux reconciliation commands, and common operational kubectl anti-patterns surface correctly"
+tests:
+  - id: K8S-01
+    description: "Surfaces KUBECONFIG=~/.kube/<cluster>.yaml pattern for cluster access"
+    category: coverage
+    severity: high
+    prompt: |
+      How do I access the live cluster to check the status of pods in the monitoring namespace?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - KUBECONFIG
+          - live
+          - ~/.kube/
+        any_of:
+          - live.yaml
+          - kubectl get pods
+          - -n monitoring
+        forbidden:
+          - kubectl config use-context
+          - kube-context
+          - kubeadm
+      judge_criteria: |
+        Score 0-10 on correctness of cluster access pattern:
+        - 0-2: Does not mention KUBECONFIG or uses wrong access method (e.g., kubectl config use-context)
+        - 3-5: Mentions KUBECONFIG but gives wrong path format (not ~/.kube/<cluster>.yaml)
+        - 6-7: Correct KUBECONFIG=~/.kube/live.yaml pattern with the kubectl command
+        - 8-10: Full example with KUBECONFIG=~/.kube/live.yaml kubectl get pods -n monitoring, and mentions all three cluster names (dev, integration, live) to show the pattern generalizes
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should show the KUBECONFIG=~/.kube/live.yaml prefix pattern for cluster access, not kubectl config use-context or context switching. Should include the full command: KUBECONFIG=~/.kube/live.yaml kubectl get pods -n monitoring.
+    tags:
+      - trimmed-2026-03-22
+      - k8s-skill
+
+  - id: K8S-02
+    description: "Surfaces Flux reconciliation commands with correct KUBECONFIG prefix"
+    category: coverage
+    severity: high
+    prompt: |
+      A HelmRelease named "grafana" in the monitoring namespace on the integration cluster is not reconciling. How do I force a reconciliation?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - flux reconcile helmrelease
+          - KUBECONFIG
+          - integration
+        any_of:
+          - integration.yaml
+          - -n monitoring
+          - flux-system
+        forbidden:
+          - helm upgrade
+          - kubectl apply
+          - helm list
+      judge_criteria: |
+        Score 0-10 on completeness of the reconciliation approach:
+        - 0-2: Uses helm CLI instead of flux CLI, or omits KUBECONFIG prefix entirely
+        - 3-5: Uses flux reconcile but with wrong KUBECONFIG pattern or wrong cluster name
+        - 6-7: Correct command: KUBECONFIG=~/.kube/integration.yaml flux reconcile helmrelease grafana -n monitoring
+        - 8-10: Correct command plus a follow-up check command (e.g., flux get helmreleases -A or kubectl describe helmrelease grafana -n monitoring) and an explanation of when to use reconcile kustomization vs reconcile helmrelease
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should provide: KUBECONFIG=~/.kube/integration.yaml flux reconcile helmrelease grafana -n monitoring. Must use flux CLI not helm CLI. Should use the KUBECONFIG=~/.kube/<cluster>.yaml pattern, not context switching.
+    tags:
+      - trimmed-2026-03-22
+      - k8s-skill
+
+  - id: K8S-03
+    description: "Flags helm list as wrong way to check HelmRelease status under Flux"
+    category: constraint
+    severity: high
+    prompt: |
+      I want to check whether the cert-manager Helm release is deployed successfully. Can I use "helm list -n cert-manager" to check this?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - kubectl get helmrelease
+        any_of:
+          - CRD
+          - Flux manages
+          - HelmRelease
+        forbidden:
+          - helm list
+          - yes
+          - correct
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should explicitly say NOT to use helm list for checking Flux-managed releases. The correct command is kubectl get helmrelease -A (or -n cert-manager). Should explain that Flux manages releases via HelmRelease CRDs, not the Helm CLI state.
+    tags:
+      - trimmed-2026-03-22
+      - k8s-skill
+
+  - id: K8S-04
+    description: "Correctly interprets Flux status conditions including Stalled"
+    category: factored
+    severity: medium
+    prompt: |
+      When I run "flux get kustomizations", one shows "Stalled: True". What does that mean and what should I do?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - Stalled
+          - suspend
+          - resume
+        any_of:
+          - repeated failures
+          - stopped retrying
+          - flux resume
+          - flux suspend
+        forbidden:
+          - delete
+          - recreate
+          - kubectl delete
+      judge_criteria: |
+        Score 0-10 on accuracy and actionability:
+        - 0-2: Confuses Stalled with other status conditions (Suspended, Reconciling) or recommends deleting resources
+        - 3-5: Correctly explains Stalled means stopped retrying but does not give the suspend/resume fix
+        - 6-7: Correctly explains Stalled and gives the suspend/resume command to reset it
+        - 8-10: Full explanation: Stalled means Flux has given up retrying after repeated failures; the fix is to investigate the root cause first (check message/reason with kubectl describe or flux get), fix the underlying issue, then suspend and resume to reset the retry counter
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should explain Stalled means Flux stopped retrying after repeated failures. Action is to investigate the root cause (check message/reason), fix it, then use flux suspend and flux resume on the Kustomization to reset the state.
+    tags:
+      - trimmed-2026-03-22
+      - k8s-skill
+
+  - id: K8S-05
+    description: "Provides correct full Flux status check sequence for a failing deployment"
+    category: coverage
+    severity: medium
+    prompt: |
+      A new application I deployed via Flux is not coming up. Walk me through the commands to diagnose what is wrong, starting from the top-level Flux status down to pod-level events.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - flux get
+          - kubectl describe
+          - kubectl get pods
+        any_of:
+          - helmrelease
+          - kustomization
+          - events
+          - kubectl logs
+        forbidden:
+          - helm status
+          - helm history
+      judge_criteria: |
+        Score 0-10 on diagnostic sequence completeness:
+        - 0-2: Only mentions one or two commands, all at the same layer (e.g., only pod-level)
+        - 3-5: Covers two layers (e.g., HelmRelease status + pod logs) but misses Flux source/kustomization checks
+        - 6-7: Covers at least three layers: ResourceSet/Kustomization → HelmRelease → Pod-level events/logs
+        - 8-10: Full top-down sequence: (1) flux get kustomizations / kubectl get resourcesets, (2) kubectl describe helmrelease, (3) kubectl get pods -n <namespace>, (4) kubectl describe pod, (5) kubectl logs — each with KUBECONFIG prefix and correct namespace flags
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should walk through a layered diagnosis: start with flux get kustomizations or kubectl get resourcesets -n flux-system, then kubectl describe helmrelease, then kubectl get pods -n <namespace>, then kubectl describe pod and kubectl logs. All commands should use the KUBECONFIG=~/.kube/<cluster>.yaml prefix pattern.
+    tags:
+      - trimmed-2026-03-22
+      - k8s-skill

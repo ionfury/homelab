@@ -22,35 +22,6 @@ For architectural context and the separation of concerns between units and modul
 
 ---
 
-## Architecture Context
-
-Units follow a strict separation of concerns:
-
-### Units = Thin Wiring
-
-Units wire dependencies between modules and pass configuration through. They contain:
-- Module source references
-- Dependency declarations
-- Input mappings from dependencies to module variables
-- **No business logic, no conditionals, no computations**
-
-### Modules = Implementation
-
-Modules contain all business logic:
-- Conditional expressions based on cluster name
-- Feature flag handling
-- Resource provisioning
-- Data transformations
-
-### Why This Pattern?
-
-1. **Testability**: Module logic is tested via `tofu test`; units are too simple to need tests
-2. **Single source of truth**: All environment differences live in the config module
-3. **Maintainability**: Adding a new cluster only requires updating the config module
-4. **Visibility**: Easy to audit what differs between environments
-
----
-
 ## The Config Unit
 
 The `config` unit is the "brain" of every cluster stack. It:
@@ -137,172 +108,19 @@ inputs = {
 
 ## Dependency Patterns
 
-### Simple Pass-Through
-
-When a module's inputs match a config output exactly:
-
-```hcl
-# infrastructure/units/talos/terragrunt.hcl
-inputs = dependency.config.outputs.talos
-```
-
-### Composed Inputs
-
-When inputs come from multiple sources:
-
-```hcl
-# infrastructure/units/bootstrap/terragrunt.hcl
-inputs = {
-  # From config output
-  cluster_name     = dependency.config.outputs.bootstrap.cluster_name
-  flux_version     = dependency.config.outputs.bootstrap.flux_version
-
-  # From talos output (kubeconfig for cluster access)
-  kubeconfig = {
-    host                   = dependency.talos.outputs.kubeconfig_host
-    client_certificate     = dependency.talos.outputs.kubeconfig_client_certificate
-    client_key             = dependency.talos.outputs.kubeconfig_client_key
-    cluster_ca_certificate = dependency.talos.outputs.kubeconfig_cluster_ca_certificate
-  }
-
-  # From parent HCL files
-  github = local.accounts_vars.locals.accounts.github
-}
-```
-
-### Ordering Dependencies
-
-Use `skip_outputs = true` when you need ordering but no outputs:
-
-```hcl
-# infrastructure/units/talos/terragrunt.hcl
-dependency "unifi" {
-  config_path = "../unifi"
-
-  mock_outputs                            = {}
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
-  skip_outputs                            = true  # Only for ordering
-}
-```
-
-### Mock Outputs
-
-Mock outputs enable `terragrunt validate` and `terragrunt plan` without applying dependencies. They must match the structure of real outputs:
-
-```hcl
-mock_outputs = {
-  talos = {
-    talos_version      = "v1.12.0"
-    kubernetes_version = "1.34.0"
-    talos_machines = [
-      {
-        install = { selector = "disk.model = *", secureboot = false }
-        configs = ["kind: HostnameConfig\nhostname: mock"]
-      }
-    ]
-  }
-}
-mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
-```
+Four patterns exist: Pass-Through, Composed Inputs, Ordering, Mock Outputs. See terragrunt skill references/units.md for HCL examples.
 
 ---
 
 ## Design Principles
 
-### Keep Units Dumb
-
-Units should contain **zero business logic**:
-
-```hcl
-# BAD - logic in unit
-inputs = {
-  replica_count = length(dependency.config.outputs.machines) > 3 ? 3 : length(...)
-}
-
-# GOOD - logic in module
-inputs = dependency.config.outputs.bootstrap
-# The config module computes replica_count internally
-```
-
-### Delegate to Modules
-
-All conditional logic, feature flags, and environment differences belong in modules:
-
-```hcl
-# infrastructure/modules/config/main.tf
-locals {
-  oci_config = {
-    dev         = { source_type = "git", semver = "" }
-    integration = { source_type = "oci", semver = ">= 0.0.0-0" }
-    live        = { source_type = "oci", semver = ">= 0.0.0" }
-  }
-}
-```
-
-### Single Responsibility
-
-Each unit orchestrates exactly one module:
-
-| Unit | Module | Single Responsibility |
-|------|--------|----------------------|
-| `config` | `config` | Compute configuration |
-| `talos` | `talos` | Provision Talos nodes |
-| `bootstrap` | `bootstrap` | Bootstrap Flux |
-| `pki` | `pki` | Generate certificates |
-
-### Reuse Modules
-
-Multiple units can use the same module with different inputs:
-
-```hcl
-# infrastructure/units/pki/terragrunt.hcl
-inputs = {
-  ca_name = "istio-mesh"
-  ca_subject = { organization = "homelab", common_name = "istio-mesh-root-ca" }
-}
-
-# infrastructure/units/ingress-pki/terragrunt.hcl (same module, different config)
-inputs = {
-  ca_name = "homelab-ingress"
-  ca_subject = { organization = "homelab", common_name = "homelab-ingress-root-ca" }
-}
-```
+Units must be dumb. Logic lives in modules. Single responsibility. Explicit over implicit. See terragrunt skill references/units.md for BAD/GOOD examples.
 
 ---
 
 ## When to Add a New Unit
 
-Use this decision tree:
-
-```
-Need new infrastructure capability?
-|
-+- Is it a new instance of existing module?
-|   +- YES -> Create new unit referencing existing module
-|            Example: ingress-pki reuses pki module
-|
-+- Is it a new capability entirely?
-|   +- YES -> Create new module first, then new unit
-|            1. Add module to infrastructure/modules/
-|            2. Add unit to infrastructure/units/
-|            3. Include unit in relevant stacks
-|
-+- Is it cluster-specific configuration?
-|   +- YES -> Add to config module outputs
-|            Do NOT create new unit
-|
-+- Is it a transformation of existing data?
-    +- YES -> Add logic to config module
-             Do NOT create new unit
-```
-
-### Checklist for New Units
-
-1. Create module in `infrastructure/modules/<name>/`
-2. Write tests in `infrastructure/modules/<name>/tests/`
-3. Create unit in `infrastructure/units/<name>/terragrunt.hcl`
-4. Add unit to relevant stacks in `infrastructure/stacks/*/terragrunt.stack.hcl`
-5. Run `task tg:fmt && task tg:test-<name> && task tg:validate-<stack>`
+Add a unit only when a new lifecycle boundary is needed. Decision tree in terragrunt skill references/units.md.
 
 ---
 

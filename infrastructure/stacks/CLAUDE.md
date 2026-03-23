@@ -133,6 +133,8 @@ unit "ingress_pki" {
 
 ## Stack Operations
 
+> For Terragrunt operations, invoke the `terragrunt` skill.
+
 All operations use task commands — **NEVER** run terragrunt directly.
 
 ```bash

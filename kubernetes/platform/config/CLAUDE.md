@@ -4,6 +4,10 @@ The `config/` directory contains non-Helm resources organized by subsystem. Thes
 
 For Flux patterns and version management, see [kubernetes/platform/CLAUDE.md](../CLAUDE.md).
 
+> For Flux ResourceSet patterns and HelmRelease management, invoke the `flux-gitops` skill.
+> For secret provisioning (secret-generator, ExternalSecret, replication), invoke the `secrets` skill.
+> For network policy configuration and Hubble debugging, invoke the `network-policy` skill.
+
 ---
 
 ## Config Subsystem Inventory
@@ -127,43 +131,11 @@ inputs:
 
 ## Adding a New Config Subsystem
 
-### Step 1: Create Directory Structure
-
-```bash
-mkdir -p kubernetes/platform/config/<subsystem>
-```
-
-### Step 2: Create kustomization.yaml
-
-```yaml
-# kubernetes/platform/config/<subsystem>/kustomization.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - resource1.yaml
-  - resource2.yaml
-```
-
-### Step 3: Add Resources
-
-Create YAML files for your resources in the directory.
-
-### Step 4: Register in config.yaml ResourceSet
-
-Add entry to `kubernetes/platform/config.yaml`:
-
-```yaml
-inputs:
-  - name: "<subsystem>"
-    namespace: "<target-namespace>"
-    dependsOn: [<helm-release-providing-crds>]
-```
-
-### Step 5: Validate
-
-```bash
-task k8s:validate
-```
+1. Create `kubernetes/platform/config/<subsystem>/` directory.
+2. Create `kustomization.yaml` listing resource files (use `kustomize.config.k8s.io/v1beta1` kind `Kustomization`).
+3. Add resource YAML files to the directory.
+4. Register in `kubernetes/platform/config.yaml` ResourceSet with a `name`, `namespace`, and `dependsOn` listing the HelmReleases that provide CRDs.
+5. Run `task k8s:validate`.
 
 ---
 
@@ -190,119 +162,25 @@ task k8s:validate
 
 ---
 
-## Subsystem Deep Dives
+## Variable Substitution
 
-### Network Policy Organization
-
-**⚠️ Network policies are ENFORCED - all traffic implicitly denied unless allowed.**
-
-See [network-policy/CLAUDE.md](network-policy/CLAUDE.md) for complete architecture and debugging.
-
-```
-network-policy/
-├── baselines/           # Universal allows (DNS, health probes, Prometheus, intra-namespace)
-├── profiles/            # Namespace profiles (isolated, internal, internal-egress, standard)
-├── platform/            # Hand-crafted CNPs for platform namespaces
-└── shared-resources/    # Opt-in access to postgres, garage-s3, kube-api
-```
-
-**Critical for app deployment**: Application namespaces MUST have `network-policy.homelab/profile=<profile>` label.
-
-Two-tier model:
-1. **Baseline CCNPs**: Universal allows applied to all pods cluster-wide
-2. **Profile CCNPs**: Per-namespace ingress/egress based on namespace label
-
-### Issuers Organization
-
-```
-issuers/
-├── cloudflare-issuer/   # Public certs via DNS-01 challenge
-├── homelab-ca/          # Internal CA for services
-└── istio-mesh-ca/       # Istio mTLS certificates
-```
-
-### Longhorn Organization
-
-```
-longhorn/
-├── backup/              # Backup target configuration
-├── recurring-jobs/      # Scheduled backup jobs
-├── routes/              # UI access routes
-└── storage-classes/     # StorageClass definitions
-```
-
-### Priority Classes
-
-Three tiers defined in `priority-classes/priority-classes.yaml`:
-
-| Name | Value | Default | Purpose |
-|------|-------|---------|---------|
-| `infrastructure-critical` | 1000000 | No | CNI, DNS, storage, mesh data plane |
-| `platform` | 900000 | No | Monitoring, logging, databases, gateways |
-| `application` | 800000 | Yes | User-facing workloads (global default) |
-
-**Naming constraint**: Never use the `system-` prefix for custom PriorityClass names. Kubernetes reserves this prefix for built-in priority classes (`system-cluster-critical`, `system-node-critical`). Names with the `system-` prefix are rejected at admission time, which causes the entire `priority-classes-config` Kustomization to fail atomically and cascades to all dependent HelmReleases.
-
-### PodSecurity Enforcement
-
-Multiple namespaces enforce the PodSecurity `restricted` profile, which requires strict security context settings on all pods.
-
-**Namespaces with `restricted` enforcement** (from `namespaces.yaml`):
-
-| Namespace | Why Restricted |
-|-----------|---------------|
-| `cert-manager` | Standard controller, no privileged requirements |
-| `cnpg-system` | CNPG operator, no privileged requirements |
-| `dragonfly-system` | Dragonfly operator, no privileged requirements |
-| `external-secrets` | Standard controller, no privileged requirements |
-| `system` | Standard controller workloads |
-| `database` | CNPG PostgreSQL pods run as non-root |
-| `kromgo` | Simple web application |
-
-**What `restricted` enforcement requires** (validated at admission time):
-
-Pod-level:
-- `runAsNonRoot: true`
-- `seccompProfile.type: RuntimeDefault`
-
-Container-level (every container and init container):
-- `allowPrivilegeEscalation: false`
-- `capabilities.drop: ["ALL"]`
-- `readOnlyRootFilesystem: true` (recommended, not strictly required by restricted)
-- `runAsUser: <non-zero-uid>` (if the image runs as root by default, use `65534` for `nobody`)
-
-**Impact on Helm charts**: Any chart deployed to a `restricted` namespace MUST set these fields in its values. If the chart does not expose security context configuration, the chart cannot be deployed to that namespace without patching.
-
-**Validation gap**: `task k8s:validate` catches schema errors but NOT PodSecurity admission violations. Only server-side dry-run (`task k8s:dry-run-dev`) or actual deployment reveals these. Agents must manually verify security context compliance when deploying to restricted namespaces.
-
-### Monitoring Organization
-
-The `monitoring/` subsystem is the largest, containing:
-- PrometheusRules for alerting
-- ServiceMonitors for scrape targets
-- AlertmanagerConfig for routing
-- Grafana dashboards
+Use `${cluster_name}`, `${internal_domain}`, `${external_domain}`, `${cluster_id}` for cluster-specific values. See [kubernetes/platform/CLAUDE.md](../CLAUDE.md) for full variable list.
 
 ---
 
-## Variable Substitution
+## PodSecurity Enforcement
 
-Config resources can use Flux variable substitution:
+Namespaces with `restricted` enforcement (cert-manager, cnpg-system, dragonfly-system, external-secrets, system, database, kromgo) reject pods that do not comply at admission time.
 
-```yaml
-# In a config resource
-metadata:
-  name: cert-${cluster_name}  # Substituted at reconciliation
-spec:
-  dnsNames:
-    - "*.${internal_domain}"
-```
+**Quick mapping** — see [kubernetes/platform/CLAUDE.md](../CLAUDE.md) for the full namespace security levels table.
 
-Variables come from:
-- `cluster-vars` ConfigMap (cluster-specific)
-- `platform-versions` ConfigMap (version pins)
+For required security context YAML, see the app-template or deploy-app skill.
 
-See [kubernetes/platform/CLAUDE.md](../CLAUDE.md) for available variables.
+---
+
+## Network Policy
+
+**All traffic is implicitly denied.** Application namespaces MUST have the `network-policy.homelab/profile` label set. See [network-policy/CLAUDE.md](network-policy/CLAUDE.md) for complete architecture. For profile selection, access labels, and Hubble debugging, invoke the `network-policy` skill.
 
 ---
 

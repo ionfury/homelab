@@ -1,0 +1,165 @@
+version: 1
+skill: flux-gitops
+description: "Verify ResourceSet pattern, variable substitution, and new Helm release addition workflow surface correctly"
+tests:
+  - id: FLX-01
+    description: "Surfaces the four-step workflow for adding a new Helm release to the platform"
+    category: coverage
+    severity: high
+    prompt: |
+      Walk me through how to add a new Helm release called "my-app" to the homelab Kubernetes platform. The chart is at https://charts.example.com and I want it in the "apps" namespace.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - helm-charts.yaml
+          - charts/
+          - kustomization.yaml
+          - configMapGenerator
+        any_of:
+          - versions.env
+          - dependsOn
+          - platform-values
+        forbidden:
+          - kubectl apply
+          - helm install
+          - manually
+      judge_criteria: |
+        Score 0-10 based on coverage of the four required steps:
+        - 0-2: Mentions at most one of the four required files/steps
+        - 3-4: Covers two steps (e.g., helm-charts.yaml entry and values file only)
+        - 5-6: Covers three of the four steps with some detail
+        - 7-8: All four steps covered: (1) helm-charts.yaml inputs entry, (2) charts/<name>.yaml values file, (3) kustomization.yaml configMapGenerator registration, (4) optionally config/<name>/ for extras — with YAML examples for at least two steps
+        - 9-10: All four steps with YAML examples, mentions version substitution via ${variable} from versions.env, and mentions OCI vs HTTP URL distinction
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should describe: (1) adding an entry to helm-charts.yaml inputs with name, namespace, chart.name, chart.version, chart.url, and dependsOn; (2) creating a charts/<release-name>.yaml values file; (3) registering the values file in kustomization.yaml configMapGenerator; (4) optionally creating config/<name>/ resources. Version should reference ${variable} from versions.env.
+    tags:
+      - trimmed-2026-03-22
+      - flux-gitops-skill
+
+  - id: FLX-02
+    description: "Correctly identifies OCI registry URL format vs HTTP Helm registry"
+    category: constraint
+    severity: high
+    prompt: |
+      I want to add a Helm release using the bjw-s app-template chart, which is hosted at oci://ghcr.io/bjw-s-labs/helm. How does this differ from a regular HTTP Helm repository entry in helm-charts.yaml?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - oci://
+          - type: oci
+        any_of:
+          - auto-detects
+          - HelmRepository
+          - OCI
+        forbidden:
+          - registryUrl
+          - http://
+          - https://
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should explain that for OCI registries the url field is prefixed with oci://, and the ResourceSet template auto-detects this prefix to set type: oci on the HelmRepository. The chart.url field in helm-charts.yaml is the only difference; the rest of the entry structure is identical.
+    tags:
+      - trimmed-2026-03-22
+      - flux-gitops-skill
+
+  - id: FLX-03
+    description: "Explains variable substitution from versions.env into helm-charts.yaml"
+    category: factored
+    severity: medium
+    prompt: |
+      How does version pinning work for Helm releases managed by the ResourceSet? Where do I define the version and how does it get substituted into the HelmRelease?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - versions.env
+          - "${}"
+        any_of:
+          - Flux substitution
+          - substitution
+          - renovate
+          - Renovate
+        forbidden:
+          - hardcode
+          - commit
+      judge_criteria: |
+        Score 0-10 on accuracy and completeness of version management explanation:
+        - 0-2: Does not mention versions.env or variable substitution
+        - 3-4: Mentions versions.env but not the ${variable_name} substitution syntax
+        - 5-6: Explains both versions.env and ${variable_name} syntax in helm-charts.yaml
+        - 7-8: Covers versions.env, ${variable_name} substitution, and Renovate annotation for automated updates
+        - 9-10: Full coverage including versions.env entry format, ${variable_name} reference in helm-charts.yaml, Renovate annotation syntax for tracking, and how Flux performs the substitution at reconcile time
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should explain that versions are defined in kubernetes/platform/versions.env with a Renovate annotation comment, and referenced in helm-charts.yaml as ${variable_name} (e.g., ${my_chart_version}). Flux performs variable substitution at reconcile time, injecting the value from versions.env into the HelmRelease spec.
+    tags:
+      - trimmed-2026-03-22
+      - flux-gitops-skill
+
+  - id: FLX-04
+    description: "Correctly distinguishes HelmRelease dependsOn from ResourceSet dependsOn"
+    category: dedup
+    severity: medium
+    prompt: |
+      What is the difference between setting dependsOn inside a helm-charts.yaml inputs entry versus setting dependsOn on the ResourceSet spec itself?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - HelmRelease
+          - ResourceSet
+        any_of:
+          - platform-namespaces
+          - fluxcd.controlplane.io
+          - inputs
+        forbidden:
+          - same
+          - identical
+          - no difference
+      judge_criteria: |
+        Score 0-10 on clarity of distinction:
+        - 0-2: States they are the same or confuses the two
+        - 3-5: Identifies that one is for HelmRelease dependencies and one is for ResourceSet dependencies but does not explain what each waits for
+        - 6-7: Correctly explains inputs.dependsOn waits for other HelmReleases to be ready, while spec.dependsOn waits for another ResourceSet
+        - 8-10: Full explanation including that inputs.dependsOn takes a list of HelmRelease names (e.g., [cilium, kube-prometheus-stack]) and spec.dependsOn takes a full apiVersion/kind/name reference to another ResourceSet (e.g., platform-namespaces), with a concrete example of when each is appropriate
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should explain that dependsOn in the inputs entry makes the generated HelmRelease wait for other named HelmReleases to be Ready before installing. The spec.dependsOn on the ResourceSet itself makes the entire ResourceSet wait for another ResourceSet (like platform-namespaces) to be ready first. These operate at different layers of the Flux object hierarchy.
+    tags:
+      - trimmed-2026-03-22
+      - flux-gitops-skill
+
+  - id: FLX-05
+    description: "Correctly identifies the symptom-to-cause mapping for common Flux reconciliation failures"
+    category: coverage
+    severity: medium
+    prompt: |
+      My HelmRelease is stuck with the message "values key not found". What is the cause and how do I fix it?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - kustomization.yaml
+          - configMapGenerator
+        any_of:
+          - platform-values
+          - charts/
+          - register
+        forbidden:
+          - kubectl apply
+          - helm upgrade
+          - manually apply
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Should identify that the values file for the HelmRelease is not registered in the kustomization.yaml configMapGenerator, so the platform-values ConfigMap does not include it. Fix is to add the charts/<release-name>.yaml entry to the configMapGenerator files list in kustomization.yaml.
+    tags:
+      - trimmed-2026-03-22
+      - flux-gitops-skill

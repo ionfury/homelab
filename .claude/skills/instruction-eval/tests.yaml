@@ -1,0 +1,87 @@
+version: 1
+skill: instruction-eval
+description: "Verify when to run eval, how to interpret PASS/PARTIAL/FAIL scores, and A/B testing via the automated script"
+tests:
+  - id: EVL-01
+    description: "Knows to run eval before creating a PR for skill or CLAUDE.md changes"
+    category: routing
+    severity: high
+    prompt: |
+      I just finished trimming and refactoring three skill files. What should I do before opening a PR?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["instruction-eval", "eval"]
+        any_of: ["before", "PR", "regression", "run-eval.py", "spot-check"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must recommend running the instruction eval before creating a PR for skill/CLAUDE.md changes.
+      Should mention either the spot-check mode or the automated run-eval.py script.
+    tags:
+      - trimmed-2026-03-22
+      - instruction-eval-skill
+
+  - id: EVL-02
+    description: "Correctly maps PARTIAL score to manual review, not automatic pass or fail"
+    category: coverage
+    severity: high
+    prompt: |
+      The eval script shows PARTIAL for one of my constraint probes. What does that mean and what should I do?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["manual review", "PARTIAL"]
+        any_of: ["some keywords", "not all", "investigate"]
+      forbidden: ["pass", "safe to proceed", "ignore"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must explain PARTIAL means some required keywords were found but not all. Must direct to
+      manual review. Must not treat PARTIAL as a pass — it requires investigation.
+    tags:
+      - trimmed-2026-03-22
+      - instruction-eval-skill
+
+  - id: EVL-03
+    description: "Diagnoses skill routing failure as a frontmatter trigger issue"
+    category: coverage
+    severity: medium
+    prompt: |
+      The eval shows FAIL for a probe that should trigger the kubesearch skill, but Claude is answering from general knowledge instead. What's wrong?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["description:", "triggers", "frontmatter"]
+        any_of: ["SKILL.md", "phrasing", "routing probe"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must diagnose that the skill's description frontmatter triggers don't match the probe phrasing.
+      Must recommend updating the skill's description: field with additional trigger phrases.
+    tags:
+      - trimmed-2026-03-22
+      - instruction-eval-skill
+
+  - id: EVL-04
+    description: "Automated script supports --json output flag and category filtering"
+    category: factored
+    severity: low
+    prompt: |
+      How do I run the eval script to only test constraint probes and output results as JSON for CI?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["--json", "--category constraints", "run-eval.py"]
+        any_of: ["pip install", "anthropic", "eval-report.json"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must show the correct command with both --category constraints and --json flags.
+      Must reference run-eval.py in the correct path. Should mention dependency installation.
+    tags:
+      - trimmed-2026-03-22
+      - instruction-eval-skill

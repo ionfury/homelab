@@ -1,0 +1,92 @@
+version: 1
+skill: grafana-dashboards
+description: "Verify MCP-driven metric discovery, ConfigMap label requirements, and datasource field conventions"
+tests:
+  - id: GRF-01
+    description: "Discovers metrics via MCP before building panels, never guesses metric names"
+    category: constraint
+    severity: critical
+    prompt: |
+      Create a Grafana dashboard panel showing CPU usage for the monitoring namespace.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["list_prometheus_metric_names"]
+        any_of: ["MCP", "discover", "Never guess", "list_prometheus_metric_metadata"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: true
+    expected_behavior: |
+      Must invoke MCP tool list_prometheus_metric_names before writing any PromQL.
+      Must not guess or assume metric names. Should demonstrate the discover→build→push workflow.
+    tags:
+      - trimmed-2026-03-22
+      - grafana-dashboards-skill
+
+  - id: GRF-02
+    description: "Uses hardcoded prometheus datasource uid, never template variable"
+    category: constraint
+    severity: high
+    prompt: |
+      Write the datasource field for a Grafana dashboard panel that queries Prometheus.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["\"type\": \"prometheus\"", "\"uid\": \"prometheus\""]
+        forbidden: ["${datasource}", "$datasource"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must use the hardcoded datasource object: {"type": "prometheus", "uid": "prometheus"}.
+      Must never use ${datasource} template variable which breaks on import.
+    tags:
+      - trimmed-2026-03-22
+      - grafana-dashboards-skill
+
+  - id: GRF-03
+    description: "ConfigMap includes grafana_dashboard label and uses |- for JSON body"
+    category: coverage
+    severity: high
+    prompt: |
+      How do I persist a Grafana dashboard to git as a ConfigMap so the sidecar picks it up?
+    scoring:
+      mode: both
+      keywords:
+        required: ["grafana_dashboard: \"true\"", "namespace: monitoring", "grafana_folder"]
+        any_of: ["|-", "kustomization.yaml", "sidecar"]
+      judge_criteria: |
+        Score 0-10. Award points for:
+        - Including grafana_dashboard: "true" label (3pts)
+        - Placing ConfigMap in monitoring namespace (2pts)
+        - Using grafana_folder annotation for folder organization (2pts)
+        - Using |- for the JSON body (1pt)
+        - Mentioning kustomization.yaml registration (2pts)
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must show ConfigMap with grafana_dashboard: "true" label, monitoring namespace,
+      grafana_folder annotation, and |- block scalar for JSON. Must mention kustomization registration.
+    tags:
+      - trimmed-2026-03-22
+      - grafana-dashboards-skill
+
+  - id: GRF-04
+    description: "Sets id to null and graphTooltip to 1 in dashboard JSON"
+    category: factored
+    severity: medium
+    prompt: |
+      What are the required top-level fields in the Grafana dashboard JSON structure?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["\"id\": null", "\"graphTooltip\": 1"]
+        any_of: ["\"uid\"", "kebab-case"]
+      forbidden: ["\"id\": 1", "\"id\": 2"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must specify id as null (Grafana assigns on import) and graphTooltip as 1 (shared crosshair).
+      Must mention uid should be kebab-case and unique across all dashboards.
+    tags:
+      - trimmed-2026-03-22
+      - grafana-dashboards-skill

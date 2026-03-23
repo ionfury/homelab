@@ -1,0 +1,141 @@
+version: 1
+skill: prometheus
+description: "Verifies Prometheus access method (OAuth2 Proxy constraint), promql.sh script usage, and common PromQL query patterns"
+tests:
+  - id: PRO-01
+    description: "OAuth2 Proxy blocks direct DNS URL access — must use kubectl exec or port-forward"
+    category: factored
+    severity: critical
+    prompt: |
+      I want to query Prometheus to check CPU usage. Can I just curl https://prometheus.internal.tomnowak.work/api/v1/query?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - OAuth2
+          - kubectl
+        any_of:
+          - "port-forward"
+          - "kubectl exec"
+          - "cannot"
+          - "will not work"
+          - "redirects"
+          - "login"
+        forbidden:
+          - "curl https://prometheus.internal"
+          - "yes"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Clearly states the DNS URL does NOT work for API queries (OAuth2 Proxy redirects to login)
+        - Offers kubectl exec into the prometheus pod as an alternative
+        - Offers kubectl port-forward as an alternative
+        - Does not suggest the DNS URL will work with any curl flags
+        Deduct 5 points if the response suggests the DNS URL can be used for API queries.
+        Deduct 3 points if only one access method is offered without explaining why the DNS URL fails.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response must explain that https://prometheus.internal.tomnowak.work redirects to OAuth login and cannot be used for API queries. Must offer either kubectl exec into prometheus-kube-prometheus-stack-0 or kubectl port-forward as the correct approach.
+    tags:
+      - trimmed-2026-03-22
+      - prometheus-skill
+
+  - id: PRO-02
+    description: "promql.sh script usage for firing alerts"
+    category: coverage
+    severity: high
+    prompt: |
+      How do I see which alerts are currently firing in the cluster using the promql.sh script?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - promql.sh
+          - alerts
+          - "--firing"
+        any_of:
+          - port-forward
+          - "9090"
+          - "prometheus-operated"
+        forbidden:
+          - "https://prometheus.internal"
+      judge_criteria: ""
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should show the promql.sh alerts --firing command, note that port-forward to svc/prometheus-operated:9090 is required first, and use the correct script path under .claude/skills/prometheus/scripts/.
+    tags:
+      - trimmed-2026-03-22
+      - prometheus-skill
+
+  - id: PRO-03
+    description: "Common PromQL query patterns for CPU and memory"
+    category: coverage
+    severity: medium
+    prompt: |
+      Show me PromQL queries for cluster-wide CPU usage percentage and memory usage percentage.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - node_cpu_seconds_total
+          - node_memory
+        any_of:
+          - "rate("
+          - "idle"
+          - "MemAvailable"
+          - "MemTotal"
+          - "* 100"
+        forbidden: []
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Shows a CPU query using rate(node_cpu_seconds_total{mode="idle"}[5m]) or equivalent
+        - Shows a memory query using node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
+        - Both queries produce a percentage (multiplied by 100 or equivalent)
+        - Correct use of rate() with a time window for the CPU metric
+        Deduct 3 points for each query that does not produce a percentage.
+        Deduct 2 points if rate() is missing from the CPU query.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should provide valid PromQL for CPU (using rate on idle mode, subtracted from 1, times 100) and memory (MemAvailable / MemTotal, subtracted from 1, times 100). Queries should be usable via kubectl exec or promql.sh.
+    tags:
+      - trimmed-2026-03-22
+      - prometheus-skill
+
+  - id: PRO-04
+    description: "kubectl exec access method for one-off Prometheus queries"
+    category: routing
+    severity: high
+    prompt: |
+      I need to quickly check if any pods are not in Running or Succeeded state, without setting up port-forward. How do I query Prometheus?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - kubectl exec
+          - prometheus-kube-prometheus-stack-0
+          - wget
+        any_of:
+          - "kube_pod_status_phase"
+          - "localhost:9090"
+          - "-n monitoring"
+          - "-c prometheus"
+        forbidden:
+          - "https://prometheus.internal"
+          - "port-forward"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Uses kubectl exec into prometheus-kube-prometheus-stack-0 in the monitoring namespace
+        - Uses wget -qO- to call localhost:9090
+        - Includes a valid PromQL expression for problem pods (kube_pod_status_phase or equivalent)
+        - Specifies the -c prometheus container flag
+        Deduct 4 points if port-forward is suggested (contradicts the "without port-forward" constraint).
+        Deduct 3 points if the container flag is missing.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should use kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- wget -qO- with a localhost:9090 query URL including a PromQL expression for non-Running pods. Should not suggest port-forward since the user requested against it.
+    tags:
+      - trimmed-2026-03-22
+      - prometheus-skill

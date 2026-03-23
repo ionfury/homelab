@@ -1,0 +1,138 @@
+version: 1
+skill: gha-pipelines
+description: "Verify the homelab GHA pipelines skill correctly describes the workflow inventory, tool setup conventions, OCI promotion integration, and anti-patterns."
+tests:
+  - id: GHA-01
+    description: "Workflow inventory — naming all seven workflows and their triggers"
+    category: coverage
+    severity: high
+    prompt: |
+      List all the GitHub Actions workflows in this repository, what triggers each one, and what it does.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - kubernetes-validate.yaml
+          - infrastructure-validate.yaml
+          - build-platform-artifact.yaml
+          - tag-validated-artifact.yaml
+        any_of:
+          - renovate-validate.yaml
+          - renovate.yaml
+          - label-sync.yaml
+          - pull_request
+          - push to main
+      judge_criteria: |
+        Score 0-10 on completeness of workflow inventory.
+        10: Names all seven workflows: kubernetes-validate (PR on kubernetes/), infrastructure-validate (PR on infrastructure/), renovate-validate (PR on renovate config), build-platform-artifact (push to main on kubernetes/), tag-validated-artifact (status event or manual), renovate (scheduled hourly), label-sync (scheduled or manual). Describes purpose of each.
+        7-9: Names 5-6 workflows with correct triggers and purposes.
+        4-6: Names 3-4 core workflows accurately.
+        1-3: Only 1-2 workflows mentioned.
+        0: Incorrect or no workflow inventory.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Lists all seven workflows with their triggers and purposes. Correctly identifies that build-platform-artifact triggers on push to main when kubernetes/ files change, and tag-validated-artifact triggers on status events or manually.
+    tags:
+      - trimmed-2026-03-22
+      - gha-pipelines-skill
+
+  - id: GHA-02
+    description: "Tool setup convention — mise over apt-get/brew"
+    category: constraint
+    severity: high
+    prompt: |
+      How should CI tools (like kubectl, flux, tofu) be installed in GitHub Actions workflows for this repository? Show me the correct pattern.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - jdx/mise-action
+          - mise
+        any_of:
+          - .mise.toml
+          - actions/checkout
+          - task
+          - NEVER apt-get
+          - NEVER brew
+      judge_criteria: |
+        Score 0-10 on correctness of the tool setup pattern.
+        10: Shows the three-step pattern (checkout, mise-action@v3, task command), explains that mise reads .mise.toml so CI and local dev use identical versions, and explicitly states apt-get and brew are forbidden.
+        7-9: Shows the mise-action pattern correctly but missing the .mise.toml explanation or the prohibition on apt-get/brew.
+        4-6: Mentions mise but shows incorrect action syntax or version.
+        1-3: Suggests apt-get or brew (anti-pattern) or very vague.
+        0: Incorrect.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Shows the canonical three-step pattern: actions/checkout@v6, jdx/mise-action@v3, then task <domain>:validate. Explains that mise reads .mise.toml for version pinning so CI matches local dev. States that apt-get, brew, and hardcoded versions in workflow files are forbidden.
+    tags:
+      - trimmed-2026-03-22
+      - gha-pipelines-skill
+
+  - id: GHA-03
+    description: "Path-based trigger convention including workflow file and mise.toml"
+    category: coverage
+    severity: medium
+    prompt: |
+      When adding a pull_request trigger for a new validation workflow that validates the kubernetes/ directory, what paths should be listed in the paths filter?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - kubernetes/**
+          - .mise.toml
+        any_of:
+          - .github/workflows/kubernetes-validate.yaml
+          - .taskfiles/kubernetes
+          - workflow_dispatch
+      judge_criteria: |
+        Score 0-10 on completeness of the paths list.
+        10: Lists kubernetes/**, the workflow file itself (.github/workflows/<name>.yaml), .mise.toml, and relevant taskfiles directory. Also includes workflow_dispatch as a trigger.
+        7-9: Lists kubernetes/** and at least one of the workflow file or .mise.toml, plus workflow_dispatch.
+        4-6: Lists only kubernetes/** without the self-referential paths.
+        1-3: Very incomplete or incorrect paths.
+        0: Incorrect.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Lists at minimum: kubernetes/**, .github/workflows/kubernetes-validate.yaml (the workflow file itself), .mise.toml, and .taskfiles/kubernetes/**. Also mentions workflow_dispatch as a required additional trigger per the anti-patterns section.
+    tags:
+      - trimmed-2026-03-22
+      - gha-pipelines-skill
+
+  - id: GHA-04
+    description: "OCI promotion integration — idempotency guard and semver design"
+    category: coverage
+    severity: high
+    prompt: |
+      I'm modifying the tag-validated-artifact workflow. What are the key design constraints I need to be aware of, particularly around idempotency and how it interacts with the Flux alert system?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - idempotency
+          - validated-
+        any_of:
+          - reconciliation cycle
+          - Alert fires
+          - every reconciliation
+          - semver
+          - rc.N
+          - stable
+          - ">= 0.0.0-0"
+          - ">= 0.0.0"
+      judge_criteria: |
+        Score 0-10 on accuracy of the design constraint explanation.
+        10: Explains that the Flux Alert fires on every reconciliation cycle (not just once), so the workflow must check for an existing validated-* tag before re-tagging (idempotency guard). Also mentions the semver promotion design: integration polls >= 0.0.0-0 (accepts RC), live polls >= 0.0.0 (stable only), and the workflow strips the RC suffix to create the stable tag.
+        7-9: Covers the idempotency guard correctly but missing the semver constraint details or vice versa.
+        4-6: Aware of one of the two main constraints.
+        1-3: Vague awareness of the issue.
+        0: Incorrect.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Explains the idempotency guard (check for existing validated-* tag before acting, because the Alert fires on every reconciliation cycle not just once). Also explains the semver design: integration uses >= 0.0.0-0 to accept RC versions, live uses >= 0.0.0 for stable only, and the workflow's job is to strip the rc suffix.
+    tags:
+      - trimmed-2026-03-22
+      - gha-pipelines-skill

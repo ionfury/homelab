@@ -1,0 +1,145 @@
+version: 1
+skill: sync-claude
+description: "Verify the sync-claude skill correctly describes the two modes, the four agent groups, the discovery scripts, and the mode selection logic."
+tests:
+  - id: SYN-01
+    description: "Two modes: full vs changed and when each is used"
+    category: coverage
+    severity: high
+    prompt: |
+      What are the two modes for validating Claude documentation, when is each used, and what does each one scan?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - full
+          - changed
+        any_of:
+          - git diff
+          - origin/main
+          - all docs
+          - branch
+          - main branch
+          - modified
+      judge_criteria: |
+        Score 0-10 on completeness and accuracy of mode description.
+        10: Correctly describes both modes: full (scans all CLAUDE.md files, all SKILL.md files, all references/*.md, used on main branch or when no changes to analyze) and changed (analyzes git diff against origin/main, finds directly modified docs AND docs that reference changed paths, default mode when on a branch with commits ahead of main). Also describes the mode selection logic: specified by user > on main > branch with commits > else full.
+        7-9: Describes both modes correctly but missing the mode selection logic or the smart detection of docs referencing changed paths.
+        4-6: Distinguishes full vs changed but only superficially.
+        1-3: Aware of two modes but significant inaccuracies.
+        0: Incorrect.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Explains full mode scans all CLAUDE.md, SKILL.md, and references/*.md files. Explains changed mode uses git diff --name-only origin/main...HEAD to find directly modified docs and docs referencing changed paths. Describes the mode selection priority: user-specified > on main > branch with commits > else full.
+    tags:
+      - trimmed-2026-03-22
+      - sync-claude-skill
+
+  - id: SYN-02
+    description: "Discovery scripts: discover-claude-docs.sh and extract-references.sh"
+    category: coverage
+    severity: medium
+    prompt: |
+      What scripts does the sync-claude skill use during the discovery phase, where are they located, and what does each one do?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - discover-claude-docs.sh
+          - extract-references.sh
+          - .claude/skills/sync-claude/scripts/
+        any_of:
+          - --changed
+          - JSON
+          - path refs
+          - commands
+          - skill refs
+          - enumerate
+      judge_criteria: |
+        Score 0-10 on accuracy of script description.
+        10: Names both scripts, gives their correct location (.claude/skills/sync-claude/scripts/), explains discover-claude-docs.sh enumerates files (with --changed flag for changed mode) and extract-references.sh extracts path refs, dir refs, commands, skill refs, and CLI tools as structured JSON from each file.
+        7-9: Names both scripts and location, describes purpose of each but missing details like the --changed flag or JSON output format.
+        4-6: Names the scripts and location but only vague description of what they do.
+        1-3: Names one script or has the location wrong.
+        0: Does not know the scripts.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Names discover-claude-docs.sh and extract-references.sh, located in .claude/skills/sync-claude/scripts/. Explains discover-claude-docs.sh enumerates all Claude docs (with --changed flag for changed mode). Explains extract-references.sh extracts path refs, directory refs, commands, skill refs, and CLI tools as structured JSON for each file.
+    tags:
+      - trimmed-2026-03-22
+      - sync-claude-skill
+
+  - id: SYN-03
+    description: "Four validation agent groups and what each validates"
+    category: coverage
+    severity: medium
+    prompt: |
+      The sync-claude workflow spawns multiple parallel Haiku agents to validate different aspects of documentation. What are the agent groups and what does each one check?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - path
+          - command
+          - cross-reference
+        any_of:
+          - Haiku
+          - parallel
+          - file paths
+          - task
+          - Taskfile
+          - skill references
+          - function
+          - code reference
+      judge_criteria: |
+        Score 0-10 on completeness of agent group description.
+        10: Describes all four groups: (A) Path Validators (per directory domain, verify file/directory paths exist, fuzzy-search for renames), (B) Code Reference Validators (function/class names, line number accuracy, variable names), (C) Command Validators (task commands in Taskfile, CLI tools in Brewfile, command syntax), (D) Cross-Reference Validators (skill refs in CLAUDE.md match actual skills, table entries, runbook refs). Notes they run in parallel.
+        7-9: Describes 3 of 4 groups accurately.
+        4-6: Describes 2 groups or all groups but superficially.
+        1-3: Vague, only aware of one type of validation.
+        0: Incorrect.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Describes the four parallel Haiku agent groups: Path Validators (verify file and directory paths exist, one agent per directory domain), Code Reference Validators (function names, line numbers, variable names), Command Validators (task commands in Taskfile, CLI tools in Brewfile), and Cross-Reference Validators (skill refs, table entries, runbook refs). Notes parallel execution.
+    tags:
+      - trimmed-2026-03-22
+      - sync-claude-skill
+
+  - id: SYN-04
+    description: "Opus agent role in Phase 4 and severity classification"
+    category: coverage
+    severity: medium
+    prompt: |
+      After the parallel Haiku agents finish, what happens in Phase 4 of the sync-claude workflow? What role does an Opus agent play and how are findings categorized?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - Opus
+          - CRITICAL
+          - WARNING
+        any_of:
+          - deduplicate
+          - severity
+          - proposed edits
+          - old_string
+          - new_string
+          - approval
+          - INFO
+      judge_criteria: |
+        Score 0-10 on accuracy of Phase 4 description.
+        10: Explains Opus agent deduplicates all Haiku findings, categorizes severity (CRITICAL: broken refs users will hit; WARNING: outdated but functional; INFO: cosmetic), generates proposed Edit operations with old_string/new_string pairs, and presents the final change list for user approval before applying any edits.
+        7-9: Covers deduplication, severity categories, and user approval but missing the Edit operation format (old_string/new_string).
+        4-6: Knows Opus reviews and proposes fixes but missing severity classification details.
+        1-3: Only vaguely aware of a review phase.
+        0: Incorrect.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Explains the Opus agent deduplicates Haiku findings, categorizes into CRITICAL (broken refs users will hit), WARNING (outdated but functional), INFO (cosmetic), generates proposed Edit operations (old_string/new_string format), and presents the change list for user approval before applying.
+    tags:
+      - trimmed-2026-03-22
+      - sync-claude-skill

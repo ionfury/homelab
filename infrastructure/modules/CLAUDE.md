@@ -21,35 +21,6 @@ For architectural context (units vs modules), see [infrastructure/CLAUDE.md](../
 
 ---
 
-## Architecture Context
-
-### Modules = Implementation Logic
-
-Modules contain all business logic:
-- Conditional expressions based on cluster name
-- Feature flag handling
-- Resource provisioning
-- Data transformations
-
-### Units = Thin Wiring
-
-Units (in `infrastructure/units/`) wire modules together:
-- No business logic
-- Pass configuration from config module to other modules
-- Declare dependencies
-
-### The Config Module
-
-The `config` module is the "brain" — it:
-- Reads global configuration (inventory, networking, versions)
-- Computes all environment-specific settings
-- Has **no providers** (pure computation)
-- Exposes structured outputs consumed by other modules
-
-Other modules receive pre-computed values, keeping them simple.
-
----
-
 ## Module Structure
 
 Standard module layout:
