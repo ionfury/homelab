@@ -3,7 +3,7 @@ skill: k8s
 description: "Verify cluster access patterns, Flux reconciliation commands, and common operational kubectl anti-patterns surface correctly"
 tests:
   - id: K8S-01
-    description: "Surfaces KUBECONFIG=~/.kube/<cluster>.yaml pattern for cluster access"
+    description: "Surfaces kubectl --context <cluster> pattern for cluster access"
     category: coverage
     severity: high
     prompt: |
@@ -12,33 +12,31 @@ tests:
       mode: both
       keywords:
         required:
-          - KUBECONFIG
+          - --context
           - live
-          - ~/.kube/
         any_of:
-          - live.yaml
           - kubectl get pods
           - -n monitoring
         forbidden:
           - kubectl config use-context
-          - kube-context
+          - KUBECONFIG=~/
           - kubeadm
       judge_criteria: |
         Score 0-10 on correctness of cluster access pattern:
-        - 0-2: Does not mention KUBECONFIG or uses wrong access method (e.g., kubectl config use-context)
-        - 3-5: Mentions KUBECONFIG but gives wrong path format (not ~/.kube/<cluster>.yaml)
-        - 6-7: Correct KUBECONFIG=~/.kube/live.yaml pattern with the kubectl command
-        - 8-10: Full example with KUBECONFIG=~/.kube/live.yaml kubectl get pods -n monitoring, and mentions all three cluster names (dev, integration, live) to show the pattern generalizes
+        - 0-2: Uses KUBECONFIG=~/.kube/live.yaml prefix or kubectl config use-context (old patterns)
+        - 3-5: Mentions --context but uses wrong cluster name or wrong command structure
+        - 6-7: Correct kubectl --context live get pods -n monitoring pattern
+        - 8-10: Full example with kubectl --context live get pods -n monitoring, and mentions all three cluster names (dev, integration, live) to show the pattern generalizes
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Should show the KUBECONFIG=~/.kube/live.yaml prefix pattern for cluster access, not kubectl config use-context or context switching. Should include the full command: KUBECONFIG=~/.kube/live.yaml kubectl get pods -n monitoring.
+      Should show the kubectl --context live get pods -n monitoring pattern using the combined kubeconfig. Must NOT use KUBECONFIG=~/.kube/live.yaml prefix or kubectl config use-context.
     tags:
       - trimmed-2026-03-22
       - k8s-skill
 
   - id: K8S-02
-    description: "Surfaces Flux reconciliation commands with correct KUBECONFIG prefix"
+    description: "Surfaces Flux reconciliation commands with correct --context flag"
     category: coverage
     severity: high
     prompt: |
@@ -48,26 +46,26 @@ tests:
       keywords:
         required:
           - flux reconcile helmrelease
-          - KUBECONFIG
+          - --context
           - integration
         any_of:
-          - integration.yaml
           - -n monitoring
           - flux-system
         forbidden:
           - helm upgrade
           - kubectl apply
           - helm list
+          - KUBECONFIG=~/
       judge_criteria: |
         Score 0-10 on completeness of the reconciliation approach:
-        - 0-2: Uses helm CLI instead of flux CLI, or omits KUBECONFIG prefix entirely
-        - 3-5: Uses flux reconcile but with wrong KUBECONFIG pattern or wrong cluster name
-        - 6-7: Correct command: KUBECONFIG=~/.kube/integration.yaml flux reconcile helmrelease grafana -n monitoring
-        - 8-10: Correct command plus a follow-up check command (e.g., flux get helmreleases -A or kubectl describe helmrelease grafana -n monitoring) and an explanation of when to use reconcile kustomization vs reconcile helmrelease
+        - 0-2: Uses helm CLI instead of flux CLI, or uses KUBECONFIG=~/.kube/integration.yaml prefix (old pattern)
+        - 3-5: Uses flux reconcile but with wrong context flag or wrong cluster name
+        - 6-7: Correct command: flux --context integration reconcile helmrelease grafana -n monitoring
+        - 8-10: Correct command plus a follow-up check command (e.g., flux --context integration get helmreleases -A or kubectl --context integration describe helmrelease grafana -n monitoring) and an explanation of when to use reconcile kustomization vs reconcile helmrelease
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Should provide: KUBECONFIG=~/.kube/integration.yaml flux reconcile helmrelease grafana -n monitoring. Must use flux CLI not helm CLI. Should use the KUBECONFIG=~/.kube/<cluster>.yaml pattern, not context switching.
+      Should provide: flux --context integration reconcile helmrelease grafana -n monitoring. Must use flux CLI not helm CLI. Should use the --context <cluster> pattern, not KUBECONFIG=~/.kube/ prefix.
     tags:
       - trimmed-2026-03-22
       - k8s-skill
@@ -161,11 +159,11 @@ tests:
         - 0-2: Only mentions one or two commands, all at the same layer (e.g., only pod-level)
         - 3-5: Covers two layers (e.g., HelmRelease status + pod logs) but misses Flux source/kustomization checks
         - 6-7: Covers at least three layers: ResourceSet/Kustomization → HelmRelease → Pod-level events/logs
-        - 8-10: Full top-down sequence: (1) flux get kustomizations / kubectl get resourcesets, (2) kubectl describe helmrelease, (3) kubectl get pods -n <namespace>, (4) kubectl describe pod, (5) kubectl logs — each with KUBECONFIG prefix and correct namespace flags
+        - 8-10: Full top-down sequence: (1) flux get kustomizations / kubectl get resourcesets, (2) kubectl describe helmrelease, (3) kubectl get pods -n <namespace>, (4) kubectl describe pod, (5) kubectl logs — each with --context <cluster> flag and correct namespace flags
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Should walk through a layered diagnosis: start with flux get kustomizations or kubectl get resourcesets -n flux-system, then kubectl describe helmrelease, then kubectl get pods -n <namespace>, then kubectl describe pod and kubectl logs. All commands should use the KUBECONFIG=~/.kube/<cluster>.yaml prefix pattern.
+      Should walk through a layered diagnosis: start with flux get kustomizations or kubectl get resourcesets -n flux-system, then kubectl describe helmrelease, then kubectl get pods -n <namespace>, then kubectl describe pod and kubectl logs. All commands should use the --context <cluster> flag pattern.
     tags:
       - trimmed-2026-03-22
       - k8s-skill

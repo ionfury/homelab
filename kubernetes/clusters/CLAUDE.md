@@ -138,7 +138,7 @@ See `references/silences.md` for the full CRD structure, matcher reference, and 
 
 ## Available Clusters
 
-Kubeconfig files are at `~/.kube/<cluster>.yaml`. Always specify `KUBECONFIG=` per command — do not rely on `kubectl config use-context`.
+A combined kubeconfig is at `~/.kube/config` with all three clusters registered. Use `kubectl --context <cluster>` to target a specific cluster — do not switch contexts globally with `kubectl config use-context`.
 
 | Name | Purpose | Hardware | Notes |
 |------|---------|----------|-------|

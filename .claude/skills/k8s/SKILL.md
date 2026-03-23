@@ -37,14 +37,14 @@ The available clusters are `dev`, `integration`, and `live`.  Use the corespondi
 
 ```bash
 # Check status
-KUBECONFIG=~/.kube/<cluster>.yaml flux get all
-KUBECONFIG=~/.kube/<cluster>.yaml flux get kustomizations
-KUBECONFIG=~/.kube/<cluster>.yaml flux get helmreleases -A
+flux --context <cluster> get all
+flux --context <cluster> get kustomizations
+flux --context <cluster> get helmreleases -A
 
 # Trigger reconciliation
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile source git flux-system
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile kustomization <name>
-KUBECONFIG=~/.kube/<cluster>.yaml flux reconcile helmrelease <name> -n <namespace>
+flux --context <cluster> reconcile source git flux-system
+flux --context <cluster> reconcile kustomization <name>
+flux --context <cluster> reconcile helmrelease <name> -n <namespace>
 ```
 
 ## Flux Status Interpretation

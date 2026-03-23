@@ -1,7 +1,7 @@
 #!/bin/bash
 # Check ExternalSecret sync status for a given secret and namespace
-# Usage: KUBECONFIG=~/.kube/<cluster>.yaml ./check-secret-sync.sh <name> <namespace>
-# Example: KUBECONFIG=~/.kube/live.yaml ./check-secret-sync.sh lldap-secrets authelia
+# Usage: CONTEXT=<cluster> ./check-secret-sync.sh <name> <namespace>
+# Example: CONTEXT=live ./check-secret-sync.sh lldap-secrets authelia
 
 set -euo pipefail
 

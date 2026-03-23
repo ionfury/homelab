@@ -16,18 +16,18 @@ Prometheus and Alertmanager are behind **OAuth2 Proxy** on the internal gateway.
 
 ```bash
 # Query Prometheus API directly inside the pod
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
+kubectl --context <cluster> exec -n monitoring prometheus-kube-prometheus-stack-0 -c prometheus -- \
   wget -qO- 'http://localhost:9090/api/v1/query?query=up' | jq '.data.result'
 
 # Query Alertmanager API
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl exec -n monitoring alertmanager-kube-prometheus-stack-0 -c alertmanager -- \
+kubectl --context <cluster> exec -n monitoring alertmanager-kube-prometheus-stack-0 -c alertmanager -- \
   wget -qO- 'http://localhost:9093/api/v2/alerts' | jq .
 ```
 
 **Option 2: Port-forward (for scripts and repeated queries)**
 
 ```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
+kubectl --context <cluster> port-forward -n monitoring svc/prometheus-operated 9090:9090 &
 export PROMETHEUS_URL=http://localhost:9090
 ```
 
@@ -39,7 +39,7 @@ Use the bundled script at `.claude/skills/prometheus/scripts/promql.sh`:
 
 ```bash
 # Start port-forward first (script defaults to http://localhost:9090)
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
+kubectl --context <cluster> port-forward -n monitoring svc/prometheus-operated 9090:9090 &
 
 # Instant query
 ./scripts/promql.sh query 'up'

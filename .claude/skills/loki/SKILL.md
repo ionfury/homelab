@@ -17,7 +17,7 @@ user-invocable: false
 Loki does **not** have an HTTPRoute on the internal ingress gateway, so it requires port-forward access (unlike Prometheus and Grafana which are available via DNS).
 
 ```bash
-KUBECONFIG=~/.kube/<cluster>.yaml kubectl port-forward -n monitoring svc/loki-headless 3100:3100 &
+kubectl --context <cluster> port-forward -n monitoring svc/loki-headless 3100:3100 &
 export LOKI_URL=http://localhost:3100
 ```
 
