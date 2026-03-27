@@ -1,0 +1,18 @@
+---
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-platform
+  namespace: velero
+spec:
+  # Automatically selects the most recent successful backup from this schedule
+  scheduleName: platform
+  restorePVs: true
+  existingResourcePolicy: none
+  # garage: PVC restore recovers object storage (including CNPG Barman archives)
+  # database: PVC restore alone does NOT recover CNPG databases -- the operator
+  #   runs initdb regardless. Full DB recovery requires bootstrap.recovery with
+  #   barmanObjectStore pointing at the restored Garage S3 (follow-up work).
+  includedNamespaces:
+    - garage
+    - database

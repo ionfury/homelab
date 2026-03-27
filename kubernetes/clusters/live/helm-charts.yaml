@@ -8,6 +8,7 @@ spec:
   dependsOn:
     - name: platform
     - name: cluster-chart-values
+    - name: velero-restore
   interval: 10m
   path: kubernetes/clusters/live/resourcesets
   postBuild:
