@@ -76,7 +76,7 @@ controllers:
           DRAGONFLY_PASSWORD:
             valueFrom:
               secretKeyRef:
-                name: dragonfly-password
+                name: dragonfly-auth
                 key: password
           PAPERLESS_REDIS:
             dependsOn: DRAGONFLY_PASSWORD
