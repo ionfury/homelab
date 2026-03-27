@@ -24,8 +24,8 @@ spec:
             defaultMode: 0555
       containers:
         - name: gate
-          # renovate: datasource=docker depName=bitnamilegacy/kubectl
-          image: docker.io/bitnamilegacy/kubectl:1.33
+          # renovate: datasource=docker depName=bitnami/kubectl
+          image: docker.io/bitnami/kubectl:1.33
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

@@ -8,6 +8,7 @@ spec:
   # Automatically selects the most recent successful backup from this schedule
   scheduleName: default
   restorePVs: true
+  existingResourcePolicy: none
   includedNamespaces:
     - immich
     - satisfactory
