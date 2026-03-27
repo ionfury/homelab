@@ -85,7 +85,7 @@ configMap:
       host: dragonfly.cache.svc.cluster.local
       port: 6379
       password:
-        secret_name: dragonfly-password
+        secret_name: dragonfly-auth
         path: password
 
   storage:
@@ -188,6 +188,6 @@ secret:
   additionalSecrets:
     lldap-secrets: { }
     authelia-db-credentials: { }
-    dragonfly-password: { }
+    dragonfly-auth: { }
     grafana-oidc-client-secret: { }
     open-webui-oidc-client-secret: { }

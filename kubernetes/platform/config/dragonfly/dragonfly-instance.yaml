@@ -23,7 +23,7 @@ spec:
 
   authentication:
     passwordFromSecret:
-      name: dragonfly-password
+      name: dragonfly-auth
       key: password
 
   resources:

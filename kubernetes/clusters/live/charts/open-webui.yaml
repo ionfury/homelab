@@ -39,7 +39,7 @@ extraEnvVars:
   - name: DRAGONFLY_PASS
     valueFrom:
       secretKeyRef:
-        name: dragonfly-password
+        name: dragonfly-auth
         key: password
   - name: REDIS_URL
     value: "redis://:$(DRAGONFLY_PASS)@dragonfly.cache.svc.cluster.local:6379/0"
