@@ -1,0 +1,18 @@
+---
+# Prometheus self-manages TSDB storage via retentionSize: 50GB on a 50Gi PVC.
+# Sitting near capacity is expected steady-state behavior — Prometheus trims at
+# the size limit. The Longhorn 90% threshold fires before the retention ceiling
+# kicks in, producing a permanent false positive for these volumes.
+apiVersion: observability.giantswarm.io/v1alpha2
+kind: Silence
+metadata:
+  name: prometheus-tsdb-volume-full
+  namespace: monitoring
+spec:
+  matchers:
+    - name: alertname
+      matchType: "="
+      value: "LonghornVolumeActualSpaceUsedWarning"
+    - name: pvc
+      matchType: "=~"
+      value: "prometheus-kube-prometheus-stack-db-.*"
