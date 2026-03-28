@@ -12,17 +12,17 @@ set -euo pipefail
 #   0 — All restores terminal (including Failed), or fresh cluster (no backups)
 #   non-zero — Only from set -e on unexpected errors
 
-BACKUP_SYNC_TIMEOUT="${BACKUP_SYNC_TIMEOUT:-120}"
-POLL_INTERVAL="${POLL_INTERVAL:-15}"
+BACKUP_SYNC_TIMEOUT="$${BACKUP_SYNC_TIMEOUT:-120}"
+POLL_INTERVAL="$${POLL_INTERVAL:-15}"
 
 # Phase 1: Wait for Velero to discover existing backups from S3.
 # On a fresh deploy, the BackupStorageLocation needs time to sync.
-echo "Phase 1: Waiting up to ${BACKUP_SYNC_TIMEOUT}s for backup discovery..."
+echo "Phase 1: Waiting up to $${BACKUP_SYNC_TIMEOUT}s for backup discovery..."
 deadline=$((SECONDS + BACKUP_SYNC_TIMEOUT))
 while [ "$SECONDS" -lt "$deadline" ]; do
   count=$(kubectl get backups.velero.io -n velero -o name 2>/dev/null | wc -l)
   if [ "$count" -gt 0 ]; then
-    echo "Found ${count} backup(s) in BSL."
+    echo "Found $${count} backup(s) in BSL."
     break
   fi
   echo "No backups found yet, waiting... ($((deadline - SECONDS))s remaining)"
@@ -30,7 +30,7 @@ while [ "$SECONDS" -lt "$deadline" ]; do
 done
 
 if [ "$(kubectl get backups.velero.io -n velero -o name 2>/dev/null | wc -l)" -eq 0 ]; then
-  echo "No backups found after ${BACKUP_SYNC_TIMEOUT}s — assuming fresh cluster. Exiting successfully."
+  echo "No backups found after $${BACKUP_SYNC_TIMEOUT}s — assuming fresh cluster. Exiting successfully."
   exit 0
 fi
 
@@ -50,21 +50,21 @@ while true; do
     [ -z "$name" ] && continue
     case "$phase" in
       New|InProgress|WaitingForPluginOperations|WaitingForPluginOperationsPartiallyFailed|Finalizing|FinalizingPartiallyFailed)
-        echo "Restore ${name} is in non-terminal phase: ${phase}"
+        echo "Restore $${name} is in non-terminal phase: $${phase}"
         pending=$((pending + 1))
         ;;
       Failed|PartiallyFailed|FailedValidation)
-        echo "WARNING: Restore ${name} has phase: ${phase}"
+        echo "WARNING: Restore $${name} has phase: $${phase}"
         ;;
       Completed)
-        echo "Restore ${name} completed successfully."
+        echo "Restore $${name} completed successfully."
         ;;
       "")
-        echo "Restore ${name} has no phase yet (waiting for controller)."
+        echo "Restore $${name} has no phase yet (waiting for controller)."
         pending=$((pending + 1))
         ;;
       *)
-        echo "Restore ${name} has unrecognized phase: ${phase} (treating as non-terminal)"
+        echo "Restore $${name} has unrecognized phase: $${phase} (treating as non-terminal)"
         pending=$((pending + 1))
         ;;
     esac
@@ -75,6 +75,6 @@ while true; do
     exit 0
   fi
 
-  echo "Waiting for ${pending} restore(s) to complete..."
+  echo "Waiting for $${pending} restore(s) to complete..."
   sleep "$POLL_INTERVAL"
 done
