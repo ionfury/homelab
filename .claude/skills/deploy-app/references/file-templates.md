@@ -254,7 +254,7 @@ kind: ExternalSecret
 metadata:
   name: <app-name>-secret
 spec:
-  refreshInterval: 1h
+  refreshInterval: 24h
   secretStoreRef:
     kind: ClusterSecretStore
     name: aws-parameter-store

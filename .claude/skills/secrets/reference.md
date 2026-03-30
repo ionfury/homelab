@@ -122,7 +122,7 @@ kind: ExternalSecret
 metadata:
   name: <app>-credentials
 spec:
-  refreshInterval: 1h
+  refreshInterval: 24h
   secretStoreRef:
     kind: ClusterSecretStore
     name: aws-ssm

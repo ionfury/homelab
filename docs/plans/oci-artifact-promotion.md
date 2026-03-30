@@ -730,7 +730,7 @@ metadata:
   name: github-webhook-token
   namespace: flux-system
 spec:
-  refreshInterval: 1h
+  refreshInterval: 24h
   secretStoreRef:
     name: aws-parameter-store
     kind: ClusterSecretStore

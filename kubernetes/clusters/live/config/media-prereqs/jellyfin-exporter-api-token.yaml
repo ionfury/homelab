@@ -8,7 +8,7 @@ metadata:
   name: jellyfin-exporter-api-token
   namespace: media
 spec:
-  refreshInterval: 1h
+  refreshInterval: 24h
   secretStoreRef:
     kind: ClusterSecretStore
     name: aws-ssm
