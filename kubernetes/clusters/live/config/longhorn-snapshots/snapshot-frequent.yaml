@@ -6,11 +6,11 @@ metadata:
   name: &name snapshot-frequent
 spec:
   name: *name
-  cron: "0 */4 * * *"
+  cron: "0 1 * * *"
   task: snapshot
   groups:
     - *name
-  retain: 3
+  retain: 7
   concurrency: 5
   labels:
     jobname: *name
