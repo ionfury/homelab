@@ -3,14 +3,14 @@
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
-  name: &name snapshot-minimal
+  name: &name snapshot-frequent
 spec:
   name: *name
-  cron: "0 1 * * *"
+  cron: "0 */4 * * *"
   task: snapshot
   groups:
     - *name
-  retain: 1
+  retain: 3
   concurrency: 5
   labels:
     jobname: *name
