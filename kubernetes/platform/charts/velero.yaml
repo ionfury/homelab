@@ -54,18 +54,9 @@ credentials:
 
 priorityClassName: platform
 
-podSecurityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
+podSecurityContext: { }
 
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop: ["ALL"]
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
+containerSecurityContext: { }
 
 kubectl:
   # Pin to last published bitnamilegacy tag -- upstream dropped kubectl images for K8s >= 1.34
