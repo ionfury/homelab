@@ -54,9 +54,9 @@ credentials:
 
 priorityClassName: platform
 
-podSecurityContext: {}
+podSecurityContext: { }
 
-containerSecurityContext: {}
+containerSecurityContext: { }
 
 kubectl:
   # Pin to last published bitnamilegacy tag -- upstream dropped kubectl images for K8s >= 1.34
