@@ -3,6 +3,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../../../../platform/config/velero-restore
-  - restore-platform.yaml
-  - cnpg-recovery.yaml
+  - dr-test-bucket.yaml
+  - dr-test-key.yaml

@@ -1,0 +1,14 @@
+---
+apiVersion: garage.rajsingh.info/v1alpha1
+kind: GarageBucket
+metadata:
+  name: dr-test
+spec:
+  clusterRef:
+    name: garage
+  quotas:
+    maxSize: "1Gi"
+  keyPermissions:
+    - keyRef: dr-test-s3
+      read: true
+      write: true
