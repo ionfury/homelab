@@ -12,6 +12,7 @@ spec:
     volumeSnapshotLocations:
       - csi
     snapshotMoveData: true
+    csiSnapshotTimeout: 30m0s
     ttl: 672h0m0s
     includedNamespaces:
       - garage

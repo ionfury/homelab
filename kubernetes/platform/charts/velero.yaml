@@ -25,6 +25,12 @@ deployNodeAgent: true
 nodeAgent:
   podSecurityContext:
     runAsUser: 0
+  extraArgs:
+    # Default prepare timeout is 30m -- too short when Longhorn CSI provisioner is
+    # under load (e.g. backup-frequent RecurringJob overlapping with Velero schedule).
+    # DataUploads stuck in Accepted state exceed the default, causing PartiallyFailed
+    # backups. 2h gives ample time for volume provisioning under any realistic load.
+    - --data-mover-prepare-timeout=2h
   resources:
     requests:
       cpu: 50m
