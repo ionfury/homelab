@@ -1,0 +1,156 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+set: [pipefail]
+
+vars:
+  INFRASTRUCTURE_DIR: "{{.ROOT_DIR}}/infrastructure"
+  STACK: dev
+  CONTEXT: dev
+  TIMESTAMP:
+    sh: date +%Y%m%d-%H%M%S
+  EXERCISE_ID: "dr-exercise-{{.TIMESTAMP}}"
+  CHECKSUM_FILE: "/tmp/{{.EXERCISE_ID}}.checksum"
+  DB_SENTINEL_TABLE: dr_exercise_sentinel
+
+env:
+  AWS_REGION: us-east-2
+  AWS_PROFILE: terragrunt
+  TG_NON_INTERACTIVE: "true"
+  TF_CLI_ARGS_apply: "-auto-approve"
+  TF_CLI_ARGS_destroy: "-auto-approve"
+
+tasks:
+  exercise:
+    desc: "End-to-end DR exercise: seed data, backup, destroy dev, rebuild, restore, verify"
+    prompt: "This will DESTROY and REBUILD the dev cluster. All data will be restored from backup. Continue?"
+    cmds:
+      - task: _preflight
+      - task: _seed-garage-sentinel
+      - task: _seed-cnpg-sentinel
+      - task: _create-backup
+      - task: _destroy-cluster
+      - task: _rebuild-cluster
+      - task: _sync-kubeconfig
+      - task: _wait-convergence
+      - task: _verify-garage-sentinel
+      - task: _verify-cnpg-sentinel
+      - task: _verify-flux-health
+      - task: _verify-alerts
+      - task: _summary
+    preconditions:
+      - sh: which terragrunt kubectl velero aws flux uuidgen shasum
+        msg: "Missing required CLI tools (terragrunt kubectl velero aws flux uuidgen shasum)"
+      - sh: aws sts get-caller-identity &>/dev/null
+        msg: "AWS credentials not configured -- export AWS_PROFILE=terragrunt AWS_REGION=us-east-2"
+      - sh: test -d "{{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+        msg: "Stack '{{.STACK}}' not found at {{.INFRASTRUCTURE_DIR}}/stacks/{{.STACK}}"
+
+  _preflight:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      EXERCISE_ID: "{{.EXERCISE_ID}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/preflight.sh"
+
+  _seed-garage-sentinel:
+    internal: true
+    vars:
+      SENTINEL_UUID:
+        sh: uuidgen
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      SENTINEL_UUID: "{{.SENTINEL_UUID}}"
+      CHECKSUM_FILE: "{{.CHECKSUM_FILE}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/seed-garage-sentinel.sh"
+
+  _seed-cnpg-sentinel:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      EXERCISE_ID: "{{.EXERCISE_ID}}"
+      CHECKSUM_FILE: "{{.CHECKSUM_FILE}}"
+      DB_SENTINEL_TABLE: "{{.DB_SENTINEL_TABLE}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/seed-cnpg-sentinel.sh"
+
+  _create-backup:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      EXERCISE_ID: "{{.EXERCISE_ID}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/create-backup.sh"
+
+  _destroy-cluster:
+    internal: true
+    env:
+      INFRASTRUCTURE_DIR: "{{.INFRASTRUCTURE_DIR}}"
+      STACK: "{{.STACK}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/destroy-cluster.sh"
+
+  _rebuild-cluster:
+    internal: true
+    env:
+      INFRASTRUCTURE_DIR: "{{.INFRASTRUCTURE_DIR}}"
+      STACK: "{{.STACK}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/rebuild-cluster.sh"
+
+  _sync-kubeconfig:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/sync-kubeconfig.sh"
+
+  _wait-convergence:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/wait-convergence.sh"
+
+  _verify-garage-sentinel:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      CHECKSUM_FILE: "{{.CHECKSUM_FILE}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/verify-garage-sentinel.sh"
+
+  _verify-cnpg-sentinel:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      EXERCISE_ID: "{{.EXERCISE_ID}}"
+      CHECKSUM_FILE: "{{.CHECKSUM_FILE}}"
+      DB_SENTINEL_TABLE: "{{.DB_SENTINEL_TABLE}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/verify-cnpg-sentinel.sh"
+
+  _verify-flux-health:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/verify-flux-health.sh"
+
+  _verify-alerts:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/verify-alerts.sh"
+
+  _summary:
+    internal: true
+    env:
+      EXERCISE_ID: "{{.EXERCISE_ID}}"
+      CHECKSUM_FILE: "{{.CHECKSUM_FILE}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/summary.sh"
