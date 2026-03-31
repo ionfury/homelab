@@ -3,6 +3,7 @@ apiVersion: garage.rajsingh.info/v1alpha1
 kind: GarageBucket
 metadata:
   name: dr-test
+  namespace: garage
 spec:
   clusterRef:
     name: garage
