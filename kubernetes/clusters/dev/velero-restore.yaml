@@ -9,7 +9,6 @@ spec:
     - name: velero-config
   interval: 10m
   path: kubernetes/clusters/dev/config/velero-restore
-  force: true
   prune: true
   healthChecks:
     - apiVersion: batch/v1
