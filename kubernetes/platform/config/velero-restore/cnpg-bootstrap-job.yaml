@@ -1,0 +1,41 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: velero-cnpg-bootstrap
+  namespace: velero
+spec:
+  activeDeadlineSeconds: 1800
+  backoffLimit: 4
+  template:
+    spec:
+      serviceAccountName: velero-cnpg-bootstrap
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: script
+          configMap:
+            name: velero-cnpg-bootstrap-script
+            defaultMode: 0555
+      containers:
+        - name: bootstrap
+          # renovate: datasource=docker depName=bitnamilegacy/kubectl
+          image: docker.io/bitnamilegacy/kubectl:1.33
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          command: ["/bin/bash", "/scripts/cnpg-bootstrap.sh"]
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+              readOnly: true
