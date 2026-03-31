@@ -5,4 +5,3 @@ kind: Kustomization
 resources:
   - ../../../../platform/config/velero-restore
   - restore-platform.yaml
-  - cnpg-recovery.yaml
