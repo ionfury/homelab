@@ -16,10 +16,6 @@ spec:
       kind: Job
       name: velero-restore-gate
       namespace: velero
-    - apiVersion: batch/v1
-      kind: Job
-      name: velero-cnpg-bootstrap
-      namespace: velero
   timeout: 30m
   sourceRef:
     kind: GitRepository

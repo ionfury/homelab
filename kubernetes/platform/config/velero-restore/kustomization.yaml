@@ -4,7 +4,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - gate-job.yaml
-  - cnpg-bootstrap-job.yaml
   - rbac.yaml
 configMapGenerator:
   - name: velero-restore-gate-script
@@ -13,9 +12,3 @@ configMapGenerator:
       disableNameSuffixHash: true
     files:
       - gate.sh
-  - name: velero-cnpg-bootstrap-script
-    namespace: velero
-    options:
-      disableNameSuffixHash: true
-    files:
-      - cnpg-bootstrap.sh

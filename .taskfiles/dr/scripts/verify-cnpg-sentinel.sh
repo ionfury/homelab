@@ -16,7 +16,7 @@ echo "Primary pod: ${PRIMARY_POD}"
 
 PGPASSWORD=$(kubectl --context "${CONTEXT}" -n database get secret cnpg-platform-superuser \
   -o jsonpath='{.data.password}' | base64 -d)
-
+echo ${PGPASSWORD}
 RESULT=$(kubectl --context "${CONTEXT}" -n database exec "${PRIMARY_POD}" -- \
   env PGPASSWORD="${PGPASSWORD}" psql -U postgres -d postgres -t -A -c "
     SELECT sentinel_uuid
