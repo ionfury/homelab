@@ -4,8 +4,6 @@ Terragrunt/OpenTofu infrastructure that provisions bare metal to Kubernetes clus
 
 For detailed procedural guidance, invoke the `terragrunt` or `opentofu-modules` skills.
 
----
-
 ## Directory Structure
 
 ```
@@ -19,8 +17,6 @@ infrastructure/
 ```
 
 **Note:** Infrastructure versions (Talos, Kubernetes, Cilium, etc.) are read from `kubernetes/platform/versions.env` - the single source of truth for all platform versions. See `kubernetes/platform/CLAUDE.md` for details.
-
----
 
 ## Architecture: Units vs Modules
 
@@ -40,51 +36,6 @@ The infrastructure follows a clear separation of concerns between units and modu
 - Handles conditional logic based on cluster name (dev/integration/live)
 - Exposes structured outputs consumed by other modules via units
 
-### Example: OCI Artifact Configuration
-
-The config module defines cluster-specific OCI artifact settings:
-
-```hcl
-# infrastructure/modules/config/main.tf
-locals {
-  oci_config = {
-    dev = {
-      source_type = "git"        # Dev uses GitRepository sync
-      semver      = ""
-    }
-    integration = {
-      source_type = "oci"        # Integration uses OCIRepository
-      semver      = ">= 0.0.0-0" # Accept pre-releases (the -0 suffix)
-    }
-    live = {
-      source_type = "oci"        # Live uses OCIRepository
-      semver      = ">= 0.0.0"   # Stable releases only
-    }
-  }
-}
-```
-
-**Note:** The semver constraint alone handles version filtering. `>= 0.0.0-0` includes pre-releases (the `-0` suffix), while `>= 0.0.0` excludes them. The flux-operator does not support `semverFilter` in kustomize patches.
-
-The bootstrap unit then simply passes through:
-
-```hcl
-# infrastructure/units/bootstrap/terragrunt.hcl
-inputs = {
-  source_type = dependency.config.outputs.bootstrap.source_type
-  oci_semver  = dependency.config.outputs.bootstrap.oci_semver
-}
-```
-
-### Why This Pattern?
-
-1. **Testability**: Config module logic is tested via `tofu test` with assertions
-2. **Single source of truth**: All environment differences live in one place
-3. **Maintainability**: Adding a new cluster only requires updating the config module
-4. **Visibility**: Easy to audit what differs between environments
-
----
-
 ## Testing & Validation
 
 > For detailed testing patterns, see [infrastructure/modules/CLAUDE.md](modules/CLAUDE.md) and the `opentofu-modules` skill.
@@ -96,8 +47,6 @@ task tg:fmt                        # Format HCL (Terragrunt + OpenTofu)
 task tg:test-<module>              # Run OpenTofu native tests for a module
 task tg:validate-<stack>           # Validate Terragrunt stack
 ```
-
----
 
 ## Infrastructure Stacks
 
@@ -132,48 +81,17 @@ Infrastructure is organized into stacks with different lifecycles:
 
 **Operational rule:** Never destroy the storage stack unless you intentionally want to lose all backup data
 
----
-
 ## Inventory Management
-
-Use `hcl2json` + `jq` to query inventory data:
-
-```bash
-# Get IP for a host
-hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts.node41.interfaces[0].addresses[0].ip'
-
-# List all hosts
-hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | keys[]'
-
-# Get hosts in a cluster
-hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts | to_entries[] | select(.value.cluster == "live") | .key'
-```
-
-### Inventory Structure
 
 The `inventory.hcl` file defines all physical machines:
 - **Host properties**: hostname, cluster assignment, role (controlplane/worker)
 - **Network interfaces**: MAC addresses, IP addresses
 - **Storage**: Disk devices for Talos installation and data
 
----
+Use `hcl2json` + `jq` to query inventory data (e.g., `hcl2json < infrastructure/inventory.hcl | jq '.locals[0].hosts'`).
 
 ## AWS Authentication
 
 Terragrunt uses S3 for remote state and DynamoDB for locking. All state operations require valid AWS credentials.
 
-```bash
-export AWS_PROFILE=terragrunt
-export AWS_DEFAULT_REGION=us-east-2
-```
-
-Verify with: `aws sts get-caller-identity`
-
----
-
-## Code Style (HCL)
-
-- Use `hcl2json` + `jq` for scripted access to HCL data
-- Format with `task tg:fmt` before committing
-- Use descriptive variable names that explain purpose
-- Group related resources with comments explaining the grouping
+Set `AWS_PROFILE=terragrunt` and `AWS_DEFAULT_REGION=us-east-2`, then verify with `aws sts get-caller-identity`.

@@ -2,8 +2,6 @@
 
 Cilium-based network segmentation using CiliumNetworkPolicy (CNP) and CiliumClusterwideNetworkPolicy (CCNP) resources.
 
----
-
 ## Core Architecture
 
 All traffic is implicitly denied by Cilium's default-deny model. Baselines enable enforcement; profiles grant namespace-level ingress/egress permissions.
@@ -23,8 +21,6 @@ All traffic is implicitly denied by Cilium's default-deny model. Baselines enabl
 - `standard` - Both gateways ingress + HTTPS egress
 
 Platform namespaces (`kube-system`, `monitoring`, `database`, etc.) have their own hand-crafted CNPs in the `platform/` directory. These namespaces do NOT use profiles.
-
----
 
 ## Directory Structure
 
@@ -56,8 +52,6 @@ network-policy/
 └── kustomization.yaml
 ```
 
----
-
 ## Profile Reference
 
 | Profile | Ingress | Egress | Use Case |
@@ -67,20 +61,7 @@ network-policy/
 | `internal-egress` | Internal gateway | DNS + HTTPS | Internal apps calling external APIs |
 | `standard` | Both gateways | DNS + HTTPS | Public-facing web applications |
 
-### Profile Selection
-
-Namespaces select a profile via label:
-
-```yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: my-app
-  labels:
-    network-policy.homelab/profile: standard  # Select profile
-```
-
----
+Namespaces select a profile via the label `network-policy.homelab/profile: <profile>` in `kubernetes/platform/namespaces.yaml`.
 
 ## Access Labels
 
@@ -93,19 +74,9 @@ Namespaces can opt-in to additional capabilities via labels:
 | `access.network-policy.homelab/postgres=true` | Egress to PostgreSQL in database namespace (port 5432) |
 | `access.network-policy.homelab/garage-s3=true` | Egress to Garage S3 in garage namespace (port 3900) |
 
----
-
 ## Escape Hatch
 
-For emergencies when network policies block legitimate traffic:
-
-```bash
-# Disable enforcement for a namespace
-kubectl label namespace <namespace> network-policy.homelab/enforcement=disabled
-
-# Re-enable after debugging
-kubectl label namespace <namespace> network-policy.homelab/enforcement-
-```
+For emergencies when network policies block legitimate traffic, disable enforcement with `kubectl label namespace <namespace> network-policy.homelab/enforcement=disabled` and re-enable with `kubectl label namespace <namespace> network-policy.homelab/enforcement-`.
 
 **Alert behavior:**
 - `NetworkPolicyEnforcementDisabled` (warning) fires after 5 minutes
@@ -113,18 +84,8 @@ kubectl label namespace <namespace> network-policy.homelab/enforcement-
 
 See `docs/runbooks/network-policy-escape-hatch.md` for full procedure.
 
----
-
 ## HBONE Traffic (Istio Ambient)
 
 Istio Ambient mode uses HBONE (HTTP-based overlay) for mesh traffic. Platform CNPs must allow port 15008 for ztunnel-to-ztunnel communication. Without this rule, pod-to-pod traffic within the mesh is silently dropped.
 
 For required HBONE YAML, see the network-policy skill.
-
----
-
-## Related Documentation
-
-- `docs/runbooks/network-policy-escape-hatch.md` - Emergency bypass procedure
-- `docs/runbooks/network-policy-verification.md` - Hubble verification commands
-- `kubernetes/platform/config/cilium/` - Cilium configuration
