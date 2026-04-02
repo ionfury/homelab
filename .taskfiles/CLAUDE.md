@@ -4,8 +4,6 @@ Task runner definitions for repository operations, organized by subsystem.
 
 For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 
----
-
 ## Available Task Namespaces
 
 | Namespace | Directory | Purpose |
@@ -16,8 +14,6 @@ For detailed Taskfile syntax and patterns, invoke the `taskfiles` skill.
 | `talos:` | `talos/` | Talos Linux cluster operations |
 | `wt:` | `worktree/` | Git worktree-based isolated development |
 | `renovate:` | `renovate/` | Dependency update validation |
-
----
 
 ## Quick Reference
 
@@ -40,17 +36,12 @@ task k8s:flux-status           # Show Flux Kustomization status on dev
 task k8s:reconcile-validate    # Resume all Flux, reconcile, validate clean state
 ```
 
-### Infrastructure Validation (tg:)
+### Infrastructure (tg:)
 
 ```bash
 task tg:fmt                        # Format all HCL files
 task tg:test-<module>              # Run tests for specific module
 task tg:validate-<stack>           # Validate specific stack
-```
-
-### Infrastructure (tg:)
-
-```bash
 task tg:list                       # List all stacks
 task tg:gen-<stack>                # Generate stack from units
 task tg:plan-<stack>               # Plan changes
@@ -92,8 +83,6 @@ task wt:resume                     # Resume Claude Code in worktree
 task renovate:validate             # Validate Renovate config
 ```
 
----
-
 ## Naming Conventions
 
 | Pattern | Example | Description |
@@ -102,59 +91,11 @@ task renovate:validate             # Validate Renovate config
 | `namespace:action-target` | `talos:maint-node41` | Action on specific target |
 | `namespace:action-<variable>` | `tg:plan-<stack>` | Dynamic target from variable |
 
----
-
-## Safe Operation Workflow
-
-For infrastructure changes, always follow this sequence:
-
-1. `task tg:fmt` - Format code
-2. `task tg:validate-<stack>` - Validate configuration
-3. `task tg:plan-<stack>` - Review planned changes
-4. `task tg:apply-<stack>` - Apply (requires human approval)
-
----
-
 ## Dev Cluster Operations
 
 The `dev` cluster is a **sandbox for rapid iteration**. Claude operates autonomously on dev — applying, debugging, and mutating directly. Integration and live remain strictly read-only.
 
-### Dev Sandbox Workflow
-
-```
-Suspend Kustomization → Experiment on dev → Write/refine manifests → Resume Flux → Validate convergence → Open PR
-```
-
-### Available Operations
-
-```bash
-# Status checks (run freely)
-task inv:hosts                     # List all hosts
-task inv:power-status              # Check power state of all hosts
-task inv:status-<host>             # Check specific host IPMI status
-task talos:maint                   # Check maintenance mode for all hosts
-task talos:maint-<host>            # Check specific host maintenance mode
-
-# Infrastructure operations (require confirmation)
-task tg:plan-dev                   # Plan dev cluster changes
-task tg:apply-dev                  # Apply dev cluster changes
-task tg:gen-dev                    # Generate dev stack
-task tg:clean-dev                  # Clean dev stack cache
-
-# Kubernetes dev workflow (autonomous)
-task k8s:dry-run-dev               # Server-side dry-run against dev cluster
-task k8s:apply-dev                 # Apply expanded ResourceSets to dev
-task k8s:flux-suspend -- <name>    # Suspend a Flux Kustomization on dev
-task k8s:flux-resume -- <name>     # Resume a Flux Kustomization on dev
-task k8s:flux-status               # Show Flux Kustomization status on dev
-task k8s:reconcile-validate        # Resume all Flux, wait for convergence, validate clean state
-
-# Direct kubectl/helm on dev (autonomous)
-kubectl --context dev apply -f <manifest>
-helm install <name> <chart> -n <ns> -f <values> --kube-context dev
-helm upgrade <name> <chart> -n <ns> -f <values> --kube-context dev
-helm uninstall <name> -n <ns> --kube-context dev
-```
+Dev sandbox workflow: Suspend Kustomization → Experiment on dev → Write/refine manifests → Resume Flux → Validate convergence → Open PR
 
 ### Key Principles
 
@@ -165,28 +106,11 @@ helm uninstall <name> -n <ns> --kube-context dev
 
 ### AWS Credentials
 
-Infrastructure operations require AWS credentials for remote state and Parameter Store access:
-
-```bash
-export AWS_PROFILE=terragrunt
-export AWS_REGION=us-east-2
-```
-
-Verify credentials before running Terragrunt:
-```bash
-aws sts get-caller-identity
-```
-
-### Pre-Flight Checks
-
-Before running infrastructure operations on dev, verify cluster readiness:
-
-1. **Check host power**: `task inv:status-node45` (node45 is the dev cluster host)
-2. **Check maintenance mode**: `task talos:maint-node45`
+Infrastructure operations require AWS credentials: set `AWS_PROFILE=terragrunt` and `AWS_REGION=us-east-2`. Verify with `aws sts get-caller-identity` before running Terragrunt. Check host readiness with `task inv:status-node45` and `task talos:maint-node45` before infrastructure operations on dev.
 
 ### Confirmation Required
 
-**ALWAYS use AskUserQuestion before:**
+**ALWAYS confirm before:**
 - `task tg:apply-dev` (creates/modifies infrastructure)
 - Any operation that destroys or recreates the cluster
 

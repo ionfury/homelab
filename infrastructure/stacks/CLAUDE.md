@@ -4,8 +4,6 @@ Terragrunt stacks compose units into deployable infrastructure with specific lif
 
 For architecture context (units vs modules), see [infrastructure/CLAUDE.md](../CLAUDE.md). For unit patterns, see [infrastructure/units/CLAUDE.md](../units/CLAUDE.md).
 
----
-
 ## Stack Inventory
 
 | Stack | Lifecycle | Purpose | Units |
@@ -15,80 +13,9 @@ For architecture context (units vs modules), see [infrastructure/CLAUDE.md](../C
 | `integration` | Ephemeral | Integration/validation cluster | config, unifi, talos, bootstrap, aws-set-params |
 | `live` | Ephemeral | Production cluster | config, unifi, talos, bootstrap, aws-set-params |
 
----
-
 ## Stack Definition Structure
 
-Each stack has a `terragrunt.stack.hcl` that defines:
-
-1. **Locals**: Stack-specific configuration values
-2. **Units**: Which units to include and their values
-
-### Cluster Stack Example (dev)
-
-```hcl
-# infrastructure/stacks/dev/terragrunt.stack.hcl
-locals {
-  name                 = "${basename(get_terragrunt_dir())}"  # "dev"
-  features             = ["gateway-api", "longhorn", "prometheus", "spegel"]
-  storage_provisioning = "minimal"
-}
-
-unit "config" {
-  source = "../../units/config"
-  path   = "config"
-
-  values = {
-    name                 = local.name
-    features             = local.features
-    storage_provisioning = local.storage_provisioning
-  }
-}
-
-unit "unifi" {
-  source = "../../units/unifi"
-  path   = "unifi"
-}
-
-# ... additional units
-```
-
-### Global Stack Example
-
-```hcl
-# infrastructure/stacks/global/terragrunt.stack.hcl
-locals {
-  clusters = ["dev", "integration", "live"]  # All clusters needing shared infra
-}
-
-unit "longhorn_storage" {
-  source = "../../units/longhorn-storage"
-  path   = "longhorn-storage"
-
-  values = {
-    clusters = local.clusters
-  }
-}
-
-unit "velero_storage" {
-  source = "../../units/velero-storage"
-  path   = "velero-storage"
-
-  values = {
-    clusters = local.clusters
-  }
-}
-
-unit "pki" {
-  source = "../../units/pki"
-  path   = "pki"
-}
-
-unit "ingress_pki" {
-  source = "../../units/ingress-pki"
-  path   = "ingress-pki"
-}
-```
+Each stack has a `terragrunt.stack.hcl` that defines locals (stack-specific config values) and units (which units to include and their values).
 
 ### Stack Definition Elements
 
@@ -98,8 +25,6 @@ unit "ingress_pki" {
 | `unit.source` | Path to unit directory in `infrastructure/units/` |
 | `unit.path` | Output path in `.terragrunt-stack/` (generated directory) |
 | `unit.values` | Data passed to unit's `values.*` references |
-
----
 
 ## Lifecycle Types
 
@@ -129,65 +54,26 @@ unit "ingress_pki" {
 - ✅ Safe to rebuild from scratch
 - ✅ State stored in S3 for recovery
 
----
-
 ## Stack Operations
 
 > For Terragrunt operations, invoke the `terragrunt` skill.
 
-All operations use task commands — **NEVER** run terragrunt directly.
+All operations use task commands — **NEVER** run terragrunt directly. See `.taskfiles/CLAUDE.md` for full command reference.
 
-```bash
-# Generate stack files (creates .terragrunt-stack/ directory)
-task tg:gen-<stack>            # e.g., task tg:gen-dev
-
-# Validate without applying
-task tg:validate-<stack>       # e.g., task tg:validate-dev
-
-# Plan changes
-task tg:plan-<stack>           # e.g., task tg:plan-dev
-
-# Apply changes (REQUIRES HUMAN APPROVAL)
-task tg:apply-<stack>          # e.g., task tg:apply-dev
-
-# Clean generated files
-task tg:clean-<stack>          # e.g., task tg:clean-dev
-```
-
-### Stack Generation
-
-`task tg:gen-<stack>` creates the `.terragrunt-stack/` directory with:
-- Expanded unit configurations
-- Resolved dependencies
-- Ready-to-plan infrastructure
-
-**Always regenerate after modifying stack or unit definitions.**
-
----
+**Always regenerate after modifying stack or unit definitions** (`task tg:gen-<stack>`).
 
 ## Feature Flags
 
-Stacks enable features via the `features` array:
+Stacks enable features via the `features` array passed to the config unit:
 
-| Feature | Description | Detection Logic |
-|---------|-------------|-----------------|
-| `gateway-api` | Gateway API CRDs | `contains(var.features, "gateway-api")` |
-| `longhorn` | Distributed storage with iSCSI | `contains(var.features, "longhorn")` |
-| `prometheus` | Metrics collection | `contains(var.features, "prometheus")` |
-| `spegel` | P2P image distribution | `contains(var.features, "spegel")` |
+| Feature | Description |
+|---------|-------------|
+| `gateway-api` | Gateway API CRDs |
+| `longhorn` | Distributed storage with iSCSI |
+| `prometheus` | Metrics collection |
+| `spegel` | P2P image distribution |
 
-Feature detection lives in `modules/config/main.tf`:
-
-```hcl
-locals {
-  gateway_api_enabled = contains(var.features, "gateway-api")
-  longhorn_enabled    = contains(var.features, "longhorn")
-  prometheus_enabled  = contains(var.features, "prometheus")
-  spegel_enabled      = contains(var.features, "spegel")
-}
-```
-
----
+Feature detection logic lives in `modules/config/main.tf`.
 
 ## Storage Provisioning
 
@@ -198,32 +84,12 @@ Stacks specify storage sizing via `storage_provisioning`:
 | `minimal` | dev, integration | 10Gi | Testing, low resource usage |
 | `normal` | live | 50Gi | Production workloads |
 
-Sizing logic is in `modules/config/main.tf` based on provisioning mode.
-
----
-
 ## When to Create a New Stack
 
-```
-Need new infrastructure deployment?
-│
-├─ Is it a new cluster environment?
-│   └─ YES → Create new stack in stacks/<name>/
-│            Copy from existing cluster stack
-│            Adjust features and storage_provisioning
-│
-├─ Is it persistent cross-cluster infrastructure?
-│   └─ YES → Add unit to global stack
-│            Do NOT create new stack
-│
-├─ Is it cluster-specific configuration?
-│   └─ YES → Add to config module
-│            Do NOT create new stack
-│
-└─ Is it a new capability for existing clusters?
-    └─ YES → Create new unit + module
-             Add unit to appropriate stacks
-```
+- New cluster environment → create new stack in `stacks/<name>/`, copy from existing cluster stack
+- Persistent cross-cluster infrastructure → add unit to global stack, do NOT create new stack
+- Cluster-specific configuration → add to config module, do NOT create new stack
+- New capability for existing clusters → create new unit + module, add to appropriate stacks
 
 ### Checklist for New Cluster Stack
 
@@ -234,14 +100,3 @@ Need new infrastructure deployment?
 5. Add networking config to `networking.hcl`
 6. Update `modules/config/main.tf` for cluster-specific logic
 7. Run `task tg:gen-<name> && task tg:validate-<name>`
-
----
-
-## Cross-References
-
-| Document | Focus |
-|----------|-------|
-| [infrastructure/CLAUDE.md](../CLAUDE.md) | Architecture overview, units vs modules |
-| [infrastructure/units/CLAUDE.md](../units/CLAUDE.md) | Unit patterns and dependencies |
-| [infrastructure/modules/CLAUDE.md](../modules/CLAUDE.md) | Module development and testing |
-| [kubernetes/platform/versions.env](../../kubernetes/platform/versions.env) | Version source of truth |

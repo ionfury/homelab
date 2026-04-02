@@ -4,8 +4,6 @@ OpenTofu modules contain the implementation logic for infrastructure provisionin
 
 For architectural context (units vs modules), see [infrastructure/CLAUDE.md](../CLAUDE.md). For unit patterns that compose these modules, see [infrastructure/units/CLAUDE.md](../units/CLAUDE.md).
 
----
-
 ## Module Inventory
 
 | Module | Purpose | Providers | Has Tests |
@@ -18,38 +16,6 @@ For architectural context (units vs modules), see [infrastructure/CLAUDE.md](../
 | `aws-set-params` | AWS SSM parameter storage | aws | ✅ 1 test |
 | `longhorn-storage` | S3 backup infrastructure for Longhorn volumes | aws | ❌ |
 | `velero-storage` | S3 backup infrastructure for Velero | aws | ✅ 3 tests |
-
----
-
-## Module Structure
-
-Standard module layout:
-
-```
-modules/<name>/
-├── main.tf              # Resources and data sources
-├── variables.tf         # Input variable definitions
-├── outputs.tf           # Output value definitions
-├── versions.tf          # Provider version constraints
-├── locals.tf            # Local values (optional)
-├── templates/           # Template files (optional)
-│   └── *.tftpl
-└── tests/               # OpenTofu native tests
-    ├── plan.tftest.hcl  # Basic plan test
-    └── *.tftest.hcl     # Feature/edge case tests
-```
-
-### File Purposes
-
-| File | Purpose |
-|------|---------|
-| `main.tf` | Primary resources and business logic |
-| `variables.tf` | Input definitions with descriptions and validation |
-| `outputs.tf` | Structured outputs for unit consumption |
-| `versions.tf` | Required provider versions |
-| `tests/*.tftest.hcl` | OpenTofu native tests |
-
----
 
 ## Testing Strategy
 
@@ -75,39 +41,6 @@ task tg:test
 | `edge_cases.tftest.hcl` | Boundary conditions | Talos, config modules |
 | `<component>.tftest.hcl` | Component-specific tests | `bootstrap_charts.tftest.hcl` |
 
-### Test Structure
-
-```hcl
-# Top-level variables set defaults for ALL run blocks
-variables {
-  name     = "test-cluster"
-  features = ["gateway-api"]
-  machines = {
-    node1 = {
-      cluster = "test-cluster"
-      type    = "controlplane"
-      # ... complete definition
-    }
-  }
-}
-
-# Individual test cases
-run "feature_enabled" {
-  command = plan
-
-  # Override only what differs from defaults
-  variables {
-    features = ["prometheus"]
-  }
-
-  # Assertions
-  assert {
-    condition     = output.prometheus_enabled == true
-    error_message = "Prometheus should be enabled"
-  }
-}
-```
-
 ### Assertion Patterns
 
 | Pattern | Use Case | Example |
@@ -119,118 +52,6 @@ run "feature_enabled" {
 | Regex | Pattern match | `condition = can(regex("^v[0-9]", output.version))` |
 | Negation | Absence check | `condition = !contains(output.list, "bad")` |
 
-### Mock Providers
-
-Use mock providers for external dependencies:
-
-```hcl
-mock_provider "aws" {
-  mock_data "aws_caller_identity" {
-    defaults = {
-      account_id = "123456789012"
-    }
-  }
-}
-
-run "test_with_mocked_aws" {
-  command = plan
-  # Test runs without real AWS credentials
-}
-```
-
----
-
-## Module Patterns
-
-### Feature Flags via Set
-
-```hcl
-# variables.tf
-variable "features" {
-  type = set(string)
-  validation {
-    condition = alltrue([
-      for f in var.features : contains([
-        "gateway-api", "longhorn", "prometheus", "spegel"
-      ], f)
-    ])
-    error_message = "Invalid feature flag"
-  }
-}
-
-# main.tf
-locals {
-  longhorn_enabled = contains(var.features, "longhorn")
-}
-```
-
-### Lookup with Defaults
-
-```hcl
-locals {
-  storage_sizes = {
-    minimal = { prometheus = "10Gi" }
-    normal  = { prometheus = "50Gi" }
-  }
-  prometheus_size = local.storage_sizes[var.storage_provisioning].prometheus
-}
-```
-
-### Structured Outputs
-
-```hcl
-# outputs.tf
-output "talos" {
-  description = "Talos configuration for talos unit"
-  value = {
-    talos_version      = var.versions.talos
-    kubernetes_version = var.versions.kubernetes
-    machines           = local.talos_machines
-  }
-}
-```
-
-### Template Files
-
-```hcl
-# main.tf
-resource "local_file" "config" {
-  content = templatefile("${path.module}/templates/config.tftpl", {
-    cluster_name = var.name
-    domain       = var.domain
-  })
-  filename = "${path.module}/output/config.yaml"
-}
-```
-
-### Variable Validation
-
-```hcl
-variable "name" {
-  type = string
-  validation {
-    condition     = can(regex("^[a-z][a-z0-9-]*$", var.name))
-    error_message = "Name must be lowercase alphanumeric with hyphens"
-  }
-}
-```
-
-### For-Each with Computed Keys
-
-```hcl
-resource "aws_ssm_parameter" "params" {
-  for_each = {
-    for k, v in var.parameters : k => v
-    if v != null
-  }
-  name  = each.key
-  value = each.value
-  type  = "SecureString"
-}
-```
-
----
-
 ## Common Pitfalls
 
 | Pitfall | Problem | Solution |
@@ -241,32 +62,3 @@ resource "aws_ssm_parameter" "params" {
 | Hardcoded values | Can't adapt to environments | Use variables or config module outputs |
 | Missing validation | Bad inputs cause confusing errors | Add validation blocks to variables |
 | Circular dependencies | Terraform fails to plan | Restructure outputs to break cycles |
-
----
-
-## Adding a New Module
-
-### Checklist
-
-1. Create directory: `infrastructure/modules/<name>/`
-2. Create core files:
-   - `main.tf` - Resources
-   - `variables.tf` - Inputs with descriptions
-   - `outputs.tf` - Structured outputs
-   - `versions.tf` - Provider requirements
-3. Create tests: `tests/plan.tftest.hcl`
-4. Add output to config module (if needed)
-5. Create unit in `infrastructure/units/<name>/`
-6. Add unit to relevant stacks
-7. Run `task tg:test-<name> && task tg:validate-<stack>`
-
----
-
-## Cross-References
-
-| Document | Focus |
-|----------|-------|
-| [infrastructure/CLAUDE.md](../CLAUDE.md) | Architecture overview, testing philosophy |
-| [infrastructure/units/CLAUDE.md](../units/CLAUDE.md) | Unit patterns that compose modules |
-| [infrastructure/stacks/CLAUDE.md](../stacks/CLAUDE.md) | Stack lifecycle management |
-| [opentofu-modules skill](../../.claude/skills/opentofu-modules/SKILL.md) | Detailed testing patterns |

@@ -2,8 +2,6 @@
 
 Enterprise-grade bare-metal Kubernetes platform managed declaratively from PXE to production workloads.
 
----
-
 # Repository Structure
 
 ```
@@ -16,19 +14,16 @@ kubernetes/
   └── platform/          # Centralized platform
 ```
 
----
+# PRINCIPLES
 
-# PHILOSOPHY
-
-This system is:
-
-- **Declarative** — no manual operations
-- **Reproducible** — rebuildable from scratch
-- **GitOps-driven** — Git defines reality
-- **Hands-off** — systems self-heal and converge
-- **Observable** — all behavior is measurable
-
----
+- Production-grade standards only — no shortcuts; complexity is intentional (learning environment)
+- GitOps-driven — Git is the source of truth; if it's not in git, it doesn't exist
+- Declarative — no manual operations; no `kubectl apply`, SSH fixes, or UI edits
+- Drift is a bug, not an acceptable state
+- Reproducible — rebuildable from scratch; all processes must be repeatable and idempotent
+- Self-healing — prefer automation and convergence over manual intervention
+- Observable — all behavior is measurable
+- DRY — single source of truth for all logic; compose abstractions, never copy
 
 # OPERATING RULE
 
@@ -39,59 +34,6 @@ If uncertain:
 3. Ask the user
 
 **Correctness > speed. Always.**
-
-# CORE PRINCIPLES
-
-## Enterprise at Home
-
-- Production-grade standards only — no shortcuts
-- Complexity is intentional (learning environment)
-- Prefer correctness, resilience, and observability over simplicity
-
-## Everything as Code (GitOps)
-
-- Git is the source of truth — if it’s not in git, it doesn’t exist
-- No manual changes (`kubectl apply`, SSH fixes, UI edits are forbidden)
-- Drift is a bug, not an acceptable state
-
-## Automation First
-
-- Manual processes are technical debt
-- Systems must be repeatable and idempotent
-- Prefer self-healing over manual intervention
-
-## DRY and Reuse
-
-- Single source of truth for all logic
-- Compose abstractions — do not copy
-- Refactor immediately when duplication appears
-
-
----
-
-# AGENT BEHAVIOR
-
-**Clarification is mandatory when uncertainty exists.**
-
-## ALWAYS ask when:
-- Multiple valid approaches exist
-- Requirements are ambiguous or implicit
-- A decision impacts architecture or future flexibility
-- Something unexpected or inconsistent is encountered
-- You are about to guess
-
-## How to ask:
-- Present concrete options
-- Include trade-offs
-- Recommend a preferred option when possible
-- Batch related questions
-
-## NEVER:
-- Proceed based on assumptions when clarification is possible
-- Invent requirements or constraints
-- Continue when blocked without asking
-
----
 
 # SYSTEM MODEL
 
@@ -113,8 +55,6 @@ If uncertain:
 ## Guiding Priority
 
 **Always optimize for safety and continuity of the live environment.**
-
----
 
 # HARD CONSTRAINTS (NON-NEGOTIABLE)
 
@@ -158,19 +98,3 @@ After merge, the system must converge with zero human intervention.
 - Never guess values — verify from source
 - Never ignore validation failures
 - Never assume intent — ask
-
----
-
-# FAILURE HANDLING PRINCIPLES
-
-## Alerts
-
-- Every alert must be resolved or explicitly silenced declaratively
-- Ignored alerts are system failures
-
-## Tests & Validation
-
-- Failures must be investigated and fixed at root cause
-- Do not skip or suppress tests without explicit approval
-- Fix code, not tests
-

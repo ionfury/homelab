@@ -8,8 +8,6 @@ For Flux patterns and version management, see [kubernetes/platform/CLAUDE.md](..
 > For secret provisioning (secret-generator, ExternalSecret, replication), invoke the `secrets` skill.
 > For network policy configuration and Hubble debugging, invoke the `network-policy` skill.
 
----
-
 ## Config Subsystem Inventory
 
 | Subsystem | Purpose | Key Resources |
@@ -31,60 +29,9 @@ For Flux patterns and version management, see [kubernetes/platform/CLAUDE.md](..
 | `secrets/` | External secrets infrastructure | ClusterSecretStore |
 | `tuppr/` | Talos and Kubernetes upgrades | TalosUpgrade, KubernetesUpgrade |
 
----
+## Config vs Helm Decision
 
-## Purpose of Config vs Helm
-
-### When to Use Helm Values (`charts/*.yaml`)
-
-- Resources **managed by the chart** (Deployments, Services, etc.)
-- Chart-provided configuration options
-- Resources that **change with chart versions**
-
-### When to Use Config Kustomization (`config/*/`)
-
-- **Post-install CRs** that use CRDs from Helm charts
-- **Cluster-wide resources** not tied to a specific chart
-- **Cross-cutting concerns** (network policies, certificates)
-- Resources that **reference multiple charts** or namespaces
-
-### Hybrid Patterns
-
-Some subsystems use both:
-
-| Subsystem | Helm Values | Config Resources |
-|-----------|-------------|------------------|
-| Longhorn | Chart deployment | StorageClass, RecurringJob |
-| Monitoring | kube-prometheus-stack | Additional PrometheusRules |
-| Cert-manager | Chart deployment | ClusterIssuers, Certificates |
-| Cilium | CNI deployment | CiliumNetworkPolicy |
-
----
-
-## Decision Tree
-
-```
-Need to add a Kubernetes resource?
-│
-├─ Is it a CRD instance (CR)?
-│   │
-│   ├─ Is the CRD from a Helm chart?
-│   │   └─ YES → Add to config/<subsystem>/
-│   │            Declare dependency on the HelmRelease
-│   │
-│   └─ Is it a built-in resource (ConfigMap, Secret)?
-│       └─ Add to config/<subsystem>/ if cross-cutting
-│          Or add to Helm values if chart-specific
-│
-├─ Is it configuration for an existing chart?
-│   └─ YES → Add to charts/<chart-name>.yaml
-│
-└─ Is it a new application?
-    └─ YES → Use Helm release in helm-charts.yaml
-             Add config/ subsystem if needed for CRs
-```
-
----
+CRD instances go in `config/<subsystem>/` with `dependsOn` on the HelmRelease that provides the CRD; chart configuration goes in `charts/`; new apps go in `helm-charts.yaml`.
 
 ## CRD Dependencies
 
@@ -106,38 +53,7 @@ Config kustomizations must declare dependencies on the HelmReleases that provide
 | `WasmPlugin` | istio-istiod |
 | `GarageCluster` | garage |
 
-### Finding CRD Providers
-
-```bash
-# Check which chart provides a CRD
-kubectl get crd <crd-name> -o jsonpath='{.metadata.labels}'
-
-# Or use kubectl explain
-kubectl explain <resource>
-```
-
-### Declaring Dependencies
-
-In the config kustomization (from `kubernetes/platform/config.yaml` ResourceSet):
-
-```yaml
-inputs:
-  - name: "monitoring"
-    namespace: "monitoring"
-    dependsOn: [kube-prometheus-stack]  # HelmRelease that provides CRDs
-```
-
----
-
-## Adding a New Config Subsystem
-
-1. Create `kubernetes/platform/config/<subsystem>/` directory.
-2. Create `kustomization.yaml` listing resource files (use `kustomize.config.k8s.io/v1beta1` kind `Kustomization`).
-3. Add resource YAML files to the directory.
-4. Register in `kubernetes/platform/config.yaml` ResourceSet with a `name`, `namespace`, and `dependsOn` listing the HelmReleases that provide CRDs.
-5. Run `task k8s:validate`.
-
----
+Use `kubectl get crd <name> -o jsonpath='{.metadata.labels}'` or `kubectl explain <resource>` to find the providing chart.
 
 ## Naming Conventions
 
@@ -160,13 +76,9 @@ inputs:
 - Use cluster/namespace context: `homelab-ingress-ca` (not just `ca`)
 - Include subsystem prefix when ambiguous: `longhorn-backup-daily`
 
----
-
 ## Variable Substitution
 
 Use `${cluster_name}`, `${internal_domain}`, `${external_domain}`, `${cluster_id}` for cluster-specific values. See [kubernetes/platform/CLAUDE.md](../CLAUDE.md) for full variable list.
-
----
 
 ## PodSecurity Enforcement
 
@@ -176,18 +88,6 @@ Namespaces with `restricted` enforcement (cert-manager, cnpg-system, dragonfly-s
 
 For required security context YAML, see the app-template or deploy-app skill.
 
----
-
 ## Network Policy
 
 **All traffic is implicitly denied.** Application namespaces MUST have the `network-policy.homelab/profile` label set. See [network-policy/CLAUDE.md](network-policy/CLAUDE.md) for complete architecture. For profile selection, access labels, and Hubble debugging, invoke the `network-policy` skill.
-
----
-
-## Cross-References
-
-| Document | Focus |
-|----------|-------|
-| [kubernetes/platform/CLAUDE.md](../CLAUDE.md) | Flux patterns, version management, dependencies |
-| [kubernetes/clusters/CLAUDE.md](../../clusters/CLAUDE.md) | Per-cluster overrides |
-| [flux-gitops skill](../../../.claude/skills/flux-gitops/SKILL.md) | Adding Helm releases |
