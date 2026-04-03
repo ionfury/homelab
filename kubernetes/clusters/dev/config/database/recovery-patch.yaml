@@ -1,0 +1,25 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: platform
+spec:
+  bootstrap:
+    recovery:
+      source: platform-backup
+  externalClusters:
+    - name: platform-backup
+      barmanObjectStore:
+        destinationPath: s3://cnpg-platform-backups/
+        endpointURL: http://${garage_s3_endpoint}
+        s3Credentials:
+          accessKeyId:
+            name: cnpg-platform-s3-credentials
+            key: access-key-id
+          secretAccessKey:
+            name: cnpg-platform-s3-credentials
+            key: secret-access-key
+        wal:
+          compression: gzip
+        data:
+          compression: gzip

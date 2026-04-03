@@ -43,9 +43,12 @@ while true; do
   elapsed=$((elapsed + 15))
 done
 
-echo "Waiting for all Flux Kustomizations to be Ready (up to $((KS_TIMEOUT / 60))m)..."
+echo "Waiting for critical-path Kustomizations to be Ready (up to $((KS_TIMEOUT / 60))m)..."
 kubectl --context "${CONTEXT}" wait kustomizations.kustomize.toolkit.fluxcd.io \
-  --all -n flux-system --for=condition=Ready --timeout="${KS_TIMEOUT}s"
+  -n flux-system \
+  --for=condition=Ready \
+  --timeout="${KS_TIMEOUT}s" \
+  velero-restore garage-config database-config platform-config
 
 echo "Waiting for CNPG platform cluster to be healthy (up to $((CNPG_TIMEOUT / 60))m)..."
 elapsed=0

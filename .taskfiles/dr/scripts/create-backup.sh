@@ -12,8 +12,8 @@ velero backup create "${EXERCISE_ID}" \
   --kubecontext "${CONTEXT}" \
   --wait
 
-PHASE=$(velero backup get "${EXERCISE_ID}" \
-  --kubecontext "${CONTEXT}" \
+PHASE=$(kubectl --context "${CONTEXT}" -n velero \
+  get backup.velero.io "${EXERCISE_ID}" \
   -o jsonpath='{.status.phase}')
 echo "Backup phase: ${PHASE}"
 

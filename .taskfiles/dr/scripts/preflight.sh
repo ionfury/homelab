@@ -17,7 +17,7 @@ fi
 echo "  dev cluster: reachable"
 
 echo "Checking for existing platform backups..."
-BACKUP_COUNT=$(kubectl --context "${CONTEXT}" -n velero get backups \
+BACKUP_COUNT=$(kubectl --context "${CONTEXT}" -n velero get backups.velero.io \
   -l velero.io/schedule-name=platform \
   --no-headers 2>/dev/null | wc -l | tr -d ' ')
 echo "  platform backups: ${BACKUP_COUNT} found"
