@@ -36,7 +36,7 @@ if [ -n "${CURRENT_CTX}" ] && [ "${CURRENT_CTX}" != "${CONTEXT}" ]; then
 fi
 
 [ -f ~/.kube/config ] && cp ~/.kube/config ~/.kube/config.dr-bak
-KUBECONFIG=~/.kube/config:"${TMPKC}" kubectl config view --flatten > /tmp/kc-merged.yaml
+KUBECONFIG="${TMPKC}":~/.kube/config kubectl config view --flatten > /tmp/kc-merged.yaml
 mv /tmp/kc-merged.yaml ~/.kube/config
 chmod 0600 ~/.kube/config
 rm -f "${TMPKC}"
