@@ -109,7 +109,7 @@ spec:
         - name: << $dep >>
       <<- end >>
       <<- end >>
-      interval: 5m
+      interval: 3m
       <<- if (index inputs "wait") >>
       wait: true
       <<- end >>
