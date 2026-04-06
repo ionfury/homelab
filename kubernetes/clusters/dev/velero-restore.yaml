@@ -7,6 +7,7 @@ metadata:
 spec:
   dependsOn:
     - name: velero-config
+    - name: cilium
   interval: 10m
   path: kubernetes/clusters/dev/config/velero-restore
   force: true
