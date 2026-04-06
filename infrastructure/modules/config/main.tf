@@ -11,13 +11,13 @@ locals {
       prometheus_retention = "50GB"
     }
     minimal = {
-      garage_data          = "10Gi"
-      garage_meta          = "2Gi"
-      database             = "5Gi"
+      garage_data          = "1Gi"
+      garage_meta          = "1Gi"
+      database             = "1Gi"
       dragonfly            = "1Gi"
-      loki                 = "10Gi"
-      prometheus           = "10Gi"
-      prometheus_retention = "8GB"
+      loki                 = "1Gi"
+      prometheus           = "2Gi"
+      prometheus_retention = "1GB"
     }
   }
 
