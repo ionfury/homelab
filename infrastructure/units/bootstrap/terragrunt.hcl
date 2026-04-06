@@ -6,6 +6,14 @@ include "root" {
   path = find_in_parent_folders("root.hcl")
 }
 
+errors {
+  retry "dns_not_ready" {
+    retryable_errors   = ["no such host", "connection refused"]
+    max_attempts       = 5
+    sleep_interval_sec = 30
+  }
+}
+
 terraform {
   source = "../../../.././/modules/bootstrap"
 }
