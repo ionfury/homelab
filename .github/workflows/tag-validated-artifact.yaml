@@ -85,7 +85,7 @@ jobs:
               v.metadata?.container?.tags?.includes(`integration-${sha}`)
             );
             if (!targetVersion) {
-              core.setFailed(`Could not find version tagged integration-${sha}`);
+              core.info(`integration-${sha} not found in GHCR — build may still be in progress; skipping (Flux will retry)`);
               return;
             }
 
