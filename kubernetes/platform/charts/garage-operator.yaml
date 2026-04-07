@@ -12,4 +12,9 @@ metrics:
 
 serviceMonitor:
   enabled: true
-  interval: 60s
+
+grafanaDashboard:
+  enabled: true
+
+prometheusRules:
+  enabled: true
