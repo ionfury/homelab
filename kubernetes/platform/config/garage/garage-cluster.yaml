@@ -12,6 +12,11 @@ spec:
     factor: ${default_replica_count}
     consistencyMode: consistent
 
+  monitoring:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
+
   storage:
     metadata:
       storageClassName: fast
@@ -30,11 +35,6 @@ spec:
     rpcBindPort: 3901
     service:
       type: ClusterIP
-
-  monitoring:
-    enabled: true
-    additionalLabels:
-      release: kube-prometheus-stack
 
   s3Api:
     bindPort: 3900
