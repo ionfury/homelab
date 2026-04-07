@@ -42,7 +42,6 @@ spec:
     rootDomain: .s3.${internal_domain}
 
   webApi:
-    enabled: true
     bindPort: 3902
     rootDomain: .web.${internal_domain}
 
