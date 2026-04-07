@@ -31,6 +31,19 @@ spec:
     service:
       type: ClusterIP
 
+  monitoring:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
+
+  prometheusRules:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
+
+  grafanaDashboard:
+    enabled: true
+
   s3Api:
     bindPort: 3900
     region: garage
