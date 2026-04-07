@@ -29,10 +29,5 @@ kubectl --context "${CONTEXT}" -n database exec "${PRIMARY_POD}" -- \
     INSERT INTO ${DB_SENTINEL_TABLE} (exercise_id, sentinel_uuid)
     VALUES ('${EXERCISE_ID}', '${SENTINEL_UUID}');"
 
-echo "Flushing WALs to Barman..."
-kubectl --context "${CONTEXT}" -n database exec "${PRIMARY_POD}" -- \
-  env PGPASSWORD="${PGPASSWORD}" psql -U postgres -d postgres -c "SELECT pg_switch_wal();" \
-  | grep -v "^$"
-
-echo "CNPG sentinel seeded and WALs flushed."
+echo "CNPG sentinel seeded."
 echo ""

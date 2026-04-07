@@ -5,6 +5,7 @@ metadata:
   name: platform-daily
 spec:
   schedule: "0 3 * * *"
+  immediate: true
   backupOwnerReference: self
   cluster:
     name: platform
