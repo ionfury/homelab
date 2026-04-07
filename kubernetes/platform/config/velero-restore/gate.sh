@@ -9,8 +9,10 @@ set -euo pipefail
 #   2. Poll Restore CRs until none remain in non-terminal phases
 #
 # Exit codes:
-#   0 — All restores terminal (including Failed), or fresh cluster (no backups)
-#   non-zero — Only from set -e on unexpected errors
+#   0 — Completed or no restores (fresh cluster / nothing to restore)
+#   non-zero — Failed/PartiallyFailed (hard fail: Job fails, Kustomization NotReady,
+#              downstream blocked) OR FailedValidation (self-heal: Restore CR deleted
+#              so Flux recreates it on the next reconcile interval once BSL has synced)
 
 BACKUP_SYNC_TIMEOUT="$${BACKUP_SYNC_TIMEOUT:-120}"
 POLL_INTERVAL="$${POLL_INTERVAL:-15}"
@@ -53,8 +55,20 @@ while true; do
         echo "Restore $${name} is in non-terminal phase: $${phase}"
         pending=$((pending + 1))
         ;;
-      Failed|PartiallyFailed|FailedValidation)
-        echo "WARNING: Restore $${name} has phase: $${phase}"
+      Failed|PartiallyFailed)
+        echo "ERROR: Restore $${name} has terminal-error phase: $${phase}" >&2
+        echo "ERROR: Failing the gate Job so Flux marks the Kustomization NotReady and blocks downstream reconciliation." >&2
+        exit 1
+        ;;
+      FailedValidation)
+        # BSL-sync race: the Restore was applied before the BackupStorageLocation
+        # completed its first sync, so Velero validated it against an empty backup
+        # list. Delete the Restore CR; Flux will recreate it on the next reconcile
+        # interval, by which time the BSL has synced.
+        echo "ERROR: Restore $${name} has phase FailedValidation (BSL-sync race)." >&2
+        echo "Deleting Restore CR so Flux recreates it on the next reconcile interval..." >&2
+        kubectl delete restore.velero.io -n velero "$${name}"
+        exit 1
         ;;
       Completed)
         echo "Restore $${name} completed successfully."
