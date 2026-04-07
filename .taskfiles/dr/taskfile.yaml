@@ -29,6 +29,7 @@ tasks:
       - task: _preflight
       - task: _seed-garage-sentinel
       - task: _seed-cnpg-sentinel
+      - task: _create-cnpg-backup
       - task: _create-backup
       - task: _destroy-cluster
       - task: _rebuild-cluster
@@ -76,6 +77,14 @@ tasks:
       DB_SENTINEL_TABLE: "{{.DB_SENTINEL_TABLE}}"
     cmds:
       - "{{.TASKFILE_DIR}}/scripts/seed-cnpg-sentinel.sh"
+
+  _create-cnpg-backup:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      EXERCISE_ID: "{{.EXERCISE_ID}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/create-cnpg-backup.sh"
 
   _create-backup:
     internal: true
