@@ -54,6 +54,7 @@ task tg:clean-<stack>              # Clean stack cache
 ```bash
 task talos:maint                   # Check maintenance mode for all hosts
 task talos:maint-<host>            # Check maintenance mode for specific host
+task talos:wipe-volumes-<host>     # Wipe all partitions on a maintenance-mode node (DESTRUCTIVE)
 ```
 
 ### Hardware/IPMI (inv:)
