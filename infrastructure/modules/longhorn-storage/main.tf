@@ -9,8 +9,9 @@
 
 # S3 buckets - one per cluster
 resource "aws_s3_bucket" "longhorn_backup" {
-  for_each = var.clusters
-  bucket   = "homelab-longhorn-backup-${each.key}"
+  for_each      = var.clusters
+  bucket        = "homelab-longhorn-backup-${each.key}"
+  force_destroy = true
 
   tags = {
     managed-by = "opentofu"
