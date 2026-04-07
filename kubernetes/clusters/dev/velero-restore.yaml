@@ -24,9 +24,8 @@ spec:
   healthCheckExprs:
     - apiVersion: velero.io/v1
       kind: Restore
-      current: "has(self.status) && has(self.status.phase) && self.status.phase == 'Completed'"
-      failed: "has(self.status) && has(self.status.phase) && (self.status.phase == 'Failed' || self.status.phase == 'PartiallyFailed' || self.status.phase == 'FailedValidation')"
-      inProgress: "!has(self.status) || !has(self.status.phase) || self.status.phase in ['New','InProgress','WaitingForPluginOperations','WaitingForPluginOperationsPartiallyFailed','Finalizing','FinalizingPartiallyFailed']"
+      current: "has(status.phase) && status.phase == 'Completed'"
+      failed: "has(status.phase) && (status.phase == 'Failed' || status.phase == 'PartiallyFailed' || status.phase == 'FailedValidation')"
   timeout: 30m
   sourceRef:
     kind: GitRepository
