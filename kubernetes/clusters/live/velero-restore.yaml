@@ -8,7 +8,7 @@ spec:
   dependsOn:
     - name: velero-config
     - name: cilium
-  interval: 10m
+  interval: 3m
   path: kubernetes/clusters/live/config/velero-restore
   prune: true
   healthChecks:
