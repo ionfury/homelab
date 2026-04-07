@@ -133,7 +133,7 @@ tasks:
       - "{{.TASKFILE_DIR}}/scripts/verify-garage-sentinel.sh"
 
   _verify-cnpg-sentinel:
-    #internal: true
+    internal: true
     env:
       CONTEXT: "{{.CONTEXT}}"
       EXERCISE_ID: "{{.EXERCISE_ID}}"
