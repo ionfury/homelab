@@ -11,8 +11,11 @@ metadata:
   name: velero-restore-gate
 rules:
   - apiGroups: ["velero.io"]
-    resources: ["backups", "restores"]
+    resources: ["backups"]
     verbs: ["get", "list"]
+  - apiGroups: ["velero.io"]
+    resources: ["restores"]
+    verbs: ["get", "list", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
