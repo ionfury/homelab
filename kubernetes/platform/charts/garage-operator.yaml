@@ -18,3 +18,5 @@ grafanaDashboard:
 
 prometheusRules:
   enabled: true
+  additionalLabels:
+    release: kube-prometheus-stack
