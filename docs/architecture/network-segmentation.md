@@ -60,7 +60,7 @@ Platform namespaces (`monitoring`, `database`, `cache`, `garage`, `longhorn-syst
 | `cache` | labeled namespaces (6379), cache (replication), monitoring (metrics) | cache (replication), garage (S3 snapshots) |
 | `garage` | labeled namespaces (3900), longhorn/database/cache (backups), garage (replication) | garage (replication and admin) |
 | `istio-gateway` | world (HTTP/HTTPS), monitoring, istio-system | cluster (all backends), istio-system (xDS), world (JWKS/OIDC) |
-| `longhorn-system` | cluster (CSI), monitoring, istio-gateway (UI), kube-apiserver | kube-apiserver, cluster (replication), garage (S3), world (S3) |
+| `longhorn-system` | cluster (CSI), monitoring, istio-gateway (UI), kube-apiserver | kube-apiserver, cluster (replication) |
 | `system-upgrade` | monitoring (metrics) | kube-apiserver, host (Talos API 50000) |
 | `kromgo` | istio-gateway, monitoring | monitoring (Prometheus 9090) |
 

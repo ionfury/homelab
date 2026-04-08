@@ -35,7 +35,7 @@ The `config/` directory organizes non-Helm resources by concern:
 | `gateway/` | Gateway API resources |
 | `issuers/` | Cert-manager ClusterIssuers |
 | `kromgo/` | Kromgo status page configs |
-| `longhorn/` | Longhorn backup and storage configs |
+| `longhorn/` | Longhorn storage configs |
 | `monitoring/` | Prometheus rules, Grafana dashboards |
 | `priority-classes/` | Workload scheduling priority tiers (infrastructure-critical, platform, application) |
 | `secrets/` | Secret generator resources |

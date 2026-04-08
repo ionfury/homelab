@@ -117,7 +117,6 @@ ExternalSecret (per-namespace)
 | TLS certificate | Istio mesh CA, homelab CA | JSON: `{"tls.crt": "<pem>", "tls.key": "<pem>"}` |
 | Templated config | IPMI credentials | Multiple keys → templated into config file |
 | Webhook URL | Discord webhook | Plain string |
-| S3 credentials | Longhorn backup | Separate keys: `access-key-id`, `secret-access-key` |
 
 ### Current ExternalSecrets
 
@@ -129,7 +128,6 @@ ExternalSecret (per-namespace)
 | `hardware-monitoring-credentials` | monitoring | `/${cluster}/ipmi-*` | IPMI exporter config |
 | `alertmanager-discord-webhook` | monitoring | `/${cluster}/discord-webhook-secret` | Alert notifications |
 | `flux-discord-webhook` | flux-system | `/${cluster}/discord-webhook-secret` | Flux notifications |
-| `longhorn-s3-backup-credentials` | longhorn-system | `/${cluster}/longhorn-s3-backup/*` | S3 backup auth |
 | `lldap-secrets` | authelia | `/live/lldap-secrets` | LLDAP encryption keys |
 
 ## Tier 3: app-secrets Module (Generated + Persistent)
@@ -238,7 +236,6 @@ These SSM parameters must exist before a cluster can function:
 | `/homelab/kubernetes/${cluster}/discord-webhook-secret` | Alert notifications |
 | `/homelab/kubernetes/${cluster}/ipmi-username` | Hardware monitoring |
 | `/homelab/kubernetes/${cluster}/ipmi-password` | Hardware monitoring |
-| `/homelab/kubernetes/${cluster}/longhorn-s3-backup/*` | S3 backup auth |
 | `/homelab/kubernetes/shared/istio-mesh-ca` | Cross-cluster mTLS |
 | `/homelab/kubernetes/shared/homelab-ingress-ca` | Shared ingress CA |
 

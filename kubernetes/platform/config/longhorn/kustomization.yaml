@@ -5,7 +5,6 @@ kind: Kustomization
 
 resources:
   - prometheus-rules.yaml
-  - backup/
   - recurring-jobs/filesystem-trim-daily.yaml
   - routes/
   - storage-classes/fast.yaml

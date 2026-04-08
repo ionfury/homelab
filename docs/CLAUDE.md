@@ -34,7 +34,7 @@ Architecture docs describe **how the system works today** — living documents u
 
 | Runbook | Trigger Condition | Est. Time | Related Docs |
 |---------|-------------------|-----------|--------------|
-| `longhorn-disaster-recovery.md` | Complete cluster loss, need S3 restore | ~30 min | infrastructure/CLAUDE.md |
+| `velero-disaster-recovery.md` | Complete cluster loss, need Velero restore | ~30 min | infrastructure/CLAUDE.md |
 | `network-policy-escape-hatch.md` | Emergency - network policies blocking critical traffic | ~5 min | kubernetes/platform/CLAUDE.md |
 | `network-policy-verification.md` | Verify network policy enforcement with Hubble | ~10 min | kubernetes/platform/CLAUDE.md |
 | `resize-volume.md` | Longhorn auto-expansion fails, PVC at capacity | ~5 min | kubernetes/platform/CLAUDE.md |
@@ -49,7 +49,6 @@ Architecture docs describe **how the system works today** — living documents u
 | Plan | Status | Purpose |
 |------|--------|---------|
 | `coraza-waf.md` | Implemented | Coraza WAF integration for ingress protection |
-| `longhorn-dr-exercise.md` | In Progress | Automated disaster recovery exercise design |
 | `network-policy-architecture.md` | Implemented | Two-tier network policy model (namespace + workload) |
 | `oci-artifact-promotion.md` | In Progress | OCI-based GitOps promotion pipeline |
 

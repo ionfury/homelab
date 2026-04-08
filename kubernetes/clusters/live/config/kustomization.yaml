@@ -14,7 +14,6 @@ resources:
   - tandoor
   - paperless
   - homepage
-  - longhorn-backup-jobs
   - longhorn-snapshots
   - velero
   - silences
