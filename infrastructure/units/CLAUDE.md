@@ -15,7 +15,6 @@ For architectural context and the separation of concerns between units and modul
 | `aws-set-params` | `modules/aws-set-params` | Stores kubeconfig/talosconfig in AWS SSM | `config`, `talos` |
 | `pki` | `modules/pki` | Generates PKI certificates (Istio mesh CA) | None |
 | `ingress-pki` | `modules/pki` | Generates PKI certificates (ingress CA) | None |
-| `longhorn-storage` | `modules/longhorn-storage` | Provisions S3 backup buckets for all clusters (Longhorn) | None |
 | `velero-storage` | `modules/velero-storage` | Provisions S3 backup buckets for all clusters (Velero) | None |
 
 ## The Config Unit
@@ -45,7 +44,7 @@ Add a unit only when a new lifecycle boundary is needed. See the `terragrunt` sk
 
 ## Stack Composition
 
-Stacks compose units into deployable infrastructure. Cluster stacks (dev, integration, live) include: config, unifi, talos, bootstrap, aws-set-params. The global stack includes: longhorn-storage, velero-storage, pki, ingress-pki.
+Stacks compose units into deployable infrastructure. Cluster stacks (dev, integration, live) include: config, unifi, talos, bootstrap, aws-set-params. The global stack includes: velero-storage, pki, ingress-pki.
 
 ## Dependency Graph
 

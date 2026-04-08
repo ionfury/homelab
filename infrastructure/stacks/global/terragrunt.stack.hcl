@@ -6,15 +6,6 @@ locals {
   clusters = ["dev", "integration", "live"]
 }
 
-unit "longhorn_storage" {
-  source = "../../units/longhorn-storage"
-  path   = "longhorn-storage"
-
-  values = {
-    clusters = local.clusters
-  }
-}
-
 unit "velero_storage" {
   source = "../../units/velero-storage"
   path   = "velero-storage"
