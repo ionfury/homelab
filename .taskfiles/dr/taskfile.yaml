@@ -29,6 +29,7 @@ tasks:
       - task: _preflight
       - task: _seed-garage-sentinel
       - task: _seed-cnpg-sentinel
+      - task: _create-cnpg-backup
       - task: _create-backup
       - task: _destroy-cluster
       - task: _rebuild-cluster
@@ -77,6 +78,14 @@ tasks:
     cmds:
       - "{{.TASKFILE_DIR}}/scripts/seed-cnpg-sentinel.sh"
 
+  _create-cnpg-backup:
+    internal: true
+    env:
+      CONTEXT: "{{.CONTEXT}}"
+      EXERCISE_ID: "{{.EXERCISE_ID}}"
+    cmds:
+      - "{{.TASKFILE_DIR}}/scripts/create-cnpg-backup.sh"
+
   _create-backup:
     internal: true
     env:
@@ -124,7 +133,7 @@ tasks:
       - "{{.TASKFILE_DIR}}/scripts/verify-garage-sentinel.sh"
 
   _verify-cnpg-sentinel:
-    #internal: true
+    internal: true
     env:
       CONTEXT: "{{.CONTEXT}}"
       EXERCISE_ID: "{{.EXERCISE_ID}}"

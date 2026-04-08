@@ -10,6 +10,7 @@
   "dependencyDashboardTitle": "Dependency Dashboard",
   "prHourlyLimit": 5,
   "prConcurrentLimit": 20,
+  "prCreation": "immediate",
   "terraform": {
     "managerFilePatterns": ["/(^|/)infrastructure/.+\\.tf$/"],
     "registryUrls": ["https://registry.opentofu.org"]

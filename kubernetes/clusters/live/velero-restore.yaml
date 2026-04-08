@@ -8,7 +8,7 @@ spec:
   dependsOn:
     - name: velero-config
     - name: cilium
-  interval: 10m
+  interval: 3m
   path: kubernetes/clusters/live/config/velero-restore
   prune: true
   healthChecks:
@@ -16,6 +16,15 @@ spec:
       kind: Job
       name: velero-restore-gate
       namespace: velero
+    - apiVersion: velero.io/v1
+      kind: Restore
+      name: restore-platform
+      namespace: velero
+  healthCheckExprs:
+    - apiVersion: velero.io/v1
+      kind: Restore
+      current: "has(status.phase) && status.phase == 'Completed'"
+      failed: "has(status.phase) && (status.phase == 'Failed' || status.phase == 'PartiallyFailed' || status.phase == 'FailedValidation')"
   timeout: 30m
   sourceRef:
     kind: OCIRepository

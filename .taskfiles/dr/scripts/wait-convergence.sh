@@ -15,33 +15,18 @@ echo "Waiting for Flux controllers to be available..."
 kubectl --context "${CONTEXT}" -n flux-system wait deployment \
   --all --for=condition=Available --timeout=300s
 
-echo "Waiting for velero-restore-gate Job to complete (up to $((GATE_TIMEOUT / 60))m)..."
-elapsed=0
-GATE_STATUS=""
-while true; do
-  GATE_STATUS=$(kubectl --context "${CONTEXT}" -n velero get job velero-restore-gate \
-    -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>/dev/null || echo "")
-  GATE_FAILED=$(kubectl --context "${CONTEXT}" -n velero get job velero-restore-gate \
-    -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}' 2>/dev/null || echo "")
-
-  if [ "${GATE_STATUS}" = "True" ]; then
-    echo "  Gate job complete."
-    break
-  fi
-  if [ "${GATE_FAILED}" = "True" ]; then
-    echo "FAIL: Gate job failed."
-    kubectl --context "${CONTEXT}" -n velero logs job/velero-restore-gate --tail=50 || true
-    exit 1
-  fi
-  if [ "${elapsed}" -ge "${GATE_TIMEOUT}" ]; then
-    echo "FAIL: Gate job timed out after ${GATE_TIMEOUT}s"
-    kubectl --context "${CONTEXT}" -n velero get restore 2>/dev/null || true
-    exit 1
-  fi
-  echo "  Gate job pending... (${elapsed}s)"
-  sleep 15
-  elapsed=$((elapsed + 15))
-done
+echo "Waiting for velero-restore Kustomization to be Ready (up to $((GATE_TIMEOUT / 60))m)..."
+# Kustomization Ready now reflects the actual Restore phase via CEL healthCheckExprs,
+# so the hand-rolled Job poll is obsolete. A failed/stuck Restore surfaces here.
+if ! kubectl --context "${CONTEXT}" -n flux-system wait kustomization/velero-restore \
+  --for=condition=Ready --timeout="${GATE_TIMEOUT}s"; then
+  echo "FAIL: velero-restore Kustomization did not become Ready within ${GATE_TIMEOUT}s"
+  kubectl --context "${CONTEXT}" -n flux-system get kustomization velero-restore -o yaml | tail -40 || true
+  kubectl --context "${CONTEXT}" -n velero get restore 2>/dev/null || true
+  kubectl --context "${CONTEXT}" -n velero logs job/velero-restore-gate --tail=50 2>/dev/null || true
+  exit 1
+fi
+echo "  velero-restore Kustomization Ready."
 
 echo "Waiting for critical-path Kustomizations to be Ready (up to $((KS_TIMEOUT / 60))m)..."
 kubectl --context "${CONTEXT}" wait kustomizations.kustomize.toolkit.fluxcd.io \
