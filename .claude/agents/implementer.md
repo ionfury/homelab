@@ -5,6 +5,7 @@ description: |
   Writes declarative code and delivers changes via PRs using GitOps and IaC patterns.
 tools: Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch
 model: inherit
+permissionMode: bypassPermissions
 skills:
   - flux-gitops
   - app-template

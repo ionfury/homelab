@@ -130,3 +130,4 @@ terraform.rc
 .venv
 
 ./.taskfiles/inventory/resources/inventory.yaml
+.claude/worktrees/**
