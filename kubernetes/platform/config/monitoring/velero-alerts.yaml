@@ -13,7 +13,7 @@ spec:
       rules:
         - alert: VeleroBackupStale
           expr: |
-            (time() - velero_backup_last_successful_timestamp{schedule!=""}) > 108000
+            (time() - velero_backup_last_successful_timestamp{schedule!=""}) > (604800 + 14400)
           for: 5m
           labels:
             severity: critical
@@ -21,8 +21,8 @@ spec:
             summary: "Velero backup stale for schedule {{ $labels.schedule }}"
             description: >-
               No successful backup for schedule {{ $labels.schedule }} in the last
-              30 hours ({{ $value | humanizeDuration }}). Weekly schedules run at 02:00
-              on Sundays -- 30h buffer accounts for execution time and retry windows.
+              7 days 4 hours ({{ $value | humanizeDuration }}). Weekly schedules run at 02:00
+              on Sundays -- 4h buffer accounts for execution time and retry windows.
               Check Velero logs and backup storage location connectivity.
 
         - alert: VeleroBackupFailure
