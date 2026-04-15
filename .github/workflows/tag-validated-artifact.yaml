@@ -35,7 +35,7 @@ jobs:
 
       - name: Resolve artifact SHA and stable semver
         id: resolve
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const inputSha = '${{ inputs.artifact_sha }}';
