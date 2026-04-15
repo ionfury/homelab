@@ -15,6 +15,9 @@ spec:
           expr: |
             (dragonfly_used_memory_bytes{namespace="cache"}
             / dragonfly_maxmemory_bytes{namespace="cache"}) > 0.9
+            and
+            (dragonfly_used_memory_bytes{namespace="cache"}
+            / dragonfly_maxmemory_bytes{namespace="cache"}) <= 0.95
           for: 5m
           labels:
             severity: warning
