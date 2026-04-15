@@ -37,7 +37,9 @@ spec:
 
         # WAL Archiving Lag - pending files above healthy threshold
         - alert: CNPGWALArchivingLagHigh
-          expr: cnpg_collector_pg_wal_archive_status{value="ready"} > 10
+          expr: >-
+            cnpg_collector_pg_wal_archive_status{value="ready"} > 10
+            and cnpg_collector_pg_wal_archive_status{value="ready"} <= 100
           for: 5m
           labels:
             severity: warning

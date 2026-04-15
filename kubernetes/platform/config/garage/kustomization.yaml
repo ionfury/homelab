@@ -8,7 +8,7 @@ resources:
   - garage-s3-ingress.yaml
   - garage-route.yaml
   - garage-canary.yaml
-  # - prometheus-rules.yaml
+  - prometheus-rules.yaml
   - cnpg-platform-bucket.yaml
   - cnpg-platform-key.yaml
   - cnpg-immich-bucket.yaml
