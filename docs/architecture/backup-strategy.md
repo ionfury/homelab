@@ -80,13 +80,13 @@ Data flows to two distinct S3 endpoints, each serving a different purpose.
 
 ### AWS S3 (External, Off-Site)
 
-**Purpose:** Longhorn volume backups for disaster recovery.
+**Purpose:** Velero volume backups for disaster recovery.
 
 - **What goes here:** Velero volume snapshots for selected workloads
 - **How:** Velero connects to AWS S3 via IAM credentials for scheduled and on-demand backups
 - **Bucket naming:** `homelab-velero-backup-{dev,integration,live}` (one per cluster)
 - **Durability:** AWS S3 standard (11 nines)
-- **Why external:** Off-site backup is the last line of defense. If the entire cluster (including Garage) is lost, Velero backups in AWS S3 enable full volume restoration
+- **Why external:** Off-site backup is the last line of defense. If the entire cluster (including Garage) is lost, Velero backups in AWS S3 enable full volume restoration.
 
 ### Garage S3 (Internal, Same-Cluster)
 
@@ -232,15 +232,7 @@ These values are derived from `infrastructure/modules/config/main.tf`:
 
 ## DR Validation
 
-A disaster recovery exercise plan exists at `docs/plans/longhorn-dr-exercise.md`. The plan defines an automated workflow to:
-
-1. Deploy a test workload with known data to the dev cluster
-2. Back up the volume to AWS S3 via Longhorn
-3. Destroy and rebuild the dev cluster from scratch
-4. Restore the volume from S3
-5. Verify data integrity
-
-**Status:** Planned but not yet exercised. The exercise will validate the complete backup chain from volume snapshot through S3 restoration.
+Disaster recovery is validated via `task dr:exercise`, which seeds known data, triggers a Velero backup, destroys and rebuilds dev, then verifies both Garage S3 and CNPG Barman recovery. See `docs/runbooks/velero-disaster-recovery.md` for the full restoration procedure.
 
 ---
 
@@ -250,8 +242,6 @@ A disaster recovery exercise plan exists at `docs/plans/longhorn-dr-exercise.md`
 |------|---------|
 | `kubernetes/platform/config/longhorn/storage-classes/` | StorageClass definitions (fast, slow) |
 | `kubernetes/platform/config/longhorn/recurring-jobs/` | Platform snapshot and trim schedules |
-| `kubernetes/clusters/*/config/longhorn-backup-jobs/` | Per-cluster backup recurring jobs |
-| `kubernetes/platform/config/longhorn/backup/` | Longhorn S3 backup target credentials |
 | `kubernetes/platform/charts/velero.yaml` | Velero Helm values (node-agent, BSL, VSL) |
 | `kubernetes/platform/config/velero/schedule-platform.yaml` | Platform Velero schedule (garage namespace) |
 | `kubernetes/clusters/live/config/velero/schedule-default.yaml` | Live cluster Velero schedule (app namespaces) |
@@ -261,5 +251,4 @@ A disaster recovery exercise plan exists at `docs/plans/longhorn-dr-exercise.md`
 | `kubernetes/platform/config/garage/garage-cluster.yaml` | Garage replication and storage settings |
 | `infrastructure/modules/config/main.tf` | Per-cluster volume sizes and replica counts |
 | `infrastructure/stacks/*/terragrunt.stack.hcl` | Per-cluster `storage_provisioning` setting |
-| `docs/plans/longhorn-dr-exercise.md` | DR exercise plan |
-| `docs/runbooks/longhorn-disaster-recovery.md` | DR execution runbook |
+| `docs/runbooks/velero-disaster-recovery.md` | DR execution runbook |

@@ -22,7 +22,7 @@ For Flux patterns and version management, see [kubernetes/platform/CLAUDE.md](..
 | `gateway/` | Gateway API resources and WAF | Gateway, HTTPRoute, WasmPlugin |
 | `issuers/` | Certificate issuers | ClusterIssuer (3 types) |
 | `kromgo/` | Status page metrics | ConfigMap, HTTPRoute |
-| `longhorn/` | Storage classes, backup config | StorageClass, RecurringJob |
+| `longhorn/` | Storage classes, snapshot schedules | StorageClass, RecurringJob |
 | `monitoring/` | Alertmanager config, alert rules | PrometheusRule, ServiceMonitor, AlertmanagerConfig |
 | `network-policy/` | Cilium network policies | CiliumNetworkPolicy, CiliumClusterwideNetworkPolicy |
 | `priority-classes/` | Workload scheduling tiers | PriorityClass (infrastructure-critical, platform, application) |
@@ -61,7 +61,7 @@ Use `kubectl get crd <name> -o jsonpath='{.metadata.labels}'` or `kubectl explai
 
 - Use **kebab-case**: `network-policy`, `flux-notifications`
 - Match the **primary concern**: `monitoring` (not `prometheus-rules`)
-- Group related resources: `longhorn/` contains storage-classes, backup, recurring-jobs
+- Group related resources: `longhorn/` contains storage-classes, recurring-jobs
 
 ### File Naming
 
@@ -74,7 +74,7 @@ Use `kubectl get crd <name> -o jsonpath='{.metadata.labels}'` or `kubectl explai
 ### Resource Naming
 
 - Use cluster/namespace context: `homelab-ingress-ca` (not just `ca`)
-- Include subsystem prefix when ambiguous: `longhorn-backup-daily`
+- Include subsystem prefix when ambiguous: `longhorn-snapshot-daily`
 
 ## Variable Substitution
 

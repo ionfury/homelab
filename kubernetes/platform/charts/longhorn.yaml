@@ -28,10 +28,6 @@ defaultSettings:
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
   storageOverProvisioningPercentage: 500
   storageMinimalAvailablePercentage: 10
-defaultBackupStore:
-  backupTarget: s3://homelab-longhorn-backup-${cluster_name}@us-east-2/
-  backupTargetCredentialSecret: longhorn-s3-backup-credentials
-  pollInterval: "86400"
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}

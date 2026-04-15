@@ -91,16 +91,6 @@ spec:
             summary: "Longhorn node {{ $labels.node }} CPU > 90%"
             description: "Node {{ $labels.node }} Longhorn CPU usage is at {{ $value | printf \"%.1f\" }}%. High CPU pressure can impact storage performance."
 
-        # Backup State - Error
-        - alert: LonghornBackupFailed
-          expr: longhorn_backup_state == 4
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Longhorn backup {{ $labels.backup }} failed"
-            description: "Backup {{ $labels.backup }} for volume {{ $labels.volume }} is in error state. Check backup target connectivity and available space."
-
         # Volume Read-Only (filesystem issue)
         - alert: LonghornVolumeReadOnly
           expr: longhorn_volume_file_system_read_only == 1
@@ -120,36 +110,6 @@ spec:
           annotations:
             summary: "Longhorn replica rebuild stalled on {{ $labels.volume }}"
             description: "Volume {{ $labels.volume }} has been rebuilding for over 30 minutes at {{ $value }}%. This may indicate disk I/O issues or network problems."
-
-        # Backup Staleness - volume has backup but no recent success
-        - alert: LonghornBackupStale
-          expr: |
-            (time() - longhorn_volume_last_backup_at) > 129600
-            and longhorn_volume_last_backup_at > 0
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Longhorn volume {{ $labels.volume }} backup is stale"
-            description: >-
-              Volume {{ $labels.volume }} (PVC {{ $labels.pvc }}, ns {{ $labels.pvc_namespace }})
-              last successful backup was {{ $value | humanizeDuration }} ago (threshold: 36h).
-              Check recurring backup job status and backup target connectivity.
-
-        # Backup Never Completed - volume exists but has never been backed up
-        - alert: LonghornBackupNeverCompleted
-          expr: |
-            longhorn_volume_last_backup_at == 0
-            and longhorn_volume_robustness >= 0
-          for: 1h
-          labels:
-            severity: warning
-          annotations:
-            summary: "Longhorn volume {{ $labels.volume }} has never been backed up"
-            description: >-
-              Volume {{ $labels.volume }} reports a last backup timestamp of 0,
-              meaning no backup has ever completed. Verify recurring job configuration
-              and backup target availability.
 
     # Recording rules that aggregate disk metrics by storage pool (fast/slow)
     # based on disk name patterns from inventory (ssd = fast, hdd = slow).
