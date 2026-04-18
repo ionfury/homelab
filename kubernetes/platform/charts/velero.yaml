@@ -34,11 +34,13 @@ nodeAgent:
 
 configuration:
   features: EnableCSI
+  defaultRepoMaintainFrequency: "24h"
   backupStorageLocation:
     - name: aws
       provider: aws
       bucket: homelab-velero-backup-${cluster_name}
       default: true
+      validationFrequency: "1h"
       credential:
         name: velero-s3-credentials
         key: cloud
