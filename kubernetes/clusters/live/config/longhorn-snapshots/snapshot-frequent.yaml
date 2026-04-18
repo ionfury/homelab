@@ -4,6 +4,7 @@ apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
   name: &name snapshot-frequent
+  namespace: longhorn-system
 spec:
   name: *name
   cron: "0 1 * * *"
