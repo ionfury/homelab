@@ -8,7 +8,7 @@ For architecture context (units vs modules), see [infrastructure/CLAUDE.md](../C
 
 | Stack | Lifecycle | Purpose | Units |
 |-------|-----------|---------|-------|
-| `global` | **Persistent** | Cross-cluster infrastructure (S3 backups, PKI) | longhorn-storage, velero-storage, pki, ingress-pki |
+| `global` | **Persistent** | Cross-cluster infrastructure (S3 backups, PKI) | velero-storage, pki, ingress-pki |
 | `dev` | Ephemeral | Development cluster | config, unifi, talos, bootstrap, aws-set-params |
 | `integration` | Ephemeral | Integration/validation cluster | config, unifi, talos, bootstrap, aws-set-params |
 | `live` | Ephemeral | Production cluster | config, unifi, talos, bootstrap, aws-set-params |
@@ -32,7 +32,7 @@ Each stack has a `terragrunt.stack.hcl` that defines locals (stack-specific conf
 
 **Global stack is persistent** — it contains resources that must survive cluster rebuilds:
 
-- **S3 backup buckets** for Longhorn disaster recovery
+- **S3 backup buckets** for Velero disaster recovery
 - **PKI certificates** for Istio mesh and ingress
 - **IAM credentials** for cluster access to backups
 
