@@ -26,6 +26,10 @@ spec:
       namespace: system
       path: kubernetes/platform/config/secrets
       dependsOn: [external-secrets]
+    - name: external-dns-config
+      namespace: external-dns
+      path: kubernetes/platform/config/external-dns
+      dependsOn: [external-secrets-stores, external-dns]
     - name: longhorn-storage
       namespace: longhorn-system
       path: kubernetes/platform/config/longhorn

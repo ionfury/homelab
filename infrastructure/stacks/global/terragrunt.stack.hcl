@@ -29,3 +29,8 @@ unit "lldap_secrets" {
   source = "../../units/lldap-secrets"
   path   = "lldap-secrets"
 }
+
+unit "unifi_gateway" {
+  source = "../../units/unifi-gateway"
+  path   = "unifi-gateway"
+}
