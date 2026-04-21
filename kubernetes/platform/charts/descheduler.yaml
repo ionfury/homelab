@@ -14,6 +14,9 @@ deschedulerPolicy:
             evictLocalStoragePods: true
             evictSystemCriticalPods: false
             nodeFit: true
+            namespaces:
+              exclude:
+                - velero
         - name: RemovePodsViolatingInterPodAntiAffinity
         - name: RemovePodsViolatingNodeAffinity
           args:
