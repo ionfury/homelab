@@ -65,7 +65,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "max by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m]),\n  rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n) / (10 * 1000 * 1000 * 1000 / 8) * 100",
+              "expr": "max by (instance) (\n  label_replace(sum by (instance) (rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])), \"__dir__\", \"rx\", \"\", \"\")\n  or\n  label_replace(sum by (instance) (rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])), \"__dir__\", \"tx\", \"\", \"\")\n) * 8 / (10 * 1000 * 1000 * 1000) * 100",
               "legendFormat": "{{ instance }}",
               "refId": "A"
             }
@@ -111,10 +111,10 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "red", "value": 1250000000 }
+                  { "color": "red", "value": 10000000000 }
                 ]
               },
-              "unit": "Bps",
+              "unit": "bps",
               "min": 0
             },
             "overrides": []
@@ -128,7 +128,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n  + rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n)",
+              "expr": "sum by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n  + rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n) * 8",
               "legendFormat": "{{ instance }}",
               "refId": "A"
             }
@@ -167,10 +167,10 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "red", "value": 1250000000 }
+                  { "color": "red", "value": 10000000000 }
                 ]
               },
-              "unit": "Bps",
+              "unit": "bps",
               "min": 0
             },
             "overrides": []
@@ -184,7 +184,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n)",
+              "expr": "sum by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n) * 8",
               "legendFormat": "{{ instance }}",
               "refId": "A"
             }
@@ -223,10 +223,10 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "green", "value": null },
-                  { "color": "red", "value": 1250000000 }
+                  { "color": "red", "value": 10000000000 }
                 ]
               },
-              "unit": "Bps",
+              "unit": "bps",
               "min": 0
             },
             "overrides": []
@@ -240,7 +240,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum by (instance) (\n  rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n)",
+              "expr": "sum by (instance) (\n  rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n) * 8",
               "legendFormat": "{{ instance }}",
               "refId": "A"
             }
@@ -282,7 +282,7 @@ data:
                 "stacking": { "group": "A", "mode": "normal" },
                 "thresholdsStyle": { "mode": "off" }
               },
-              "unit": "Bps",
+              "unit": "bps",
               "min": 0
             },
             "overrides": []
@@ -296,7 +296,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n  + rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n)",
+              "expr": "sum by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n  + rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n) * 8",
               "legendFormat": "{{ instance }}",
               "refId": "A"
             }
@@ -345,7 +345,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "max by (instance) (\n  rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m]),\n  rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])\n) / (10 * 1000 * 1000 * 1000 / 8) * 100",
+              "expr": "max by (instance) (\n  label_replace(sum by (instance) (rate(node_network_receive_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])), \"__dir__\", \"rx\", \"\", \"\")\n  or\n  label_replace(sum by (instance) (rate(node_network_transmit_bytes_total{device!~\"lo|cni.*|veth.*|lxc.*|flannel.*|cilium.*|istioin|istioout\"}[5m])), \"__dir__\", \"tx\", \"\", \"\")\n) * 8 / (10 * 1000 * 1000 * 1000) * 100",
               "legendFormat": "{{ instance }}",
               "refId": "A"
             }
