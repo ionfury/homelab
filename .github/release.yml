@@ -1,0 +1,28 @@
+---
+changelog:
+  exclude:
+    labels:
+      - type/digest
+  categories:
+    - title: Features
+      labels:
+        - type/feature
+        - enhancement
+    - title: Bug Fixes
+      labels:
+        - bug
+    - title: Refactoring
+      labels:
+        - type/refactor
+    - title: Dependencies
+      labels:
+        - renovate/helm
+        - renovate/container
+        - renovate/github-action
+        - renovate/github-release
+        - type/major
+        - type/minor
+        - type/patch
+    - title: Other Changes
+      labels:
+        - "*"
