@@ -21,6 +21,7 @@ jobs:
       (github.event.state == 'success' &&
        startsWith(github.event.context, 'kustomization/platform/'))
     permissions:
+      contents: write
       packages: write
       statuses: read
 
@@ -52,9 +53,11 @@ jobs:
             // Determine the artifact SHA - from input, status event, or auto-detect
             let sha = inputSha;
 
+            let fullSha = '';
+
             if (!sha && '${{ github.event_name }}' === 'status') {
-              // Extract short SHA from the commit that received the status
-              sha = '${{ github.event.sha }}'.substring(0, 7);
+              fullSha = '${{ github.event.sha }}';
+              sha = fullSha.substring(0, 7);
               core.info(`Status event for commit ${sha}`);
             }
 
@@ -110,9 +113,26 @@ jobs:
             const match = rcTag.match(/^(\d+\.\d+\.\d+)-rc\.\d+$/);
             const stable = match[1];
 
+            // Resolve full commit SHA if not already known (needed for git tag)
+            if (!fullSha) {
+              const commits = await github.rest.repos.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: 'main',
+                per_page: 100,
+              });
+              const match_commit = commits.data.find(c => c.sha.startsWith(sha));
+              if (match_commit) {
+                fullSha = match_commit.sha;
+              } else {
+                core.warning(`Could not resolve full SHA for ${sha} — skipping release creation`);
+              }
+            }
+
             core.info(`Found RC tag: ${rcTag}`);
             core.info(`Derived stable semver: ${rcTag} → ${stable}`);
             core.setOutput('sha', sha);
+            core.setOutput('full_sha', fullSha);
             core.setOutput('stable', stable);
 
       - name: Tag as validated
@@ -128,3 +148,17 @@ jobs:
           flux tag artifact \
             "oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:integration-${SHA}" \
             --tag "${STABLE}"
+
+      - name: Create GitHub Release
+        if: steps.resolve.outputs.full_sha
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STABLE: ${{ steps.resolve.outputs.stable }}
+          FULL_SHA: ${{ steps.resolve.outputs.full_sha }}
+        run: |
+          TAG="v${STABLE}"
+          gh release create "${TAG}" \
+            --target "${FULL_SHA}" \
+            --title "${TAG}" \
+            --generate-notes \
+            --latest
