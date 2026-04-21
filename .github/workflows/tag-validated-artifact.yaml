@@ -158,6 +158,7 @@ jobs:
         run: |
           TAG="v${STABLE}"
           gh release create "${TAG}" \
+            --repo "${{ github.repository }}" \
             --target "${FULL_SHA}" \
             --title "${TAG}" \
             --generate-notes \
