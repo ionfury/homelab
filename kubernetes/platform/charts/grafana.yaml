@@ -250,7 +250,8 @@ dashboards:
       # renovate: depName="Longhorn Dashboard"
       gnetId: 22705
       revision: 1
-      datasource: Prometheus
+      datasource:
+        - { name: DS_PROMETHEUS, value: Prometheus }
   hardware:
     smartctl-exporter:
       # renovate: depName="SMARTctl Exporter Dashboard"

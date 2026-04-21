@@ -39,4 +39,5 @@ resources:
   - gpu-monitoring-alerts.yaml
   - velero-alerts.yaml
   - velero-dashboard.yaml
+  - network-throughput-dashboard.yaml
   - platform-home-dashboard.yaml
