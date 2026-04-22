@@ -29,3 +29,8 @@ unit "lldap_secrets" {
   source = "../../units/lldap-secrets"
   path   = "lldap-secrets"
 }
+
+unit "authelia_secrets" {
+  source = "../../units/authelia-secrets"
+  path   = "authelia-secrets"
+}

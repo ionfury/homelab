@@ -184,7 +184,7 @@ configMap:
         - ForwardAuth
 
 secret:
-  existingSecret: ''
+  existingSecret: 'authelia-secrets'
   additionalSecrets:
     lldap-secrets: { }
     authelia-db-credentials: { }

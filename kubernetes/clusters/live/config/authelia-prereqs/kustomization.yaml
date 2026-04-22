@@ -10,3 +10,4 @@ resources:
   - lldap-db-credentials.yaml
   - authelia-db-credentials.yaml
   - grafana-oidc-client-secret.yaml
+  - authelia-secrets.yaml
