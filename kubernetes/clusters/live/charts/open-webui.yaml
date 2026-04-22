@@ -32,8 +32,6 @@ extraEnvVars:
         key: password
   - name: DATABASE_URL
     value: "postgresql://open-webui:$(DB_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/open-webui"
-  - name: ENABLE_WEBSOCKET_SUPPORT
-    value: "True"
   - name: WEBSOCKET_MANAGER
     value: "redis"
   - name: DRAGONFLY_PASS
