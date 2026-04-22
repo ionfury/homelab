@@ -316,7 +316,7 @@ code path active, this section becomes historical reference.
    must contain the recovery-patch and excludedResources changes:
 
    ```
-   flux --context live get source oci platform -n flux-system
+   kubectl --context live get ocirepository -n flux-system
    ```
 
    Cross-reference the artifact revision with the merge commit.
