@@ -8,3 +8,7 @@ resources:
   - role-secrets.yaml
 patches:
   - path: cluster-roles-patch.yaml
+  - path: recovery-patch.yaml
+    target:
+      kind: Cluster
+      name: platform

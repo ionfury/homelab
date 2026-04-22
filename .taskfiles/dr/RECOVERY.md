@@ -277,6 +277,121 @@ looked like at the time of failure.
 
 ---
 
+## Live cluster activation (inauguration)
+
+**Purpose**: Get live onto the CNPG recovery code path. After this procedure,
+live carries real user data and any future rebuild automatically recovers
+databases from Barman S3 archives.
+
+This is a **one-time event** — once live has been rebuilt with the recovery
+code path active, this section becomes historical reference.
+
+### Pre-flight
+
+1. **Verify backups are healthy**:
+
+   ```
+   velero --kubecontext live backup get --sort-by=.metadata.creationTimestamp | tail -5
+   ```
+
+   The most recent `platform` and `default` backups must show `Completed`
+   (not `PartiallyFailed`). If stale or failed, trigger fresh backups:
+
+   ```
+   velero --kubecontext live backup create --from-schedule platform
+   velero --kubecontext live backup create --from-schedule default
+   ```
+
+2. **Verify CNPG Barman archives exist**:
+
+   ```
+   kubectl --context live get cluster platform -n database \
+     -o jsonpath='{.status.firstRecoverabilityPoint}{"\t"}{.status.lastSuccessfulBackup}{"\n"}'
+   ```
+
+   Both timestamps must be recent and the recoverability window must span
+   at least one base backup.
+
+3. **Verify the PR is merged and promoted**. The `validated-*` OCI artifact
+   must contain the recovery-patch and excludedResources changes:
+
+   ```
+   flux --context live get source oci platform -n flux-system
+   ```
+
+   Cross-reference the artifact revision with the merge commit.
+
+### Execution
+
+4. **Destroy and recreate the live cluster** via Terragrunt:
+
+   ```
+   task tg:apply-live
+   ```
+
+   This destroys the existing nodes and provisions fresh ones (~10 min).
+   **Requires explicit human approval.**
+
+### Post-rebuild validation
+
+5. **Watch Flux bootstrap**. The cluster pulls the `validated-*` OCI
+   artifact and begins reconciliation:
+
+   ```
+   flux --context live get kustomizations -A -w
+   ```
+
+6. **Verify Velero restore completes**. The `velero-restore` Kustomization
+   should become Ready after the gate Job succeeds:
+
+   ```
+   kubectl --context live get restore -n velero
+   kubectl --context live logs -n velero job/velero-restore-gate --tail=50
+   ```
+
+   Confirm `restore-platform` shows `Completed` and that Garage PVCs are
+   restored (check `kubectl --context live get pvc -n garage`).
+
+7. **Verify CNPG recovery**. The platform Cluster CR should bootstrap via
+   `recovery` (not `initdb`):
+
+   ```
+   kubectl --context live get cluster platform -n database -o jsonpath='{.status.phase}{"\n"}'
+   kubectl --context live get pods -n database -l cnpg.io/cluster=platform
+   ```
+
+   Expected: `Cluster in healthy state`, all pods Ready. Check logs for
+   recovery confirmation:
+
+   ```
+   kubectl --context live logs -n database platform-1 -c postgres --tail=50 | grep -i "recovery\|restore"
+   ```
+
+8. **Verify application connectivity**. Spot-check that apps can reach
+   their databases via the pooler:
+
+   ```
+   kubectl --context live get pooler -n database
+   kubectl --context live get pods -n database -l cnpg.io/poolerName=platform-pooler-rw
+   ```
+
+9. **Verify zero firing alerts**:
+
+   ```
+   kubectl --context live get prometheusrule -A
+   ```
+
+   Check Alertmanager UI or API for any firing alerts.
+
+### Post-activation
+
+After successful activation, live is carrying real data. The recovery-patch
+remains in the codebase permanently — CNPG ignores `spec.bootstrap` after
+initial cluster creation, so it has no effect during normal operation but
+ensures the recovery path is ready for any future rebuild.
+
+---
+
 ## When to extend this runbook
 
 Add a new section when:
