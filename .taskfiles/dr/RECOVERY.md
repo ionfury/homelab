@@ -386,9 +386,11 @@ code path active, this section becomes historical reference.
 ### Post-activation
 
 After successful activation, live is carrying real data. The recovery-patch
-remains in the codebase permanently — CNPG ignores `spec.bootstrap` after
-initial cluster creation, so it has no effect during normal operation but
-ensures the recovery path is ready for any future rebuild.
+remains in the codebase permanently — CNPG rejects `spec.bootstrap` changes
+on an initialized cluster (webhook validation), so Flux will fail to apply
+the patch during normal operation. This is expected: `database-config` will
+show reconciliation errors until the next rebuild, at which point the
+recovery path activates correctly on the fresh cluster.
 
 ---
 
