@@ -10,9 +10,10 @@ inputs = {
   name = "authelia"
 
   secrets = {
-    STORAGE_ENCRYPTION_KEY = { length = 64, special = false }
-    SESSION_ENCRYPTION_KEY = { length = 64, special = false }
-    JWT_TOKEN              = { length = 64, special = false }
+    storage_encryption_key = { length = 64, special = false }
+    session_encryption_key = { length = 64, special = false }
+    jwt_hmac_key           = { length = 64, special = false }
+    oidc_hmac_key          = { length = 64, special = false }
   }
 
   ssm_parameter_path = "/homelab/kubernetes/live/authelia-secrets"
