@@ -291,7 +291,7 @@ code path active, this section becomes historical reference.
 1. **Verify backups are healthy**:
 
    ```
-   velero --kubecontext live backup get --sort-by=.metadata.creationTimestamp | tail -5
+   velero --kubecontext live backup get
    ```
 
    The most recent `platform` and `default` backups must show `Completed`
