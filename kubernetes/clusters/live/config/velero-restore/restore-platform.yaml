@@ -9,10 +9,12 @@ spec:
   scheduleName: platform
   restorePVs: true
   existingResourcePolicy: none
+  # Exclude CNPG Cluster CR -- Flux manages it via recovery-patch.yaml overlay.
+  # Restoring the backed-up CR would apply an initdb spec, overriding recovery.
+  excludedResources:
+    - clusters.postgresql.cnpg.io
   # garage: PVC restore recovers object storage (including CNPG Barman archives)
-  # database: PVC restore alone does NOT recover CNPG databases -- the operator
-  #   runs initdb regardless. Full DB recovery requires bootstrap.recovery with
-  #   barmanObjectStore pointing at the restored Garage S3 (follow-up work).
+  # database: PVC restore recovers CNPG data PVCs (Barman recovery reads WALs from Garage)
   includedNamespaces:
     - garage
     - database

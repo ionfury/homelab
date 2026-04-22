@@ -9,6 +9,8 @@ spec:
   scheduleName: default
   restorePVs: true
   existingResourcePolicy: none
+  excludedResources:
+    - clusters.postgresql.cnpg.io
   includedNamespaces:
     - immich
     - satisfactory
