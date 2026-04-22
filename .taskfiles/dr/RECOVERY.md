@@ -323,25 +323,33 @@ code path active, this section becomes historical reference.
 
 ### Execution
 
-4. **Destroy and recreate the live cluster** via Terragrunt:
+4. **Destroy the live cluster**:
+
+   ```
+   task tg:destroy-live
+   ```
+
+5. **Merge the recovery-path PR** to main. Wait for OCI promotion to
+   produce a `validated-*` artifact containing the changes.
+
+6. **Rebuild the live cluster**:
 
    ```
    task tg:apply-live
    ```
 
-   This destroys the existing nodes and provisions fresh ones (~10 min).
-   **Requires explicit human approval.**
+   Both operations require explicit human approval.
 
 ### Post-rebuild validation
 
-5. **Watch Flux bootstrap**. The cluster pulls the `validated-*` OCI
+7. **Watch Flux bootstrap**. The cluster pulls the `validated-*` OCI
    artifact and begins reconciliation:
 
    ```
    flux --context live get kustomizations -A -w
    ```
 
-6. **Verify Velero restore completes**. The `velero-restore` Kustomization
+8. **Verify Velero restore completes**. The `velero-restore` Kustomization
    should become Ready after the gate Job succeeds:
 
    ```
@@ -352,7 +360,7 @@ code path active, this section becomes historical reference.
    Confirm `restore-platform` shows `Completed` and that Garage PVCs are
    restored (check `kubectl --context live get pvc -n garage`).
 
-7. **Verify CNPG recovery**. The platform Cluster CR should bootstrap via
+9. **Verify CNPG recovery**. The platform Cluster CR should bootstrap via
    `recovery` (not `initdb`):
 
    ```
@@ -367,7 +375,7 @@ code path active, this section becomes historical reference.
    kubectl --context live logs -n database platform-1 -c postgres --tail=50 | grep -i "recovery\|restore"
    ```
 
-8. **Verify application connectivity**. Spot-check that apps can reach
+10. **Verify application connectivity**. Spot-check that apps can reach
    their databases via the pooler:
 
    ```
@@ -375,7 +383,7 @@ code path active, this section becomes historical reference.
    kubectl --context live get pods -n database -l cnpg.io/poolerName=platform-pooler-rw
    ```
 
-9. **Verify zero firing alerts**:
+11. **Verify zero firing alerts**:
 
    ```
    kubectl --context live get prometheusrule -A
