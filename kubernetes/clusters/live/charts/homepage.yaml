@@ -16,6 +16,7 @@ controllers:
     annotations:
       reloader.stakater.com/auto: "true"
 
+    strategy: RollingUpdate
     replicas: 2
 
     containers:
