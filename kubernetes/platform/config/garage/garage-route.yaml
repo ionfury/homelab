@@ -19,4 +19,4 @@ spec:
   rules:
     - backendRefs:
         - name: garage
-          port: 3903
+          port: 3902
