@@ -1,0 +1,49 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  drawio:
+    type: deployment
+    replicas: 1
+
+    containers:
+      app:
+        image:
+          repository: jgraph/drawio
+          tag: "${drawio_version}"
+        env:
+          DRAWIO_SELF_CONTAINED: "1"
+        securityContext:
+          readOnlyRootFilesystem: false
+        resources:
+          requests:
+            cpu: 10m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 15
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 10
+
+service:
+  app:
+    controller: drawio
+    ports:
+      http:
+        port: 8080
