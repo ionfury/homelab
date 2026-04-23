@@ -10,8 +10,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/corentinth/it-tools
-          # renovate: datasource=docker depName=ghcr.io/corentinth/it-tools versioning=loose
-          tag: v2024.10.22-7ca5933
+          tag: "${it_tools_version}"
         resources:
           requests:
             cpu: 10m

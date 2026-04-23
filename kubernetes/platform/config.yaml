@@ -55,10 +55,6 @@ spec:
       namespace: cache
       path: kubernetes/platform/config/dragonfly
       dependsOn: [dragonfly-operator, garage-config, canary-checker]
-    - name: it-tools-config
-      namespace: it-tools
-      path: kubernetes/platform/config/it-tools
-      dependsOn: [it-tools]
     - name: kromgo-config
       namespace: kromgo
       path: kubernetes/platform/config/kromgo

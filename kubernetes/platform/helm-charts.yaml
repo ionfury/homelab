@@ -182,13 +182,6 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [kube-prometheus-stack]
-    - name: it-tools
-      namespace: it-tools
-      chart:
-        name: app-template
-        version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: [cilium]
     - name: spegel
       namespace: spegel
       chart:
