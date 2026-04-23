@@ -44,6 +44,7 @@ spec:
     - "--s3_endpoint"
     - "${garage_s3_endpoint}"
     - "--s3_use_https=false"
+    - "--default_lua_flags=allow-undeclared-keys"
 
   env:
     - name: AWS_ACCESS_KEY_ID
