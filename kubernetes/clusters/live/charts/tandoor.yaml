@@ -5,6 +5,7 @@ controllers:
   tandoor:
     type: deployment
     replicas: 2
+    strategy: RollingUpdate
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -75,7 +76,7 @@ controllers:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
           capabilities:
-            drop: [ALL]
+            drop: [ ALL ]
         resources:
           requests:
             cpu: 50m
