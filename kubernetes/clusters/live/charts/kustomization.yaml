@@ -15,6 +15,7 @@ configMapGenerator:
       - factorio.yaml
       - homepage.yaml
       - immich.yaml
+      - it-tools.yaml
       - jellyfin-exporter.yaml
       - jellyfin.yaml
       - jellyseerr.yaml
