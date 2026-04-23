@@ -3,6 +3,7 @@ apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: homepage-sticky
+  namespace: homepage
 spec:
   host: homepage.homepage.svc.cluster.local
   trafficPolicy:
