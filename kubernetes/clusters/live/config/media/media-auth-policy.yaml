@@ -19,6 +19,7 @@ spec:
     - to:
         - operation:
             hosts:
+              - "bazarr.${internal_domain}"
               - "prowlarr.${internal_domain}"
               - "radarr.${internal_domain}"
               - "sonarr.${internal_domain}"
