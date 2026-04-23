@@ -55,6 +55,10 @@ spec:
       namespace: cache
       path: kubernetes/platform/config/dragonfly
       dependsOn: [dragonfly-operator, garage-config, canary-checker]
+    - name: drawio-config
+      namespace: drawio
+      path: kubernetes/platform/config/drawio
+      dependsOn: [drawio]
     - name: kromgo-config
       namespace: kromgo
       path: kubernetes/platform/config/kromgo
