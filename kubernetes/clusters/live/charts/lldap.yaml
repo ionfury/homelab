@@ -5,6 +5,7 @@ controllers:
   lldap:
     type: deployment
     replicas: 2
+    strategy: RollingUpdate
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -34,7 +35,7 @@ controllers:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
-            drop: [ALL]
+            drop: [ ALL ]
 
     containers:
       app:
@@ -59,7 +60,7 @@ controllers:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
-            drop: [ALL]
+            drop: [ ALL ]
         resources:
           requests:
             cpu: 10m
