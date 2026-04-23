@@ -35,7 +35,7 @@ controllers:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
-            drop: [ ALL ]
+            drop: [ALL]
 
     containers:
       app:
@@ -60,7 +60,7 @@ controllers:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
-            drop: [ ALL ]
+            drop: [ALL]
         resources:
           requests:
             cpu: 10m
