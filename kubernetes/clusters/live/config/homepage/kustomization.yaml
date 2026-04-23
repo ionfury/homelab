@@ -6,6 +6,7 @@ resources:
   - namespace.yaml
   - clusterrole.yaml
   - clusterrolebinding.yaml
+  - destinationrule.yaml
   - internal-route.yaml
   - network-policy.yaml
   - secrets.yaml

@@ -1,0 +1,13 @@
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: homepage-sticky
+spec:
+  host: homepage.homepage.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      consistentHashLB:
+        httpCookie:
+          name: HOMEPAGE_SESSION
+          ttl: 3600s
