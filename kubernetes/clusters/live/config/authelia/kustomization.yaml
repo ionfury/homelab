@@ -9,3 +9,4 @@ resources:
   - network-policy.yaml
   - authelia-canary.yaml
   - prometheus-rules.yaml
+  - lldap-bootstrap-job.yaml

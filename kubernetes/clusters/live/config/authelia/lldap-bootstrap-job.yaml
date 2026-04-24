@@ -1,0 +1,90 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lldap-bootstrap
+  namespace: authelia
+  annotations:
+    kustomize.toolkit.fluxcd.io/force: Enabled
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lldap-bootstrap
+    spec:
+      restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: bootstrap
+          image: ghcr.io/lldap/lldap:v0.6.2
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+
+              echo "Waiting for LLDAP to be ready..."
+              until wget -q -O /dev/null "${LLDAP_URL}/health" 2>/dev/null; do
+                echo "LLDAP not ready, retrying in 5s..."
+                sleep 5
+              done
+              echo "LLDAP is ready"
+
+              LOGIN_RESPONSE=$(wget -q -O - \
+                --header="Content-Type: application/json" \
+                --post-data="{\"username\":\"${LLDAP_ADMIN_USERNAME}\",\"password\":\"${LLDAP_ADMIN_PASSWORD}\"}" \
+                "${LLDAP_URL}/auth/simple/login")
+
+              TOKEN=$(echo "$LOGIN_RESPONSE" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+              if [ -z "$TOKEN" ]; then
+                echo "ERROR: Failed to authenticate with LLDAP"
+                exit 1
+              fi
+              echo "Authenticated successfully"
+
+              create_group() {
+                local name="$1"
+                RESPONSE=$(wget -q -O - \
+                  --header="Content-Type: application/json" \
+                  --header="Authorization: Bearer ${TOKEN}" \
+                  --post-data="{\"query\":\"mutation { createGroup(name: \\\"${name}\\\") { id displayName } }\"}" \
+                  "${LLDAP_URL}/api/graphql" 2>&1) || true
+
+                if echo "$RESPONSE" | grep -q "displayName"; then
+                  echo "Group '${name}' created"
+                elif echo "$RESPONSE" | grep -q "already exists"; then
+                  echo "Group '${name}' already exists"
+                else
+                  echo "Group '${name}': ${RESPONSE}"
+                fi
+              }
+
+              create_group "photos"
+              echo "Bootstrap complete"
+          env:
+            - name: LLDAP_URL
+              value: "http://lldap.authelia.svc.cluster.local:17170"
+            - name: LLDAP_ADMIN_USERNAME
+              value: admin
+            - name: LLDAP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lldap-secrets
+                  key: LLDAP_LDAP_USER_PASS
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
