@@ -19,7 +19,7 @@ spec:
     - name: external
       namespace: istio-gateway
   hostnames:
-    - "immich.${external_domain}"
+    - "photos.${external_domain}"
   rules:
     - backendRefs:
         - name: immich-server
