@@ -7,7 +7,7 @@ pod:
   annotations:
     reloader.stakater.com/auto: "true"
   env:
-    - name: AUTHELIA_SMTP_SENDER
+    - name: SMTP_SENDER
       valueFrom:
         secretKeyRef:
           name: authelia-smtp-credentials
@@ -105,7 +105,7 @@ configMap:
     smtp:
       enabled: true
       address: submissions://smtp.gmail.com:465
-      sender: '{{ env "AUTHELIA_SMTP_SENDER" }}'
+      sender: '{{ env "SMTP_SENDER" }}'
       username:
         secret_name: authelia-smtp-credentials
         path: username
