@@ -12,6 +12,11 @@ pod:
         secretKeyRef:
           name: authelia-smtp-credentials
           key: sender
+    - name: SMTP_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: authelia-smtp-credentials
+          key: username
   extraVolumeMounts:
     - name: oidc-jwk
       mountPath: /secrets/oidc-jwk
@@ -106,9 +111,7 @@ configMap:
       enabled: true
       address: submissions://smtp.gmail.com:465
       sender: '{{ env "SMTP_SENDER" }}'
-      username:
-        secret_name: authelia-smtp-credentials
-        path: username
+      username: '{{ env "SMTP_USERNAME" }}'
       password:
         secret_name: authelia-smtp-credentials
         path: password
