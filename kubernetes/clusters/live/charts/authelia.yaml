@@ -17,7 +17,7 @@ pod:
       secret:
         secretName: authelia-oidc-jwk
     - name: notification
-      emptyDir: { }
+      emptyDir: {}
   securityContext:
     pod:
       runAsNonRoot: true
@@ -31,7 +31,7 @@ pod:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
       capabilities:
-        drop: [ALL]
+        drop: [ ALL ]
 configMap:
   theme: dark
 
@@ -56,7 +56,8 @@ configMap:
       address: ldap://lldap.authelia.svc.cluster.local:3890
       base_dn: dc=homelab,dc=local
       additional_users_dn: ou=people
-      users_filter: "(&(|({username_attribute}={input})({email_attribute}={input}))(objectClass=person))"
+      users_filter: "(&(|({username_attribute}={input})({email_attribute}={input}))(o\
+        bjectClass=person))"
       additional_groups_dn: ou=groups
       groups_filter: "(member={dn})"
       attributes:
@@ -131,6 +132,29 @@ configMap:
             - groups
             - preferred_username
       clients:
+        - client_id: "immich"
+          client_name: Immich
+          client_secret:
+            path: /secrets/immich-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://photos.${external_domain}/auth/login
+            - https://photos.${external_domain}/user-settings
+            - app.immich:///oauth-callback
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          access_token_signed_response_alg: none
+          userinfo_signed_response_alg: none
+          token_endpoint_auth_method: client_secret_post
         - client_id: grafana
           client_name: Grafana
           client_secret:
@@ -184,10 +208,11 @@ configMap:
         - ForwardAuth
 
 secret:
-  existingSecret: 'authelia-secrets'
+  existingSecret: "authelia-secrets"
   additionalSecrets:
-    lldap-secrets: { }
-    authelia-db-credentials: { }
-    dragonfly-auth: { }
-    grafana-oidc-client-secret: { }
-    open-webui-oidc-client-secret: { }
+    lldap-secrets: {}
+    authelia-db-credentials: {}
+    dragonfly-auth: {}
+    grafana-oidc-client-secret: {}
+    open-webui-oidc-client-secret: {}
+    immich-oidc-client-secret: {}
