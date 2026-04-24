@@ -6,18 +6,20 @@ pod:
   replicas: 2
   annotations:
     reloader.stakater.com/auto: "true"
+  env:
+    - name: AUTHELIA_SMTP_SENDER
+      valueFrom:
+        secretKeyRef:
+          name: authelia-smtp-credentials
+          key: sender
   extraVolumeMounts:
     - name: oidc-jwk
       mountPath: /secrets/oidc-jwk
       readOnly: true
-    - name: notification
-      mountPath: /config
   extraVolumes:
     - name: oidc-jwk
       secret:
         secretName: authelia-oidc-jwk
-    - name: notification
-      emptyDir: {}
   securityContext:
     pod:
       runAsNonRoot: true
@@ -31,7 +33,7 @@ pod:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
       capabilities:
-        drop: [ ALL ]
+        drop: [ALL]
 configMap:
   theme: dark
 
@@ -100,9 +102,16 @@ configMap:
         path: password
 
   notifier:
-    filesystem:
+    smtp:
       enabled: true
-      filename: /config/notification.txt
+      address: submissions://smtp.gmail.com:465
+      sender: '{{ env "AUTHELIA_SMTP_SENDER" }}'
+      username:
+        secret_name: authelia-smtp-credentials
+        path: username
+      password:
+        secret_name: authelia-smtp-credentials
+        path: password
 
   telemetry:
     metrics:
@@ -210,9 +219,10 @@ configMap:
 secret:
   existingSecret: "authelia-secrets"
   additionalSecrets:
-    lldap-secrets: {}
-    authelia-db-credentials: {}
-    dragonfly-auth: {}
-    grafana-oidc-client-secret: {}
-    open-webui-oidc-client-secret: {}
-    immich-oidc-client-secret: {}
+    lldap-secrets: { }
+    authelia-db-credentials: { }
+    dragonfly-auth: { }
+    grafana-oidc-client-secret: { }
+    open-webui-oidc-client-secret: { }
+    immich-oidc-client-secret: { }
+    authelia-smtp-credentials: { }
