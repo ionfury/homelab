@@ -10,3 +10,10 @@ resources:
   - authelia-canary.yaml
   - prometheus-rules.yaml
   - lldap-bootstrap-job.yaml
+configMapGenerator:
+  - name: lldap-bootstrap-scripts
+    namespace: authelia
+    files:
+      - bootstrap.sh=lldap-bootstrap.sh
+    options:
+      disableNameSuffixHash: true
