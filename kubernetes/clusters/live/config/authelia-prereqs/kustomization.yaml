@@ -11,3 +11,4 @@ resources:
   - authelia-db-credentials.yaml
   - grafana-oidc-client-secret.yaml
   - authelia-secrets.yaml
+  - authelia-smtp-credentials.yaml
