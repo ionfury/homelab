@@ -86,7 +86,7 @@ runs:
             cluster_name: 'ci-test',
             cluster_pod_subnet: '10.244.0.0/16',
             internal_domain: 'internal.ci.example.com',
-            external_domain: 'external.ci.example.com',
+            external_domain: 'ci.example.com',
             default_replica_count: '1'
           };
 
