@@ -21,7 +21,7 @@ vars:
   TEST_CLUSTER_NAME: ci-test
   TEST_POD_SUBNET: "10.244.0.0/16"
   TEST_INTERNAL_DOMAIN: internal.ci.example.com
-  TEST_EXTERNAL_DOMAIN: external.ci.example.com
+  TEST_EXTERNAL_DOMAIN: ci.example.com
   TEST_REPLICA_COUNT: "1"
   TEST_GARAGE_DATA_SIZE: "10Gi"
   TEST_GARAGE_META_SIZE: "1Gi"
