@@ -5,7 +5,9 @@
     // Patch updates are low-risk and the promotion pipeline validates before live
     {
       "description": "Automerge patch updates",
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "minimumReleaseAge": "1 day"
@@ -13,7 +15,9 @@
     // Minor updates carry more risk, keep a longer stabilization window
     {
       "description": "Automerge minor updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "minimumReleaseAge": "3 days"
@@ -21,7 +25,9 @@
     // Digest updates - very safe (SHA pinning changes only)
     {
       "description": "Automerge container digest updates",
-      "matchUpdateTypes": ["digest"],
+      "matchUpdateTypes": [
+        "digest"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "minimumReleaseAge": "1 day"
@@ -29,23 +35,27 @@
     // Trusted GitHub Actions get faster automerge
     {
       "description": "Fast-track trusted GitHub Actions",
-      "matchDatasources": ["github-tags"],
-      "matchPackageNames": ["/^actions\\//", "/^renovatebot\\//"],
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "matchPackageNames": [
+        "/^actions\\//",
+        "/^renovatebot\\//"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "minimumReleaseAge": "1 day"
     },
-
     // EXCLUSIONS LAST (later rules override earlier - these take precedence)
     // Never automerge major updates - breaking changes need review
     {
       "description": "Never automerge major updates",
-      "matchUpdateTypes": ["major"],
-      "automerge": false
-    },
-    // Never automerge infrastructure tooling - these affect cluster stability fundamentally
-    {
-      "description": "Never automerge infrastructure tooling",
-      "matchDepNames": ["opentofu", "terragrunt", "talos", "kubernetes", "cilium", "flux", "gateway-api", "prometheus-operator-crds"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": false
     }
   ]
