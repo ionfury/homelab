@@ -81,9 +81,28 @@
     // Platform version grouping (versions.env)
     // ============================================================
     {
-      // Infrastructure versions - NEVER automerge (cluster-critical)
-      "matchDepNames": ["talos", "kubernetes", "cilium", "gateway-api", "flux"],
-      "groupName": "infrastructure versions",
+      "matchDepNames": ["talos"],
+      "groupName": "talos",
+      "automerge": false
+    },
+    {
+      "matchDepNames": ["kubernetes"],
+      "groupName": "kubernetes",
+      "automerge": false
+    },
+    {
+      "matchDepNames": ["cilium"],
+      "groupName": "cilium",
+      "automerge": false
+    },
+    {
+      "matchDepNames": ["gateway-api"],
+      "groupName": "gateway-api",
+      "automerge": false
+    },
+    {
+      "matchDepNames": ["flux"],
+      "groupName": "flux",
       "automerge": false
     },
     {
