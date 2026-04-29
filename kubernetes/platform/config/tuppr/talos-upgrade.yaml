@@ -20,7 +20,8 @@ spec:
     - apiVersion: longhorn.io/v1beta2
       kind: Volume
       namespace: longhorn-system
-      description: All attached Longhorn volumes must be robust (detached volumes are excluded)
+      description: All attached Longhorn volumes must be robust (detached volumes are
+        excluded)
       expr: |
         status.state != 'attached' ||
           status.robustness == 'healthy'
@@ -49,6 +50,6 @@ spec:
       namespace: cache
       description: Dragonfly must be ready and not in a rolling update
       expr: |
-        status.phase == 'ready' &&
+        status.phase == 'Ready' &&
           (!has(status.isRollingUpdate) || !status.isRollingUpdate)
       timeout: 10m
