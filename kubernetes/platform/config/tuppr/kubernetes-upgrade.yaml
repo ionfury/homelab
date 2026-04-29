@@ -47,5 +47,5 @@ spec:
       description: Dragonfly must be ready and not in a rolling update
       expr: |
         status.phase == 'ready' &&
-          !status.isRollingUpdate
+          (!has(status.isRollingUpdate) || !status.isRollingUpdate)
       timeout: 10m
