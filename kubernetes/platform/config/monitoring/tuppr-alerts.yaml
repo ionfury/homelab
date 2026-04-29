@@ -9,99 +9,40 @@ metadata:
     release: kube-prometheus-stack
 spec:
   groups:
-    - name: tuppr.upgrades
+    - name: tuppr
       rules:
-        - alert: TupprKubernetesUpgradeStuckPending
+        - alert: TupprUpgradeFailed
+          expr: tuppr_talos_upgrade_phase{phase="Failed"} == 1 or
+            tuppr_kubernetes_upgrade_phase{phase="Failed"} == 1
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Tuppr upgrade failed"
+            description: "Upgrade {{ $labels.name }} has failed"
+
+        - alert: TupprUpgradeStuck
           expr: |
-            tuppr_kubernetes_upgrade_phase{phase="Pending"}
-            unless on (name, namespace) tuppr_kubernetes_upgrade_phase{phase=~"InProgress|Completed|Failed"}
-          for: 2h
+            (
+              tuppr_talos_upgrade_phase{phase="Upgrading"} == 1 and
+              increase(tuppr_talos_upgrade_nodes_completed[30m]) == 0
+            ) or (
+              tuppr_kubernetes_upgrade_phase{phase="Upgrading"} == 1
+            )
+          for: 30m
           labels:
             severity: warning
           annotations:
-            summary: "KubernetesUpgrade {{ $labels.name }} stuck in Pending"
-            description: >-
-              KubernetesUpgrade {{ $labels.namespace }}/{{ $labels.name }} has been Pending for 2+ hours.
-              A healthCheck CEL expression is likely failing. Check
-              `kubectl -n system-upgrade logs deploy/tuppr` and inspect
-              `tuppr_health_check_failures_total{upgrade_type="kubernetes"}` by check_index.
+            summary: "Tuppr upgrade appears stuck"
+            description: "Upgrade {{ $labels.name }} has been upgrading for 30+ minutes
+              without progress"
 
-        - alert: TupprKubernetesUpgradeStuckPendingCritical
-          expr: |
-            tuppr_kubernetes_upgrade_phase{phase="Pending"}
-            unless on (name, namespace) tuppr_kubernetes_upgrade_phase{phase=~"InProgress|Completed|Failed"}
-          for: 24h
-          labels:
-            severity: critical
-          annotations:
-            summary: "KubernetesUpgrade {{ $labels.name }} stuck in Pending >24h"
-            description: >-
-              KubernetesUpgrade {{ $labels.namespace }}/{{ $labels.name }} has been Pending for 24+ hours.
-              A health check is persistently failing and blocking the upgrade. Investigate immediately.
-
-        - alert: TupprKubernetesUpgradeFailed
-          expr: |
-            tuppr_kubernetes_upgrade_phase{phase="Failed"}
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "KubernetesUpgrade {{ $labels.name }} failed"
-            description: >-
-              KubernetesUpgrade {{ $labels.namespace }}/{{ $labels.name }} entered the Failed phase.
-              Inspect the CR status and tuppr controller logs.
-
-        - alert: TupprTalosUpgradeStuckPending
-          expr: |
-            tuppr_talos_upgrade_phase{phase="Pending"}
-            unless on (name, namespace) tuppr_talos_upgrade_phase{phase=~"InProgress|Completed|Failed"}
-          for: 2h
+        - alert: TupprHealthCheckFailures
+          expr: rate(tuppr_health_check_failures_total[5m]) > 0.1
+          for: 2m
           labels:
             severity: warning
           annotations:
-            summary: "TalosUpgrade {{ $labels.name }} stuck in Pending"
-            description: >-
-              TalosUpgrade {{ $labels.namespace }}/{{ $labels.name }} has been Pending for 2+ hours.
-              A healthCheck CEL expression is likely failing. Check tuppr controller logs and
-              `tuppr_health_check_failures_total{upgrade_type="talos"}` by check_index.
-
-        - alert: TupprTalosUpgradeStuckPendingCritical
-          expr: |
-            tuppr_talos_upgrade_phase{phase="Pending"}
-            unless on (name, namespace) tuppr_talos_upgrade_phase{phase=~"InProgress|Completed|Failed"}
-          for: 24h
-          labels:
-            severity: critical
-          annotations:
-            summary: "TalosUpgrade {{ $labels.name }} stuck in Pending >24h"
-            description: >-
-              TalosUpgrade {{ $labels.namespace }}/{{ $labels.name }} has been Pending for 24+ hours.
-              A health check is persistently failing and blocking the upgrade. Investigate immediately.
-
-        - alert: TupprTalosUpgradeFailed
-          expr: |
-            tuppr_talos_upgrade_phase{phase="Failed"}
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "TalosUpgrade {{ $labels.name }} failed"
-            description: >-
-              TalosUpgrade {{ $labels.namespace }}/{{ $labels.name }} entered the Failed phase.
-              Inspect the CR status and tuppr controller logs.
-
-    - name: tuppr.controller
-      rules:
-        - alert: TupprControllerDown
-          expr: |
-            absent(up{job="tuppr-metrics-service"} == 1)
-          for: 15m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Tuppr controller metrics endpoint is down"
-            description: >-
-              The tuppr controller metrics endpoint has been unreachable for 15+ minutes
-              (job=tuppr-metrics-service in system-upgrade). Upgrades cannot be observed or
-              executed while the controller is down. Check
-              `kubectl -n system-upgrade get pods -l app.kubernetes.io/name=tuppr`.
+            summary: "High health check failure rate"
+            description: "Health checks for {{ $labels.upgrade_name }} are failing
+              frequently"
