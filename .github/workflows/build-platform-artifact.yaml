@@ -16,7 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -30,7 +30,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Resolve next RC version
+      - name: Resolve next stable version
         id: version
         uses: actions/github-script@v9
         with:
@@ -70,19 +70,9 @@ jobs:
             }
 
             // Next version: bump patch from latest stable
-            const nextVersion = `${latest[0]}.${latest[1]}.${latest[2] + 1}`;
-
-            // Find highest existing RC number for the next version
-            const rcRegex = new RegExp(`^${nextVersion.replace(/\./g, '\\.')}-rc\\.(\\d+)$`);
-            let maxRc = 0;
-            for (const tag of allTags) {
-              const m = tag.match(rcRegex);
-              if (m) maxRc = Math.max(maxRc, parseInt(m[1]));
-            }
-
-            const semver = `${nextVersion}-rc.${maxRc + 1}`;
+            const semver = `${latest[0]}.${latest[1]}.${latest[2] + 1}`;
             core.info(`Latest stable: ${latest.join('.')}`);
-            core.info(`Next RC: ${semver}`);
+            core.info(`Next version: ${semver}`);
             core.setOutput('semver', semver);
 
       - name: Build and push artifact
@@ -92,7 +82,6 @@ jobs:
           SHORT_SHA="${{ github.sha }}"
           SHORT_SHA="${SHORT_SHA:0:7}"
 
-          # Push from repo root so paths match GitRepository structure
           flux push artifact \
             oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:${SEMVER} \
             --path=. \
@@ -105,4 +94,16 @@ jobs:
 
           flux tag artifact \
             oci://${{ env.REGISTRY }}/${{ env.ARTIFACT_REPO }}:${SEMVER} \
-            --tag integration-${SHORT_SHA}
+            --tag validated-${SHORT_SHA}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEMVER: ${{ steps.version.outputs.semver }}
+        run: |
+          gh release create "v${SEMVER}" \
+            --repo "${{ github.repository }}" \
+            --target "${{ github.sha }}" \
+            --title "v${SEMVER}" \
+            --generate-notes \
+            --latest
