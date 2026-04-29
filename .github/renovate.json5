@@ -1,5 +1,5 @@
 {
- "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
     ":dependencyDashboard",
@@ -12,23 +12,39 @@
   "prConcurrentLimit": 20,
   "prCreation": "immediate",
   "terraform": {
-    "managerFilePatterns": ["/(^|/)infrastructure/.+\\.tf$/"],
-    "registryUrls": ["https://registry.opentofu.org"]
+    "managerFilePatterns": [
+      "/(^|/)infrastructure/.+\\.tf$/"
+    ],
+    "registryUrls": [
+      "https://registry.opentofu.org"
+    ]
   },
-  "kubernetes": {"managerFilePatterns": ["/^kubernetes/.*\\.ya?ml$/"]},
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^kubernetes/.*\\.ya?ml$/"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^\\.opentofu-version$/"],
-      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
+      "managerFilePatterns": [
+        "/^\\.opentofu-version$/"
+      ],
+      "matchStrings": [
+        "^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"
+      ],
       "depNameTemplate": "opentofu",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "opentofu/opentofu"
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^\\.terragrunt-version$/"],
-      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
+      "managerFilePatterns": [
+        "/^\\.terragrunt-version$/"
+      ],
+      "matchStrings": [
+        "^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"
+      ],
       "depNameTemplate": "terragrunt",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "gruntwork-io/terragrunt"
@@ -39,7 +55,9 @@
     // ============================================================
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/(platform|clusters/[^/]+)/versions\\.env$/"],
+      "managerFilePatterns": [
+        "/^kubernetes/(platform|clusters/[^/]+)/versions\\.env$/"
+      ],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+packageName=(?<packageName>[^\\s]+))?(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?(?:\\s+registryUrl=(?<registryUrl>[^\\s]+))?(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n[A-Za-z_]+=(?<currentValue>.+)"
@@ -51,7 +69,9 @@
     // ============================================================
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/.*\\.ya?ml$/"],
+      "managerFilePatterns": [
+        "/^kubernetes/.*\\.ya?ml$/"
+      ],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n\\s+tag:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?",
@@ -66,73 +86,111 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["mise"],
+      "matchManagers": [
+        "mise"
+      ],
       "groupName": "mise tools",
-      "schedule": ["before 9am on monday"]
+      "schedule": [
+        "before 9am on monday"
+      ]
     },
     {
       // Disable hashicorp/terraform lookups - we use OpenTofu
       // The actual OpenTofu version is tracked via .opentofu-version custom manager
-      "matchDatasources": ["github-releases"],
-      "matchPackageNames": ["hashicorp/terraform"],
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "hashicorp/terraform"
+      ],
       "enabled": false
     },
     // ============================================================
     // Platform version grouping (versions.env)
     // ============================================================
     {
-      "matchDepNames": ["talos"],
+      "matchDepNames": [
+        "talos"
+      ],
       "groupName": "talos",
-      "automerge": false
+      "automerge": true
     },
     {
-      "matchDepNames": ["kubernetes"],
+      "matchDepNames": [
+        "kubernetes"
+      ],
       "groupName": "kubernetes",
-      "automerge": false
+      "automerge": true
     },
     {
-      "matchDepNames": ["cilium"],
+      "matchDepNames": [
+        "cilium"
+      ],
       "groupName": "cilium",
-      "automerge": false
+      "automerge": true
     },
     {
-      "matchDepNames": ["gateway-api"],
+      "matchDepNames": [
+        "gateway-api"
+      ],
       "groupName": "gateway-api",
-      "automerge": false
+      "automerge": true
     },
     {
-      "matchDepNames": ["flux"],
+      "matchDepNames": [
+        "flux"
+      ],
       "groupName": "flux",
-      "automerge": false
+      "automerge": true
     },
     {
       // Grafana stack (monitoring visualization)
-      "matchDepNames": ["grafana", "loki", "alloy"],
+      "matchDepNames": [
+        "grafana",
+        "loki",
+        "alloy"
+      ],
       "groupName": "grafana stack"
     },
     {
       // Prometheus stack (monitoring collection)
-      "matchDepNames": ["kube-prometheus-stack", "prometheus-operator-crds"],
+      "matchDepNames": [
+        "kube-prometheus-stack",
+        "prometheus-operator-crds"
+      ],
       "groupName": "prometheus stack"
     },
     {
       // Istio service mesh
-      "matchDepNames": ["base", "cert-manager-istio-csr"],
+      "matchDepNames": [
+        "base",
+        "cert-manager-istio-csr"
+      ],
       "groupName": "istio mesh"
     },
     {
       // Mittwald utilities (replicator, secret-generator)
-      "matchDepNames": ["kubernetes-replicator", "kubernetes-secret-generator"],
+      "matchDepNames": [
+        "kubernetes-replicator",
+        "kubernetes-secret-generator"
+      ],
       "groupName": "mittwald utilities"
     },
     {
       // Authelia stack (authentication)
-      "matchDepNames": ["authelia", "lldap"],
+      "matchDepNames": [
+        "authelia",
+        "lldap"
+      ],
       "groupName": "authelia stack"
     },
     {
       // Hardware monitoring exporters
-      "matchDepNames": ["prometheus-snmp-exporter", "prometheus-ipmi-exporter", "prometheus-smartctl-exporter"],
+      "matchDepNames": [
+        "prometheus-snmp-exporter",
+        "prometheus-ipmi-exporter",
+        "prometheus-smartctl-exporter"
+      ],
       "groupName": "hardware monitoring exporters"
     },
     // ============================================================
@@ -141,7 +199,9 @@
     {
       // gluetun v3.41.x: healthcheck regression blocks DNS to kube-dns
       // Upstream: https://github.com/qdm12/gluetun/issues/3132
-      "matchDepNames": ["gluetun"],
+      "matchDepNames": [
+        "gluetun"
+      ],
       "allowedVersions": "!/^v3\\.41\\./"
     }
   ]
