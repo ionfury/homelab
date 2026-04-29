@@ -20,7 +20,7 @@ defaultSettings:
   createDefaultDiskLabeledNodes: true
   storageReservedPercentageForDefaultDisk: 0
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
-  storageOverProvisioningPercentage: 500
+  storageOverProvisioningPercentage: 200
   storageMinimalAvailablePercentage: 10
 csi:
   attacherReplicaCount: ${default_replica_count}
