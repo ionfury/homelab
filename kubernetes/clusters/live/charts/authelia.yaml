@@ -149,7 +149,7 @@ configMap:
           rules:
             - policy: two_factor
               subject:
-                - - "group:photos"
+                - "group:photos"
       clients:
         - client_id: "immich"
           client_name: Immich
