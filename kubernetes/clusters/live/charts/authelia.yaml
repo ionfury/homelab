@@ -215,6 +215,24 @@ configMap:
           grant_types:
             - authorization_code
           token_endpoint_auth_method: client_secret_basic
+        - client_id: zipline
+          client_name: Zipline
+          client_secret:
+            path: /secrets/zipline-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          require_pkce: false
+          redirect_uris:
+            - https://upload.${external_domain}/api/auth/oauth/oidc
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_basic
 
   regulation:
     max_retries: 3
@@ -235,4 +253,5 @@ secret:
     grafana-oidc-client-secret: { }
     open-webui-oidc-client-secret: { }
     immich-oidc-client-secret: { }
+    zipline-oidc-client-secret: { }
     authelia-smtp-credentials: { }
