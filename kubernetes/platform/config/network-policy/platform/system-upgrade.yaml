@@ -7,7 +7,7 @@ metadata:
   namespace: system-upgrade
 spec:
   description: "Allow Tuppr: Talos/Kubernetes upgrade controller requiring Talos API access"
-  endpointSelector: {}
+  endpointSelector: { }
   ingress:
     # Allow Prometheus scraping
     - fromEndpoints:

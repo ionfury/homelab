@@ -6,7 +6,7 @@ metadata:
   name: baseline-dns-egress
 spec:
   description: "Allow all pods to reach CoreDNS for name resolution"
-  endpointSelector: {}
+  endpointSelector: { }
   egress:
     - toEndpoints:
         - matchLabels:
