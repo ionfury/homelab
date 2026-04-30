@@ -19,6 +19,11 @@ data:
     #
     # Custom rules below tune the CRS behavior:
 
+    # Immich admin config endpoint: OIDC URLs in body cause RFI false positives.
+    # SecRule REQUEST_URI "@beginsWith /api/system-config" "id:9000001,..."
+    # Zipline server settings endpoint: OIDC URLs in body cause RFI false positives.
+    # SecRule REQUEST_URI "@beginsWith /api/server/settings" "id:9000002,..."
+
     # Paranoia level 1 (lowest, fewer false positives)
     SecAction "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
 

@@ -22,6 +22,9 @@ spec:
         # Immich admin config endpoint: OIDC URLs in body cause RFI false positives.
         - SecRule REQUEST_URI "@beginsWith /api/system-config"
           "id:9000001,phase:1,pass,nolog,ctl:ruleEngine=Off"
+        # Zipline server settings endpoint: OIDC URLs in body cause RFI false positives.
+        - SecRule REQUEST_URI "@beginsWith /api/server/settings"
+          "id:9000002,phase:1,pass,nolog,ctl:ruleEngine=Off"
         - Include @recommended-conf
         - Include @crs-setup-conf
         - Include @owasp_crs/*.conf
