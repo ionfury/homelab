@@ -38,7 +38,7 @@ pod:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
       capabilities:
-        drop: [ALL]
+        drop: [ ALL ]
 configMap:
   theme: dark
 
@@ -110,8 +110,8 @@ configMap:
     smtp:
       enabled: true
       address: submissions://smtp.gmail.com:465
-      sender: '{{ env "SMTP_SENDER" }}'
-      username: '{{ env "SMTP_USERNAME" }}'
+      sender: "{{ env \"SMTP_SENDER\" }}"
+      username: "{{ env \"SMTP_USERNAME\" }}"
       password:
         secret_name: authelia-smtp-credentials
         path: password
@@ -221,7 +221,8 @@ configMap:
             path: /secrets/zipline-oidc-client-secret/client-secret
           public: false
           authorization_policy: two_factor
-          require_pkce: true
+          require_pkce: false
+          consent_mode: implicit
           pkce_challenge_method: S256
           redirect_uris:
             - https://upload.${external_domain}/api/auth/oauth/oidc
@@ -250,11 +251,11 @@ configMap:
 secret:
   existingSecret: "authelia-secrets"
   additionalSecrets:
-    lldap-secrets: { }
-    authelia-db-credentials: { }
-    dragonfly-auth: { }
-    grafana-oidc-client-secret: { }
-    open-webui-oidc-client-secret: { }
-    immich-oidc-client-secret: { }
-    zipline-oidc-client-secret: { }
-    authelia-smtp-credentials: { }
+    lldap-secrets: {}
+    authelia-db-credentials: {}
+    dragonfly-auth: {}
+    grafana-oidc-client-secret: {}
+    open-webui-oidc-client-secret: {}
+    immich-oidc-client-secret: {}
+    zipline-oidc-client-secret: {}
+    authelia-smtp-credentials: {}
