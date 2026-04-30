@@ -30,4 +30,6 @@ spec:
         - SecRequestBodyNoFilesLimit 131072
         # Response body inspection disabled (performance)
         - SecResponseBodyAccess Off
+        # Immich admin config endpoint: OIDC URLs in body cause RFI false positives
+        - SecRule REQUEST_URI "@beginsWith /api/system-config" "id:9000001,phase:1,pass,nolog,ctl:ruleEngine=Off"
     default_directives: default
