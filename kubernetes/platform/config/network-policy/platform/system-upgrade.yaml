@@ -19,6 +19,12 @@ spec:
             - port: "8080"
               protocol: TCP
   egress:
+    - toFQDNs:
+        - matchName: factory.talos.dev
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
     - toEntities:
         - kube-apiserver
       toPorts:
