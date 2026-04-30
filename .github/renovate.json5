@@ -203,6 +203,15 @@
         "gluetun"
       ],
       "allowedVersions": "!/^v3\\.41\\./"
+    },
+    {
+      // pluto aqua datasource diverges from GitHub releases - force github-releases
+      // to prevent phantom versions that 404 on install
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["aqua:FairwindsOps/pluto"],
+      "datasource": "github-releases",
+      "packageName": "FairwindsOps/pluto",
+      "extractVersion": "^v(?<version>.+)$"
     }
   ]
 }
