@@ -6,6 +6,11 @@ metadata:
 spec:
   kubernetes:
     version: v${kubernetes_version}
+  maintenance:
+    windows:
+      - start: "0 2 * * 0" # Every Sunday at 2:00 AM
+        duration: 4h
+        timezone: EST
   healthChecks:
     - apiVersion: v1
       kind: Node
