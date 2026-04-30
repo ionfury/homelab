@@ -38,7 +38,7 @@ pod:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
       capabilities:
-        drop: [ ALL ]
+        drop: [ALL]
 configMap:
   theme: dark
 
@@ -236,6 +236,27 @@ configMap:
             - authorization_code
             - refresh_token
           token_endpoint_auth_method: client_secret_post
+        - client_id: jellyfin
+          client_name: Jellyfin
+          client_secret:
+            path: /secrets/jellyfin-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://jellyfin.${external_domain}/sso/OID/redirect/authelia
+          scopes:
+            - openid
+            - profile
+            - groups
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          access_token_signed_response_alg: none
+          userinfo_signed_response_alg: none
+          token_endpoint_auth_method: client_secret_post
 
   regulation:
     max_retries: 3
@@ -250,11 +271,12 @@ configMap:
 secret:
   existingSecret: "authelia-secrets"
   additionalSecrets:
-    lldap-secrets: {}
-    authelia-db-credentials: {}
-    dragonfly-auth: {}
-    grafana-oidc-client-secret: {}
-    open-webui-oidc-client-secret: {}
-    immich-oidc-client-secret: {}
-    zipline-oidc-client-secret: {}
-    authelia-smtp-credentials: {}
+    lldap-secrets: { }
+    authelia-db-credentials: { }
+    dragonfly-auth: { }
+    grafana-oidc-client-secret: { }
+    open-webui-oidc-client-secret: { }
+    immich-oidc-client-secret: { }
+    jellyfin-oidc-client-secret: { }
+    zipline-oidc-client-secret: { }
+    authelia-smtp-credentials: { }
