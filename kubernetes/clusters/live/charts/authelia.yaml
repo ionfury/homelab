@@ -221,7 +221,8 @@ configMap:
             path: /secrets/zipline-oidc-client-secret/client-secret
           public: false
           authorization_policy: two_factor
-          require_pkce: false
+          require_pkce: true
+          pkce_challenge_method: S256
           redirect_uris:
             - https://upload.${external_domain}/api/auth/oauth/oidc
           scopes:
@@ -234,7 +235,7 @@ configMap:
           grant_types:
             - authorization_code
             - refresh_token
-          token_endpoint_auth_method: client_secret_basic
+          token_endpoint_auth_method: client_secret_post
 
   regulation:
     max_retries: 3
