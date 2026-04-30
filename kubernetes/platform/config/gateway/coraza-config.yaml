@@ -24,6 +24,10 @@ data:
     # Zipline server settings endpoint: OIDC URLs in body cause RFI false positives.
     # SecRule REQUEST_URI "@beginsWith /api/server/settings" "id:9000002,..."
 
+    # Allow full REST method set (CRS default omits PUT/PATCH/DELETE).
+    # Must be after @crs-setup-conf so we override its tx.allowed_methods default.
+    SecAction "id:900001,phase:1,pass,t:none,nolog,setvar:'tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE'"
+
     # Paranoia level 1 (lowest, fewer false positives)
     SecAction "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
 

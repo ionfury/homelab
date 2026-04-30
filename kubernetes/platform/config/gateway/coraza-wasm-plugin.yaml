@@ -19,23 +19,18 @@ spec:
   pluginConfig:
     directives_map:
       default:
-        # Immich admin config endpoint: OIDC URLs in body cause RFI false positives.
-        - SecRule REQUEST_URI "@beginsWith /api/system-config"
-          "id:9000001,phase:1,pass,nolog,ctl:ruleEngine=Off"
-        # Zipline server settings endpoint: OIDC URLs in body cause RFI false positives.
-        - SecRule REQUEST_URI "@beginsWith /api/server/settings"
-          "id:9000002,phase:1,pass,nolog,ctl:ruleEngine=Off"
         - Include @recommended-conf
         - Include @crs-setup-conf
-        - Include @owasp_crs/*.conf
-        - SecRuleEngine On
-        # Paranoia level 1 (lowest false positive rate)
         - SecAction
           "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
-        # Request body size limit (10MB)
+        - SecAction
+          "id:900001,phase:1,pass,t:none,nolog,setvar:'tx.allowed_methods=GET
+          HEAD POST OPTIONS PUT PATCH DELETE'"
+        - SecAction
+          "id:900002,phase:1,pass,t:none,nolog,setvar:tx.inbound_anomaly_score_threshold=10"
+        - Include @owasp_crs/*.conf
+        - SecRuleEngine On
         - SecRequestBodyLimit 10485760
         - SecRequestBodyNoFilesLimit 131072
-        # Response body inspection disabled (performance)
         - SecResponseBodyAccess Off
-        # Must be before CRS includes so phase:1 exclusion runs before CRS rules evaluate.
     default_directives: default
