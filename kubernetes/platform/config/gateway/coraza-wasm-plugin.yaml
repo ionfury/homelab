@@ -19,18 +19,20 @@ spec:
   pluginConfig:
     directives_map:
       default:
+        # Immich admin config endpoint: OIDC URLs in body cause RFI false positives.
+        - SecRule REQUEST_URI "@beginsWith /api/system-config"
+          "id:9000001,phase:1,pass,nolog,ctl:ruleEngine=Off"
         - Include @recommended-conf
         - Include @crs-setup-conf
+        - Include @owasp_crs/*.conf
         - SecRuleEngine On
         # Paranoia level 1 (lowest false positive rate)
-        - SecAction "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
+        - SecAction
+          "id:900000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1"
         # Request body size limit (10MB)
         - SecRequestBodyLimit 10485760
         - SecRequestBodyNoFilesLimit 131072
         # Response body inspection disabled (performance)
         - SecResponseBodyAccess Off
-        # Immich admin config endpoint: OIDC URLs in body cause RFI false positives.
         # Must be before CRS includes so phase:1 exclusion runs before CRS rules evaluate.
-        - SecRule REQUEST_URI "@beginsWith /api/system-config" "id:9000001,phase:1,pass,nolog,ctl:ruleEngine=Off"
-        - Include @owasp_crs/*.conf
     default_directives: default
