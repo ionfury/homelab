@@ -223,7 +223,6 @@ configMap:
           authorization_policy: two_factor
           require_pkce: false
           consent_mode: implicit
-          pkce_challenge_method: S256
           redirect_uris:
             - https://upload.${external_domain}/api/auth/oauth/oidc
           scopes:
