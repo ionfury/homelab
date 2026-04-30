@@ -8,7 +8,7 @@ spec:
     version: ${talos_version}
   maintenance:
     windows:
-      - start: "0 2 * * 0" # Every Sunday at 2:00 AM
+      - start: "0 2 * * 0"  # Every Sunday at 2:00 AM
         duration: 4h
         timezone: EST
   policy:
