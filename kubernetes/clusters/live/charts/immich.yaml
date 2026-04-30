@@ -1,4 +1,5 @@
 ---
+# https://github.com/immich-app/immich-charts/blob/main/charts/immich/values.yaml
 controllers:
   main:
     containers:
