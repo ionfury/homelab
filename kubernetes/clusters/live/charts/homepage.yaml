@@ -142,6 +142,9 @@ service:
 configMaps:
   config:
     data:
+      providers.yaml: |
+        longhorn:
+          url: http://longhorn-frontend.longhorn-system.svc:80
       kubernetes.yaml: |
         mode: cluster
         gateway: true
@@ -182,7 +185,10 @@ configMaps:
             nodes:
               show: false
         - longhorn:
-            url: http://longhorn-frontend.longhorn-system.svc:80
+            expanded: true
+            total: true
+            labels: true
+            nodes: true
         - openmeteo:
             timezone: America/New_York
             units: imperial
