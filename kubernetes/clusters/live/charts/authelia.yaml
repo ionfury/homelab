@@ -38,7 +38,7 @@ pod:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
       capabilities:
-        drop: [ALL]
+        drop: [ ALL ]
 configMap:
   theme: dark
 
@@ -246,7 +246,7 @@ configMap:
           pkce_challenge_method: S256
           require_pushed_authorization_requests: false
           redirect_uris:
-            - https://jellyfin.${external_domain}/sso/OID/redirect/authelia
+            - https://watch.${external_domain}/sso/OID/redirect/authelia
           scopes:
             - openid
             - profile
@@ -272,12 +272,12 @@ configMap:
 secret:
   existingSecret: "authelia-secrets"
   additionalSecrets:
-    lldap-secrets: { }
-    authelia-db-credentials: { }
-    dragonfly-auth: { }
-    grafana-oidc-client-secret: { }
-    open-webui-oidc-client-secret: { }
-    immich-oidc-client-secret: { }
-    jellyfin-oidc-client-secret: { }
-    zipline-oidc-client-secret: { }
-    authelia-smtp-credentials: { }
+    lldap-secrets: {}
+    authelia-db-credentials: {}
+    dragonfly-auth: {}
+    grafana-oidc-client-secret: {}
+    open-webui-oidc-client-secret: {}
+    immich-oidc-client-secret: {}
+    jellyfin-oidc-client-secret: {}
+    zipline-oidc-client-secret: {}
+    authelia-smtp-credentials: {}

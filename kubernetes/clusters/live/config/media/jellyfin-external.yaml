@@ -20,7 +20,7 @@ spec:
     - name: external
       namespace: istio-gateway
   hostnames:
-    - "jellyfin.${external_domain}"
+    - "watch.${external_domain}"
   rules:
     - backendRefs:
         - name: jellyfin
