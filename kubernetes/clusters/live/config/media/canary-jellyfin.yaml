@@ -10,6 +10,6 @@ spec:
   http:
     - name: external-gateway-health
       url: https://watch.${external_domain}/health
-      responseCodes: [ 200 ]
+      responseCodes: [200]
       maxSSLExpiry: 7
       thresholdMillis: 5000
