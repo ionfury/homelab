@@ -11,7 +11,7 @@ controllers:
     containers:
       app:
         image:
-          repository: fireflyiii/core
+          repository: ghcr.io/firefly-iii/firefly-iii
           tag: ${firefly_version}
         env:
           APP_ENV: production

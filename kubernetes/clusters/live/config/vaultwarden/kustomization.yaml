@@ -9,3 +9,4 @@ resources:
   - internal-route.yaml
   - external-route.yaml
   - canary.yaml
+  - vaultwarden-oidc-client-secret.yaml
