@@ -36,7 +36,6 @@ controllers:
           # Disable file logging to avoid writing to read-only ConfigMap mount
           # https://github.com/gethomepage/homepage/discussions/5404
           LOG_TARGETS: stdout
-          LOG_LEVEL: debug
           # Arr stack API keys (replicated from media namespace)
           HOMEPAGE_VAR_SONARR_API_KEY:
             valueFrom:
@@ -142,6 +141,9 @@ service:
 configMaps:
   config:
     data:
+      providers.yaml: |
+        longhorn:
+          url: http://longhorn-frontend.longhorn-system.svc:80
       kubernetes.yaml: |
         mode: cluster
         gateway: true
@@ -182,7 +184,10 @@ configMaps:
             nodes:
               show: false
         - longhorn:
-            url: http://longhorn-frontend.longhorn-system.svc:80
+            expanded: true
+            total: true
+            labels: true
+            nodes: true
         - openmeteo:
             timezone: America/New_York
             units: imperial
