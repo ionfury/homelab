@@ -47,6 +47,18 @@ controllers:
             value: "postgresql://vaultwarden:$(DATABASE_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/vaultwarden"
           # Websocket notifications (enabled by default in recent versions)
           ENABLE_WEBSOCKET: "true"
+          # SSO via Authelia OIDC
+          SSO_ENABLED: "true"
+          SSO_ONLY: "true"
+          SSO_PKCE: "true"
+          SSO_AUTHORITY: "https://auth.${external_domain}"
+          SSO_CLIENT_ID: "vaultwarden"
+          SSO_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-oidc-client-secret
+                key: client-secret
+          SSO_SCOPES: "openid profile email offline_access"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false

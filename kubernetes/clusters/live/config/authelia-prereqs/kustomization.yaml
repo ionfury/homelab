@@ -13,6 +13,7 @@ resources:
   - jellyfin-oidc-client-secret.yaml
   - grafana-oidc-client-secret.yaml
   - zipline-oidc-client-secret.yaml
+  - vaultwarden-oidc-client-secret.yaml
   - authelia-secrets.yaml
   - authelia-smtp-credentials.yaml
   - authelia-smtp-egress.yaml

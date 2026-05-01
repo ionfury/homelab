@@ -150,6 +150,12 @@ configMap:
             - policy: two_factor
               subject:
                 - "group:photos"
+        vaultwarden:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:vaultwarden"
       clients:
         - client_id: "immich"
           client_name: Immich
@@ -258,6 +264,29 @@ configMap:
           access_token_signed_response_alg: none
           userinfo_signed_response_alg: none
           token_endpoint_auth_method: client_secret_post
+        - client_id: vaultwarden
+          client_name: Vaultwarden
+          client_secret:
+            path: /secrets/vaultwarden-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: vaultwarden
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://vault.${external_domain}/identity/connect/oidc-signin
+          scopes:
+            - openid
+            - profile
+            - email
+            - offline_access
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+            - refresh_token
+          access_token_signed_response_alg: none
+          userinfo_signed_response_alg: none
+          token_endpoint_auth_method: client_secret_basic
 
   regulation:
     max_retries: 3
