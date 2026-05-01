@@ -16,7 +16,7 @@ spec:
     - name: external
       namespace: istio-gateway
   hostnames:
-    - "upload.${external_domain}"
+    - "img.${external_domain}"
   rules:
     - backendRefs:
         - name: zipline

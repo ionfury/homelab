@@ -224,7 +224,7 @@ configMap:
           require_pkce: false
           consent_mode: implicit
           redirect_uris:
-            - https://upload.${external_domain}/api/auth/oauth/oidc
+            - https://img.${external_domain}/api/auth/oauth/oidc
           scopes:
             - openid
             - profile
