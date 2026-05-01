@@ -36,6 +36,7 @@ controllers:
           # Disable file logging to avoid writing to read-only ConfigMap mount
           # https://github.com/gethomepage/homepage/discussions/5404
           LOG_TARGETS: stdout
+          LOG_LEVEL: debug
           # Arr stack API keys (replicated from media namespace)
           HOMEPAGE_VAR_SONARR_API_KEY:
             valueFrom:
