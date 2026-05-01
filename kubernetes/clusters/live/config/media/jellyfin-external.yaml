@@ -5,6 +5,16 @@ kind: HTTPRoute
 metadata:
   name: jellyfin-external
   namespace: media
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Jellyfin"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "jellyfin.svg"
+    gethomepage.dev/widget.type: "jellyfin"
+    gethomepage.dev/widget.url: "http://jellyfin.media.svc:8096"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
+    gethomepage.dev/widget.enableNowPlaying: "true"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=jellyfin"
 spec:
   parentRefs:
     - name: external

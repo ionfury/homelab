@@ -5,6 +5,15 @@ kind: HTTPRoute
 metadata:
   name: jellyseerr-external
   namespace: media
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Jellyseerr"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "jellyseerr.svg"
+    gethomepage.dev/widget.type: "jellyseerr"
+    gethomepage.dev/widget.url: "http://jellyseerr.media.svc:5055"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=jellyseerr"
 spec:
   parentRefs:
     - name: external

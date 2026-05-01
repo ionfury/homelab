@@ -5,9 +5,7 @@ kind: Kustomization
 resources:
   - bazarr-internal.yaml
   - jellyfin-external.yaml
-  - jellyfin-internal.yaml
   - jellyseerr-external.yaml
-  - jellyseerr-internal.yaml
   - tdarr-internal.yaml
   - sonarr-internal.yaml
   - radarr-internal.yaml
