@@ -238,11 +238,12 @@ configMap:
           token_endpoint_auth_method: client_secret_post
         - client_id: jellyfin
           client_name: Jellyfin
-          public: true
+          client_secret:
+            path: /secrets/jellyfin-oidc-client-secret/client-secret
+          public: false
           authorization_policy: two_factor
           require_pkce: true
           pkce_challenge_method: S256
-          require_pushed_authorization_requests: false
           redirect_uris:
             - https://jellyfin.${external_domain}/sso/OID/redirect/authelia
           scopes:
@@ -255,7 +256,7 @@ configMap:
             - authorization_code
           access_token_signed_response_alg: none
           userinfo_signed_response_alg: none
-          token_endpoint_auth_method: none
+          token_endpoint_auth_method: client_secret_post
 
   regulation:
     max_retries: 3
