@@ -178,3 +178,15 @@ spec:
   cluster:
     name: platform
   databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: firefly-database
+  namespace: database
+spec:
+  name: firefly
+  owner: firefly
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain

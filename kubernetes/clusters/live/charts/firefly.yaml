@@ -1,0 +1,88 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  firefly:
+    type: deployment
+    replicas: 1
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/firefly-iii/firefly-iii
+          tag: ${firefly_version}
+        env:
+          APP_ENV: production
+          APP_DEBUG: "false"
+          APP_URL:
+            value: "https://firefly.${internal_domain}"
+          SITE_OWNER: ionfury@gmail.com
+          TRUSTED_PROXIES: "**"
+          DEFAULT_LANGUAGE: en_US
+          DEFAULT_LOCALE: en_US
+          TZ: UTC
+          # Database — shared platform CNPG cluster via pooler
+          DB_CONNECTION: pgsql
+          DB_HOST: platform-pooler-rw.database.svc.cluster.local
+          DB_PORT: "5432"
+          DB_DATABASE: firefly
+          DB_USERNAME: firefly
+          DB_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: firefly-db-credentials
+                key: password
+          # Encryption key — from AWS SSM via ExternalSecret
+          APP_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: firefly-app-key
+                key: APP_KEY
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8080
+              initialDelaySeconds: 15
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8080
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8080
+              periodSeconds: 10
+
+service:
+  app:
+    controller: firefly
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  upload:
+    existingClaim: firefly-upload
+    globalMounts:
+      - path: /var/www/html/storage/upload

@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: firefly-internal
+  namespace: firefly
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Firefly III"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/icon: "firefly-iii.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=firefly"
+    gethomepage.dev/widget.type: "firefly"
+    gethomepage.dev/widget.url: "http://firefly.firefly.svc:8080"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_FIREFLY_API_KEY}}"
+spec:
+  parentRefs:
+    - name: internal
+      namespace: istio-gateway
+  hostnames:
+    - "firefly.${internal_domain}"
+  rules:
+    - backendRefs:
+        - name: firefly
+          port: 8080
