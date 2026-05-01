@@ -150,6 +150,12 @@ configMap:
             - policy: two_factor
               subject:
                 - "group:photos"
+        vaultwarden:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:vaultwarden"
       clients:
         - client_id: "immich"
           client_name: Immich
@@ -263,7 +269,7 @@ configMap:
           client_secret:
             path: /secrets/vaultwarden-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
+          authorization_policy: vaultwarden
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
