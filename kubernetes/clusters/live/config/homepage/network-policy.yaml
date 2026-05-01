@@ -90,3 +90,9 @@ spec:
         - ports:
             - port: "34197"
               protocol: UDP
+    - toFQDNs:
+        - matchName: "healthchecks.io"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

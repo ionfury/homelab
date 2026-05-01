@@ -8,6 +8,10 @@ rules:
   - apiGroups: [""]
     resources: [namespaces, pods, nodes]
     verbs: [get, list]
+  # Ingress resources for service discovery (homepage queries both Ingress and HTTPRoute)
+  - apiGroups: [networking.k8s.io]
+    resources: [ingresses]
+    verbs: [get, list]
   # Gateway API resources for HTTPRoute auto-discovery
   - apiGroups: [gateway.networking.k8s.io]
     resources: [httproutes, gateways]
