@@ -89,6 +89,11 @@ controllers:
               secretKeyRef:
                 name: homepage-grafana-api-key
                 key: api-key
+          HOMEPAGE_VAR_FIREFLY_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-firefly-api-key
+                key: api-key
         resources:
           requests:
             cpu: 10m

@@ -66,3 +66,8 @@ spec:
         login: true
         passwordSecret:
           name: open-webui-role-password
+      - name: firefly
+        ensure: present
+        login: true
+        passwordSecret:
+          name: firefly-role-password

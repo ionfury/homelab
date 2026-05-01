@@ -14,6 +14,7 @@ resources:
   - pxe-boot
   - tandoor
   - paperless
+  - firefly
   - homepage
   - longhorn-snapshots
   - velero
