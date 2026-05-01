@@ -309,5 +309,4 @@ secret:
     immich-oidc-client-secret: { }
     jellyfin-oidc-client-secret: { }
     zipline-oidc-client-secret: { }
-    vaultwarden-oidc-client-secret: { }
     authelia-smtp-credentials: { }

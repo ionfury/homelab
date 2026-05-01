@@ -96,7 +96,7 @@ spec:
       chart:
         name: "loki"
         version: "${loki_version}"
-        url: "https://grafana.github.io/helm-charts"
+        url: "https://grafana-community.github.io/helm-charts"
       dependsOn: [cilium, longhorn]
     - name: alloy
       namespace: monitoring
