@@ -23,6 +23,11 @@ data:
     # SecRule REQUEST_URI "@beginsWith /api/system-config" "id:9000001,..."
     # Zipline server settings endpoint: OIDC URLs in body cause RFI false positives.
     # SecRule REQUEST_URI "@beginsWith /api/server/settings" "id:9000002,..."
+    # Immich asset upload: Coraza WASM memory limit causes multipart EOF on photo uploads
+    # (rule 200002 blocks with "MULTIPART: unexpected EOF"). Skip body inspection entirely.
+    SecRule REQUEST_URI "@beginsWith /api/assets" "id:9000003,phase:1,pass,nolog,ctl:requestBodyAccess=Off"
+    # Immich iOS app sends text/plain to /api/auth/validateToken — rule 920420 false positive.
+    SecRule REQUEST_URI "@beginsWith /api/auth/validateToken" "id:9000004,phase:1,pass,nolog,ctl:ruleRemoveById=920420"
 
     # Allow full REST method set (CRS default omits PUT/PATCH/DELETE).
     # Must be after @crs-setup-conf so we override its tx.allowed_methods default.
