@@ -43,13 +43,14 @@ spec:
             summary: "Coraza WAF blocking >10% of external traffic"
             description: "High 403 rate may indicate attack or WAF false positives. Check waf_filter_tx_interruptions_ruleid_* metrics for triggered rules."
 
-        # Alert if gateway latency is impacting user experience
+        # Alert if gateway latency is impacting user experience (excludes kromgo which has elevated upstream latency)
         - alert: CorazaWAFHighLatency
           expr: |
             histogram_quantile(0.99,
               sum(rate(istio_request_duration_milliseconds_bucket{
                 source_workload=~"external-istio",
-                reporter="source"
+                reporter="source",
+                destination_service!~".*kromgo.*"
               }[5m])) by (le)
             ) > 50
           for: 5m
@@ -58,3 +59,20 @@ spec:
           annotations:
             summary: "External gateway p99 latency >50ms"
             description: "Gateway processing overhead is high. Consider WAF rule optimization or increasing paranoia level exclusions."
+
+        # Alert for kromgo backend which has elevated upstream latency (~99ms p99) unrelated to WAF overhead
+        - alert: CorazaWAFKromgoHighLatency
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(istio_request_duration_milliseconds_bucket{
+                source_workload=~"external-istio",
+                reporter="source",
+                destination_service=~".*kromgo.*"
+              }[5m])) by (le)
+            ) > 200
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Kromgo upstream p99 latency >200ms"
+            description: "Kromgo backend latency is unusually high. This reflects upstream kromgo service latency, not WAF overhead. Normal p99 is ~99ms."
