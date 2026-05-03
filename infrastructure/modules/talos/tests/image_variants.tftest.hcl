@@ -1,6 +1,33 @@
 # Image variant tests for talos module - ARM64, SBC, secureboot, extensions
 
-mock_provider "talos" {}
+# Provider v0.11.0 regression: on_destroy.reset/graceful/reboot use bool
+# instead of basetypes.BoolValue in the schema, crashing PlanResourceChange
+# when any resource input is unknown (talos_machine_secrets not yet applied).
+# override_resource skips PlanResourceChange entirely for these resources.
+# Data sources depending on talos_machine_secrets are deferred during plan,
+# so their output attributes are unknown — only structural (length) assertions
+# and resource input attributes are assertable.
+override_resource {
+  target = talos_machine_configuration_apply.machines
+  values = {}
+}
+
+override_resource {
+  target = talos_machine_bootstrap.this
+  values = {}
+}
+
+override_resource {
+  target = talos_cluster_kubeconfig.this
+  values = {}
+}
+
+override_data {
+  target = data.talos_image_factory_extensions_versions.machine_version
+  values = {
+    extensions_info = []
+  }
+}
 
 variables {
   talos_version      = "v1.9.0"
