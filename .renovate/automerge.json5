@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "automergeRequireAllStatusChecks": true,
   "packageRules": [
     // AUTOMERGE RULES (applied first, then overridden by exclusions below)
     // Patch updates are low-risk and the promotion pipeline validates before live
