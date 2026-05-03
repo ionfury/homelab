@@ -1,8 +1,6 @@
 # Edge case tests for talos module - on_destroy, custom paths, boundary conditions
 
-mock_provider "talos" {
-  alias = "mock"
-}
+mock_provider "talos" {}
 
 variables {
   talos_version      = "v1.9.0"
@@ -46,11 +44,7 @@ variables {
 
 run "on_destroy_default" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
-  # Default on_destroy configuration
   assert {
     condition     = length(data.talos_machine_configuration.this) == 1
     error_message = "Machine should be configured with default on_destroy"
@@ -59,9 +53,6 @@ run "on_destroy_default" {
 
 run "on_destroy_graceful" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     on_destroy = {
@@ -79,9 +70,6 @@ run "on_destroy_graceful" {
 
 run "on_destroy_reset" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     on_destroy = {
@@ -99,9 +87,6 @@ run "on_destroy_reset" {
 
 run "custom_talos_config_path" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_config_path = "/custom/path/talos"
@@ -115,9 +100,6 @@ run "custom_talos_config_path" {
 
 run "custom_kubernetes_config_path" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     kubernetes_config_path = "/custom/path/kube"
@@ -131,9 +113,6 @@ run "custom_kubernetes_config_path" {
 
 run "custom_timeout" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_timeout = "20m"
@@ -147,9 +126,6 @@ run "custom_timeout" {
 
 run "disk_selector_by_size" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -195,9 +171,6 @@ run "disk_selector_by_size" {
 
 run "disk_selector_by_model" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -243,9 +216,6 @@ run "disk_selector_by_model" {
 
 run "cluster_name_extraction" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -296,9 +266,6 @@ run "cluster_name_extraction" {
 
 run "cluster_endpoint_extraction" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -344,9 +311,6 @@ run "cluster_endpoint_extraction" {
 
 run "multiple_addresses_first_used" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [

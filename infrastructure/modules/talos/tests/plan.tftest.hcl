@@ -1,8 +1,6 @@
 # Plan tests for talos module - validates Talos cluster provisioning
 
-mock_provider "talos" {
-  alias = "mock"
-}
+mock_provider "talos" {}
 
 variables {
   talos_version      = "v1.9.0"
@@ -12,9 +10,6 @@ variables {
 
 run "single_controlplane" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -112,9 +107,6 @@ run "single_controlplane" {
 
 run "multi_node_cluster" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -237,9 +229,6 @@ run "multi_node_cluster" {
 
 run "mixed_controlplane_worker" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -344,7 +333,6 @@ run "mixed_controlplane_worker" {
     error_message = "Expected 3 machine configurations"
   }
 
-  # Only controlplane should be in endpoints
   assert {
     condition     = length(data.talos_client_configuration.this.endpoints) == 1
     error_message = "Expected only 1 controlplane endpoint"
@@ -355,7 +343,6 @@ run "mixed_controlplane_worker" {
     error_message = "Endpoint should be controlplane IP"
   }
 
-  # All nodes should be in nodes list
   assert {
     condition     = length(data.talos_client_configuration.this.nodes) == 3
     error_message = "All 3 nodes should be in client configuration nodes"
@@ -379,9 +366,6 @@ run "mixed_controlplane_worker" {
 
 run "worker_only" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_machines = [
@@ -458,9 +442,6 @@ run "worker_only" {
 
 run "version_propagation" {
   command = plan
-  providers = {
-    talos = talos.mock
-  }
 
   variables {
     talos_version      = "v1.10.0"
