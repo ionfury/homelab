@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kromgo-recording-rules
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: kromgo-recording-rules
+      rules:
+        - record: "kromgo:cluster_uptime_days:instant"
+          expr: round((time() - min(node_boot_time_seconds)) / 86400)
+
+        - record: "kromgo:node_count:instant"
+          expr: count(kube_node_info)
+
+        - record: "kromgo:pod_count:instant"
+          expr: count(kube_pod_info)
+
+        - record: "kromgo:cluster_cpu_usage_percent:instant"
+          expr: round(avg(1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100, 0.1)
+
+        - record: "kromgo:cluster_memory_usage_percent:instant"
+          expr: round((1 - sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)) * 100, 0.1)
+
+        - record: "kromgo:kubernetes_version_info:instant"
+          expr: 'kubernetes_build_info{service="kubernetes"}'
