@@ -1,5 +1,9 @@
 # Image variant tests for talos module - ARM64, SBC, secureboot, extensions
 
+mock_provider "talos" {
+  alias = "mock"
+}
+
 variables {
   talos_version      = "v1.9.0"
   kubernetes_version = "1.32.0"
@@ -8,6 +12,9 @@ variables {
 
 run "amd64_metal_default" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [
@@ -62,6 +69,9 @@ run "amd64_metal_default" {
 
 run "arm64_architecture" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [
@@ -111,6 +121,9 @@ run "arm64_architecture" {
 
 run "sbc_platform_rpi" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [
@@ -166,6 +179,9 @@ run "sbc_platform_rpi" {
 
 run "secureboot_enabled" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [
@@ -215,6 +231,9 @@ run "secureboot_enabled" {
 
 run "secureboot_disabled_default" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [
@@ -262,6 +281,9 @@ run "secureboot_disabled_default" {
 
 run "with_extensions" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [
@@ -310,6 +332,9 @@ run "with_extensions" {
 
 run "extra_kernel_args" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [
@@ -358,6 +383,9 @@ run "extra_kernel_args" {
 
 run "mixed_architectures" {
   command = plan
+  providers = {
+    talos = talos.mock
+  }
 
   variables {
     talos_machines = [

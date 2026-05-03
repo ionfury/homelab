@@ -1,5 +1,13 @@
 # Bootstrap chart injection tests for talos module
 
+mock_provider "talos" {
+  alias = "mock"
+}
+
+mock_provider "helm" {
+  alias = "mock"
+}
+
 variables {
   talos_version      = "v1.9.0"
   kubernetes_version = "1.32.0"
@@ -41,6 +49,10 @@ variables {
 
 run "empty_bootstrap_charts" {
   command = plan
+  providers = {
+    talos = talos.mock
+    helm  = helm.mock
+  }
 
   variables {
     bootstrap_charts = []
@@ -54,6 +66,10 @@ run "empty_bootstrap_charts" {
 
 run "single_bootstrap_chart" {
   command = plan
+  providers = {
+    talos = talos.mock
+    helm  = helm.mock
+  }
 
   variables {
     bootstrap_charts = [
@@ -104,6 +120,10 @@ EOT
 
 run "multiple_bootstrap_charts" {
   command = plan
+  providers = {
+    talos = talos.mock
+    helm  = helm.mock
+  }
 
   variables {
     bootstrap_charts = [
@@ -149,6 +169,10 @@ run "multiple_bootstrap_charts" {
 
 run "chart_with_complex_values" {
   command = plan
+  providers = {
+    talos = talos.mock
+    helm  = helm.mock
+  }
 
   variables {
     bootstrap_charts = [
@@ -189,6 +213,10 @@ EOT
 
 run "chart_values_propagated" {
   command = plan
+  providers = {
+    talos = talos.mock
+    helm  = helm.mock
+  }
 
   variables {
     bootstrap_charts = [
