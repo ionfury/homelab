@@ -36,6 +36,8 @@ meshConfig:
 # Disable built-in CA - certificates are issued by istio-csr via cert-manager
 pilot:
   autoscaleMin: 2
+  podAnnotations:
+    secret.reloader.stakater.com/reload: "istiod-tls"
   env:
     ENABLE_CA_SERVER: "false"
 
