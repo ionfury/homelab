@@ -47,7 +47,7 @@ extraEnvVars:
   - name: WEBUI_URL
     value: "https://ai.${internal_domain}"
   - name: ENABLE_SIGNUP
-    value: "false"
+    value: "true"
   - name: DEFAULT_USER_ROLE
     value: "user"
   - name: ENABLE_OPENAI_API

@@ -38,7 +38,7 @@ pod:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
       capabilities:
-        drop: [ALL]
+        drop: [ ALL ]
 configMap:
   theme: dark
 
@@ -207,7 +207,7 @@ configMap:
             path: /secrets/open-webui-oidc-client-secret/client-secret
           public: false
           authorization_policy: two_factor
-          require_pkce: true
+          require_pkce: false
           pkce_challenge_method: S256
           redirect_uris:
             - https://ai.${internal_domain}/oauth/oidc/callback
@@ -301,13 +301,13 @@ configMap:
 secret:
   existingSecret: "authelia-secrets"
   additionalSecrets:
-    lldap-secrets: { }
-    authelia-db-credentials: { }
-    dragonfly-auth: { }
-    grafana-oidc-client-secret: { }
-    open-webui-oidc-client-secret: { }
-    immich-oidc-client-secret: { }
-    jellyfin-oidc-client-secret: { }
-    zipline-oidc-client-secret: { }
-    vaultwarden-oidc-client-secret: { }
-    authelia-smtp-credentials: { }
+    lldap-secrets: {}
+    authelia-db-credentials: {}
+    dragonfly-auth: {}
+    grafana-oidc-client-secret: {}
+    open-webui-oidc-client-secret: {}
+    immich-oidc-client-secret: {}
+    jellyfin-oidc-client-secret: {}
+    zipline-oidc-client-secret: {}
+    vaultwarden-oidc-client-secret: {}
+    authelia-smtp-credentials: {}
