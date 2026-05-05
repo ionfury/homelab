@@ -72,7 +72,7 @@ podSecurityContext:
 containerSecurityContext:
   allowPrivilegeEscalation: false
   capabilities:
-    drop: [ ALL ]
+    drop: [ALL]
 
 persistence:
   enabled: true

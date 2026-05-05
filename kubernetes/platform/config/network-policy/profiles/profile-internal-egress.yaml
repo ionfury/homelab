@@ -6,7 +6,7 @@ metadata:
   name: profile-internal-egress
 spec:
   description: >-
-    Internal-egress profile: Internal gateway ingress + internet egress.
+    Internal-egress profile: Internal gateway ingress + internet egress (HTTP + HTTPS).
     For services that call external APIs but aren't directly exposed to the internet.
     DNS egress and Prometheus scrape ingress handled by baseline CCNPs.
   endpointSelector:
@@ -19,10 +19,12 @@ spec:
             io.kubernetes.pod.namespace: istio-gateway
             gateway.networking.k8s.io/gateway-name: internal
   egress:
-    # Allow internet egress (HTTPS only - HTTP disabled for security)
+    # Allow internet egress (HTTP + HTTPS)
     - toEntities:
         - world
       toPorts:
         - ports:
+            - port: "80"
+              protocol: TCP
             - port: "443"
               protocol: TCP

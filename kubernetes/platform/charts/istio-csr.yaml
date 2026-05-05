@@ -25,8 +25,8 @@ app:
     # Workload certificate validity (24h)
     certificateDuration: 24h
     # istiod serving certificate (168h with 72h rotation)
-    istiodCertificateDuration: 168h # 7 days
-    istiodCertificateRenewBefore: 72h # 3 days
+    istiodCertificateDuration: 168h  # 7 days
+    istiodCertificateRenewBefore: 72h  # 3 days
     istiodCertificateEnable: true
     # Mount root CA for distribution to namespaces
     rootCAFile: /var/run/secrets/istio-csr/ca.pem

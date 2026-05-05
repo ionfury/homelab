@@ -38,7 +38,7 @@ pod:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
       capabilities:
-        drop: [ ALL ]
+        drop: [ALL]
 configMap:
   theme: dark
 
@@ -301,13 +301,13 @@ configMap:
 secret:
   existingSecret: "authelia-secrets"
   additionalSecrets:
-    lldap-secrets: {}
-    authelia-db-credentials: {}
-    dragonfly-auth: {}
-    grafana-oidc-client-secret: {}
-    open-webui-oidc-client-secret: {}
-    immich-oidc-client-secret: {}
-    jellyfin-oidc-client-secret: {}
-    zipline-oidc-client-secret: {}
-    vaultwarden-oidc-client-secret: {}
-    authelia-smtp-credentials: {}
+    lldap-secrets: { }
+    authelia-db-credentials: { }
+    dragonfly-auth: { }
+    grafana-oidc-client-secret: { }
+    open-webui-oidc-client-secret: { }
+    immich-oidc-client-secret: { }
+    jellyfin-oidc-client-secret: { }
+    zipline-oidc-client-secret: { }
+    vaultwarden-oidc-client-secret: { }
+    authelia-smtp-credentials: { }
