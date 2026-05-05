@@ -100,7 +100,7 @@ locals {
       }
       install = {
         selector   = "disk.dev_path == '/dev/sda'"
-        extensions = ["nonfree-kmod-nvidia-production", "nvidia-container-toolkit-production"]
+        extensions = ["nonfree-kmod-nvidia-lts", "nvidia-container-toolkit-lts"]
       }
       volumes = [
         { # 480GB MegaRAID SSD virtual drive

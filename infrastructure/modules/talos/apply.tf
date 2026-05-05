@@ -5,6 +5,7 @@ resource "talos_machine_configuration_apply" "machines" {
   machine_configuration_input = data.talos_machine_configuration.this[each.key].machine_configuration
   node                        = local.addresses[each.key]
 
+  # v0.11.0 provider bug: https://github.com/siderolabs/terraform-provider-talos/issues/334
   on_destroy = {
     graceful = var.on_destroy.graceful
     reboot   = var.on_destroy.reboot
