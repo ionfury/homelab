@@ -1,5 +1,34 @@
 # Bootstrap chart injection tests for talos module
 
+# Provider v0.11.0 regression: on_destroy.reset/graceful/reboot use bool
+# instead of basetypes.BoolValue in the schema, crashing PlanResourceChange
+# when any resource input is unknown (talos_machine_secrets not yet applied).
+# override_resource skips PlanResourceChange entirely for these resources.
+# helm mock_provider is safe (no schema bug) and required for helm data sources.
+override_resource {
+  target = talos_machine_configuration_apply.machines
+  values = {}
+}
+
+override_resource {
+  target = talos_machine_bootstrap.this
+  values = {}
+}
+
+override_resource {
+  target = talos_cluster_kubeconfig.this
+  values = {}
+}
+
+override_data {
+  target = data.talos_image_factory_extensions_versions.machine_version
+  values = {
+    extensions_info = []
+  }
+}
+
+mock_provider "helm" {}
+
 variables {
   talos_version      = "v1.9.0"
   kubernetes_version = "1.32.0"
