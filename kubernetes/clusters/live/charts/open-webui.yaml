@@ -31,7 +31,8 @@ extraEnvVars:
         name: open-webui-db-credentials
         key: password
   - name: DATABASE_URL
-    value: "postgresql://open-webui:$(DB_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/open-webui"
+    value: "postgresql://open-webui:$(DB_PASSWORD)@platform-pooler-rw.database.svc.\
+      cluster.local:5432/open-webui"
   - name: WEBSOCKET_MANAGER
     value: "redis"
   - name: DRAGONFLY_PASS
@@ -60,7 +61,7 @@ sso:
     clientId: open-webui
     clientExistingSecret: open-webui-oidc-client-secret
     clientExistingSecretKey: client-secret
-    providerUrl: "https://auth.${internal_domain}/.well-known/openid-configuration"
+    providerUrl: "https://auth.${external_domain}/.well-known/openid-configuration"
     providerName: Homelab
     scopes: "openid email profile groups"
 
@@ -71,7 +72,7 @@ podSecurityContext:
 containerSecurityContext:
   allowPrivilegeEscalation: false
   capabilities:
-    drop: [ALL]
+    drop: [ ALL ]
 
 persistence:
   enabled: true
