@@ -149,6 +149,26 @@ spec:
               Ztunnel DaemonSet has {{ $value }} pods not ready. Some nodes may
               not have Ambient mode mesh connectivity.
 
+        # Ztunnel chronic restarts — precursor to cert rotation failures.
+        # A crash-looping ztunnel is likely to reconnect to istiod during a cert
+        # rotation window and fail if istiod is not reloading certs correctly.
+        - alert: ZtunnelCrashLooping
+          expr: |
+            increase(kube_pod_container_status_restarts_total{
+              namespace="istio-system",
+              pod=~"ztunnel-.*"
+            }[1h]) > 5
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Ztunnel pod crash-looping on node {{ $labels.node }}"
+            description: >-
+              Ztunnel pod {{ $labels.pod }} has restarted {{ $value | humanize }} times
+              in the last hour. A crash-looping ztunnel risks reconnecting to istiod
+              during a cert rotation window, causing node-level mesh failure if istiod
+              is serving a stale certificate.
+
     - name: istio-csr
       rules:
         # istio-csr availability
@@ -177,16 +197,38 @@ spec:
               mesh workloads. Check cert-manager logs and istio-mesh-ca ClusterIssuer.
 
         # istio-csr certificate expiry approaching
-        # Note: istiod certs have 24h validity and renew at 50% lifetime (12h).
-        # Alert only if < 6h remaining (renewal should have happened by now).
+        # istiod-tls: 168h validity, renewBefore 72h → renewal fires at day 4.
+        # Alert at < 48h remaining = 24h after renewal should have succeeded.
         - alert: IstioCSRCertificateExpiringSoon
           expr: |
-            certmanager_certificate_expiration_timestamp_seconds{name=~"istiod.*"} - time() < 21600
+            certmanager_certificate_expiration_timestamp_seconds{name=~"istiod.*"} - time() < 172800
           for: 30m
           labels:
             severity: warning
           annotations:
-            summary: "Istio component certificate expiring in < 6 hours"
+            summary: "Istio component certificate expiring in < 48 hours"
             description: >-
               Certificate {{ $labels.name }} expires in {{ $value | humanizeDuration }}.
-              Renewal should have occurred at 12h remaining. Check cert-manager and istio-csr health.
+              Renewal should have occurred at 72h remaining. cert-manager or istio-csr
+              may be failing to rotate the certificate.
+
+        # istio-csr token rejection rate — indicates workloads have stale projected
+        # service account tokens, typically caused by a prolonged mesh outage where
+        # in-memory token caches were not refreshed.
+        - alert: IstioCsrTokenRejectionHigh
+          expr: |
+            sum(rate(grpc_server_handled_total{
+              namespace="cert-manager",
+              grpc_service=~".*IstioCertificateService.*",
+              grpc_code="Unauthenticated"
+            }[5m])) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "istio-csr rejecting workload tokens at high rate"
+            description: >-
+              istio-csr is rejecting {{ $value | humanize }} token authentication
+              requests/s. Workloads have stale or expired service account tokens.
+              Restart gateway pods and any long-running workloads in the mesh
+              to clear in-memory token caches.

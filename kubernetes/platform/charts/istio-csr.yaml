@@ -24,7 +24,7 @@ app:
   tls:
     # Workload certificate validity (24h)
     certificateDuration: 24h
-    # istiod serving certificate (168h with 12h rotation)
+    # istiod serving certificate (168h with 72h rotation)
     istiodCertificateDuration: 168h # 7 days
     istiodCertificateRenewBefore: 72h # 3 days
     istiodCertificateEnable: true
