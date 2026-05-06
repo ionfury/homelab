@@ -26,7 +26,7 @@ controllers:
             cpu: 500m
             memory: 2Gi
           limits:
-            memory: 8Gi
+            memory: 64Gi
             nvidia.com/gpu: 1
         probes:
           startup:
