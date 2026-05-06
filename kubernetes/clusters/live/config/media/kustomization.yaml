@@ -10,7 +10,7 @@ resources:
   - sonarr-internal.yaml
   - radarr-internal.yaml
   - prowlarr-internal.yaml
-  - flaresolverr-internal.yaml
+
   - qbittorrent-internal.yaml
   - canary-jellyfin.yaml
   - canary-jellyseerr.yaml
