@@ -5,11 +5,6 @@ controllers:
   flaresolverr:
     type: deployment
 
-    pod:
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
-
     containers:
       app:
         image:
@@ -21,13 +16,8 @@ controllers:
           CAPTCHA_SOLVER: none
           TZ: UTC
         securityContext:
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
-          capabilities:
-            drop: [ALL]
         resources:
           requests:
             cpu: 100m
