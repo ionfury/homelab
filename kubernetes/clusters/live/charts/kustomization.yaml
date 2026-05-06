@@ -13,6 +13,7 @@ configMapGenerator:
       - bazarr.yaml
       - exportarr.yaml
       - factorio.yaml
+      - flaresolverr.yaml
       - firefly.yaml
       - homepage.yaml
       - immich.yaml
