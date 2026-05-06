@@ -112,6 +112,12 @@ variable "machines" {
     cluster = string
     type    = string
     labels  = optional(map(string), {})
+    features = optional(object({
+      hugepages = optional(object({
+        size  = string
+        count = number
+      }))
+    }), {})
     install = object({
       selector     = string
       extensions   = optional(list(string), [])
@@ -138,6 +144,22 @@ variable "machines" {
   validation {
     condition     = alltrue([for name, m in var.machines : length(m.bonds) > 0])
     error_message = "Each machine must have at least one bond configuration."
+  }
+
+  validation {
+    condition = alltrue([
+      for name, m in var.machines :
+      m.features.hugepages == null || contains(["2M", "1G"], m.features.hugepages.size)
+    ])
+    error_message = "hugepages.size must be one of: '2M', '1G'."
+  }
+
+  validation {
+    condition = alltrue([
+      for name, m in var.machines :
+      m.features.hugepages == null || m.features.hugepages.count > 0
+    ])
+    error_message = "hugepages.count must be greater than 0."
   }
 }
 

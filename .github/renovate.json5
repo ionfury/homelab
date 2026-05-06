@@ -205,6 +205,18 @@
       "allowedVersions": "!/^v3\\.41\\./"
     },
     {
+      // siderolabs/talos terraform provider 0.11.0: on_destroy.reset unknown value
+      // causes Value Conversion Error on plan/validate
+      // Upstream: https://github.com/siderolabs/terraform-provider-talos/issues/334
+      "matchManagers": [
+        "terraform"
+      ],
+      "matchDepNames": [
+        "siderolabs/talos"
+      ],
+      "allowedVersions": "< 0.11.0"
+    },
+    {
       // pluto aqua datasource diverges from GitHub releases - force github-releases
       // to prevent phantom versions that 404 on install
       "matchManagers": ["mise"],
