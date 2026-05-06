@@ -36,3 +36,18 @@ spec:
   egress:
     - toEntities:
         - world
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: media-flaresolverr-egress
+  namespace: media
+spec:
+  description: "FlareSolverr headless Chrome egress to resolve Cloudflare challenges"
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: flaresolverr
+  egress:
+    - toEntities:
+        - world
