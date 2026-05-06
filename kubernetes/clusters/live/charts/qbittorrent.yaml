@@ -76,6 +76,8 @@ controllers:
           QBT_BitTorrent__Session__DefaultSavePath: /media/downloads/complete
           QBT_BitTorrent__Session__TempPath: /media/downloads/incomplete
           QBT_BitTorrent__Session__TempPathEnabled: "true"
+          QBT_BitTorrent__Session__Interface: tun0
+          QBT_BitTorrent__Session__InterfaceName: tun0
         securityContext:
           runAsUser: 568
           runAsGroup: 568
