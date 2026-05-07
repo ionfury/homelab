@@ -220,8 +220,7 @@
       // pluto aqua datasource diverges from GitHub releases - force github-releases
       // to prevent phantom versions that 404 on install
       "matchManagers": ["mise"],
-      "matchPackageNames": ["aqua:FairwindsOps/pluto"],
-      "packageName": "FairwindsOps/pluto",
+      "matchPackageNames": ["FairwindsOps/pluto"],
       "extractVersion": "^v(?<version>.+)$"
     }
   ]

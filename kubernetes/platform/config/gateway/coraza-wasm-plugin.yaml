@@ -14,8 +14,8 @@ spec:
   imagePullPolicy: IfNotPresent
   # Run early in filter chain, before authentication
   phase: AUTHN
-  # Allow traffic if WAF errors - availability over security
-  failStrategy: FAIL_OPEN
+  # Deny traffic if WAF errors - security over availability
+  failStrategy: FAIL_CLOSE
   pluginConfig:
     directives_map:
       default:
