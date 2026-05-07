@@ -134,6 +134,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
+    - name: jfa-go
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [jellyfin]
     - name: jellyfin
       namespace: media
       chart:
