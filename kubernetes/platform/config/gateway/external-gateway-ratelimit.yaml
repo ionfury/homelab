@@ -1,0 +1,57 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/networking.istio.io/envoyfilter_v1alpha3.json
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: external-gateway-local-ratelimit
+spec:
+  workloadSelector:
+    labels:
+      gateway.networking.k8s.io/gateway-name: external
+  configPatches:
+    # Inject local rate limit HTTP filter before the router
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+            type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+            value:
+              stat_prefix: external_gateway_per_ip
+              filter_enabled:
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              filter_enforced:
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              # 200 requests/min per source IP
+              descriptors:
+                - entries:
+                    - key: remote_address
+                  token_bucket:
+                    max_tokens: 200
+                    tokens_per_fill: 200
+                    fill_interval: 60s
+              enable_x_ratelimit_headers: DRAFT_VERSION_03
+    # Add remote_address action to all external gateway virtual hosts so descriptors are generated
+    - applyTo: VIRTUAL_HOST
+      match:
+        context: GATEWAY
+      patch:
+        operation: MERGE
+        value:
+          rate_limits:
+            - actions:
+                - remote_address: { }
