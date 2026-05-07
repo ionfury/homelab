@@ -14,8 +14,8 @@ spec:
   imagePullPolicy: IfNotPresent
   # Run early in filter chain, before authentication
   phase: AUTHN
-  # Allow traffic if WAF errors - availability over security
-  failStrategy: FAIL_OPEN
+  # Deny traffic if WAF errors - security over availability
+  failStrategy: FAIL_CLOSE
   pluginConfig:
     directives_map:
       default:
@@ -35,4 +35,6 @@ spec:
         - SecRequestBodyLimit 10485760
         - SecRequestBodyNoFilesLimit 131072
         - SecResponseBodyAccess Off
+        - SecRule REQUEST_HEADERS:Host "@contains vault.${external_domain}" "id:9000010,phase:1,chain,deny,status:403,log,msg:'Vaultwarden admin blocked'"
+        - SecRule REQUEST_URI "@beginsWith /admin" "t:none"
     default_directives: default

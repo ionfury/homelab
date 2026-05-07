@@ -23,7 +23,7 @@ spec:
             path:
               type: ReplaceFullPath
               replaceFullPath: /
-            statusCode: 302
+            statusCode: 301
     # Route all other traffic normally
     - matches:
         - path:
