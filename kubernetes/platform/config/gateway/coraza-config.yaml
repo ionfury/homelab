@@ -46,7 +46,3 @@ data:
 
     # Response body inspection disabled (performance)
     SecResponseBodyAccess Off
-
-    # Block Vaultwarden admin panel from external access (hard 403, not a redirect)
-    SecRule REQUEST_HEADERS:Host "@contains vault.${external_domain}" "id:9000010,phase:1,chain,deny,status:403,log,msg:'Vaultwarden admin blocked'"
-    SecRule REQUEST_URI "@beginsWith /admin" "t:none"
