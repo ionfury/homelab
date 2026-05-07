@@ -54,4 +54,4 @@ spec:
         value:
           rate_limits:
             - actions:
-                - remote_address: {}
+                - remote_address: { }
