@@ -101,6 +101,30 @@ locals {
     ])
   }
 
+  # Per-machine hugepages config (null if not set)
+  machine_hugepages = {
+    for name, machine in local.cluster_machines :
+    name => try(machine.features.hugepages, null)
+  }
+
+  # 2M pages → sysctl (runtime, no reboot)
+  machine_sysctls = {
+    for name, hp in local.machine_hugepages :
+    name => hp != null && hp.size == "2M" ? {
+      "vm.nr_hugepages" = tostring(hp.count)
+    } : {}
+  }
+
+  # 1G pages → kernel cmdline (boot-time, requires reboot)
+  machine_hugepages_kernel_args = {
+    for name, hp in local.machine_hugepages :
+    name => hp != null && hp.size == "1G" ? [
+      "default_hugepagesz=1G",
+      "hugepagesz=1G",
+      "hugepages=${hp.count}",
+    ] : []
+  }
+
   # Transform machines with feature-specific configuration
   machines = {
     for name, machine in local.cluster_machines :
@@ -109,7 +133,7 @@ locals {
         machine.install,
         {
           extensions        = concat(lookup(machine.install, "extensions", []), local.longhorn_enabled ? ["iscsi-tools", "util-linux-tools"] : [])
-          extra_kernel_args = concat(lookup(machine.install, "extra_kernel_args", []), local.performance_kernel_args)
+          extra_kernel_args = concat(lookup(machine.install, "extra_kernel_args", []), local.performance_kernel_args, local.machine_hugepages_kernel_args[name])
           selector          = lookup(machine.install, "selector", "")
           secureboot        = lookup(machine.install, "secureboot", false)
           architecture      = lookup(machine.install, "architecture", "amd64")
@@ -126,6 +150,7 @@ locals {
       files               = local.spegel_enabled ? [local.spegel_containerd_config] : []
       kernel_modules      = local.machine_has_nvidia[name] ? local.nvidia_kernel_modules : []
       annotations         = local.machine_longhorn_annotations[name]
+      sysctls             = local.machine_sysctls[name]
     })
   }
 
@@ -253,6 +278,7 @@ locals {
           machine_files                       = machine.files
           machine_kubelet_extraMounts         = machine.kubelet_extraMounts
           machine_kernel_modules              = machine.kernel_modules
+          machine_sysctls                     = machine.sysctls
         })],
 
         # HostnameConfig document

@@ -9,3 +9,8 @@ holds:
     reason: "v3.41.x healthcheck regression blocks DNS queries to kube-dns after VPN tunnel establishment"
     upstream_issue: https://github.com/qdm12/gluetun/issues/3132
     created: "2026-02-18"
+  - dep: siderolabs/talos
+    constraint: "< 0.11.0"
+    reason: "0.11.0 on_destroy.reset Value Conversion Error causes all plan/validate operations to fail"
+    upstream_issue: https://github.com/siderolabs/terraform-provider-talos/issues/334
+    created: "2026-05-06"

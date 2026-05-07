@@ -259,6 +259,12 @@ locals {
     node45 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "dev"
       type    = "controlplane"
+      features = {
+        hugepages = {
+          size  = "2M"
+          count = 512
+        }
+      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }

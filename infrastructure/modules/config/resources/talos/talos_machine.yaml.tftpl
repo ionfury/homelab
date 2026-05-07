@@ -90,6 +90,12 @@ machine:
       - name: ${mod.name}
 %{ endfor ~}
 %{ endif ~}
+%{ if length(machine_sysctls) > 0 ~}
+  sysctls:
+%{ for k, v in machine_sysctls ~}
+    ${k}: "${v}"
+%{ endfor ~}
+%{ endif ~}
   features:
     stableHostname: false
     hostDNS:
