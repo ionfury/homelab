@@ -19,6 +19,7 @@ configMapGenerator:
       - immich.yaml
       - it-tools.yaml
       - jellyfin-exporter.yaml
+      - jfa-go.yaml
       - jellyfin.yaml
       - jellyseerr.yaml
       - lldap.yaml
