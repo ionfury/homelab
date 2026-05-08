@@ -8,4 +8,3 @@ resources:
   - firefly-app-key.yaml
   - firefly-upload-pvc.yaml
   - internal-route.yaml
-  - external-route.yaml
