@@ -245,7 +245,6 @@ configMap:
           public: false
           authorization_policy: ai
           require_pkce: false
-          pkce_challenge_method: S256
           redirect_uris:
             - https://ai.${internal_domain}/oauth/oidc/callback
           scopes:
