@@ -16,6 +16,7 @@ resources:
   - vaultwarden-oidc-client-secret.yaml
   - paperless-oidc-client-secret.yaml
   - tandoor-oidc-client-secret.yaml
+  - jellyseerr-oidc-client-secret.yaml
   - authelia-secrets.yaml
   - authelia-smtp-credentials.yaml
   - authelia-smtp-egress.yaml
