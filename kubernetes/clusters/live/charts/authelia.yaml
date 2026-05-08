@@ -156,6 +156,43 @@ configMap:
             - policy: two_factor
               subject:
                 - "group:vaultwarden"
+        jellyfin:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:jellyfin_users"
+                - "group:jellyfin_admins"
+        grafana:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:grafana"
+        ai:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:ai"
+        img:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:img"
+        docs:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:docs"
+        recipes:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:recipes"
       clients:
         - client_id: "immich"
           client_name: Immich
@@ -185,7 +222,7 @@ configMap:
           client_secret:
             path: /secrets/grafana-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
+          authorization_policy: grafana
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -206,7 +243,7 @@ configMap:
           client_secret:
             path: /secrets/open-webui-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
+          authorization_policy: ai
           require_pkce: false
           pkce_challenge_method: S256
           redirect_uris:
@@ -226,7 +263,7 @@ configMap:
           client_secret:
             path: /secrets/zipline-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
+          authorization_policy: img
           require_pkce: false
           consent_mode: implicit
           redirect_uris:
@@ -247,7 +284,7 @@ configMap:
           client_secret:
             path: /secrets/jellyfin-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
+          authorization_policy: jellyfin
           require_pkce: true
           pkce_challenge_method: S256
           require_pushed_authorization_requests: false
@@ -269,7 +306,7 @@ configMap:
           client_secret:
             path: /secrets/paperless-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
+          authorization_policy: docs
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
