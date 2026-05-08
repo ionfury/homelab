@@ -319,7 +319,7 @@ configMap:
             - code
           grant_types:
             - authorization_code
-          token_endpoint_auth_method: client_secret_post
+          token_endpoint_auth_method: client_secret_basic
         - client_id: tandoor
           client_name: Tandoor
           client_secret:
@@ -339,7 +339,7 @@ configMap:
             - code
           grant_types:
             - authorization_code
-          token_endpoint_auth_method: client_secret_post
+          token_endpoint_auth_method: client_secret_basic
         - client_id: vaultwarden
           client_name: Vaultwarden
           client_secret:
