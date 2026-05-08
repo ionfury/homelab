@@ -1,7 +1,7 @@
 locals {
   domains = {
     internal = "tomnowak.work"
-    external = "tomnowak.work"
+    external = "ionfury.tv"
   }
 
   subnets = {
