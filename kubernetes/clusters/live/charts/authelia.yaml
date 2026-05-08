@@ -301,6 +301,25 @@ configMap:
           access_token_signed_response_alg: none
           userinfo_signed_response_alg: none
           token_endpoint_auth_method: client_secret_post
+        - client_id: jellyseerr
+          client_name: Jellyseerr
+          client_secret:
+            path: /secrets/jellyseerr-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: jellyfin
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://requests.${external_domain}/api/v1/auth/oidc-callback
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_post
         - client_id: paperless
           client_name: Paperless
           client_secret:
@@ -388,4 +407,5 @@ secret:
     vaultwarden-oidc-client-secret: { }
     paperless-oidc-client-secret: { }
     tandoor-oidc-client-secret: { }
+    jellyseerr-oidc-client-secret: { }
     authelia-smtp-credentials: { }

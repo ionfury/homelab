@@ -13,3 +13,4 @@ resources:
   - jellyfin-exporter-api-token.yaml
   - recyclarr-config.yaml
   - db-credentials.yaml
+  - jellyseerr-oidc-client-secret.yaml
