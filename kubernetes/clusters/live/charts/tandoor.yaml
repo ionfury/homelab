@@ -72,6 +72,16 @@ controllers:
           GUNICORN_WORKERS: "3"
           GUNICORN_THREADS: "2"
           GUNICORN_MEDIA: "0"
+          # OIDC/SSO via Authelia
+          SOCIAL_PROVIDERS: "allauth.socialaccount.providers.openid_connect"
+          TANDOOR_OIDC_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-oidc-client-secret
+                key: client-secret
+          SOCIALACCOUNT_PROVIDERS:
+            dependsOn: TANDOOR_OIDC_CLIENT_SECRET
+            value: '{"openid_connect": {"OAUTH_PKCE_ENABLED": true, "APPS": [{"provider_id": "authelia", "name": "Authelia", "client_id": "tandoor", "secret": "$(TANDOOR_OIDC_CLIENT_SECRET)", "settings": {"server_url": "https://auth.${external_domain}/.well-known/openid-configuration"}}]}}'
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
