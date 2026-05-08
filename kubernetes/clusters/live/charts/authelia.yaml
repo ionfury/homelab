@@ -348,8 +348,8 @@ configMap:
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
-            - https://recipes.${internal_domain}/accounts/oidc/login/callback/
-            - https://recipes.${external_domain}/accounts/oidc/login/callback/
+            - https://recipes.${internal_domain}/accounts/oidc/authelia/login/callback/
+            - https://recipes.${external_domain}/accounts/oidc/authelia/login/callback/
           scopes:
             - openid
             - profile
