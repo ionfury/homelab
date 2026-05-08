@@ -52,6 +52,8 @@ extraEnvVars:
     value: "user"
   - name: ENABLE_OPENAI_API
     value: "false"
+  - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+    value: "true"
 
 sso:
   enabled: true
