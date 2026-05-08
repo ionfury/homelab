@@ -5,6 +5,12 @@ kind: HTTPRoute
 metadata:
   name: authelia-external
   namespace: authelia
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Authelia"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/icon: "authelia.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=authelia"
 spec:
   parentRefs:
     - name: external
