@@ -8,6 +8,7 @@ resources:
   - media-pvc.yaml
   - paperless-db-credentials.yaml
   - dragonfly-password-replica.yaml
+  - paperless-oidc-client-secret-replica.yaml
   - paperless-secret.yaml
   - internal-route.yaml
   - canary.yaml

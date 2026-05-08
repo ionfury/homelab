@@ -81,6 +81,16 @@ controllers:
           PAPERLESS_REDIS:
             dependsOn: DRAGONFLY_PASSWORD
             value: "redis://:$(DRAGONFLY_PASSWORD)@dragonfly.cache.svc.cluster.local:6379"
+          # OIDC/SSO via Authelia
+          PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
+          PAPERLESS_OIDC_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-oidc-client-secret
+                key: client-secret
+          PAPERLESS_SOCIALACCOUNT_PROVIDERS:
+            dependsOn: PAPERLESS_OIDC_CLIENT_SECRET
+            value: '{"openid_connect": {"OAUTH_PKCE_ENABLED": true, "APPS": [{"provider_id": "authelia", "name": "Authelia", "client_id": "paperless", "secret": "$(PAPERLESS_OIDC_CLIENT_SECRET)", "settings": {"server_url": "https://auth.${external_domain}/.well-known/openid-configuration"}}]}}'
           # Storage paths
           PAPERLESS_DATA_DIR: "/data"
           PAPERLESS_MEDIA_ROOT: "/media"
