@@ -36,13 +36,13 @@ spec:
                 default_value:
                   numerator: 100
                   denominator: HUNDRED
-              # 200 requests/min per source IP
+              # 1000 requests/min per source IP
               descriptors:
                 - entries:
                     - key: remote_address
                   token_bucket:
-                    max_tokens: 200
-                    tokens_per_fill: 200
+                    max_tokens: 1000
+                    tokens_per_fill: 1000
                     fill_interval: 60s
               enable_x_ratelimit_headers: DRAFT_VERSION_03
     # Add remote_address action to all external gateway virtual hosts so descriptors are generated

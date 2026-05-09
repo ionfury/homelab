@@ -8,7 +8,7 @@ metadata:
 spec:
   schedule: "@every 5m"
   http:
-    - name: internal-gateway-health
+    - name: open-webui-gateway-health
       url: https://ai.${internal_domain}
       responseCodes: [200, 302]
       maxSSLExpiry: 7

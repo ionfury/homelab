@@ -232,3 +232,17 @@ spec:
               requests/s. Workloads have stale or expired service account tokens.
               Restart gateway pods and any long-running workloads in the mesh
               to clear in-memory token caches.
+
+    - name: istio-gateway
+      rules:
+        - alert: ExternalGatewayRateLimiting
+          expr: increase(envoy_http_external_gateway_per_ip_local_rate_limit_rate_limited[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "External gateway is rate limiting requests"
+            description: >-
+              The external gateway local rate limiter has throttled {{ $value | humanize }}
+              requests in the last 5 minutes. A source IP has exceeded 1000 req/min.
+              Check Loki for source IP: {namespace="istio-gateway"} | json | status="429"
