@@ -1,0 +1,294 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-canary-sla
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"
+  annotations:
+    grafana_folder: "SRE"
+data:
+  canary-sla.json: |-
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "schemaVersion": 39,
+      "tags": ["canary", "sla"],
+      "time": {"from": "now-30d", "to": "now"},
+      "timepicker": {},
+      "timezone": "",
+      "title": "Canary SLA",
+      "uid": "canary-sla",
+      "version": 1,
+      "panels": [
+        {
+          "type": "row", "id": 1, "title": "Overview", "collapsed": false,
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0}
+        },
+        {
+          "type": "stat", "id": 2,
+          "title": "Worst 30d SLA",
+          "description": "Lowest 30-day availability across all canary checks. Below 99.9% triggers investigation. CanaryCheckFailure fires for sustained failures.",
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 1},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "min(canary:availability:30d)", "legendFormat": "", "refId": "A"}],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "red", "value": null}, {"color": "orange", "value": 95},
+                {"color": "yellow", "value": 99}, {"color": "green", "value": 99.9}
+              ]},
+              "unit": "percent", "decimals": 2, "min": 0, "max": 100
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background", "graphMode": "none", "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "textMode": "auto"
+          }
+        },
+        {
+          "type": "stat", "id": 3,
+          "title": "Worst 24h SLA",
+          "description": "Lowest 24-hour availability across all canary checks. Useful for recent incident impact.",
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 1},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "min(canary:availability:24h)", "legendFormat": "", "refId": "A"}],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "red", "value": null}, {"color": "orange", "value": 95},
+                {"color": "yellow", "value": 99}, {"color": "green", "value": 99.9}
+              ]},
+              "unit": "percent", "decimals": 2, "min": 0, "max": 100
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background", "graphMode": "none", "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "textMode": "auto"
+          }
+        },
+        {
+          "type": "stat", "id": 4,
+          "title": "Checks Passing",
+          "description": "Number of canary checks currently passing (canary_check == 0).",
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 1},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "count(canary_check == 0)", "legendFormat": "", "refId": "A"}],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "fixed", "fixedColor": "green"},
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background", "graphMode": "none", "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "textMode": "auto"
+          }
+        },
+        {
+          "type": "stat", "id": 5,
+          "title": "Checks Failing",
+          "description": "Number of canary checks currently failing (canary_check == 1). Any value > 0 should be investigated. CanaryCheckFailure alert fires for sustained failures.",
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 1},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "count(canary_check == 1) or vector(0)", "legendFormat": "", "refId": "A"}],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null}, {"color": "red", "value": 1}
+              ]},
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background", "graphMode": "none", "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "textMode": "auto"
+          }
+        },
+        {
+          "type": "row", "id": 6, "title": "Per-Check Availability", "collapsed": false,
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5}
+        },
+        {
+          "type": "table", "id": 7,
+          "title": "Check Availability",
+          "description": "Per-check availability over multiple time windows. 30d/7d/24h/1h SLA percentages computed from canary_check_success_count and canary_check_failed_count. Status reflects current state (canary_check metric).",
+          "gridPos": {"h": 12, "w": 24, "x": 0, "y": 6},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [
+            {"expr": "canary:availability:30d", "format": "table", "instant": true, "legendFormat": "", "refId": "A"},
+            {"expr": "canary:availability:7d",  "format": "table", "instant": true, "legendFormat": "", "refId": "B"},
+            {"expr": "canary:availability:24h", "format": "table", "instant": true, "legendFormat": "", "refId": "C"},
+            {"expr": "canary:availability:1h",  "format": "table", "instant": true, "legendFormat": "", "refId": "D"},
+            {"expr": "max by (name, canary_name, canary_namespace, type) (canary_check)", "format": "table", "instant": true, "legendFormat": "", "refId": "E"}
+          ],
+          "transformations": [
+            {"id": "merge", "options": {}},
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true, "__name__": true, "job": true,
+                  "endpoint": true, "service": true, "key": true, "namespace": true
+                },
+                "renameByName": {
+                  "Value #A": "30d %", "Value #B": "7d %",
+                  "Value #C": "24h %", "Value #D": "1h %",
+                  "Value #E": "Status", "name": "Check",
+                  "canary_name": "Canary", "canary_namespace": "Namespace", "type": "Type"
+                },
+                "indexByName": {
+                  "Check": 0, "Namespace": 1, "Type": 2, "Status": 3,
+                  "30d %": 4, "7d %": 5, "24h %": 6, "1h %": 7
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"color": {"mode": "thresholds"}, "unit": "percent", "decimals": 2},
+            "overrides": [
+              {
+                "matcher": {"id": "byName", "options": "30d %"},
+                "properties": [
+                  {"id": "thresholds", "value": {"mode": "absolute", "steps": [
+                    {"color": "red", "value": null}, {"color": "orange", "value": 95},
+                    {"color": "yellow", "value": 99}, {"color": "green", "value": 99.9}
+                  ]}},
+                  {"id": "custom.cellOptions", "value": {"mode": "gradient", "type": "gauge"}},
+                  {"id": "min", "value": 90}, {"id": "max", "value": 100}
+                ]
+              },
+              {
+                "matcher": {"id": "byName", "options": "7d %"},
+                "properties": [
+                  {"id": "thresholds", "value": {"mode": "absolute", "steps": [
+                    {"color": "red", "value": null}, {"color": "orange", "value": 95},
+                    {"color": "yellow", "value": 99}, {"color": "green", "value": 99.9}
+                  ]}},
+                  {"id": "custom.cellOptions", "value": {"mode": "gradient", "type": "gauge"}},
+                  {"id": "min", "value": 90}, {"id": "max", "value": 100}
+                ]
+              },
+              {
+                "matcher": {"id": "byName", "options": "24h %"},
+                "properties": [
+                  {"id": "thresholds", "value": {"mode": "absolute", "steps": [
+                    {"color": "red", "value": null}, {"color": "orange", "value": 95},
+                    {"color": "yellow", "value": 99}, {"color": "green", "value": 99.9}
+                  ]}},
+                  {"id": "custom.cellOptions", "value": {"mode": "gradient", "type": "gauge"}},
+                  {"id": "min", "value": 90}, {"id": "max", "value": 100}
+                ]
+              },
+              {
+                "matcher": {"id": "byName", "options": "1h %"},
+                "properties": [
+                  {"id": "thresholds", "value": {"mode": "absolute", "steps": [
+                    {"color": "red", "value": null}, {"color": "orange", "value": 95},
+                    {"color": "yellow", "value": 99}, {"color": "green", "value": 99.9}
+                  ]}},
+                  {"id": "custom.cellOptions", "value": {"mode": "gradient", "type": "gauge"}},
+                  {"id": "min", "value": 90}, {"id": "max", "value": 100}
+                ]
+              },
+              {
+                "matcher": {"id": "byName", "options": "Status"},
+                "properties": [
+                  {"id": "unit", "value": "short"},
+                  {"id": "mappings", "value": [{"type": "value", "options": {
+                    "0": {"text": "OK",      "color": "green", "index": 0},
+                    "1": {"text": "FAILING", "color": "red",   "index": 1}
+                  }}]},
+                  {"id": "custom.cellOptions", "value": {"type": "color-text"}},
+                  {"id": "thresholds", "value": {"mode": "absolute", "steps": [
+                    {"color": "green", "value": null}, {"color": "red", "value": 1}
+                  ]}}
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true, "cellHeight": "sm",
+            "footer": {"enablePagination": false, "show": false}
+          }
+        },
+        {
+          "type": "row", "id": 8, "title": "Response Times", "collapsed": false,
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 18}
+        },
+        {
+          "type": "timeseries", "id": 9,
+          "title": "p95 Response Time",
+          "description": "95th percentile response time per canary check. Checks use thresholdMillis (typically 5000ms) to determine pass/fail. Values approaching the threshold indicate degraded performance.",
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 19},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "histogram_quantile(0.95, sum by (name, le) (rate(canary_check_duration_bucket[5m])))", "legendFormat": "{{ name }}", "refId": "A"}],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {
+                "axisBorderShow": false, "axisLabel": "", "drawStyle": "line",
+                "fillOpacity": 10, "gradientMode": "scheme", "lineWidth": 2,
+                "pointSize": 5, "showPoints": "never",
+                "stacking": {"group": "A", "mode": "none"},
+                "thresholdsStyle": {"mode": "off"}
+              },
+              "unit": "ms"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          }
+        },
+        {
+          "type": "row", "id": 10, "title": "SSL Certificate Expiry", "collapsed": false,
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 27}
+        },
+        {
+          "type": "bargauge", "id": 11,
+          "title": "Days Until Certificate Expiry",
+          "description": "Days remaining until SSL certificate expiry per check. Below 7 days triggers CanaryCheckFailure (maxSSLExpiry: 7). Red < 7 days, orange < 14 days, yellow < 30 days.",
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 28},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "min by (name, canary_name) (canary_check_http_ssl_expiry)", "legendFormat": "{{ name }}", "refId": "A"}],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "red", "value": null}, {"color": "orange", "value": 7},
+                {"color": "yellow", "value": 14}, {"color": "green", "value": 30}
+              ]},
+              "unit": "d", "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "gradient", "orientation": "horizontal",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+            "showUnfilled": true
+          }
+        }
+      ]
+    }
