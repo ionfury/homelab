@@ -8,7 +8,7 @@ metadata:
 spec:
   schedule: "@every 1m"
   http:
-    - name: internal-gateway-health
+    - name: authelia-gateway-health
       url: https://auth.${internal_domain}
       responseCodes: [200, 302]
       maxSSLExpiry: 7
