@@ -38,6 +38,16 @@ controllers:
               secretKeyRef:
                 name: radarr-api-key
                 key: api-key
+          SONARR4K_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sonarr4k-api-key
+                key: api-key
+          RADARR4K_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr4k-api-key
+                key: api-key
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

@@ -134,6 +134,20 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
+    - name: sonarr4k
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator]
+    - name: radarr4k
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator]
     - name: jfa-go
       namespace: media
       chart:
@@ -189,7 +203,7 @@ spec:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: [sonarr, radarr]
+      dependsOn: [sonarr, radarr, sonarr4k, radarr4k]
     - name: exportarr
       namespace: media
       chart:

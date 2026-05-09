@@ -9,7 +9,9 @@ resources:
   - jellyseerr-external.yaml
   - tdarr-internal.yaml
   - sonarr-internal.yaml
+  - sonarr4k-internal.yaml
   - radarr-internal.yaml
+  - radarr4k-internal.yaml
   - prowlarr-internal.yaml
 
   - qbittorrent-internal.yaml
