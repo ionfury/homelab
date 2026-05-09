@@ -33,6 +33,7 @@ resources:
   - ups-monitoring-scrape.yaml
   - ups-monitoring-alerts.yaml
   - backup-health-dashboard.yaml
+  - canary-sla-dashboard.yaml
   - garage-s3-dashboard.yaml
   - platform-signals-dashboard.yaml
   - power-accounting-dashboard.yaml

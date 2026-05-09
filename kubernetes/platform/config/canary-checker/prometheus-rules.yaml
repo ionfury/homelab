@@ -43,3 +43,57 @@ spec:
               Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
               {{ $labels.exported_namespace }} has a failure rate above 20% over the
               last 15 minutes. Investigate potential intermittent issues.
+
+    - name: canary-checker.sla
+      rules:
+        - record: canary:availability:1h
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[1h]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[1h]) + increase(canary_check_failed_count[1h])
+                ),
+                1
+              )
+            ) * 100
+
+        - record: canary:availability:24h
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[24h]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[24h]) + increase(canary_check_failed_count[24h])
+                ),
+                1
+              )
+            ) * 100
+
+        - record: canary:availability:7d
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[7d]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[7d]) + increase(canary_check_failed_count[7d])
+                ),
+                1
+              )
+            ) * 100
+
+        - record: canary:availability:30d
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[30d]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[30d]) + increase(canary_check_failed_count[30d])
+                ),
+                1
+              )
+            ) * 100
