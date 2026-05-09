@@ -26,6 +26,16 @@ spec:
         login: true
         passwordSecret:
           name: radarr-role-password
+      - name: sonarr4k
+        ensure: present
+        login: true
+        passwordSecret:
+          name: sonarr4k-role-password
+      - name: radarr4k
+        ensure: present
+        login: true
+        passwordSecret:
+          name: radarr4k-role-password
       - name: prowlarr
         ensure: present
         login: true

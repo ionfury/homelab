@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sonarr4k-internal
+  namespace: media
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Sonarr 4K"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "sonarr.svg"
+    gethomepage.dev/widget.type: "sonarr"
+    gethomepage.dev/widget.url: "http://sonarr4k-app.media.svc:8989"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SONARR4K_API_KEY}}"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=sonarr4k"
+spec:
+  parentRefs:
+    - name: internal
+      namespace: istio-gateway
+  hostnames:
+    - "sonarr4k.${internal_domain}"
+  rules:
+    - backendRefs:
+        - name: sonarr4k
+          port: 8989

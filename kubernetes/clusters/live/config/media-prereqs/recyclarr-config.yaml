@@ -1,6 +1,9 @@
 ---
 # Recyclarr configuration for syncing TRaSH Guides quality profiles and custom formats.
-# Environment variables (SONARR_API_KEY, RADARR_API_KEY) are injected by the CronJob pod spec.
+# Environment variables are injected by the CronJob pod spec.
+# Instances: sonarr (HD TV), sonarr-anime (anime TV profile on same instance),
+#            sonarr4k (4K TV), radarr (HD movies), radarr-anime (anime movies on same
+#            instance), radarr4k (4K movies).
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -22,7 +25,7 @@ data:
               enabled: true
 
         custom_formats:
-          # Unwanted
+          # Unwanted HDR for 1080p web releases
           - trash_ids:
               - 85c61753df5da1fb2aab6f2a47c8b789 # DV (WEBDL)
               - 9b27ab6c6f2f29a3282c0e28a3e26e55 # DV HDR10Plus
@@ -36,7 +39,7 @@ data:
               - 17e889ce13117940092308f48b48b45b # PQ
             assign_scores_to:
               - name: WEB-1080p
-                score: 0
+                score: -10000
 
           # Streaming Services
           - trash_ids:
@@ -75,6 +78,110 @@ data:
             assign_scores_to:
               - name: WEB-1080p
 
+      main-anime:
+        base_url: http://sonarr-app.media.svc:8989
+        api_key: !env_var SONARR_API_KEY
+
+        quality_definition:
+          type: anime
+
+        quality_profiles:
+          - name: Anime
+            reset_unmatched_scores:
+              enabled: true
+
+        custom_formats:
+          # Anime BD Release Groups
+          - trash_ids:
+              - 949c16fe0a8147f50ba82cc2df9411c9 # Anime BD Tier 01 (Top SeaDex Muxers)
+              - ed7f1e315e000aef424a58517fa48727 # Anime BD Tier 02 (SeaDex Muxers)
+              - 084de28a2a9c9be87e7a79b7d3edefd6 # Anime BD Tier 03 (SeaDex Muxers)
+              - b0e4f63be3c0a44a25bd5c4aac9f0d7b # Anime BD Tier 04 (SeaDex Muxers)
+              - e2ac20f42d4662a57ca23ec4d9a9b228 # Anime BD Tier 05 (Remuxes)
+              - 54e15bc3c1e6c70f9a4fda73c9a12a6e # Anime BD Tier 06 (FanSubs)
+              - a1a6b2640bfc234a6a64e7e8d0c5e009 # Anime BD Tier 07 (P2P)
+              - 8b2e2b6a09dc4b1df01f86ecaabbaf99 # Anime BD Tier 08 (Mini Encodes)
+            assign_scores_to:
+              - name: Anime
+
+          # Anime Web Release Groups
+          - trash_ids:
+              - e0014372773c8f0e1bef8824f00c7dc4 # Anime Web Tier 01 (Muxers)
+              - 19c12a73c32db74f6854675bbc6b1f7c # Anime Web Tier 02 (Top FanSubs)
+              - 45f25093a2cb2f96d3c9e3df78d8ece0 # Anime Web Tier 03 (FanSubs)
+            assign_scores_to:
+              - name: Anime
+
+          # Misc
+          - trash_ids:
+              - ec8fa7296b64e8cd390a1600f4c2510c # Repack/Proper
+              - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
+              - 44e7c4de10ae50265753082c5dc2eefb # Repack v3
+            assign_scores_to:
+              - name: Anime
+
+      sonarr4k:
+        base_url: http://sonarr4k-app.media.svc:8989
+        api_key: !env_var SONARR4K_API_KEY
+
+        quality_definition:
+          type: series
+
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores:
+              enabled: true
+
+        custom_formats:
+          # HDR formats — positively scored for 4K
+          - trash_ids:
+              - 7878c33f1fca4bc0b3a42c4b2674c5db # DV HDR10
+              - 9b27ab6c6f2f29a3282c0e28a3e26e55 # DV HDR10Plus
+              - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
+              - 3497f2e847b8ea2da074e8afb9c35905 # HDR10
+              - a3d82bf24ed956a1ce68a716e4bc9e41 # HDR10Plus
+              - 2b239ed870daba8126a53bd3f457571e # HLG
+              - 17e889ce13117940092308f48b48b45b # PQ
+            assign_scores_to:
+              - name: WEB-2160p
+
+          # Streaming Services
+          - trash_ids:
+              - d660701077794679fd59e8bdf4ce3a29 # AMZN
+              - f67c9ca88f463a48346062e8ad07713f # ATVP
+              - 77a7b25585c18af08f60b1547bb9b4fb # CC
+              - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
+              - 89358767a60cc28783ab36d3d1848587 # DSNP
+              - 7a235133c87f7da4c8ccccbe915e60aa # HBO
+              - a880d6abc21e7c16884f3ae393f84179 # HMAX
+              - f6cce30f1733d5c8194222a7507f2571 # HULU
+              - 0ac24a2a68a9700bcb7ece4e5ff7c4d3 # iT
+              - 81d1fbf600e2540cee87f3a23f9d3c1c # MAX
+              - d34870697c9db575f17700c6a4f0fb76 # NF
+              - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
+              - c67a75ae4a1715f2bb4d492c17f80112 # PMTP
+              - ae58039e1319178e6be73571571d74b1 # SHO
+              - 1bbe48db9b44c9b56bbad028f73e8c1e # STAN
+              - 56ee4e48e28e3e3b3f8a15feaa44a5b4 # VDL
+            assign_scores_to:
+              - name: WEB-2160p
+
+          # HQ Release Groups
+          - trash_ids:
+              - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
+              - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
+              - d84935abd3f8556dcd51d4f27e22f1a6 # WEB Tier 03
+            assign_scores_to:
+              - name: WEB-2160p
+
+          # Misc
+          - trash_ids:
+              - ec8fa7296b64e8cd390a1600f4c2510c # Repack/Proper
+              - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
+              - 44e7c4de10ae50265753082c5dc2eefb # Repack v3
+            assign_scores_to:
+              - name: WEB-2160p
+
     radarr:
       main:
         base_url: http://radarr-app.media.svc:7878
@@ -84,7 +191,7 @@ data:
           type: movie
 
         quality_profiles:
-          - name: HD Bluray + WEB
+          - name: WEB-1080p
             reset_unmatched_scores:
               enabled: true
 
@@ -100,7 +207,7 @@ data:
               - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
               - 9b64dff695c2115f3bb01b3b1b5489d1 # 10bit
             assign_scores_to:
-              - name: HD Bluray + WEB
+              - name: WEB-1080p
 
           # Movie Versions
           - trash_ids:
@@ -111,7 +218,7 @@ data:
               - 9d27d9d2181838f76dee150882bdc58c # Masters of Cinema
               - db9b4c4b53d312a3ca5f1378f6440fc9 # Vinegar Syndrome
             assign_scores_to:
-              - name: HD Bluray + WEB
+              - name: WEB-1080p
 
           # HQ Release Groups
           - trash_ids:
@@ -119,7 +226,7 @@ data:
               - 403816d65392c79236dcb6dd591aeda4 # WEB Tier 02
               - af94e0fe497124d1f9ce732069ec8c3b # WEB Tier 03
             assign_scores_to:
-              - name: HD Bluray + WEB
+              - name: WEB-1080p
 
           # Streaming Services
           - trash_ids:
@@ -138,11 +245,109 @@ data:
               - bf7e73dd1d85b12cc4e6a709c71652ed # Pathe
               - c2863d2a50c9acad1fb50e53ece60571 # STAN
             assign_scores_to:
-              - name: HD Bluray + WEB
+              - name: WEB-1080p
 
           # Misc
           - trash_ids:
               - e7718d7a3ce595f289bfee26adc178f1 # Repack/Proper
               - ae43b294509409a6a13919dedd4764c4 # Repack2
             assign_scores_to:
-              - name: HD Bluray + WEB
+              - name: WEB-1080p
+
+      main-anime:
+        base_url: http://radarr-app.media.svc:7878
+        api_key: !env_var RADARR_API_KEY
+
+        quality_definition:
+          type: movie
+
+        quality_profiles:
+          - name: Anime
+            reset_unmatched_scores:
+              enabled: true
+
+        custom_formats:
+          # Anime BD Release Groups
+          - trash_ids:
+              - fb3ccc5d5cc8f77c9055d4cb4561dded # Anime BD Tier 01 (Top SeaDex Muxers)
+              - 66926c8fa9312bc74ab71bf69aae4f4a # Anime BD Tier 02 (SeaDex Muxers)
+              - fa857662bad28d5ff21a6e611869a0ff # Anime BD Tier 03 (SeaDex Muxers)
+              - f262f1299d99b1a2263375e8fa2ddbb3 # Anime BD Tier 04 (SeaDex Muxers)
+              - ca864ed93c7b994a0fe90eb2cad5b285 # Anime BD Tier 05 (Remuxes)
+              - 9dce189b960fddf47891b7484ee886ca # Anime BD Tier 06 (FanSubs)
+              - 1ef04de7fb06ded7a012cf5f44fd0726 # Anime BD Tier 07 (P2P)
+              - a9e7bba2dc9d6e1e90c3c3dc7e89eef6 # Anime BD Tier 08 (Mini Encodes)
+            assign_scores_to:
+              - name: Anime
+
+          # Anime Web Release Groups
+          - trash_ids:
+              - 60f6d8ddfae513f3a3b84745f4101c3f # Anime Web Tier 01 (Muxers)
+              - a452a2f9b4ab94bbaef1b37adaa0dff0 # Anime Web Tier 02 (Top FanSubs)
+              - 9585b3f5cbef16fc9012e7ea17e7b32e # Anime Web Tier 03 (FanSubs)
+            assign_scores_to:
+              - name: Anime
+
+          # Misc
+          - trash_ids:
+              - e7718d7a3ce595f289bfee26adc178f1 # Repack/Proper
+              - ae43b294509409a6a13919dedd4764c4 # Repack2
+            assign_scores_to:
+              - name: Anime
+
+      radarr4k:
+        base_url: http://radarr4k-app.media.svc:7878
+        api_key: !env_var RADARR4K_API_KEY
+
+        quality_definition:
+          type: movie
+
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores:
+              enabled: true
+
+        custom_formats:
+          # Unwanted for 4K
+          - trash_ids:
+              - b8cd450cbfa689c0259a01d9e29ba3d6 # 3D
+              - ed38b889b31be83fda192888e2286d83 # BR-DISK
+              - 90a6f9a284dff5103f6346090e6280c8 # LQ
+              - e204b80c87be9497c8f48d3919e5cd38 # LQ (Release Title)
+              - bfd8eb01832d646a0a89c4deb46f8564 # Upscaled
+            assign_scores_to:
+              - name: WEB-2160p
+
+          # HQ Release Groups
+          - trash_ids:
+              - c20f169ef63c5f40c2def54abaf4438e # WEB Tier 01
+              - 403816d65392c79236dcb6dd591aeda4 # WEB Tier 02
+              - af94e0fe497124d1f9ce732069ec8c3b # WEB Tier 03
+            assign_scores_to:
+              - name: WEB-2160p
+
+          # Streaming Services
+          - trash_ids:
+              - b3b3a6ac74ecbd56bcdbefa4799fb9df # AMZN
+              - 40e9380490e748672c2522eaaeb692f7 # ATVP
+              - cc5e51a9e85a6296ceefe097a77f12f4 # BCORE
+              - 84272245b2988854bfb76a16e60baea5 # DSNP
+              - 509e5f41146e278f9eab1f8db4c9f1cf # HBO
+              - 5763d1b0ce84aff3b21038c4c9f2f90b # HMAX
+              - 526d445d4c16214309f0fd2b3be18a89 # Hulu
+              - 2a6039655313bf5dab1e43523b62c374 # MA
+              - 6a061313d22e51e0f25b7cd4dc065233 # MAX
+              - 170b1d363bd8516fbf3a3eb05d4c8571 # NF
+              - c9fd353f8f5f1baf56dc601c4cb29920 # PCOK
+              - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
+              - bf7e73dd1d85b12cc4e6a709c71652ed # Pathe
+              - c2863d2a50c9acad1fb50e53ece60571 # STAN
+            assign_scores_to:
+              - name: WEB-2160p
+
+          # Misc
+          - trash_ids:
+              - e7718d7a3ce595f289bfee26adc178f1 # Repack/Proper
+              - ae43b294509409a6a13919dedd4764c4 # Repack2
+            assign_scores_to:
+              - name: WEB-2160p

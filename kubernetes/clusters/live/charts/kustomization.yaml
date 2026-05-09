@@ -31,9 +31,11 @@ configMapGenerator:
       - pxe-boot.yaml
       - qbittorrent.yaml
       - radarr.yaml
+      - radarr4k.yaml
       - recyclarr.yaml
       - satisfactory.yaml
       - sonarr.yaml
+      - sonarr4k.yaml
       - tandoor.yaml
       - tdarr-node.yaml
       - tdarr.yaml
