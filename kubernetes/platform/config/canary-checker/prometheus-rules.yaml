@@ -13,14 +13,14 @@ spec:
         - alert: CanaryCheckFailure
           expr: |
             canary_check == 1
-          for: 2m
+          for: 5m
           labels:
             severity: critical
           annotations:
             summary: "Canary check {{ $labels.name }} is failing"
             description: >-
               Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
-              {{ $labels.exported_namespace }} has been failing for more than 2 minutes.
+              {{ $labels.canary_namespace }} has been failing for more than 5 minutes.
               This indicates a potential service degradation or outage.
 
         - alert: CanaryCheckHighFailureRate
