@@ -12,8 +12,8 @@ metadata:
 data:
   recyclarr.yml: |
     sonarr:
-      main:
-        base_url: http://sonarr-app.media.svc:8989
+      sonarr:
+        base_url: http://sonarr.media.svc:8989
         api_key: !env_var SONARR_API_KEY
 
         quality_definition:
@@ -78,8 +78,8 @@ data:
             assign_scores_to:
               - name: WEB-1080p
 
-      main-anime:
-        base_url: http://sonarr-app.media.svc:8989
+      sonarr-anime:
+        base_url: http://sonarr.media.svc:8989
         api_key: !env_var SONARR_API_KEY
 
         quality_definition:
@@ -121,7 +121,7 @@ data:
               - name: Anime
 
       sonarr4k:
-        base_url: http://sonarr4k-app.media.svc:8989
+        base_url: http://sonarr4k.media.svc:8989
         api_key: !env_var SONARR4K_API_KEY
 
         quality_definition:
@@ -183,8 +183,8 @@ data:
               - name: WEB-2160p
 
     radarr:
-      main:
-        base_url: http://radarr-app.media.svc:7878
+      radarr:
+        base_url: http://radarr.media.svc:7878
         api_key: !env_var RADARR_API_KEY
 
         quality_definition:
@@ -254,8 +254,8 @@ data:
             assign_scores_to:
               - name: WEB-1080p
 
-      main-anime:
-        base_url: http://radarr-app.media.svc:7878
+      radarr-anime:
+        base_url: http://radarr.media.svc:7878
         api_key: !env_var RADARR_API_KEY
 
         quality_definition:
@@ -296,7 +296,7 @@ data:
               - name: Anime
 
       radarr4k:
-        base_url: http://radarr4k-app.media.svc:7878
+        base_url: http://radarr4k.media.svc:7878
         api_key: !env_var RADARR4K_API_KEY
 
         quality_definition:
