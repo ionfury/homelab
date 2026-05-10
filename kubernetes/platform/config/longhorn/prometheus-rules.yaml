@@ -111,6 +111,26 @@ spec:
             summary: "Longhorn replica rebuild stalled on {{ $labels.volume }}"
             description: "Volume {{ $labels.volume }} has been rebuilding for over 30 minutes at {{ $value }}%. This may indicate disk I/O issues or network problems."
 
+        # SSD Endurance - Warning
+        - alert: LonghornDiskEnduranceWarning
+          expr: longhorn_disk_health_attribute_raw{attribute_id=~"202|231"} < 30
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} endurance < 30%"
+            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value }}% SSD lifetime remaining. Plan disk replacement."
+
+        # SSD Endurance - Critical
+        - alert: LonghornDiskEnduranceCritical
+          expr: longhorn_disk_health_attribute_raw{attribute_id=~"202|231"} < 10
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} endurance < 10%"
+            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value }}% SSD lifetime remaining. Immediate replacement required to prevent data loss."
+
     # Recording rules that aggregate disk metrics by storage pool (fast/slow)
     # based on disk name patterns from inventory (ssd = fast, hdd = slow).
     - name: longhorn-pool-recording-rules
