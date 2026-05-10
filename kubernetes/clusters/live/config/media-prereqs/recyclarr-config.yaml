@@ -131,6 +131,14 @@ data:
           - name: WEB-2160p
             reset_unmatched_scores:
               enabled: true
+            qualities:
+              - name: Bluray-2160p Remux
+              - name: WEB 2160p
+                qualities:
+                  - WEBDL-2160p
+                  - WEBRip-2160p
+              - name: Bluray-2160p
+              - name: HDTV-2160p
 
         custom_formats:
           # HDR formats — positively scored for 4K
@@ -306,6 +314,14 @@ data:
           - name: WEB-2160p
             reset_unmatched_scores:
               enabled: true
+            qualities:
+              - name: Remux-2160p
+              - name: WEB 2160p
+                qualities:
+                  - WEBDL-2160p
+                  - WEBRip-2160p
+              - name: Bluray-2160p
+              - name: HDTV-2160p
 
         custom_formats:
           # Unwanted for 4K
