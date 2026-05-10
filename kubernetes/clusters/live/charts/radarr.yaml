@@ -34,6 +34,7 @@ controllers:
                 key: password
           RADARR__POSTGRES__MAINDB: radarr-main
           RADARR__POSTGRES__LOGDB: radarr-log
+          RADARR__AUTH__METHOD: External
           RADARR__AUTH__APIKEY:
             valueFrom:
               secretKeyRef:

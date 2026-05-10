@@ -22,5 +22,7 @@ spec:
               - "bazarr.${internal_domain}"
               - "prowlarr.${internal_domain}"
               - "radarr.${internal_domain}"
+              - "radarr4k.${internal_domain}"
               - "sonarr.${internal_domain}"
+              - "sonarr4k.${internal_domain}"
               - "qbittorrent.${internal_domain}"

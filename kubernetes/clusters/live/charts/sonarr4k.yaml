@@ -34,6 +34,7 @@ controllers:
                 key: password
           SONARR__POSTGRES__MAINDB: sonarr4k-main
           SONARR__POSTGRES__LOGDB: sonarr4k-log
+          SONARR__AUTH__METHOD: External
           SONARR__AUTH__APIKEY:
             valueFrom:
               secretKeyRef:
