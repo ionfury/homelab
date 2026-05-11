@@ -43,6 +43,28 @@ run "creates_iam_users" {
   }
 }
 
+run "lifecycle_rules_scoped_to_velero_prefixes" {
+  command = plan
+  providers = {
+    aws = aws.mock
+  }
+
+  variables {
+    clusters = ["dev"]
+    region   = "us-east-2"
+  }
+
+  assert {
+    condition     = aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule[0].filter[0].prefix == "backups/"
+    error_message = "Backup metadata lifecycle rule must be scoped to backups/ prefix only"
+  }
+
+  assert {
+    condition     = aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule[1].filter[0].prefix == "restores/"
+    error_message = "Restore metadata lifecycle rule must be scoped to restores/ prefix only"
+  }
+}
+
 run "stores_credentials_in_ssm" {
   command = plan
   providers = {

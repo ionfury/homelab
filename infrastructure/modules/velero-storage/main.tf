@@ -48,16 +48,40 @@ resource "aws_s3_bucket_public_access_block" "velero_backup" {
   restrict_public_buckets = true
 }
 
-# Lifecycle rule - expire backups after 35 days (safety net beyond Velero's 28-day TTL)
-# Unlike Longhorn, Velero backups are self-contained tarballs. Deleting old
-# objects does not corrupt newer backups, making age-based expiration safe.
+# Lifecycle rules - expire Velero metadata after 35 days (safety net beyond Velero's 28-day TTL)
+#
+# Rules are scoped to Velero-managed prefixes (backups/, restores/) only.
+# The kopia/ prefix is intentionally excluded: Kopia uses a shared repository model
+# where pack/index files are referenced across multiple backups. An unscoped rule
+# would expire kopia repository metadata, corrupting all repositories in the bucket.
 resource "aws_s3_bucket_lifecycle_configuration" "velero_backup" {
   for_each = var.clusters
   bucket   = aws_s3_bucket.velero_backup[each.key].id
 
   rule {
-    id     = "expire-old-backups"
+    id     = "expire-old-backup-metadata"
     status = "Enabled"
+
+    filter {
+      prefix = "backups/"
+    }
+
+    expiration {
+      days = 35
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 7
+    }
+  }
+
+  rule {
+    id     = "expire-old-restore-metadata"
+    status = "Enabled"
+
+    filter {
+      prefix = "restores/"
+    }
 
     expiration {
       days = 35
