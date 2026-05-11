@@ -109,7 +109,28 @@ defaultRules:
   create: true
   disabled:
     KubeClientCertificateExpiration: true
+    NodeDiskIOSaturation: true
 additionalPrometheusRulesMap:
+  node-disk-rules:
+    groups:
+      - name: node-disk
+        rules:
+          - alert: NodeDiskIOSaturation
+            annotations:
+              description: |
+                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above 10 for the last 30 minutes, is currently at {{ printf "%.2f" $value }}.
+                This symptom might indicate disk saturation.
+              runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodediskiosaturation
+              summary: Disk IO queue is high.
+            expr: |
+              (
+                rate(node_disk_io_time_weighted_seconds_total{job="node-exporter", device=~"(/dev/)?(mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|md.+|dasd.+)"}[5m])
+              * on(instance, device) group_left()
+                node_disk_info{model!="VIRTUAL-DISK"}
+              ) > 10
+            for: 30m
+            labels:
+              severity: warning
   oom-rules:
     groups:
       - name: oom
