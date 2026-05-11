@@ -14,14 +14,7 @@ spec:
       kind: Kustomization
       name: platform
       namespace: flux-system
-  inputs:
-    - name: booter
-      namespace: booter
-      chart:
-        name: app-template
-        version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: []
+  inputs: []
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
