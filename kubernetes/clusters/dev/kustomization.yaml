@@ -15,6 +15,7 @@ configMapGenerator:
     behavior: create
     envs:
       - .cluster-vars.env
+      - cluster-apps.env
   - name: cluster-versions
     options:
       disableNameSuffixHash: true
@@ -27,4 +28,5 @@ configMapGenerator:
       disableNameSuffixHash: true
     namespace: flux-system
     behavior: create
-    files: []
+    files:
+      - charts/booter.yaml
