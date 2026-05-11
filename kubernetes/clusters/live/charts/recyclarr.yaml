@@ -21,6 +21,45 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    initContainers:
+      adopt:
+        image:
+          repository: ghcr.io/recyclarr/recyclarr
+          tag: "${recyclarr_version}"
+        args: ["state", "repair", "--adopt"]
+        env:
+          SONARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sonarr-api-key
+                key: api-key
+          RADARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr-api-key
+                key: api-key
+          SONARR4K_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sonarr4k-api-key
+                key: api-key
+          RADARR4K_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr4k-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+
     containers:
       app:
         image:
@@ -65,6 +104,8 @@ persistence:
     type: emptyDir
     advancedMounts:
       recyclarr:
+        adopt:
+          - path: /config
         app:
           - path: /config
   config:
@@ -72,6 +113,10 @@ persistence:
     name: recyclarr-config
     advancedMounts:
       recyclarr:
+        adopt:
+          - path: /config/recyclarr.yml
+            subPath: recyclarr.yml
+            readOnly: true
         app:
           - path: /config/recyclarr.yml
             subPath: recyclarr.yml
