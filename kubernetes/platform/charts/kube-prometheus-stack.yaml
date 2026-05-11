@@ -41,7 +41,7 @@ prometheus:
     enabled: false
   prometheusSpec:
     priorityClassName: platform
-    replicas: 2
+    replicas: 1
     podMetadata:
       labels:
         networking/allow-ingress-internal: "true"
