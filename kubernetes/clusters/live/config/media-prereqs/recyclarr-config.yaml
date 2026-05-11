@@ -1,9 +1,10 @@
 ---
 # Recyclarr configuration for syncing TRaSH Guides quality profiles and custom formats.
 # Environment variables are injected by the CronJob pod spec.
-# Instances: sonarr (HD TV), sonarr-anime (anime TV profile on same instance),
-#            sonarr4k (4K TV), radarr (HD movies), radarr-anime (anime movies on same
-#            instance), radarr4k (4K movies).
+# Instances: sonarr (HD TV + anime TV), sonarr4k (4K TV),
+#            radarr (HD movies + anime movies), radarr4k (4K movies).
+# Anime profiles coexist on the same instance as their HD counterpart — recyclarr
+# does not allow two instance configs sharing the same base_url (Split Instances error).
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -21,6 +22,9 @@ data:
 
         quality_profiles:
           - name: WEB-1080p
+            reset_unmatched_scores:
+              enabled: true
+          - name: Anime
             reset_unmatched_scores:
               enabled: true
 
@@ -78,19 +82,6 @@ data:
             assign_scores_to:
               - name: WEB-1080p
 
-      sonarr-anime:
-        base_url: http://sonarr.media.svc:8989
-        api_key: !env_var SONARR_API_KEY
-
-        quality_definition:
-          type: anime
-
-        quality_profiles:
-          - name: Anime
-            reset_unmatched_scores:
-              enabled: true
-
-        custom_formats:
           # Anime BD Release Groups
           - trash_ids:
               - 949c16fe0a8147f50ba82cc2df9411c9 # Anime BD Tier 01 (Top SeaDex Muxers)
@@ -112,7 +103,7 @@ data:
             assign_scores_to:
               - name: Anime
 
-          # Misc
+          # Anime Misc
           - trash_ids:
               - ec8fa7296b64e8cd390a1600f4c2510c # Repack/Proper
               - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
@@ -200,6 +191,9 @@ data:
           - name: WEB-1080p
             reset_unmatched_scores:
               enabled: true
+          - name: Anime
+            reset_unmatched_scores:
+              enabled: true
 
         custom_formats:
           # Unwanted
@@ -260,19 +254,6 @@ data:
             assign_scores_to:
               - name: WEB-1080p
 
-      radarr-anime:
-        base_url: http://radarr.media.svc:7878
-        api_key: !env_var RADARR_API_KEY
-
-        quality_definition:
-          type: movie
-
-        quality_profiles:
-          - name: Anime
-            reset_unmatched_scores:
-              enabled: true
-
-        custom_formats:
           # Anime BD Release Groups
           - trash_ids:
               - fb3ccc5d5cc8f77c9055d4cb4561dded # Anime BD Tier 01 (Top SeaDex Muxers)
@@ -294,7 +275,7 @@ data:
             assign_scores_to:
               - name: Anime
 
-          # Misc
+          # Anime Misc
           - trash_ids:
               - e7718d7a3ce595f289bfee26adc178f1 # Repack/Proper
               - ae43b294509409a6a13919dedd4764c4 # Repack2
