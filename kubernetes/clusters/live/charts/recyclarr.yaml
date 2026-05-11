@@ -18,6 +18,7 @@ controllers:
         runAsNonRoot: true
         runAsUser: 568
         runAsGroup: 568
+        fsGroup: 568
         seccompProfile:
           type: RuntimeDefault
 
@@ -62,7 +63,10 @@ controllers:
 
 persistence:
   config-dir:
-    type: emptyDir
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: fast
     advancedMounts:
       recyclarr:
         app:
