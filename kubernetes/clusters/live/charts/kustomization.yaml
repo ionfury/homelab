@@ -11,6 +11,7 @@ configMapGenerator:
     files:
       - authelia.yaml
       - bazarr.yaml
+      - booter.yaml
       - exportarr.yaml
       - factorio.yaml
       - flaresolverr.yaml
@@ -28,7 +29,6 @@ configMapGenerator:
       - open-webui.yaml
       - paperless.yaml
       - prowlarr.yaml
-      - pxe-boot.yaml
       - qbittorrent.yaml
       - radarr.yaml
       - radarr4k.yaml

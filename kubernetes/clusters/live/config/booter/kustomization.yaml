@@ -5,5 +5,4 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - network-policy.yaml
-  - configmap-custom-ipxe.yaml
-  - configmap-boot-cfg.yaml
+  - prometheus-rule.yaml

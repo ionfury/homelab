@@ -85,8 +85,8 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
-    - name: pxe-boot
-      namespace: pxe-boot
+    - name: booter
+      namespace: booter
       chart:
         name: app-template
         version: "${app_template_version}"
