@@ -24,6 +24,10 @@ data:
           - name: WEB-1080p
             reset_unmatched_scores:
               enabled: true
+            upgrade:
+              allowed: true
+              until_quality: Bluray-1080p
+              until_score: 10000
             qualities:
               - name: WEB 1080p
                 qualities:
@@ -34,6 +38,10 @@ data:
           - name: Anime
             reset_unmatched_scores:
               enabled: true
+            upgrade:
+              allowed: true
+              until_quality: Bluray-1080p Remux
+              until_score: 10000
             qualities:
               - name: Bluray-1080p Remux
               - name: WEB 1080p
@@ -197,8 +205,12 @@ data:
           - name: WEB-1080p
             reset_unmatched_scores:
               enabled: true
+            upgrade:
+              allowed: true
+              until_quality: Remux-1080p
+              until_score: 10000
             qualities:
-              - name: Bluray-1080p Remux
+              - name: Remux-1080p
               - name: WEB 1080p
                 qualities:
                   - WEBDL-1080p
@@ -208,8 +220,12 @@ data:
           - name: Anime
             reset_unmatched_scores:
               enabled: true
+            upgrade:
+              allowed: true
+              until_quality: Remux-1080p
+              until_score: 10000
             qualities:
-              - name: Bluray-1080p Remux
+              - name: Remux-1080p
               - name: WEB 1080p
                 qualities:
                   - WEBDL-1080p
