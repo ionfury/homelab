@@ -6,18 +6,14 @@ metadata:
   name: booter
   namespace: booter
 spec:
-  description: "booter: proxyDHCP UDP 67, TFTP UDP 69, TFTP proxy UDP 4011, HTTP TCP 50084 from citadel VLAN; egress to DNS and Talos image factory"
+  description: "booter: TFTP UDP 69, HTTP TCP 50084 from citadel VLAN; egress to DNS and Talos image factory"
   endpointSelector: { }
   ingress:
     - fromCIDR:
         - ${cluster_node_subnet}
       toPorts:
         - ports:
-            - port: "67"
-              protocol: UDP
             - port: "69"
-              protocol: UDP
-            - port: "4011"
               protocol: UDP
             - port: "50084"
               protocol: TCP

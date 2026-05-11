@@ -12,20 +12,20 @@ spec:
   groups:
     - name: booter.rules
       rules:
-        - alert: BooerDaemonSetNotFullyReady
+        - alert: BooterDeploymentNotFullyReady
           expr: |
             (
-              kube_daemonset_status_number_ready{namespace="booter", daemonset="booter"}
-              / kube_daemonset_status_desired_number_scheduled{namespace="booter", daemonset="booter"}
+              kube_deployment_status_replicas_ready{namespace="booter", deployment="booter"}
+              / kube_deployment_spec_replicas{namespace="booter", deployment="booter"}
             ) < 1
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "Booter DaemonSet is not fully ready on all nodes"
-            description: "{{ $value | humanizePercentage }} of booter pods are ready. PXE booting may be unavailable on some nodes."
+            summary: "Booter Deployment is not fully ready"
+            description: "{{ $value | humanizePercentage }} of booter pods are ready. PXE booting may be unavailable."
 
-        - alert: BooerBootAssetUnreachable
+        - alert: BooterBootAssetUnreachable
           expr: |
             probe_success{job="blackbox", instance=~"https://pxe.factory.talos.dev/.*"} == 0
           for: 5m
