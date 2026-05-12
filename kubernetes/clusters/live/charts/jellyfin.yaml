@@ -71,6 +71,22 @@ service:
         port: 8096
 
 persistence:
+  cache:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass: fast
+    advancedMounts:
+      jellyfin:
+        - path: /cache
+  transcodes:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 16Gi
+    advancedMounts:
+      jellyfin:
+        app:
+          - path: /transcodes
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
