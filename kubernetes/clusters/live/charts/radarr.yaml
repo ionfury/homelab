@@ -87,6 +87,14 @@ service:
         port: 7878
 
 persistence:
+  tmp:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 1Gi
+    advancedMounts:
+      radarr:
+        app:
+          - path: /tmp
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce

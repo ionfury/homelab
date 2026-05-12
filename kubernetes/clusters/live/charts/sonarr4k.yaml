@@ -87,6 +87,14 @@ service:
         port: 8989
 
 persistence:
+  tmp:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 1Gi
+    advancedMounts:
+      sonarr4k:
+        app:
+          - path: /tmp
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
