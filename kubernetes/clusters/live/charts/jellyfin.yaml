@@ -78,7 +78,8 @@ persistence:
     storageClass: fast
     advancedMounts:
       jellyfin:
-        - path: /cache
+        app:
+          - path: /cache
   transcodes:
     type: emptyDir
     medium: Memory
