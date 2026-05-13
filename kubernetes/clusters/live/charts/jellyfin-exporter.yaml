@@ -21,7 +21,7 @@ controllers:
           repository: rebelcore/jellyfin-exporter
           tag: "${jellyfin_exporter_version}"
         env:
-          JELLYFIN_ADDRESS: http://jellyfin-app.media.svc:8096
+          JELLYFIN_ADDRESS: http://jellyfin.media.svc:8096
         envFrom:
           - secretRef:
               name: jellyfin-exporter-api-token
