@@ -73,9 +73,8 @@ controllers:
           tag: "${qbittorrent_version}"
         env:
           QBT_WEBUI_PORT: "8080"
-          QBT_BitTorrent__Session__DefaultSavePath: /media/downloads/complete
-          QBT_BitTorrent__Session__TempPath: /media/downloads/incomplete
-          QBT_BitTorrent__Session__TempPathEnabled: "true"
+          QBT_BitTorrent__Session__DefaultSavePath: /media/downloads
+          QBT_BitTorrent__Session__TempPathEnabled: "false"
           QBT_BitTorrent__Session__Interface: tun0
           QBT_BitTorrent__Session__InterfaceName: tun0
         securityContext:
