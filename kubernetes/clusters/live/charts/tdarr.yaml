@@ -110,7 +110,7 @@ persistence:
       tdarr:
         app:
           - path: /media/library
-            readOnly: true
+            readOnly: false
   transcode-cache:
     type: emptyDir
     advancedMounts:
