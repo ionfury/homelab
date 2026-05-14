@@ -77,6 +77,10 @@ controllers:
           QBT_BitTorrent__Session__TempPathEnabled: "false"
           QBT_BitTorrent__Session__Interface: tun0
           QBT_BitTorrent__Session__InterfaceName: tun0
+          QBT_BitTorrent__Session__GlobalMaxRatio: "1.0"
+          QBT_BitTorrent__Session__GlobalMaxSeedingMinutes: "60"
+          QBT_BitTorrent__Session__ShareLimitAction: "3"
+          QBT_BitTorrent__Session__ShareLimitsMode: "0"
         securityContext:
           runAsUser: 568
           runAsGroup: 568
