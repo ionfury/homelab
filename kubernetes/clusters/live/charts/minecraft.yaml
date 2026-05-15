@@ -45,6 +45,13 @@ controllers:
           # Container runs as UID 1000 internally via gosu
           UID: "1000"
           GID: "1000"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
         resources:
           requests:
             cpu: 500m
@@ -98,6 +105,13 @@ controllers:
           SRC_DIR: /data/world
           DEST_DIR: /backups
           BACKUP_METHOD: tar
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
         resources:
           requests:
             cpu: 50m

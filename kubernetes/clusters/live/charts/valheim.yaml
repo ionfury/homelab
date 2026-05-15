@@ -44,6 +44,13 @@ controllers:
           BACKUPS_MAX_COUNT: "10"
           BACKUPS_IF_IDLE: "true"
           BACKUPS_IDLE_GRACE_PERIOD: "3600"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
         resources:
           requests:
             cpu: "4"
