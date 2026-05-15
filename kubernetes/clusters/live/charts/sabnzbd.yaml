@@ -32,7 +32,7 @@ controllers:
             sabnzbd.media.svc,
             sabnzbd.media.svc.cluster,
             sabnzbd.media.svc.cluster.local,
-            sabnzbd.internal.tomnowak.work
+            sabnzbd.${internal_domain}
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
