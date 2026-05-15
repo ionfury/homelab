@@ -18,6 +18,86 @@ spec:
   hostnames:
     - "join.${external_domain}"
   rules:
-    - backendRefs:
+    # Invite redemption pages
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /invite
+      backendRefs:
         - name: jfa-go
           port: 8056
+    # User self-service account pages
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /my
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    # Account creation API (POST from invite form)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /user
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    # CAPTCHA generation and validation for invite forms
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /captcha
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    # Auth token login and refresh
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /token
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    # Language files for invite and user pages
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /lang
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    # Static assets (JS/CSS) required by invite and user pages
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /js
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /css
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    # Password reset page
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /reset
+      backendRefs:
+        - name: jfa-go
+          port: 8056
+    # Redirect everything else (admin panel, admin APIs) to invite page
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /invite
+            statusCode: 302
