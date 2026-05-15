@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - bazarr-internal.yaml
   - jfa-go-external.yaml
+  - jfa-go-internal.yaml
   - jellyfin-external.yaml
   - jellyseerr-external.yaml
   - tdarr-internal.yaml
