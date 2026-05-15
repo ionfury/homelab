@@ -33,6 +33,7 @@ configMapGenerator:
       - radarr.yaml
       - radarr4k.yaml
       - recyclarr.yaml
+      - sabnzbd.yaml
       - satisfactory.yaml
       - sonarr.yaml
       - sonarr4k.yaml

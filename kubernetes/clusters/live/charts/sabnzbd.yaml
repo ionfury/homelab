@@ -1,0 +1,92 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  sabnzbd:
+    type: deployment
+
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: lscr.io/linuxserver/sabnzbd
+          tag: "${sabnzbd_version}"
+        env:
+          PUID: "568"
+          PGID: "568"
+          TZ: UTC
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api?mode=version
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api?mode=version
+                port: 8080
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api?mode=version
+                port: 8080
+              periodSeconds: 10
+
+service:
+  app:
+    controller: sabnzbd
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: fast
+    advancedMounts:
+      sabnzbd:
+        app:
+          - path: /config
+  media-downloads:
+    type: persistentVolumeClaim
+    existingClaim: media-downloads
+    advancedMounts:
+      sabnzbd:
+        app:
+          - path: /media/downloads
