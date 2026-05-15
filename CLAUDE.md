@@ -63,6 +63,11 @@ If uncertain:
 - NEVER commit secrets — use external secret systems
 - NEVER commit generated artifacts or caches
 
+## Container Images
+
+- NEVER use linuxserver.io images (`lscr.io/linuxserver/*`) — ever, for any app
+- Use official upstream images or distroless alternatives instead
+
 ## Destructive Operations
 
 Require explicit human approval:
