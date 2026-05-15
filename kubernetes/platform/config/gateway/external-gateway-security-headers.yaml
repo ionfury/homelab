@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/networking.istio.io/envoyfilter_v1alpha3.json
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: external-gateway-security-headers
+spec:
+  workloadSelector:
+    labels:
+      gateway.networking.k8s.io/gateway-name: external
+  configPatches:
+    - applyTo: VIRTUAL_HOST
+      match:
+        context: GATEWAY
+      patch:
+        operation: MERGE
+        value:
+          response_headers_to_add:
+            - header:
+                key: Strict-Transport-Security
+                value: "max-age=31536000; includeSubDomains; preload"
+              append: false
+            - header:
+                key: X-Content-Type-Options
+                value: "nosniff"
+              append: false
+            - header:
+                key: X-Frame-Options
+                value: "DENY"
+              append: false
+            - header:
+                key: Referrer-Policy
+                value: "strict-origin-when-cross-origin"
+              append: false
+            - header:
+                key: Permissions-Policy
+                value: "camera=(), microphone=(), geolocation=()"
+              append: false

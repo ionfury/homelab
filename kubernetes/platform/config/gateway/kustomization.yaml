@@ -11,4 +11,5 @@ resources:
   - coraza-config.yaml
   - coraza-waf-rules.yaml
   - external-gateway-ratelimit.yaml
+  - external-gateway-security-headers.yaml
   - platform-auth-policy.yaml
