@@ -25,4 +25,6 @@ spec:
               - "radarr4k.${internal_domain}"
               - "sonarr.${internal_domain}"
               - "sonarr4k.${internal_domain}"
+              - "sabnzbd.${internal_domain}"
               - "qbittorrent.${internal_domain}"
+              - "tdarr.${internal_domain}"
