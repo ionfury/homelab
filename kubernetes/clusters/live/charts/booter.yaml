@@ -19,9 +19,14 @@ controllers:
           limits:
             memory: 256Mi
         securityContext:
+          allowPrivilegeEscalation: false
           capabilities:
+            drop: ["ALL"]
             add:
               - NET_BIND_SERVICE
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
 
 defaultPodOptions:
   affinity:
