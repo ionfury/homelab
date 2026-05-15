@@ -27,34 +27,38 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  ruler:
-    enable_api: true
+  rulerConfig:
+    wal:
+      dir: /var/loki/ruler-wal
     storage:
       type: local
       local:
-        directory: /var/loki/rules
+        directory: /etc/loki/rules
     alertmanager_url: http://alertmanager-operated.monitoring.svc.cluster.local:9093
     evaluation_interval: 1m
     ring:
       kvstore:
         store: inmemory
-  rulerConfig:
-    alerting_rules:
-      fake:
-        - name: waf-detection
-          interval: 5m
-          rules:
-            - alert: CorazaWAFDetectionAnomaly
-              expr: |
-                sum(count_over_time({namespace="istio-gateway", container="istio-proxy"} |= "Coraza" [5m])) > 50
-              for: 10m
-              labels:
-                severity: warning
-              annotations:
-                summary: "Coraza WAF PL2 detection rules firing frequently"
-                description: "More than 50 WAF detection-only matches in 5 minutes. Review Grafana WAF dashboard to identify false positives before promoting PL2 to blocking."
   limits_config:
     retention_period: 14d
+ruler:
+  enabled: true
+  directories:
+    fake:
+      rules.yaml: |
+        groups:
+          - name: waf-detection
+            interval: 5m
+            rules:
+              - alert: CorazaWAFDetectionAnomaly
+                expr: |
+                  sum(count_over_time({namespace="istio-gateway", container="istio-proxy"} |= "Coraza" [5m])) > 50
+                for: 10m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: "Coraza WAF PL2 detection rules firing frequently"
+                  description: "More than 50 WAF detection-only matches in 5 minutes. Review Grafana WAF dashboard to identify false positives before promoting PL2 to blocking."
 singleBinary:
   replicas: 1
   priorityClassName: platform
