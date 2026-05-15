@@ -21,7 +21,8 @@ data:
           type: series
 
         quality_profiles:
-          - name: WEB-1080p
+          - name: Default
+            min_format_score: -10000
             reset_unmatched_scores:
               enabled: true
             upgrade:
@@ -35,22 +36,14 @@ data:
                   - WEBRip-1080p
               - name: Bluray-1080p
               - name: HDTV-1080p
-          - name: Anime
-            reset_unmatched_scores:
-              enabled: true
-            upgrade:
-              allowed: true
-              until_quality: Bluray-1080p Remux
-              until_score: 10000
-            qualities:
-              - name: Bluray-1080p Remux
-              - name: WEB 1080p
+              - name: Bluray-720p
+              - name: WEB 720p
                 qualities:
-                  - WEBDL-1080p
-                  - WEBRip-1080p
-              - name: Bluray-1080p
-              - name: HDTV-1080p
-          - name: Anime Fallback
+                  - WEBDL-720p
+                  - WEBRip-720p
+              - name: HDTV-720p
+              - name: DVD
+          - name: Anime
             min_format_score: -10000
             reset_unmatched_scores:
               enabled: true
@@ -79,7 +72,7 @@ data:
           - trash_ids:
               - 505d871304820ba7106b693be6fe4a9e # HDR
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
                 score: -10000
 
           # Streaming Services
@@ -101,7 +94,7 @@ data:
               - 1efe8da11bfd74fbbcd4d8117ddb9213 # STAN
               - 5d2317d99af813b6529c7ebf01c83533 # VDL
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
 
           # HQ Release Groups
           - trash_ids:
@@ -109,7 +102,7 @@ data:
               - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
               - d84935abd3f8556dcd51d4f27e22d0a6 # WEB Tier 03
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
 
           # Misc
           - trash_ids:
@@ -117,7 +110,7 @@ data:
               - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
               - 44e7c4de10ae50265753082e5dc76047 # Repack v3
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
 
           # Anime BD Release Groups
           - trash_ids:
@@ -131,7 +124,6 @@ data:
               - c81bbfb47fed3d5a3ad027d077f889de # Anime BD Tier 08 (Mini Encodes)
             assign_scores_to:
               - name: Anime
-              - name: Anime Fallback
 
           # Anime Web Release Groups
           - trash_ids:
@@ -140,7 +132,6 @@ data:
               - c27f2ae6a4e82373b0f1da094e2489ad # Anime Web Tier 03 (FanSubs)
             assign_scores_to:
               - name: Anime
-              - name: Anime Fallback
 
           # Anime Misc
           - trash_ids:
@@ -149,13 +140,12 @@ data:
               - 44e7c4de10ae50265753082e5dc76047 # Repack v3
             assign_scores_to:
               - name: Anime
-              - name: Anime Fallback
 
           # Language
           - trash_ids:
               - 69aa1e159f97d860440b04cd6d590c4f # Language: Not English
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
                 score: -10000
 
           # Anime Language
@@ -164,15 +154,20 @@ data:
             assign_scores_to:
               - name: Anime
                 score: 100
-              - name: Anime Fallback
-                score: 100
           - trash_ids:
               - 9c14d194486c4014d422adc64092d794 # Dubs Only
             assign_scores_to:
               - name: Anime
                 score: -10000
-              - name: Anime Fallback
-                score: -10000
+
+          # Resolution
+          - trash_ids:
+              - c99279ee27a154c2f20d1d505cc99e25 # Resolution: 720p
+            assign_scores_to:
+              - name: Default
+                score: -1000
+              - name: Anime
+                score: -1000
 
       sonarr4k:
         base_url: http://sonarr4k.media.svc:8989
@@ -258,7 +253,8 @@ data:
           type: movie
 
         quality_profiles:
-          - name: WEB-1080p
+          - name: Default
+            min_format_score: -10000
             reset_unmatched_scores:
               enabled: true
             upgrade:
@@ -273,22 +269,14 @@ data:
                   - WEBRip-1080p
               - name: Bluray-1080p
               - name: HDTV-1080p
+              - name: Bluray-720p
+              - name: WEB 720p
+                qualities:
+                  - WEBDL-720p
+                  - WEBRip-720p
+              - name: HDTV-720p
+              - name: DVD
           - name: Anime
-            reset_unmatched_scores:
-              enabled: true
-            upgrade:
-              allowed: true
-              until_quality: Remux-1080p
-              until_score: 10000
-            qualities:
-              - name: Remux-1080p
-              - name: WEB 1080p
-                qualities:
-                  - WEBDL-1080p
-                  - WEBRip-1080p
-              - name: Bluray-1080p
-              - name: HDTV-1080p
-          - name: Anime Fallback
             min_format_score: -10000
             reset_unmatched_scores:
               enabled: true
@@ -324,9 +312,7 @@ data:
               - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
               - a5d148168c4506b55cf53984107c396e # 10bit
             assign_scores_to:
-              - name: WEB-1080p
-              - name: Anime Fallback
-                score: 0
+              - name: Default
 
           # Movie Versions
           - trash_ids:
@@ -337,7 +323,7 @@ data:
               - 9d27d9d2181838f76dee150882bdc58c # Masters of Cinema
               - db9b4c4b53d312a3ca5f1378f6440fc9 # Vinegar Syndrome
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
 
           # HQ Release Groups
           - trash_ids:
@@ -345,7 +331,7 @@ data:
               - 403816d65392c79236dcb6dd591aeda4 # WEB Tier 02
               - af94e0fe497124d1f9ce732069ec8c3b # WEB Tier 03
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
 
           # Streaming Services
           - trash_ids:
@@ -364,14 +350,14 @@ data:
               - bf7e73dd1d85b12cc527dc619761c840 # Pathe
               - c2863d2a50c9acad1fb50e53ece60817 # STAN
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
 
           # Misc
           - trash_ids:
               - e7718d7a3ce595f289bfee26adc178f5 # Repack/Proper
               - ae43b294509409a6a13919dedd4764c4 # Repack2
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
 
           # Anime BD Release Groups
           - trash_ids:
@@ -385,7 +371,6 @@ data:
               - 6115ccd6640b978234cc47f2c1f2cadc # Anime BD Tier 08 (Mini Encodes)
             assign_scores_to:
               - name: Anime
-              - name: Anime Fallback
 
           # Anime Web Release Groups
           - trash_ids:
@@ -394,7 +379,6 @@ data:
               - de41e72708d2c856fa261094c85e965d # Anime Web Tier 03 (FanSubs)
             assign_scores_to:
               - name: Anime
-              - name: Anime Fallback
 
           # Anime Misc
           - trash_ids:
@@ -402,13 +386,12 @@ data:
               - ae43b294509409a6a13919dedd4764c4 # Repack2
             assign_scores_to:
               - name: Anime
-              - name: Anime Fallback
 
           # Language
           - trash_ids:
               - 0dc8aec3bd1c47cd6c40c46ecd27e846 # Language: Not English
             assign_scores_to:
-              - name: WEB-1080p
+              - name: Default
                 score: -10000
 
           # Anime Language
@@ -417,15 +400,20 @@ data:
             assign_scores_to:
               - name: Anime
                 score: 100
-              - name: Anime Fallback
-                score: 100
           - trash_ids:
               - b23eae459cc960816f2d6ba84af45055 # Dubs Only
             assign_scores_to:
               - name: Anime
                 score: -10000
-              - name: Anime Fallback
-                score: -10000
+
+          # Resolution
+          - trash_ids:
+              - b2be17d608fc88818940cd1833b0b24c # Resolution: 720p
+            assign_scores_to:
+              - name: Default
+                score: -1000
+              - name: Anime
+                score: -1000
 
       radarr4k:
         base_url: http://radarr4k.media.svc:7878
