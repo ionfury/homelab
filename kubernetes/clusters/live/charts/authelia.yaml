@@ -367,7 +367,7 @@ configMap:
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
-            - https://vault.${external_domain}/identity/connect/oidc-signin
+            - https://vault.${internal_domain}/identity/connect/oidc-signin
           scopes:
             - openid
             - profile

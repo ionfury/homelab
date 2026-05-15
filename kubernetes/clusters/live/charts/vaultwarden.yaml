@@ -26,7 +26,7 @@ controllers:
           tag: "${vaultwarden_version}"
         env:
           # Core configuration
-          DOMAIN: "https://vault.${external_domain}"
+          DOMAIN: "https://vault.${internal_domain}"
           SIGNUPS_ALLOWED: "false"
           INVITATIONS_ALLOWED: "true"
           SHOW_PASSWORD_HINT: "false"
@@ -51,7 +51,7 @@ controllers:
           SSO_ENABLED: "true"
           SSO_ONLY: "true"
           SSO_PKCE: "true"
-          SSO_AUTHORITY: "https://auth.${external_domain}"
+          SSO_AUTHORITY: "https://auth.${internal_domain}"
           SSO_CLIENT_ID: "vaultwarden"
           SSO_CLIENT_SECRET:
             valueFrom:
