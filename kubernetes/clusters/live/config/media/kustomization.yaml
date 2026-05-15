@@ -15,6 +15,7 @@ resources:
   - prowlarr-internal.yaml
 
   - qbittorrent-internal.yaml
+  - sabnzbd-internal.yaml
   - canary-jfa-go.yaml
   - canary-jellyfin.yaml
   - canary-jellyseerr.yaml
