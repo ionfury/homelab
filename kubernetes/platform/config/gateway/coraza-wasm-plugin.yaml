@@ -28,6 +28,8 @@ spec:
           HEAD POST OPTIONS PUT PATCH DELETE'"
         - SecAction
           "id:900002,phase:1,pass,t:none,nolog,setvar:tx.inbound_anomaly_score_threshold=10"
+        - SecAction
+          "id:900003,phase:1,pass,t:none,nolog,setvar:tx.detection_paranoia_level=2"
         - Include @owasp_crs/*.conf
         - SecRuleEngine On
         - SecRule REQUEST_URI "@beginsWith /api/assets" "id:9000003,phase:1,pass,nolog,ctl:requestBodyAccess=Off"
