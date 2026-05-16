@@ -17,7 +17,7 @@ persistence:
   defaultClassReplicaCount: ${default_replica_count}
 defaultSettings:
   defaultReplicaCount: ${default_replica_count}
-  replicaAutobalance: best-effort
+  replicaAutoBalance: best-effort
   createDefaultDiskLabeledNodes: true
   storageReservedPercentageForDefaultDisk: 10
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
