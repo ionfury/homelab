@@ -24,7 +24,7 @@ defaultSettings:
   storageMinimalAvailablePercentage: 10
   orphanAutoDeletion: true
   autoCleanupSystemGeneratedSnapshot: true
-  snapshotMaxCount: 5
+  snapshotMaxCount: 3
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}
