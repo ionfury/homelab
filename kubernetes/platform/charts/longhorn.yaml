@@ -18,10 +18,13 @@ persistence:
 defaultSettings:
   defaultReplicaCount: ${default_replica_count}
   createDefaultDiskLabeledNodes: true
-  storageReservedPercentageForDefaultDisk: 0
+  storageReservedPercentageForDefaultDisk: 10
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
   storageOverProvisioningPercentage: 500
   storageMinimalAvailablePercentage: 10
+  orphanAutoDeletion: true
+  autoCleanupSystemGeneratedSnapshot: true
+  snapshotMaxCount: 5
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}
