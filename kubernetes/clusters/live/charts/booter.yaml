@@ -25,6 +25,7 @@ controllers:
               - NET_BIND_SERVICE
 
 defaultPodOptions:
+  hostNetwork: true
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
