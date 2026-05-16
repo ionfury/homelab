@@ -12,6 +12,7 @@ controllers:
         args:
           - --talos-version=${talos_version}
           - --schematic-id=${talos_pxe_schematic_id}
+          - --api-advertise-address=${booter_ip}
         resources:
           requests:
             cpu: 50m
