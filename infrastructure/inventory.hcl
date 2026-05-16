@@ -229,8 +229,8 @@ locals {
       }]
     }
     node44 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none"
-      type    = "none"
+      cluster = "live"
+      type    = "worker"
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
