@@ -105,13 +105,6 @@ controllers:
           SRC_DIR: /data/world
           DEST_DIR: /backups
           BACKUP_METHOD: tar
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop: [ALL]
-          runAsUser: 1000
-          runAsGroup: 1000
-          runAsNonRoot: true
         resources:
           requests:
             cpu: 50m
