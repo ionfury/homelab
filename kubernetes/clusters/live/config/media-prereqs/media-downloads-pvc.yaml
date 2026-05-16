@@ -7,7 +7,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: fast
+  storageClassName: slow
   resources:
     requests:
       storage: 1Ti
