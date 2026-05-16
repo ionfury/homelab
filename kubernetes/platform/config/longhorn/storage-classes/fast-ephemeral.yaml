@@ -8,7 +8,7 @@ allowVolumeExpansion: true
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 parameters:
-  numberOfReplicas: 1
+  numberOfReplicas: "1"
   fsType: xfs
   staleReplicaTimeout: "30"
   dataLocality: best-effort
