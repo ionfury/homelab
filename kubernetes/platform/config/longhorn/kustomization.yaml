@@ -7,5 +7,6 @@ resources:
   - prometheus-rules.yaml
   - recurring-jobs/filesystem-trim-daily.yaml
   - routes/
+  - storage-classes/fast-ephemeral.yaml
   - storage-classes/fast.yaml
   - storage-classes/slow.yaml

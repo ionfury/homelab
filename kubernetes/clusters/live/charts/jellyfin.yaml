@@ -81,9 +81,10 @@ persistence:
         app:
           - path: /cache
   transcodes:
-    type: emptyDir
-    medium: Memory
-    sizeLimit: 16Gi
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 200Gi
+    storageClass: fast-ephemeral
     advancedMounts:
       jellyfin:
         app:
