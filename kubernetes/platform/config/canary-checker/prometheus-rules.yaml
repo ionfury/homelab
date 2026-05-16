@@ -45,6 +45,7 @@ spec:
               last 15 minutes. Investigate potential intermittent issues.
 
     - name: canary-checker.sla
+      interval: 5m
       rules:
         - record: canary:availability:1h
           expr: |
