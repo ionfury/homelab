@@ -9,7 +9,7 @@ spec:
   schedule: "@every 1m"
   http:
     - name: external-gateway-health
-      url: https://join.${external_domain}/invite
+      url: https://join.${external_domain}/my/account
       responseCodes: [200]
       maxSSLExpiry: 7
       thresholdMillis: 5000
