@@ -27,18 +27,6 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  rulerConfig:
-    wal:
-      dir: /var/loki/ruler-wal
-    storage:
-      type: local
-      local:
-        directory: /etc/loki/rules
-    alertmanager_url: http://alertmanager-operated.monitoring.svc.cluster.local:9093
-    evaluation_interval: 1m
-    ring:
-      kvstore:
-        store: inmemory
   limits_config:
     retention_period: 14d
 singleBinary:
