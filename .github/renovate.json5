@@ -112,6 +112,9 @@
       "matchDepNames": [
         "talos"
       ],
+      "excludeDepNames": [
+        "siderolabs/talos"
+      ],
       "groupName": "talos",
       "automerge": true
     },
@@ -211,7 +214,7 @@
       "matchManagers": [
         "terraform"
       ],
-      "matchDepNames": [
+      "matchPackageNames": [
         "siderolabs/talos"
       ],
       "allowedVersions": "< 0.11.0"
