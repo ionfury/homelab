@@ -96,7 +96,7 @@ startupProbe:
 
 livenessProbe:
   httpGet:
-    path: /health
+    path: /health/db
     port: http
   periodSeconds: 30
 
