@@ -22,7 +22,6 @@ defaultSettings:
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
   storageOverProvisioningPercentage: 500
   storageMinimalAvailablePercentage: 10
-  orphanResourceAutoDeletion: true
   autoCleanupSystemGeneratedSnapshot: true
   snapshotMaxCount: 3
 csi:

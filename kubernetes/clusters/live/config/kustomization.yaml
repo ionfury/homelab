@@ -16,7 +16,6 @@ resources:
   - paperless
   - firefly
   - homepage
-  - longhorn-snapshots
   - velero
   - silences
   - cluster-config-resourceset.yaml
