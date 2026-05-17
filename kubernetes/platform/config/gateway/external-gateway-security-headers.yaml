@@ -25,10 +25,6 @@ spec:
                 value: "nosniff"
               append: false
             - header:
-                key: X-Frame-Options
-                value: "DENY"
-              append: false
-            - header:
                 key: Referrer-Policy
                 value: "strict-origin-when-cross-origin"
               append: false
