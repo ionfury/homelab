@@ -10,6 +10,13 @@ controllers:
 
     containers:
       app:
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
         image:
           repository: fireflyiii/core
           tag: ${firefly_version}
