@@ -8,6 +8,8 @@ monitoring:
   podMonitorEnabled: true
   grafanaDashboard:
     create: true
+    annotations:
+      grafana_folder: "Database"
 resources:
   requests:
     cpu: 10m
