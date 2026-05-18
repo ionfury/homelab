@@ -217,7 +217,7 @@ spec:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: [sonarr, radarr, prowlarr]
+      dependsOn: [sonarr, radarr, sonarr4k, radarr4k, bazarr, sabnzbd]
     - name: paperless
       namespace: paperless
       chart:

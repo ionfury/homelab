@@ -171,6 +171,230 @@ controllers:
                 port: 9709
               periodSeconds: 10
 
+  sonarr4k:
+    type: deployment
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/onedr0p/exportarr
+          tag: "${exportarr_version}"
+        args: ["sonarr"]
+        env:
+          PORT: "9710"
+          URL: "http://sonarr4k.media.svc.cluster.local:8989"
+          API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sonarr4k-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9710
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9710
+              periodSeconds: 10
+
+  radarr4k:
+    type: deployment
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/onedr0p/exportarr
+          tag: "${exportarr_version}"
+        args: ["radarr"]
+        env:
+          PORT: "9711"
+          URL: "http://radarr4k.media.svc.cluster.local:7878"
+          API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr4k-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9711
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9711
+              periodSeconds: 10
+
+  bazarr:
+    type: deployment
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/onedr0p/exportarr
+          tag: "${exportarr_version}"
+        args: ["bazarr"]
+        env:
+          PORT: "9712"
+          URL: "http://bazarr.media.svc.cluster.local:6767"
+          API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: bazarr-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9712
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9712
+              periodSeconds: 10
+
+  sabnzbd:
+    type: deployment
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/onedr0p/exportarr
+          tag: "${exportarr_version}"
+        args: ["sabnzbd"]
+        env:
+          PORT: "9713"
+          URL: "http://sabnzbd.media.svc.cluster.local:8080"
+          API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sabnzbd-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9713
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 9713
+              periodSeconds: 10
+
 service:
   sonarr:
     controller: sonarr
@@ -187,11 +411,31 @@ service:
     ports:
       metrics:
         port: 9709
+  sonarr4k:
+    controller: sonarr4k
+    ports:
+      metrics:
+        port: 9710
+  radarr4k:
+    controller: radarr4k
+    ports:
+      metrics:
+        port: 9711
+  bazarr:
+    controller: bazarr
+    ports:
+      metrics:
+        port: 9712
+  sabnzbd:
+    controller: sabnzbd
+    ports:
+      metrics:
+        port: 9713
 
 serviceMonitor:
   sonarr:
     enabled: true
-    serviceName: sonarr
+    serviceName: exportarr-sonarr
     endpoints:
       - port: metrics
         scheme: http
@@ -200,7 +444,7 @@ serviceMonitor:
         scrapeTimeout: 90s
   radarr:
     enabled: true
-    serviceName: radarr
+    serviceName: exportarr-radarr
     endpoints:
       - port: metrics
         scheme: http
@@ -209,7 +453,43 @@ serviceMonitor:
         scrapeTimeout: 90s
   prowlarr:
     enabled: true
-    serviceName: prowlarr
+    serviceName: exportarr-prowlarr
+    endpoints:
+      - port: metrics
+        scheme: http
+        path: /metrics
+        interval: 4m
+        scrapeTimeout: 90s
+  sonarr4k:
+    enabled: true
+    serviceName: exportarr-sonarr4k
+    endpoints:
+      - port: metrics
+        scheme: http
+        path: /metrics
+        interval: 4m
+        scrapeTimeout: 90s
+  radarr4k:
+    enabled: true
+    serviceName: exportarr-radarr4k
+    endpoints:
+      - port: metrics
+        scheme: http
+        path: /metrics
+        interval: 4m
+        scrapeTimeout: 90s
+  bazarr:
+    enabled: true
+    serviceName: exportarr-bazarr
+    endpoints:
+      - port: metrics
+        scheme: http
+        path: /metrics
+        interval: 4m
+        scrapeTimeout: 90s
+  sabnzbd:
+    enabled: true
+    serviceName: exportarr-sabnzbd
     endpoints:
       - port: metrics
         scheme: http
