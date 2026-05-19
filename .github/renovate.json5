@@ -224,6 +224,17 @@
       // to prevent phantom versions that 404 on install
       "matchManagers": ["mise"],
       "matchPackageNames": ["FairwindsOps/pluto"],
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "FairwindsOps/pluto",
+      "extractVersion": "^v(?<version>.+)$"
+    },
+    {
+      // cilium-cli aqua datasource diverges from GitHub releases - force github-releases
+      // to prevent phantom versions that 404 on install
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["cilium/cilium-cli"],
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "cilium/cilium-cli",
       "extractVersion": "^v(?<version>.+)$"
     }
   ]
