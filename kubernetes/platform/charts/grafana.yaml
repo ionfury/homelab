@@ -273,11 +273,6 @@ dashboards:
       gnetId: 9578
       revision: 4
       datasource: Prometheus
-    loki-logs:
-      # renovate: depName="Loki Logs Dashboard"
-      gnetId: 15324
-      revision: 1
-      datasource: Loki
   database:
     cloudnative-pg:
       # renovate: depName="CloudNativePG"
