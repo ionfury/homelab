@@ -19,6 +19,7 @@ These skills are composed by agents internally — not invoked directly by users
 | `flux-gitops` | Flux ResourceSet patterns for HelmRelease management | implementer | - | - |
 | `gateway-routing` | Gateway API routing, TLS certificates, and WAF configuration | implementer | - | - |
 | `gha-pipelines` | GitHub Actions CI/CD workflows, validation pipelines, OCI promotion | implementer | - | - |
+| `dashboard-design` | Visual design and layout for Grafana dashboards — hierarchy, panel selection, color/thresholds, Playwright review | implementer | - | - |
 | `grafana-dashboards` | MCP-driven Grafana dashboard authoring with visual iteration | implementer | - | - |
 | `instruction-eval` | Behavioral regression testing for skill/CLAUDE.md changes | orchestrator | test-cases.md | run-eval.py |
 | `k8s` | Kubernetes cluster access, kubectl, and Flux operations | troubleshooter, implementer, designer | - | - |

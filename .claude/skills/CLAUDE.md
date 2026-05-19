@@ -8,7 +8,7 @@ All skills are agent-loaded (not invoked directly). See [references/skill-invent
 
 **Deployment / K8s**: `deploy-app`, `flux-gitops`, `app-template`, `k8s`, `gateway-routing`, `network-policy`, `cnpg-database`, `secrets`
 **Infrastructure**: `terragrunt`, `opentofu-modules`, `versions-renovate`, `gha-pipelines`
-**Observability**: `monitoring-authoring`, `grafana-dashboards`, `prometheus`, `loki`, `sre`
+**Observability**: `monitoring-authoring`, `grafana-dashboards`, `dashboard-design`, `prometheus`, `loki`, `sre`
 **Research / Authoring**: `kubesearch`, `taskfiles`, `architecture-review`
 **Pipeline / Ops**: `promotion-pipeline`, `security-testing`, `self-improvement`, `sync-claude`, `instruction-eval`
 
