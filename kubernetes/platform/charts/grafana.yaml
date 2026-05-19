@@ -285,11 +285,6 @@ dashboards:
       revision: 4
       datasource: Prometheus
   sre:
-    kubernetes-capacity-planning:
-      # renovate: depName="Kubernetes Capacity Planning"
-      gnetId: 5499
-      revision: 1
-      datasource: Prometheus
     golden-signals:
       # renovate: depName="Monitoring Golden Signals"
       gnetId: 21073
