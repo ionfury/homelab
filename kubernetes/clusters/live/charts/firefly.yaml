@@ -15,6 +15,7 @@ controllers:
           capabilities:
             drop: ["ALL"]
           runAsNonRoot: true
+          runAsUser: 33
           seccompProfile:
             type: RuntimeDefault
         image:
