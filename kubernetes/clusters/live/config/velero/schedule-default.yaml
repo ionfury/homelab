@@ -13,6 +13,9 @@ spec:
       - csi
     snapshotMoveData: true
     ttl: 672h0m0s
+    includedResources:
+      - persistentvolumeclaims
+    includeClusterResources: false
     includedNamespaces:
       - immich
       - satisfactory
