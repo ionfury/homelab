@@ -81,6 +81,7 @@ Require explicit human approval:
 - No force push or history rewriting
 - Always use PR workflow
 - Use isolated worktrees for changes
+- After creating a worktree branch, immediately run `git push -u origin <branch>` to establish remote tracking — this enables `fetch --prune` to detect merged branches and keeps local state clean
 
 ## Kubernetes Safety
 
