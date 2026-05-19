@@ -106,6 +106,10 @@ kube-state-metrics:
 grafana:
   enabled: false
   forceDeployDashboards: true
+  sidecar:
+    dashboards:
+      annotations:
+        grafana_folder: "Kubernetes"
 defaultRules:
   create: true
   disabled:

@@ -127,14 +127,6 @@ dashboardProviders:
         editable: true
         options:
           path: /var/lib/grafana/dashboards/database
-      - name: power
-        orgId: 1
-        folder: Power
-        type: file
-        disableDeletion: false
-        editable: true
-        options:
-          path: /var/lib/grafana/dashboards/power
       - name: sre
         orgId: 1
         folder: SRE
@@ -193,12 +185,6 @@ dashboards:
       url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/control-plane.json
       datasource: Prometheus
   network:
-    cloudflared:
-      # renovate: depName="Cloudflare Tunnels (cloudflared)"
-      gnetId: 17457
-      revision: 6
-      datasource:
-        - { name: DS_PROMETHEUS, value: Prometheus }
     istio-mesh:
       url: https://raw.githubusercontent.com/istio/istio/master/manifests/addons/dashboards/istio-mesh-dashboard.gen.json
       datasource: Prometheus
@@ -273,26 +259,13 @@ dashboards:
       revision: 2
       datasource: Prometheus
   applications:
-    miniflux:
-      url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
-      datasource: Prometheus
     exportarr:
       url: https://raw.githubusercontent.com/onedr0p/exportarr/master/examples/grafana/dashboard2.json
-      datasource: Prometheus
-    unpackerr:
-      # renovate: depName="Unpackerr"
-      gnetId: 18817
-      revision: 1
       datasource: Prometheus
   platform-services:
     cert-manager:
       # renovate: depName="Cert-manager-Kubernetes"
       gnetId: 20842
-      revision: 3
-      datasource: Prometheus
-    external-dns:
-      # renovate: depName="External-dns"
-      gnetId: 15038
       revision: 3
       datasource: Prometheus
     external-secrets:
@@ -317,12 +290,6 @@ dashboards:
     dragonfly:
       # renovate: depName="Dragonfly"
       gnetId: 11692
-      revision: 1
-      datasource: Prometheus
-  power:
-    apc-ups-snmp:
-      # renovate: depName="APC UPS (SNMP)"
-      gnetId: 12340
       revision: 1
       datasource: Prometheus
   sre:

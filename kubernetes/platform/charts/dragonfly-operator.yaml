@@ -26,3 +26,4 @@ serviceMonitor:
 
 grafanaDashboard:
   enabled: true
+  folder: Database
