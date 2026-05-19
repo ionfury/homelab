@@ -4,6 +4,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: media-library
   namespace: media
+  annotations:
+    velero.io/exclude-from-backup: "true"
 spec:
   accessModes:
     - ReadWriteMany
