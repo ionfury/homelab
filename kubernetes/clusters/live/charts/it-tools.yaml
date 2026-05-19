@@ -8,12 +8,6 @@ controllers:
 
     containers:
       app:
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop: ["ALL"]
-          seccompProfile:
-            type: RuntimeDefault
         image:
           repository: ghcr.io/corentinth/it-tools
           tag: "${it_tools_version}"
