@@ -40,7 +40,7 @@ controllers:
           DNS_KEEP_NAMESERVER: "on"
           DOT: "off"
           FIREWALL_OUTBOUND_SUBNETS: "172.18.0.0/16,172.19.0.0/16,192.168.10.0/24"
-          FIREWALL_INPUT_PORTS: "8080,9999"
+          FIREWALL_INPUT_PORTS: "8080,8090,9999"
           HEALTH_SERVER_ADDRESS: "0.0.0.0:9999"
         securityContext:
           runAsUser: 0
@@ -123,6 +123,55 @@ controllers:
                 port: 8080
               periodSeconds: 10
 
+      metrics:
+        image:
+          repository: ghcr.io/martabal/qbittorrent-exporter
+          tag: "${qbittorrent_exporter_version}"
+        env:
+          QBITTORRENT_BASE_URL: "http://localhost:8080"
+          EXPORTER_PORT: "8090"
+        securityContext:
+          runAsUser: 568
+          runAsGroup: 568
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 8090
+              initialDelaySeconds: 30
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 8090
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 8090
+              periodSeconds: 10
+
 service:
   app:
     controller: qbittorrent
@@ -131,6 +180,16 @@ service:
         port: 8080
       health:
         port: 9999
+      metrics:
+        port: 8090
+
+serviceMonitor:
+  app:
+    serviceName: qbittorrent-app
+    endpoints:
+      - port: metrics
+        interval: 60s
+        scrapeTimeout: 30s
 
 persistence:
   config:

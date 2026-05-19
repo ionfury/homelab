@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vaultwarden-metrics-token
+  namespace: vaultwarden
+  annotations:
+    secret-generator.v1.mittwald.de/autogenerate: token
+    secret-generator.v1.mittwald.de/length: "48"
+    secret-generator.v1.mittwald.de/encoding: hex
+data: { }

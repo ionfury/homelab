@@ -119,6 +119,37 @@ controllers:
           readiness:
             enabled: false
 
+      monitor:
+        image:
+          repository: itzg/mc-monitor
+          tag: "${mc_monitor_version}"
+        args:
+          - export-for-prometheus
+        env:
+          EXPORT_SERVERS: "localhost"
+          DEBUG: "false"
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        probes:
+          startup:
+            enabled: false
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+
 service:
   game:
     controller: minecraft
@@ -135,6 +166,20 @@ service:
       rcon:
         port: 25575
         protocol: TCP
+
+  metrics:
+    controller: minecraft
+    ports:
+      metrics:
+        port: 8080
+
+serviceMonitor:
+  metrics:
+    serviceName: minecraft-metrics
+    endpoints:
+      - port: metrics
+        interval: 60s
+        scrapeTimeout: 30s
 
 persistence:
   data:

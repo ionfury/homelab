@@ -59,6 +59,12 @@ controllers:
                 name: vaultwarden-oidc-client-secret
                 key: client-secret
           SSO_SCOPES: "openid profile email offline_access"
+          ENABLE_METRICS: "true"
+          METRICS_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-metrics-token
+                key: token
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -104,6 +110,18 @@ service:
     ports:
       http:
         port: 80
+
+serviceMonitor:
+  app:
+    serviceName: vaultwarden-app
+    endpoints:
+      - port: http
+        interval: 60s
+        scrapeTimeout: 30s
+        path: /metrics
+        bearerTokenSecret:
+          name: vaultwarden-metrics-token
+          key: token
 
 persistence:
   data:
