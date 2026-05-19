@@ -245,9 +245,6 @@ dashboards:
       revision: 2
       datasource:
         - { name: DS_PROMETHEUS, value: Prometheus }
-    node-feature-discovery:
-      url: https://raw.githubusercontent.com/kubernetes-sigs/node-feature-discovery/master/examples/grafana-dashboard.json
-      datasource: Prometheus
     ipmi-exporter:
       # renovate: depName="IPMI Exporter"
       gnetId: 15765
@@ -280,17 +277,12 @@ dashboards:
       # renovate: depName="Loki Logs Dashboard"
       gnetId: 15324
       revision: 1
-      datasource: Prometheus
+      datasource: Loki
   database:
     cloudnative-pg:
       # renovate: depName="CloudNativePG"
       gnetId: 20417
       revision: 4
-      datasource: Prometheus
-    dragonfly:
-      # renovate: depName="Dragonfly"
-      gnetId: 11692
-      revision: 1
       datasource: Prometheus
   sre:
     kubernetes-capacity-planning:
@@ -302,7 +294,8 @@ dashboards:
       # renovate: depName="Monitoring Golden Signals"
       gnetId: 21073
       revision: 1
-      datasource: Prometheus
+      datasource:
+        - { name: DS_GRAFANACLOUD-RUTU862-PROM, value: Prometheus }
 sidecar:
   dashboards:
     enabled: true
