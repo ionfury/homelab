@@ -111,6 +111,20 @@ persistence:
       radarr:
         app:
           - path: /media/downloads
+  sabnzbd-downloads:
+    type: persistentVolumeClaim
+    existingClaim: sabnzbd-downloads
+    advancedMounts:
+      radarr:
+        app:
+          - path: /downloads/sabnzbd
+  qbittorrent-downloads:
+    type: persistentVolumeClaim
+    existingClaim: qbittorrent-downloads
+    advancedMounts:
+      radarr:
+        app:
+          - path: /downloads/qbittorrent
   media-library:
     type: persistentVolumeClaim
     existingClaim: media-library
