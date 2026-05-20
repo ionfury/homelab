@@ -101,6 +101,13 @@ persistence:
       sabnzbd:
         app:
           - path: /media/downloads
+  sabnzbd-downloads:
+    type: persistentVolumeClaim
+    existingClaim: sabnzbd-downloads
+    advancedMounts:
+      sabnzbd:
+        app:
+          - path: /downloads/sabnzbd
   tmp:
     type: emptyDir
     advancedMounts:
