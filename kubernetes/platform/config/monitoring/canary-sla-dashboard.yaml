@@ -139,10 +139,10 @@ data:
           "gridPos": {"h": 12, "w": 24, "x": 0, "y": 6},
           "datasource": {"type": "prometheus", "uid": "prometheus"},
           "targets": [
-            {"expr": "canary:availability:30d", "format": "table", "instant": true, "legendFormat": "", "refId": "A"},
-            {"expr": "canary:availability:7d",  "format": "table", "instant": true, "legendFormat": "", "refId": "B"},
-            {"expr": "canary:availability:24h", "format": "table", "instant": true, "legendFormat": "", "refId": "C"},
-            {"expr": "canary:availability:1h",  "format": "table", "instant": true, "legendFormat": "", "refId": "D"},
+            {"expr": "canary:availability:30d + 0", "format": "table", "instant": true, "legendFormat": "", "refId": "A"},
+            {"expr": "canary:availability:7d + 0",  "format": "table", "instant": true, "legendFormat": "", "refId": "B"},
+            {"expr": "canary:availability:24h + 0", "format": "table", "instant": true, "legendFormat": "", "refId": "C"},
+            {"expr": "canary:availability:1h + 0",  "format": "table", "instant": true, "legendFormat": "", "refId": "D"},
             {"expr": "max by (name, canary_name, canary_namespace, type) (canary_check)", "format": "table", "instant": true, "legendFormat": "", "refId": "E"}
           ],
           "transformations": [
@@ -151,8 +151,7 @@ data:
               "id": "organize",
               "options": {
                 "excludeByName": {
-                  "Time": true, "__name__": true, "job": true,
-                  "endpoint": true, "service": true, "key": true, "namespace": true
+                  "Time": true
                 },
                 "renameByName": {
                   "Value #A": "30d %", "Value #B": "7d %",
