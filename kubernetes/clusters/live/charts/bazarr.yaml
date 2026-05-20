@@ -18,17 +18,39 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    initContainers:
+      inject-api-key:
+        image:
+          repository: ghcr.io/home-operations/bazarr
+          tag: "${bazarr_version}"
+        command:
+          - python3
+          - -c
+          - |
+            import yaml, os, pathlib
+            p = pathlib.Path('/config/config/config.yaml')
+            c = yaml.safe_load(p.read_text()) if p.exists() else {}
+            c.setdefault('auth', {})['apikey'] = os.environ['API_KEY']
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(yaml.dump(c, default_flow_style=False))
+        env:
+          API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: bazarr-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+
     containers:
       app:
         image:
           repository: ghcr.io/home-operations/bazarr
           tag: "${bazarr_version}"
         env:
-          BAZARR__AUTH__APIKEY:
-            valueFrom:
-              secretKeyRef:
-                name: bazarr-api-key
-                key: api-key
           POSTGRES_ENABLED: "true"
           POSTGRES_HOST: platform-rw.database.svc.cluster.local
           POSTGRES_PORT: "5432"
@@ -93,6 +115,8 @@ persistence:
     storageClass: fast
     advancedMounts:
       bazarr:
+        inject-api-key:
+          - path: /config
         app:
           - path: /config
   media-library:
