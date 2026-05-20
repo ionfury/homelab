@@ -6,6 +6,8 @@ resources:
   - namespace.yaml
   - media-library-pvc.yaml
   - media-downloads-pvc.yaml
+  - sabnzbd-downloads-pvc.yaml
+  - qbittorrent-downloads-pvc.yaml
   - secrets.yaml
   - network-policy.yaml
   - nordvpn-credentials.yaml
