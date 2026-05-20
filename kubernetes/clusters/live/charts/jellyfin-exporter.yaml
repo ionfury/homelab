@@ -75,7 +75,7 @@ service:
 
 serviceMonitor:
   app:
-    serviceName: jellyfin-exporter-app
+    serviceName: jellyfin-exporter
     endpoints:
       - port: metrics
         interval: 60s

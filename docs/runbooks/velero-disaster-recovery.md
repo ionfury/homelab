@@ -46,9 +46,30 @@ mv /tmp/merged.yaml ~/.kube/config
 chmod 0600 ~/.kube/config
 ```
 
-### Step 3: Wait for Velero Restore Gate
+### Step 3: Apply Velero Restore Resources
 
-Flux automatically triggers Velero restores for the `garage` and `database` namespaces on cluster bootstrap via the `velero-restore` Kustomization. The gate Job blocks downstream services until all restores complete.
+The `velero-restore` Kustomization is **not deployed by Flux automatically** — it is excluded from GitOps to prevent Restore CRs from thrashing on every reconciliation. Apply it manually to trigger the restore gate and block downstream services until restores complete.
+
+Wait for Velero and its config to be ready first:
+
+```bash
+kubectl --context <cluster> -n flux-system wait kustomization/velero-config \
+  --for=condition=Ready --timeout=5m
+```
+
+Then apply the restore resources for the cluster:
+
+```bash
+# For live cluster
+kubectl --context <cluster> apply -k \
+  kubernetes/clusters/live/config/velero-restore
+
+# For dev cluster
+kubectl --context <cluster> apply -k \
+  kubernetes/clusters/dev/config/velero-restore
+```
+
+Watch the gate job and restore status:
 
 ```bash
 # Watch the gate job
@@ -59,6 +80,13 @@ kubectl --context <cluster> -n velero get restores
 ```
 
 The gate exits 0 when all Restore CRs reach a terminal phase (Completed/Failed/PartiallyFailed).
+
+Once the gate completes, proceed. Flux reconciliation of `garage-config`, `database-config`, and `cluster-resources` was not blocked during this period — those Kustomizations will have already converged on empty/unrestored state. After restores finish, force a reconciliation to pick up the restored data:
+
+```bash
+flux --context <cluster> reconcile kustomization garage-config --with-source
+flux --context <cluster> reconcile kustomization database-config --with-source
+```
 
 ### Step 4: Wait for Full Flux Reconciliation
 

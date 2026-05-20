@@ -24,6 +24,11 @@ controllers:
           repository: ghcr.io/home-operations/bazarr
           tag: "${bazarr_version}"
         env:
+          BAZARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: bazarr-api-key
+                key: api-key
           POSTGRES_ENABLED: "true"
           POSTGRES_HOST: platform-rw.database.svc.cluster.local
           POSTGRES_PORT: "5432"
