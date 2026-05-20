@@ -89,7 +89,10 @@ data:
           "targets": [{"expr": "count(canary_check == 0)", "legendFormat": "", "refId": "A"}],
           "fieldConfig": {
             "defaults": {
-              "color": {"mode": "fixed", "fixedColor": "green"},
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "red", "value": null}, {"color": "green", "value": 1}
+              ]},
               "unit": "short"
             },
             "overrides": []

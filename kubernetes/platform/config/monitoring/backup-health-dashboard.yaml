@@ -236,7 +236,7 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "description": "WAL archiving backlog trend over time. Sustained increases indicate archiving pipeline issues.",
+          "description": "Number of WAL files waiting to be archived to S3. Sustained high values indicate archival lag. Triggers CNPGWALArchivingStale when > 10 for extended period.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
@@ -284,12 +284,12 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "cnpg_collector_pg_wal_archive_status{value=\"ready\"}",
-              "legendFormat": "{{ cluster }}",
+              "expr": "sum by (pod) (cnpg_collector_pg_wal_archive_status{value=\"ready\"})",
+              "legendFormat": "{{ pod }}",
               "refId": "A"
             }
           ],
-          "title": "CNPG WAL Archiving Lag Over Time",
+          "title": "WAL Archival Backlog (files pending)",
           "type": "timeseries"
         }
       ],

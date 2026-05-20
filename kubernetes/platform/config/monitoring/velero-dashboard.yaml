@@ -78,14 +78,16 @@ data:
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "description": "Total number of successful backups across all schedules.",
+          "description": "Number of successful backups in the last 24 hours across all schedules. Red if none have succeeded recently.",
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "green", "value": null }
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "green", "value": 5 }
                 ]
               },
               "noValue": "0"
@@ -95,7 +97,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
           "id": 12,
           "options": {
-            "colorMode": "value",
+            "colorMode": "background",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -109,12 +111,12 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(velero_backup_success_total)",
+              "expr": "increase(velero_backup_success_total[24h])",
               "legendFormat": "Successes",
               "refId": "A"
             }
           ],
-          "title": "Total Successful Backups",
+          "title": "Backups Succeeded (24h)",
           "type": "stat"
         },
         {
@@ -168,7 +170,9 @@ data:
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "green", "value": null }
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "green", "value": 5 }
                 ]
               },
               "noValue": "0"
