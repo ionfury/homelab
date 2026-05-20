@@ -26,6 +26,11 @@ controllers:
         env:
           TZ: UTC
           SABNZBD__PORT: &port 8080
+          SABNZBD__API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sabnzbd-api-key
+                key: api-key
           SABNZBD__HOST_WHITELIST_ENTRIES: >-
             sabnzbd,
             sabnzbd.media,
