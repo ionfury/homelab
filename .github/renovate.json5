@@ -11,6 +11,7 @@
   "prHourlyLimit": 5,
   "prConcurrentLimit": 20,
   "prCreation": "immediate",
+  "internalChecksFilter": "none",
   "terraform": {
     "managerFilePatterns": [
       "/(^|/)infrastructure/.+\\.tf$/"
@@ -110,10 +111,8 @@
     // ============================================================
     {
       "matchDepNames": [
-        "talos"
-      ],
-      "excludeDepNames": [
-        "siderolabs/talos"
+        "talos",
+        "!siderolabs/talos"
       ],
       "groupName": "talos",
       "automerge": true
