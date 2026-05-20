@@ -111,10 +111,8 @@
     // ============================================================
     {
       "matchDepNames": [
-        "talos"
-      ],
-      "excludeDepNames": [
-        "siderolabs/talos"
+        "talos",
+        "!siderolabs/talos"
       ],
       "groupName": "talos",
       "automerge": true
