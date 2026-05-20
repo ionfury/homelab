@@ -11,6 +11,7 @@
   "prHourlyLimit": 5,
   "prConcurrentLimit": 20,
   "prCreation": "immediate",
+  "internalChecksFilter": "none",
   "terraform": {
     "managerFilePatterns": [
       "/(^|/)infrastructure/.+\\.tf$/"
