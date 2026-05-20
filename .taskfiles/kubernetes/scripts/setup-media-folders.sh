@@ -38,9 +38,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "==> Context:     ${CONTEXT}"
-echo "==> Library PVC: ${LIBRARY_PVC} → ${LIBRARY_MOUNT}"
-echo "==> Downloads PVC: media-downloads → /media/downloads"
+echo "==> Context:          ${CONTEXT}"
+echo "==> Library PVC:      ${LIBRARY_PVC} → ${LIBRARY_MOUNT}"
+echo "==> SABnzbd PVC:      sabnzbd-downloads → /downloads/sabnzbd"
+echo "==> qBittorrent PVC:  qbittorrent-downloads → /downloads/qbittorrent"
 echo ""
 
 cleanup() {
@@ -66,13 +67,15 @@ kubectl --context "${CONTEXT}" run "${POD_NAME}" \
         \"image\": \"busybox:stable\",
         \"command\": [\"sleep\", \"300\"],
         \"volumeMounts\": [
-          {\"name\": \"library\",   \"mountPath\": \"${LIBRARY_MOUNT}\"},
-          {\"name\": \"downloads\", \"mountPath\": \"/media/downloads\"}
+          {\"name\": \"library\",               \"mountPath\": \"${LIBRARY_MOUNT}\"},
+          {\"name\": \"sabnzbd-downloads\",     \"mountPath\": \"/downloads/sabnzbd\"},
+          {\"name\": \"qbittorrent-downloads\", \"mountPath\": \"/downloads/qbittorrent\"}
         ]
       }],
       \"volumes\": [
-        {\"name\": \"library\",   \"persistentVolumeClaim\": {\"claimName\": \"${LIBRARY_PVC}\"}},
-        {\"name\": \"downloads\", \"persistentVolumeClaim\": {\"claimName\": \"media-downloads\"}}
+        {\"name\": \"library\",               \"persistentVolumeClaim\": {\"claimName\": \"${LIBRARY_PVC}\"}},
+        {\"name\": \"sabnzbd-downloads\",     \"persistentVolumeClaim\": {\"claimName\": \"sabnzbd-downloads\"}},
+        {\"name\": \"qbittorrent-downloads\", \"persistentVolumeClaim\": {\"claimName\": \"qbittorrent-downloads\"}}
       ]
     }
   }"
@@ -93,20 +96,30 @@ kubectl --context "${CONTEXT}" exec -n "${NAMESPACE}" "${POD_NAME}" -- \
     "${LIBRARY_MOUNT}/movies-4k" \
     "${LIBRARY_MOUNT}/anime-movies"
 
-echo "==> Creating downloads folder structure..."
+echo "==> Creating SABnzbd download folder structure..."
 kubectl --context "${CONTEXT}" exec -n "${NAMESPACE}" "${POD_NAME}" -- \
   mkdir -p \
-    /media/downloads/complete/sonarr \
-    /media/downloads/complete/sonarr4k \
-    /media/downloads/complete/sonarr-anime \
-    /media/downloads/complete/radarr \
-    /media/downloads/complete/radarr4k \
-    /media/downloads/complete/radarr-anime \
-    /media/downloads/incomplete
+    /downloads/sabnzbd/incomplete \
+    /downloads/sabnzbd/complete/sonarr \
+    /downloads/sabnzbd/complete/sonarr4k \
+    /downloads/sabnzbd/complete/sonarr-anime \
+    /downloads/sabnzbd/complete/radarr \
+    /downloads/sabnzbd/complete/radarr4k \
+    /downloads/sabnzbd/complete/radarr-anime
+
+echo "==> Creating qBittorrent download folder structure..."
+kubectl --context "${CONTEXT}" exec -n "${NAMESPACE}" "${POD_NAME}" -- \
+  mkdir -p \
+    /downloads/qbittorrent/sonarr \
+    /downloads/qbittorrent/sonarr4k \
+    /downloads/qbittorrent/sonarr-anime \
+    /downloads/qbittorrent/radarr \
+    /downloads/qbittorrent/radarr4k \
+    /downloads/qbittorrent/radarr-anime
 
 echo "==> Verifying..."
 kubectl --context "${CONTEXT}" exec -n "${NAMESPACE}" "${POD_NAME}" -- \
-  find /media -maxdepth 3 -type d | sort
+  find /downloads "${LIBRARY_MOUNT}" -maxdepth 3 -type d | sort
 
 echo ""
 echo "==> Done. Folder structure:"
@@ -119,14 +132,21 @@ echo "    movies/       ← Radarr root folder"
 echo "    movies-4k/    ← Radarr4K root folder"
 echo "    anime-movies/ ← Radarr anime movies root folder"
 echo ""
-echo "  /media/downloads/"
+echo "  /downloads/sabnzbd/           (sabnzbd-downloads PVC)"
+echo "    incomplete/                 ← SABnzbd temp/incomplete downloads"
 echo "    complete/{sonarr,sonarr4k,sonarr-anime,radarr,radarr4k,radarr-anime}/"
-echo "    incomplete/"
+echo ""
+echo "  /downloads/qbittorrent/       (qbittorrent-downloads PVC)"
+echo "    {sonarr,sonarr4k,sonarr-anime,radarr,radarr4k,radarr-anime}/"
 echo ""
 echo "  Next steps:"
-echo "    1. Configure root folders in each app UI"
-echo "    2. Set qBittorrent categories matching the complete/ subfolders"
-echo "    3. Point each Sonarr/Radarr instance at its download category"
+echo "    1. SABnzbd: set Temporary Folder to /downloads/sabnzbd/incomplete"
+echo "                set Completed Folder to /downloads/sabnzbd/complete"
+echo "                set category paths to /downloads/sabnzbd/complete/<category>"
+echo "    2. qBittorrent: set Default Save Path to /downloads/qbittorrent"
+echo "                    add categories matching the subfolders above"
+echo "    3. Each Sonarr/Radarr: point download client remote path at the matching subfolder"
+echo "    4. Configure root folders in each app UI"
 echo ""
 echo "  To add a second library PVC later:"
 echo "    ./setup-media-folders.sh --library-pvc media-library2"
