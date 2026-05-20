@@ -16,7 +16,7 @@ task = "3.50.0"
 
 # Cluster operations
 talosctl = "1.13.2"
-"aqua:cilium/cilium-cli" = "0.19.3"
+"aqua:cilium/cilium-cli" = "0.19.2"
 
 # Node.js (for renovate validation)
 node = "24"
