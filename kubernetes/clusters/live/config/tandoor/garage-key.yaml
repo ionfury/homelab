@@ -1,5 +1,5 @@
 ---
-apiVersion: garage.rajsingh.info/v1alpha1
+apiVersion: garage.rajsingh.info/v1beta1
 kind: GarageKey
 metadata:
   name: tandoor
@@ -9,7 +9,8 @@ spec:
     name: garage
   neverExpires: true
   bucketPermissions:
-    - bucketRef: tandoor
+    - bucketRef:
+        name: tandoor
       read: true
       write: true
   secretTemplate:
