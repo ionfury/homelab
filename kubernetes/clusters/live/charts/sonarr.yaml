@@ -104,13 +104,6 @@ persistence:
       sonarr:
         app:
           - path: /config
-  media-downloads:
-    type: persistentVolumeClaim
-    existingClaim: media-downloads
-    advancedMounts:
-      sonarr:
-        app:
-          - path: /media/downloads
   sabnzbd-downloads:
     type: persistentVolumeClaim
     existingClaim: sabnzbd-downloads

@@ -94,13 +94,6 @@ persistence:
       sabnzbd:
         app:
           - path: /config
-  media-downloads:
-    type: persistentVolumeClaim
-    existingClaim: media-downloads
-    advancedMounts:
-      sabnzbd:
-        app:
-          - path: /media/downloads
   sabnzbd-downloads:
     type: persistentVolumeClaim
     existingClaim: sabnzbd-downloads

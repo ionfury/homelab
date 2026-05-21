@@ -104,13 +104,6 @@ persistence:
       radarr:
         app:
           - path: /config
-  media-downloads:
-    type: persistentVolumeClaim
-    existingClaim: media-downloads
-    advancedMounts:
-      radarr:
-        app:
-          - path: /media/downloads
   sabnzbd-downloads:
     type: persistentVolumeClaim
     existingClaim: sabnzbd-downloads

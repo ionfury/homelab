@@ -104,13 +104,6 @@ persistence:
       sonarr4k:
         app:
           - path: /config
-  media-downloads:
-    type: persistentVolumeClaim
-    existingClaim: media-downloads
-    advancedMounts:
-      sonarr4k:
-        app:
-          - path: /media/downloads
   sabnzbd-downloads:
     type: persistentVolumeClaim
     existingClaim: sabnzbd-downloads

@@ -201,13 +201,6 @@ persistence:
       qbittorrent:
         app:
           - path: /config
-  media-downloads:
-    type: persistentVolumeClaim
-    existingClaim: media-downloads
-    advancedMounts:
-      qbittorrent:
-        app:
-          - path: /media/downloads
   qbittorrent-downloads:
     type: persistentVolumeClaim
     existingClaim: qbittorrent-downloads
