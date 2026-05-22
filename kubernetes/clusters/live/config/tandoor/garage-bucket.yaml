@@ -7,9 +7,3 @@ metadata:
 spec:
   clusterRef:
     name: garage
-  keyPermissions:
-    - keyRef:
-        name: tandoor
-        namespace: tandoor
-      read: true
-      write: true
