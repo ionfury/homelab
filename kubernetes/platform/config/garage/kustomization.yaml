@@ -9,8 +9,9 @@ resources:
   - garage-route.yaml
   - garage-canary.yaml
   - cnpg-platform-bucket.yaml
-  - cnpg-platform-key.yaml
   - cnpg-immich-bucket.yaml
-  - cnpg-immich-key.yaml
   - dragonfly-bucket.yaml
-  - dragonfly-key.yaml
+  - reference-grant-database.yaml
+  - reference-grant-cache.yaml
+  - reference-grant-tandoor.yaml
+  - reference-grant-zipline.yaml

@@ -14,4 +14,3 @@ spec:
       write: true
   secretTemplate:
     name: dr-test-s3-credentials
-    namespace: garage

@@ -7,3 +7,9 @@ metadata:
 spec:
   clusterRef:
     name: garage
+  keyPermissions:
+    - keyRef:
+        name: zipline
+        namespace: zipline
+      read: true
+      write: true
