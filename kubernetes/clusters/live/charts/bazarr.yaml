@@ -18,6 +18,29 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    initContainers:
+      config-patch:
+        image:
+          repository: docker.io/mikefarah/yq
+          tag: "${yq_version}"
+        args:
+          - sh
+          - -c
+          - |
+            [ -f /config/config/config.yaml ] &&
+            yq -i '.auth.apikey = strenv(BAZARR_API_KEY)' /config/config/config.yaml
+        env:
+          BAZARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: bazarr-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+
     containers:
       app:
         image:
@@ -93,6 +116,8 @@ persistence:
     storageClass: fast
     advancedMounts:
       bazarr:
+        config-patch:
+          - path: /config
         app:
           - path: /config
   media-library:
