@@ -130,5 +130,7 @@ persistence:
     type: emptyDir
     advancedMounts:
       bazarr:
+        config-patch:
+          - path: /tmp
         app:
           - path: /tmp
