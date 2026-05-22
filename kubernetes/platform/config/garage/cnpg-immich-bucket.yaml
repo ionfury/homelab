@@ -8,9 +8,3 @@ spec:
     name: garage
   quotas:
     maxSize: "50Gi"
-  keyPermissions:
-    - keyRef:
-        name: cnpg-immich-s3
-        namespace: database
-      read: true
-      write: true

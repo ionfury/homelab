@@ -8,9 +8,3 @@ spec:
     name: garage
   quotas:
     maxSize: "10Gi"
-  keyPermissions:
-    - keyRef:
-        name: dragonfly-s3
-        namespace: cache
-      read: true
-      write: true
