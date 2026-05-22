@@ -11,5 +11,6 @@ spec:
   keyPermissions:
     - keyRef:
         name: dragonfly-s3
+        namespace: cache
       read: true
       write: true

@@ -2,15 +2,16 @@
 apiVersion: garage.rajsingh.info/v1beta1
 kind: GarageKey
 metadata:
-  name: cnpg-platform-s3
+  name: dragonfly-s3
 spec:
   clusterRef:
     name: garage
+    namespace: garage
   bucketPermissions:
     - bucketRef:
-        name: cnpg-platform-backups
+        name: dragonfly-snapshots
+        namespace: garage
       read: true
       write: true
   secretTemplate:
-    name: cnpg-platform-s3-credentials
-    namespace: database
+    name: dragonfly-s3-credentials
