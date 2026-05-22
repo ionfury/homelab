@@ -1,5 +1,5 @@
 ---
-apiVersion: garage.rajsingh.info/v1beta1
+apiVersion: garage.rajsingh.info/v1beta2
 kind: GarageCluster
 metadata:
   name: garage
@@ -7,7 +7,6 @@ spec:
   image: dxflrs/garage:${garage_image_version}
   zone: ${cluster_name}
   layoutPolicy: Auto
-  replicas: ${default_replica_count}
 
   replication:
     factor: ${default_replica_count}
@@ -19,24 +18,23 @@ spec:
       release: kube-prometheus-stack
 
   storage:
+    replicas: ${default_replica_count}
     metadata:
       storageClassName: fast
       size: ${garage_meta_volume_size}
     data:
       storageClassName: fast
       size: ${garage_data_volume_size}
-
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      memory: 1Gi
-
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
-    fsGroup: 1000
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
 
   database:
     engine: lmdb
