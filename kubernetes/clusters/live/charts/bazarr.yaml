@@ -23,9 +23,8 @@ controllers:
         image:
           repository: docker.io/mikefarah/yq
           tag: "${yq_version}"
+        command: [sh, -c]
         args:
-          - sh
-          - -c
           - |
             [ -f /config/config/config.yaml ] &&
             yq -i '.auth.apikey = strenv(BAZARR_API_KEY)' /config/config/config.yaml
