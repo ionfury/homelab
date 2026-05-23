@@ -43,3 +43,22 @@ service:
     ports:
       http:
         port: 80
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "IT Tools"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "it-tools.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=it-tools"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "tools.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 80
