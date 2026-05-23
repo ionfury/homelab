@@ -42,7 +42,7 @@ controllers:
         image:
           repository: ghcr.io/lldap/lldap
           # renovate: datasource=docker depName=ghcr.io/lldap/lldap
-          tag: v0.6.2
+          tag: v0.6.3
         command:
           - /bin/sh
           - -c
@@ -66,7 +66,7 @@ controllers:
             cpu: 10m
             memory: 64Mi
           limits:
-            memory: 256Mi
+            memory: 512Mi
         probes:
           liveness:
             enabled: true

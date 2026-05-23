@@ -23,9 +23,11 @@ if [ -z "$KUBECTL_INVOCATIONS" ]; then
   exit 0
 fi
 
-# Only intercept mutating subcommands
-MUTATING='\b(apply|delete|patch|edit|replace|create|scale|drain|taint|cordon|uncordon|label|annotate|set)\b'
-if ! echo "$KUBECTL_INVOCATIONS" | grep -qE "$MUTATING"; then
+# Extract kubectl subcommands (first non-flag token after kubectl and optional --context/--namespace args)
+SUBCOMMANDS=$(echo "$KUBECTL_INVOCATIONS" | sed -E 's/.*kubectl[[:space:]]+(--[a-z]+[[:space:]]+[^[:space:]]+[[:space:]]+)*//; s/[[:space:]].*//')
+
+MUTATING='^(apply|delete|patch|edit|replace|create|scale|drain|taint|cordon|uncordon|label|annotate|set)$'
+if ! echo "$SUBCOMMANDS" | grep -qE "$MUTATING"; then
   exit 0
 fi
 

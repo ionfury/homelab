@@ -23,7 +23,7 @@ controllers:
         image:
           repository: ghcr.io/kashalls/kromgo
           # renovate: datasource=docker depName=ghcr.io/kashalls/kromgo
-          tag: v0.9.1
+          tag: v0.10.0
         env:
           TZ: UTC
           PROMETHEUS_URL: http://prometheus-operated.monitoring.svc.cluster.local:9090
@@ -42,7 +42,7 @@ controllers:
             cpu: 10m
             memory: 32Mi
           limits:
-            memory: 128Mi
+            memory: 256Mi
         probes:
           liveness:
             enabled: true

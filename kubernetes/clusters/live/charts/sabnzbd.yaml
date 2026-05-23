@@ -26,6 +26,11 @@ controllers:
         env:
           TZ: UTC
           SABNZBD__PORT: &port 8080
+          SABNZBD__API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sabnzbd-api-key
+                key: api-key
           SABNZBD__HOST_WHITELIST_ENTRIES: >-
             sabnzbd,
             sabnzbd.media,
@@ -43,7 +48,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 8Gi
+            memory: 16Gi
         probes:
           startup:
             enabled: true
@@ -89,13 +94,13 @@ persistence:
       sabnzbd:
         app:
           - path: /config
-  media-downloads:
+  sabnzbd-downloads:
     type: persistentVolumeClaim
-    existingClaim: media-downloads
+    existingClaim: sabnzbd-downloads
     advancedMounts:
       sabnzbd:
         app:
-          - path: /media/downloads
+          - path: /downloads/sabnzbd
   tmp:
     type: emptyDir
     advancedMounts:

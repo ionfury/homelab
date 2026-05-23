@@ -126,7 +126,7 @@ spec:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: []
+      dependsOn: [secret-generator]
     - name: radarr
       namespace: media
       chart:

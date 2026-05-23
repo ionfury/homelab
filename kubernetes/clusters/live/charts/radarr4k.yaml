@@ -104,13 +104,20 @@ persistence:
       radarr4k:
         app:
           - path: /config
-  media-downloads:
+  sabnzbd-downloads:
     type: persistentVolumeClaim
-    existingClaim: media-downloads
+    existingClaim: sabnzbd-downloads
     advancedMounts:
       radarr4k:
         app:
-          - path: /media/downloads
+          - path: /downloads/sabnzbd
+  qbittorrent-downloads:
+    type: persistentVolumeClaim
+    existingClaim: qbittorrent-downloads
+    advancedMounts:
+      radarr4k:
+        app:
+          - path: /downloads/qbittorrent
   media-library:
     type: persistentVolumeClaim
     existingClaim: media-library

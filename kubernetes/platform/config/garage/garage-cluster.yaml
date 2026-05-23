@@ -1,12 +1,12 @@
 ---
-apiVersion: garage.rajsingh.info/v1alpha1
+apiVersion: garage.rajsingh.info/v1beta2
 kind: GarageCluster
 metadata:
   name: garage
 spec:
   image: dxflrs/garage:${garage_image_version}
-  replicas: ${default_replica_count}
   zone: ${cluster_name}
+  layoutPolicy: Auto
 
   replication:
     factor: ${default_replica_count}
@@ -18,18 +18,29 @@ spec:
       release: kube-prometheus-stack
 
   storage:
+    replicas: ${default_replica_count}
     metadata:
       storageClassName: fast
       size: ${garage_meta_volume_size}
     data:
       storageClassName: fast
       size: ${garage_data_volume_size}
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 2Gi
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
 
   database:
     engine: lmdb
 
   security:
-    allowWorldReadableSecrets: true
+    allowInsecureSecretPermissions: true
 
   network:
     rpcBindPort: 3901
@@ -46,20 +57,7 @@ spec:
     rootDomain: .web.${internal_domain}
 
   admin:
-    enabled: true
     bindPort: 3903
     adminTokenSecretRef:
       name: garage-admin-token
       key: admin-token
-
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      memory: 1Gi
-
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
-    fsGroup: 1000

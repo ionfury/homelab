@@ -13,7 +13,7 @@ resources:
     cpu: 10m
     memory: 128Mi
   limits:
-    memory: 256Mi
+    memory: 1Gi
 
 # Disable kube-rbac-proxy sidecar so the manager binds metrics to 0.0.0.0:8080
 # instead of 127.0.0.1:8080, allowing Prometheus to scrape directly.

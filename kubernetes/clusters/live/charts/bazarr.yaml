@@ -5,6 +5,9 @@ controllers:
   bazarr:
     type: deployment
 
+    annotations:
+      reloader.stakater.com/auto: "true"
+
     pod:
       securityContext:
         runAsNonRoot: true
@@ -15,12 +18,39 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    initContainers:
+      config-patch:
+        image:
+          repository: docker.io/mikefarah/yq
+          tag: "${yq_version}"
+        command: [sh, -c]
+        args:
+          - |
+            [ -f /config/config/config.yaml ] &&
+            yq -i '.auth.apikey = strenv(BAZARR_API_KEY)' /config/config/config.yaml
+        env:
+          BAZARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: bazarr-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+
     containers:
       app:
         image:
           repository: ghcr.io/home-operations/bazarr
           tag: "${bazarr_version}"
         env:
+          BAZARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: bazarr-api-key
+                key: api-key
           POSTGRES_ENABLED: "true"
           POSTGRES_HOST: platform-rw.database.svc.cluster.local
           POSTGRES_PORT: "5432"
@@ -41,7 +71,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 1Gi
+            memory: 2Gi
         probes:
           startup:
             enabled: true
@@ -85,6 +115,8 @@ persistence:
     storageClass: fast
     advancedMounts:
       bazarr:
+        config-patch:
+          - path: /config
         app:
           - path: /config
   media-library:
@@ -98,5 +130,7 @@ persistence:
     type: emptyDir
     advancedMounts:
       bazarr:
+        config-patch:
+          - path: /tmp
         app:
           - path: /tmp

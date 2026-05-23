@@ -1,15 +1,17 @@
 ---
-apiVersion: garage.rajsingh.info/v1alpha1
+apiVersion: garage.rajsingh.info/v1beta1
 kind: GarageKey
 metadata:
   name: dragonfly-s3
 spec:
   clusterRef:
     name: garage
+    namespace: garage
   bucketPermissions:
-    - bucketRef: dragonfly-snapshots
+    - bucketRef:
+        name: dragonfly-snapshots
+        namespace: garage
       read: true
       write: true
   secretTemplate:
     name: dragonfly-s3-credentials
-    namespace: cache

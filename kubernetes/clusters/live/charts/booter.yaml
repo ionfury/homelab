@@ -19,7 +19,7 @@ controllers:
             cpu: 50m
             memory: 64Mi
           limits:
-            memory: 256Mi
+            memory: 512Mi
         securityContext:
           capabilities:
             add:

@@ -8,3 +8,5 @@ resources:
   - scheduled-backup.yaml
   - pooler.yaml
   - prometheus-rules.yaml
+  - cnpg-immich-key.yaml
+  - cnpg-platform-key.yaml

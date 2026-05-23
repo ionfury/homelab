@@ -1,5 +1,5 @@
 ---
-apiVersion: garage.rajsingh.info/v1alpha1
+apiVersion: garage.rajsingh.info/v1beta1
 kind: GarageBucket
 metadata:
   name: cnpg-immich-backups
@@ -8,7 +8,3 @@ spec:
     name: garage
   quotas:
     maxSize: "50Gi"
-  keyPermissions:
-    - keyRef: cnpg-immich-s3
-      read: true
-      write: true
