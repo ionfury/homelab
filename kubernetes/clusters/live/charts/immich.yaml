@@ -33,7 +33,7 @@ controllers:
             cpu: 100m
             memory: 512Mi
           limits:
-            memory: 2Gi
+            memory: 4Gi
 
 immich:
   metrics:
@@ -87,7 +87,7 @@ machine-learning:
               cpu: 100m
               memory: 1Gi
             limits:
-              memory: 4Gi
+              memory: 8Gi
               nvidia.com/gpu: 1
   persistence:
     cache:

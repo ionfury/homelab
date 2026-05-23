@@ -53,7 +53,7 @@ controllers:
             cpu: 500m
             memory: 2Gi
           limits:
-            memory: 4Gi
+            memory: 16Gi
             nvidia.com/gpu: 1
         probes:
           # Tdarr_Node v2.x is a purely outbound worker — it connects to the

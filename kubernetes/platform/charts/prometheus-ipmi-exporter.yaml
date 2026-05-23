@@ -18,4 +18,4 @@ resources:
     # leaks through Helm deep-merge). Set a generous limit instead — ipmitool
     # subprocesses cause brief CPU spikes that throttle heavily at 100m.
     cpu: "1"
-    memory: 128Mi
+    memory: 512Mi

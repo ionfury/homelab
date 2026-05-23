@@ -57,7 +57,7 @@ controllers:
             cpu: 500m
             memory: 4Gi
           limits:
-            memory: 6Gi
+            memory: 32Gi
         probes:
           startup:
             enabled: true
@@ -110,7 +110,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 2Gi
         probes:
           startup:
             enabled: false
@@ -141,7 +141,7 @@ controllers:
             cpu: 10m
             memory: 32Mi
           limits:
-            memory: 128Mi
+            memory: 256Mi
         probes:
           startup:
             enabled: false
