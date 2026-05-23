@@ -32,6 +32,12 @@ loki:
 singleBinary:
   replicas: 1
   priorityClassName: platform
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 4Gi
   persistence:
     enabled: true
     storageClass: fast
