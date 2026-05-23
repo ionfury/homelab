@@ -9,7 +9,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Home"
     gethomepage.dev/group: "Platform"
-    gethomepage.dev/icon: "homepage.svg"
+    gethomepage.dev/icon: "mdi-home"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=homepage"
 spec:
   parentRefs:
