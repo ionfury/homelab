@@ -98,7 +98,7 @@ controllers:
             cpu: 10m
             memory: 128Mi
           limits:
-            memory: 256Mi
+            memory: 2Gi
         probes:
           liveness:
             enabled: true
