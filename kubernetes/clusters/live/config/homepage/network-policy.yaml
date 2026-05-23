@@ -90,6 +90,13 @@ spec:
         - ports:
             - port: "34197"
               protocol: UDP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: firefly
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
     - toFQDNs:
         - matchName: "healthchecks.io"
       toPorts:

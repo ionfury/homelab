@@ -93,6 +93,16 @@ controllers:
               secretKeyRef:
                 name: homepage-firefly-api-key
                 key: api-key
+          HOMEPAGE_VAR_SONARR4K_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sonarr4k-api-key
+                key: api-key
+          HOMEPAGE_VAR_RADARR4K_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr4k-api-key
+                key: api-key
         resources:
           requests:
             cpu: 10m
@@ -160,20 +170,22 @@ configMaps:
         statusStyle: dot
         hideVersion: true
         layout:
-          - Platform:
-              icon: mdi-server
-              columns: 4
           - Media:
               icon: mdi-multimedia
+              style: row
               columns: 4
           - Apps:
               icon: mdi-apps
+              style: row
               columns: 3
-          - AI:
-              icon: mdi-robot
+          - Platform:
+              icon: mdi-server
+              style: row
+              columns: 4
           - Gaming:
               icon: mdi-gamepad-variant
-              columns: 4
+              style: row
+              columns: 2
       widgets.yaml: |
         - search:
             provider: google
@@ -188,18 +200,10 @@ configMaps:
               label: live
             nodes:
               show: false
-        - longhorn:
-            expanded: true
-            total: true
-            labels: true
-            nodes: true
         - openmeteo:
             timezone: America/New_York
             units: imperial
             cache: 15
-        - healthchecks:
-            url: https://healthchecks.io
-            key: "{{`{{HOMEPAGE_VAR_HEALTHCHECKS_API_KEY}}`}}"
       services.yaml: |
         - Gaming:
             - Minecraft:
@@ -250,7 +254,20 @@ configMaps:
                   href: https://healthchecks.io
       docker.yaml: ""
       proxmox.yaml: ""
-      custom.css: ""
+      custom.css: |
+        #information-widgets .information-widget-resource .resource-value {
+          font-size: 0.85rem;
+        }
+        .service-card {
+          padding: 0.5rem !important;
+        }
+        .services-group .service .status-indicator {
+          opacity: 0.4;
+          transition: opacity 0.2s ease;
+        }
+        .services-group .service:hover .status-indicator {
+          opacity: 1;
+        }
       custom.js: ""
 
 persistence:
