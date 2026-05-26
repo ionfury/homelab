@@ -140,6 +140,36 @@ service:
       http:
         port: 8080
 
+route:
+  external:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Tandoor"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "tandoor.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=tandoor"
+    parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "recipes.${external_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8080
+  internal:
+    enabled: true
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "recipes.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8080
+
 serviceMonitor:
   main:
     enabled: true

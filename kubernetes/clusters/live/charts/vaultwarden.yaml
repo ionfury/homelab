@@ -123,6 +123,25 @@ serviceMonitor:
           name: vaultwarden-metrics-token
           key: token
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Vaultwarden"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "vaultwarden.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=vaultwarden"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "vault.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 80
+
 persistence:
   data:
     type: persistentVolumeClaim

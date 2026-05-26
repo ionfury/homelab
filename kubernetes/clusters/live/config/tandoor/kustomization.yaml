@@ -9,5 +9,3 @@ resources:
   - tandoor-oidc-client-secret-replica.yaml
   - garage-bucket.yaml
   - garage-key.yaml
-  - internal-route.yaml
-  - external-route.yaml

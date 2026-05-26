@@ -7,6 +7,5 @@ resources:
   - vaultwarden-admin-token.yaml
   - vaultwarden-db-credentials.yaml
   - vaultwarden-metrics-token.yaml
-  - internal-route.yaml
   - canary.yaml
   - vaultwarden-oidc-client-secret.yaml

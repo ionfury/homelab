@@ -62,6 +62,107 @@ service:
       http:
         port: 8056
 
+route:
+  internal:
+    enabled: true
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "jfa-go.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8056
+  external:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Join"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "jellyfin.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=jfa-go"
+    parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "join.${external_domain}"
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /invite
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /my
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /user
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /captcha
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /token
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /lang
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /js
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /css
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /reset
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        filters:
+          - type: RequestRedirect
+            requestRedirect:
+              path:
+                type: ReplaceFullPath
+                replaceFullPath: /invite
+              statusCode: 302
+
 persistence:
   data:
     type: persistentVolumeClaim

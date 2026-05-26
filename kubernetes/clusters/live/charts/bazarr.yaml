@@ -107,6 +107,28 @@ service:
       http:
         port: 6767
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Bazarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "bazarr.svg"
+      gethomepage.dev/widget.type: "bazarr"
+      gethomepage.dev/widget.url: "http://bazarr.media.svc:6767"
+      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=bazarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "bazarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 6767
+
 persistence:
   config:
     type: persistentVolumeClaim

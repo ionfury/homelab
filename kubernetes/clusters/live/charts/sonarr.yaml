@@ -86,6 +86,28 @@ service:
       http:
         port: 8989
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Sonarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "sonarr.svg"
+      gethomepage.dev/widget.type: "sonarr"
+      gethomepage.dev/widget.url: "http://sonarr.media.svc:8989"
+      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=sonarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "sonarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8989
+
 persistence:
   tmp:
     type: emptyDir
