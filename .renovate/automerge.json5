@@ -50,6 +50,15 @@
       "minimumReleaseAge": "1 day"
     },
     // EXCLUSIONS LAST (later rules override earlier - these take precedence)
+    // garage-operator upgrades have caused repeated outages due to migration issues
+    // (e.g., v0.5.11 -> v0.6.1 in PR #1108). Require manual review before merge.
+    {
+      "description": "Never automerge garage-operator — version bumps cause migration-related outages",
+      "matchDepNames": [
+        "garage-operator"
+      ],
+      "automerge": false
+    },
     // Never automerge major updates - breaking changes need review
     {
       "description": "Never automerge major updates",
