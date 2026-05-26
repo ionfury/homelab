@@ -84,6 +84,27 @@ service:
       http:
         port: *port
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "SABnzbd"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "sabnzbd.svg"
+      gethomepage.dev/widget.type: "sabnzbd"
+      gethomepage.dev/widget.url: "http://sabnzbd.media.svc:8080"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=sabnzbd"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "sabnzbd.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8080
+
 persistence:
   config:
     type: persistentVolumeClaim

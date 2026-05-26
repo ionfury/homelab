@@ -85,6 +85,28 @@ service:
       http:
         port: 9696
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Prowlarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "prowlarr.svg"
+      gethomepage.dev/widget.type: "prowlarr"
+      gethomepage.dev/widget.url: "http://prowlarr.media.svc:9696"
+      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=prowlarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "prowlarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 9696
+
 persistence:
   config:
     type: persistentVolumeClaim

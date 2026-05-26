@@ -8,4 +8,3 @@ resources:
   - zipline-db-credentials.yaml
   - garage-bucket.yaml
   - garage-key.yaml
-  - external-route.yaml

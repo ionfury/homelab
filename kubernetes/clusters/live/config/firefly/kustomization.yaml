@@ -7,4 +7,3 @@ resources:
   - firefly-db-credentials.yaml
   - firefly-app-key.yaml
   - firefly-upload-pvc.yaml
-  - internal-route.yaml

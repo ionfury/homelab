@@ -96,6 +96,25 @@ service:
       http:
         port: 17170
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "LLDAP"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "light-ldap.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=lldap"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "lldap.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 17170
+
 persistence:
   data:
     enabled: true

@@ -270,6 +270,25 @@ configMaps:
         }
       custom.js: ""
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Home"
+      gethomepage.dev/group: "Platform"
+      gethomepage.dev/icon: "homepage.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=homepage"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "home.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 3000
+
 persistence:
   config:
     type: configMap

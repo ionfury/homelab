@@ -104,3 +104,22 @@ service:
     ports:
       http:
         port: 3000
+
+route:
+  external:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Zipline"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "zipline.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=zipline"
+    parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "img.${external_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 3000

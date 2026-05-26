@@ -183,6 +183,27 @@ service:
       metrics:
         port: 8090
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "qBittorrent"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "qbittorrent.svg"
+      gethomepage.dev/widget.type: "qbittorrent"
+      gethomepage.dev/widget.url: "http://qbittorrent.media.svc:8080"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=qbittorrent"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "qbittorrent.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8080
+
 serviceMonitor:
   app:
     serviceName: qbittorrent-app

@@ -77,6 +77,28 @@ service:
       http:
         port: 5055
 
+route:
+  external:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Jellyseerr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "jellyseerr.svg"
+      gethomepage.dev/widget.type: "jellyseerr"
+      gethomepage.dev/widget.url: "http://jellyseerr.media.svc:5055"
+      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=jellyseerr"
+    parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "requests.${external_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 5055
+
 persistence:
   config:
     type: persistentVolumeClaim

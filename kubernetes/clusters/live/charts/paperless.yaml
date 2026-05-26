@@ -140,6 +140,28 @@ service:
       http:
         port: 8000
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Paperless-ngx"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "paperless-ngx.svg"
+      gethomepage.dev/widget.type: "paperlessngx"
+      gethomepage.dev/widget.url: "http://paperless.paperless.svc:8000"
+      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=paperless"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "paperless.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8000
+
 persistence:
   data:
     existingClaim: paperless-data
