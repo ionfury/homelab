@@ -96,7 +96,7 @@ route:
       gethomepage.dev/icon: "radarr.svg"
       gethomepage.dev/widget.type: "radarr"
       gethomepage.dev/widget.url: "http://radarr4k-app.media.svc:7878"
-      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_RADARR4K_API_KEY}}"
+      gethomepage.dev/widget.key: "{{`{{HOMEPAGE_VAR_RADARR4K_API_KEY}}`}}"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=radarr4k"
     parentRefs:
       - name: internal

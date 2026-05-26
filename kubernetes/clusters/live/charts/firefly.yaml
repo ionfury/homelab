@@ -92,7 +92,7 @@ route:
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=firefly"
       gethomepage.dev/widget.type: "firefly"
       gethomepage.dev/widget.url: "http://firefly.firefly.svc:8080"
-      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_FIREFLY_API_KEY}}"
+      gethomepage.dev/widget.key: "{{`{{HOMEPAGE_VAR_FIREFLY_API_KEY}}`}}"
     parentRefs:
       - name: internal
         namespace: istio-gateway

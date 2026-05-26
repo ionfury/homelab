@@ -150,7 +150,7 @@ route:
       gethomepage.dev/icon: "paperless-ngx.svg"
       gethomepage.dev/widget.type: "paperlessngx"
       gethomepage.dev/widget.url: "http://paperless.paperless.svc:8000"
-      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}"
+      gethomepage.dev/widget.key: "{{`{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}`}}"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=paperless"
     parentRefs:
       - name: internal
