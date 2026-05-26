@@ -1,0 +1,135 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  paperless:
+    type: deployment
+    replicas: 1
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    initContainers:
+      init-run:
+        image:
+          repository: busybox
+          tag: latest
+        command:
+          - /bin/sh
+          - -c
+          - chown 1000:1000 /run
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+          runAsUser: 0
+          runAsGroup: 0
+          capabilities:
+            drop: ["ALL"]
+            add: ["CHOWN", "DAC_OVERRIDE", "FOWNER"]
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/paperless-ngx/paperless-ngx
+          tag: "${paperless_ngx_version}"
+        env:
+          PAPERLESS_URL: "https://paperless.${internal_domain}"
+          PAPERLESS_PORT: "8000"
+          PAPERLESS_TIME_ZONE: "America/Chicago"
+          PAPERLESS_OCR_LANGUAGE: "eng"
+          PAPERLESS_TASK_WORKERS: "2"
+          PAPERLESS_THREADS_PER_WORKER: "2"
+          PAPERLESS_CONSUMER_POLLING: "0"
+          PAPERLESS_SECRET_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-secret
+                key: secret-key
+          PAPERLESS_DBPASS:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-credentials
+                key: password
+          PAPERLESS_DBHOST: platform-pooler-rw.database.svc.cluster.local
+          PAPERLESS_DBPORT: "5432"
+          PAPERLESS_DBNAME: paperless
+          PAPERLESS_DBUSER: paperless
+          DRAGONFLY_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: dragonfly-auth
+                key: password
+          PAPERLESS_REDIS:
+            dependsOn: DRAGONFLY_PASSWORD
+            value: "redis://:$(DRAGONFLY_PASSWORD)@dragonfly.cache.svc.cluster.local:6379"
+          PAPERLESS_DATA_DIR: "/data"
+          PAPERLESS_MEDIA_ROOT: "/media"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+              periodSeconds: 10
+
+service:
+  app:
+    controller: paperless
+    ports:
+      http:
+        port: 8000
+
+persistence:
+  data:
+    existingClaim: paperless-data
+  media:
+    existingClaim: paperless-media
+  tmp:
+    type: emptyDir
+    globalMounts:
+      - path: /tmp
+  run:
+    type: emptyDir
+    globalMounts:
+      - path: /run
