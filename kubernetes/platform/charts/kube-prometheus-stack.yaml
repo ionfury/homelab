@@ -58,7 +58,7 @@ prometheus:
     enableFeatures:
       - memory-snapshot-on-shutdown
     retention: 7d
-    retentionSize: "45GB"
+    retentionSize: ${prometheus_retention_size}
     queryTimeout: 5m
     resources:
       requests:
