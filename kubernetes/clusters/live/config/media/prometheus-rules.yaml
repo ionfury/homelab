@@ -40,3 +40,24 @@ spec:
           annotations:
             summary: "Jellyfin server is not reachable from the exporter"
             description: "The jellyfin-exporter reports that Jellyfin is unreachable for more than 5 minutes."
+        - alert: SabnzbdDownloadsVolumeNearlyFull
+          expr: |
+            (
+              kubelet_volume_stats_used_bytes{namespace="media", persistentvolumeclaim="sabnzbd-downloads"}
+              / kubelet_volume_stats_capacity_bytes{namespace="media", persistentvolumeclaim="sabnzbd-downloads"}
+            ) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "SABnzbd downloads volume usage exceeds 80%"
+            description: "The sabnzbd-downloads PVC in namespace media is {{ $value | humanizePercentage }} full. Downloads may stall."
+        - alert: SabnzbdPaused
+          expr: |
+            sabnzbd_paused == 1
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "SABnzbd is paused"
+            description: "SABnzbd has been paused for more than 15 minutes. Downloads are stalled and require manual intervention to resume."
