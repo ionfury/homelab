@@ -8,5 +8,3 @@ resources:
   - clusterrolebinding.yaml
   - destinationrule.yaml
   - network-policy.yaml
-  - secrets.yaml
-  - external-secrets.yaml

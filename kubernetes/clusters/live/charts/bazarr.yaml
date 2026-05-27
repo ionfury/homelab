@@ -115,9 +115,6 @@ route:
       gethomepage.dev/name: "Bazarr"
       gethomepage.dev/group: "Media"
       gethomepage.dev/icon: "bazarr.svg"
-      gethomepage.dev/widget.type: "bazarr"
-      gethomepage.dev/widget.url: "http://bazarr.media.svc:6767"
-      gethomepage.dev/widget.key: "{{`{{HOMEPAGE_VAR_BAZARR_API_KEY}}`}}"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=bazarr"
     parentRefs:
       - name: internal
