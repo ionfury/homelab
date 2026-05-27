@@ -24,6 +24,10 @@ kubeApiServer:
       matchLabels:
         component: apiserver
         provider: kubernetes
+    metricRelabelings:
+      - action: drop
+        sourceLabels: [__name__]
+        regex: 'apiserver_(request_body_size_bytes|watch_list_duration_seconds|watch_cache_read_wait_seconds|response_sizes|watch_events_sizes|request_sli_duration_seconds)_bucket|etcd_request_duration_seconds_bucket'
 kubeScheduler:
   service:
     selector:
