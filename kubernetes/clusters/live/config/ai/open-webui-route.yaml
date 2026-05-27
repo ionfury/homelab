@@ -9,9 +9,8 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Open WebUI"
     gethomepage.dev/group: "Apps"
-    gethomepage.dev/icon: "openwebui.svg"
-    gethomepage.dev/widget.type: "openwebui"
-    gethomepage.dev/widget.url: "http://open-webui.ai.svc:80"
+    gethomepage.dev/icon: "open-webui.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=open-webui"
 spec:
   parentRefs:
     - name: internal
