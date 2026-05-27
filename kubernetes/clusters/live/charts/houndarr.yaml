@@ -19,6 +19,25 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    initContainers:
+      fix-ownership:
+        image:
+          repository: busybox
+          # renovate: datasource=docker depName=busybox
+          tag: "1.38.0"
+        command:
+          - /bin/sh
+          - -c
+          - chown -R 1000:1000 /data
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+
     containers:
       app:
         image:
@@ -27,6 +46,8 @@ controllers:
           tag: "${houndarr_version}"
         env:
           TZ: America/New_York
+          HOUNDARR_SECURE_COOKIES: "true"
+          HOUNDARR_TRUSTED_PROXIES: "**"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -100,5 +121,7 @@ persistence:
     storageClass: fast
     advancedMounts:
       houndarr:
+        fix-ownership:
+          - path: /data
         app:
           - path: /data
