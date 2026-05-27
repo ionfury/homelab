@@ -61,7 +61,7 @@ prometheus:
     walCompression: true
     enableFeatures:
       - memory-snapshot-on-shutdown
-    retention: 14d
+    retention: 7d
     retentionSize: ${prometheus_retention_size}
     queryTimeout: 5m
     resources:
