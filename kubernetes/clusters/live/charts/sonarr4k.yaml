@@ -94,9 +94,6 @@ route:
       gethomepage.dev/name: "Sonarr 4K"
       gethomepage.dev/group: "Media"
       gethomepage.dev/icon: "sonarr.svg"
-      gethomepage.dev/widget.type: "sonarr"
-      gethomepage.dev/widget.url: "http://sonarr4k-app.media.svc:8989"
-      gethomepage.dev/widget.key: "{{`{{HOMEPAGE_VAR_SONARR4K_API_KEY}}`}}"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=sonarr4k"
     parentRefs:
       - name: internal

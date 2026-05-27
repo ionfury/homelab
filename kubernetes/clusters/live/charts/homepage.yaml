@@ -31,78 +31,8 @@ controllers:
           repository: ghcr.io/gethomepage/homepage
           tag: "${homepage_version}"
         env:
-          # Required: homepage rejects requests not matching allowed hosts
           HOMEPAGE_ALLOWED_HOSTS: "home.${internal_domain}"
-          # Disable file logging to avoid writing to read-only ConfigMap mount
-          # https://github.com/gethomepage/homepage/discussions/5404
           LOG_TARGETS: stdout
-          # Arr stack API keys (replicated from media namespace)
-          HOMEPAGE_VAR_SONARR_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: sonarr-api-key
-                key: api-key
-          HOMEPAGE_VAR_RADARR_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: radarr-api-key
-                key: api-key
-          HOMEPAGE_VAR_PROWLARR_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: prowlarr-api-key
-                key: api-key
-          HOMEPAGE_VAR_JELLYFIN_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: jellyfin-api-token
-                key: JELLYFIN_TOKEN
-          # External API keys (from AWS SSM via ExternalSecret)
-          HOMEPAGE_VAR_HEALTHCHECKS_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: homepage-healthchecks-api-key
-                key: api-key
-          HOMEPAGE_VAR_IMMICH_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: homepage-immich-api-key
-                key: api-key
-          HOMEPAGE_VAR_PAPERLESS_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: homepage-paperless-api-key
-                key: api-key
-          HOMEPAGE_VAR_JELLYSEERR_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: homepage-jellyseerr-api-key
-                key: api-key
-          HOMEPAGE_VAR_BAZARR_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: homepage-bazarr-api-key
-                key: api-key
-          HOMEPAGE_VAR_GRAFANA_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: homepage-grafana-api-key
-                key: api-key
-          HOMEPAGE_VAR_FIREFLY_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: homepage-firefly-api-key
-                key: api-key
-          HOMEPAGE_VAR_SONARR4K_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: sonarr4k-api-key
-                key: api-key
-          HOMEPAGE_VAR_RADARR4K_API_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: radarr4k-api-key
-                key: api-key
         resources:
           requests:
             cpu: 10m
