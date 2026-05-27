@@ -4,7 +4,7 @@ description: |
   Debugging agent for Kubernetes and infrastructure issues.
   Diagnoses failures and identifies root causes without modifying resources.
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
-model: inherit
+model: sonnet
 skills:
   - sre
   - k8s

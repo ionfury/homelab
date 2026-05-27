@@ -4,7 +4,7 @@ description: |
   Implementation agent for infrastructure and Kubernetes changes.
   Writes declarative code and delivers changes via PRs using GitOps and IaC patterns.
 tools: Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch
-model: inherit
+model: sonnet
 permissionMode: bypassPermissions
 skills:
   - flux-gitops
