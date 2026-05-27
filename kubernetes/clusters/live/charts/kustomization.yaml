@@ -17,6 +17,7 @@ configMapGenerator:
       - flaresolverr.yaml
       - firefly.yaml
       - homepage.yaml
+      - houndarr.yaml
       - immich.yaml
       - it-tools.yaml
       - jellyfin-exporter.yaml
