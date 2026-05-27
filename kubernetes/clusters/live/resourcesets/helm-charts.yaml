@@ -253,6 +253,13 @@ spec:
         version: "${open_webui_version}"
         url: "https://helm.openwebui.com"
       dependsOn: [ollama, cloudnative-pg, secret-generator]
+    - name: houndarr
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

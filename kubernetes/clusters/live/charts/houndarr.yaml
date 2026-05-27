@@ -1,0 +1,104 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  houndarr:
+    type: deployment
+    replicas: 1
+
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/av1155/houndarr
+          # renovate: datasource=docker depName=ghcr.io/av1155/houndarr
+          tag: "${houndarr_version}"
+        env:
+          TZ: America/New_York
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 8877
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 8877
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 8877
+              periodSeconds: 10
+
+service:
+  app:
+    controller: houndarr
+    ports:
+      http:
+        port: 8877
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Houndarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "sonarr.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=houndarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "houndarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8877
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: fast
+    advancedMounts:
+      houndarr:
+        app:
+          - path: /data
