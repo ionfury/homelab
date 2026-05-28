@@ -52,12 +52,12 @@ spec:
                 reporter="source",
                 destination_service!~".*kromgo.*"
               }[5m])) by (le)
-            ) > 50
+            ) > 200
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "External gateway p99 latency >50ms"
+            summary: "External gateway p99 latency >200ms"
             description: "Gateway processing overhead is high. Consider WAF rule optimization or increasing paranoia level exclusions."
 
         # Alert for kromgo backend which has elevated upstream latency (~99ms p99) unrelated to WAF overhead

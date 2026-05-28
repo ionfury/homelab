@@ -48,7 +48,8 @@ controllers:
                 port: 9594
               initialDelaySeconds: 5
               periodSeconds: 5
-              failureThreshold: 10
+              timeoutSeconds: 30
+              failureThreshold: 20
           liveness:
             enabled: true
             custom: true
