@@ -207,6 +207,14 @@
       "allowedVersions": "!/^v3\\.41\\./"
     },
     {
+      // talos v1.13.3: RenderConfigsStaticPodController panics on scheduler.config integer fields
+      // Upstream: https://github.com/siderolabs/talos/issues/13445
+      "matchDepNames": [
+        "talos"
+      ],
+      "allowedVersions": "!/^v1\\.13\\.3$/"
+    },
+    {
       // siderolabs/talos terraform provider 0.11.0: on_destroy.reset unknown value
       // causes Value Conversion Error on plan/validate
       // Upstream: https://github.com/siderolabs/terraform-provider-talos/issues/334
