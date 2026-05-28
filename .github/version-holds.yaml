@@ -14,3 +14,8 @@ holds:
     reason: "0.11.0 on_destroy.reset Value Conversion Error causes all plan/validate operations to fail"
     upstream_issue: https://github.com/siderolabs/terraform-provider-talos/issues/334
     created: "2026-05-06"
+  - dep: talos
+    constraint: "!/^v1\\.13\\.3$/"
+    reason: "v1.13.3 RenderConfigsStaticPodController panics with 'cannot deep copy int' on any custom scheduler.config with integer fields, breaking kube-apiserver"
+    upstream_issue: https://github.com/siderolabs/talos/issues/13445
+    created: "2026-05-28"
