@@ -70,6 +70,13 @@ volumeMounts:
 podLabels:
   networking/allow-ingress-prometheus: "true"
   networking/allow-cluster-egress: "true"
+  # cert-manager-istio-csr IS the cert provider for the mesh — it cannot
+  # be in the mesh it is bootstrapping. On cold start, ztunnel waits for
+  # istio-csr to issue its certificate while istio-cni blocks the istio-csr
+  # pod sandbox until ztunnel is running, creating a deadlock. Opting out
+  # of ambient here breaks the cycle without affecting mesh functionality.
+  # The label is checked by Istio's CNI plugin at pod sandbox creation.
+  istio.io/dataplane-mode: none
 
 resources:
   requests:
