@@ -28,7 +28,7 @@ configMapGenerator:
       - minecraft.yaml
       - ollama.yaml
       - open-webui.yaml
-      - paperless.yaml
+      - paperless.yaml=paperless/values.yaml
       - prowlarr.yaml
       - qbittorrent.yaml
       - radarr.yaml
