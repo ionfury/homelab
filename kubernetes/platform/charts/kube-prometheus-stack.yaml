@@ -37,6 +37,10 @@ alertmanager:
       global:
         resolveTimeout: 5m
     externalUrl: https://alertmanager.${external_domain}
+    templates:
+      - secret:
+          name: alertmanager-kube-prometheus-stack
+          key: discord.tmpl
     storage:
       emptyDir: { }
 kubeApiServer:
