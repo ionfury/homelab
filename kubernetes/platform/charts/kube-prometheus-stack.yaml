@@ -5,6 +5,27 @@ crds:
 cleanPrometheusOperatorObjectNames: true
 alertmanager:
   enabled: true
+  templateFiles:
+    discord.tmpl: |-
+      {{ define "homelab.discord.title" -}}
+      {{ if eq .Status "firing" }}🔥 FIRING{{ else }}✅ RESOLVED{{ end }}{{ if gt (len .Alerts.Firing) 1 }} ×{{ len .Alerts.Firing }}{{ end }}: {{ .CommonLabels.alertname }} [{{ .CommonLabels.severity | toUpper }}]
+      {{- end }}
+
+      {{ define "homelab.discord.message" -}}
+      {{ range $i, $a := .Alerts -}}
+      {{ if gt $i 0 }}─────────────────
+      {{ end -}}
+      {{ if $a.Annotations.summary }}**{{ $a.Annotations.summary }}**
+      {{ end -}}
+      {{ if $a.Annotations.description }}{{ $a.Annotations.description | reReplaceAll " on cluster [^.]*\\." "" }}
+      {{ end -}}
+      {{ if or $a.Labels.namespace $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset $a.Labels.pod $a.Labels.kubernetes_node -}}
+      **Context:** {{ if $a.Labels.namespace }}`ns/{{ $a.Labels.namespace }}`{{ end }}{{ if $a.Labels.deployment }} `deploy/{{ $a.Labels.deployment }}`{{ end }}{{ if $a.Labels.statefulset }} `sts/{{ $a.Labels.statefulset }}`{{ end }}{{ if $a.Labels.daemonset }} `ds/{{ $a.Labels.daemonset }}`{{ end }}{{ if and $a.Labels.pod (not (or $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset)) }} `pod/{{ $a.Labels.pod }}`{{ end }}{{ if $a.Labels.kubernetes_node }} `node/{{ $a.Labels.kubernetes_node }}`{{ end }}
+      {{ end -}}
+      {{ if $a.Annotations.runbook_url }}[📖 Runbook]({{ $a.Annotations.runbook_url }})
+      {{ end -}}
+      {{ end -}}
+      {{- end }}
   alertmanagerSpec:
     priorityClassName: platform
     podMetadata:

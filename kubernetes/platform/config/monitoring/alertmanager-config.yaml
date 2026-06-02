@@ -43,3 +43,5 @@ spec:
             key: url
             name: alertmanager-discord-webhook
           sendResolved: true
+          title: '{{ template "homelab.discord.title" . }}'
+          message: '{{ template "homelab.discord.message" . }}'
