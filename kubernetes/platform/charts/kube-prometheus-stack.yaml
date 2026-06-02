@@ -36,6 +36,10 @@ alertmanager:
       name: alertmanager
       global:
         resolveTimeout: 5m
+      templates:
+        - secret:
+            name: alertmanager-kube-prometheus-stack
+            key: discord.tmpl
     externalUrl: https://alertmanager.${external_domain}
     templates:
       - secret:
