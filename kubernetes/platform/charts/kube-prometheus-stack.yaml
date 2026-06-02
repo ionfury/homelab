@@ -22,8 +22,16 @@ alertmanager:
       {{ if or $a.Labels.namespace $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset $a.Labels.pod $a.Labels.kubernetes_node -}}
       **Context:** {{ if $a.Labels.namespace }}`ns/{{ $a.Labels.namespace }}`{{ end }}{{ if $a.Labels.deployment }} `deploy/{{ $a.Labels.deployment }}`{{ end }}{{ if $a.Labels.statefulset }} `sts/{{ $a.Labels.statefulset }}`{{ end }}{{ if $a.Labels.daemonset }} `ds/{{ $a.Labels.daemonset }}`{{ end }}{{ if and $a.Labels.pod (not (or $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset)) }} `pod/{{ $a.Labels.pod }}`{{ end }}{{ if $a.Labels.kubernetes_node }} `node/{{ $a.Labels.kubernetes_node }}`{{ end }}
       {{ end -}}
-      {{ if $a.Annotations.runbook_url }}[📖 Runbook]({{ $a.Annotations.runbook_url }})
-      {{ end -}}
+      {{ $matchers := printf "{alertname=\"%s\"" $a.Labels.alertname -}}
+      {{ if $a.Labels.namespace }}{{ $matchers = printf "%s,namespace=\"%s\"" $matchers $a.Labels.namespace }}{{ end -}}
+      {{ if $a.Labels.deployment }}{{ $matchers = printf "%s,deployment=\"%s\"" $matchers $a.Labels.deployment }}{{ end -}}
+      {{ if $a.Labels.statefulset }}{{ $matchers = printf "%s,statefulset=\"%s\"" $matchers $a.Labels.statefulset }}{{ end -}}
+      {{ if $a.Labels.daemonset }}{{ $matchers = printf "%s,daemonset=\"%s\"" $matchers $a.Labels.daemonset }}{{ end -}}
+      {{ if and $a.Labels.pod (not (or $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset)) }}{{ $matchers = printf "%s,pod=\"%s\"" $matchers $a.Labels.pod }}{{ end -}}
+      {{ if $a.Labels.kubernetes_node }}{{ $matchers = printf "%s,kubernetes_node=\"%s\"" $matchers $a.Labels.kubernetes_node }}{{ end -}}
+      {{ $matchers = printf "%s}" $matchers -}}
+      {{ if $a.Annotations.runbook_url }}[📖 Runbook]({{ $a.Annotations.runbook_url }}) · {{ end -}}
+      [🔕 Silence](https://alertmanager.${internal_domain}/#/silences/new?filter={{ $matchers | urlquery }}){{ if $a.GeneratorURL }} · [📈 Query]({{ $a.GeneratorURL | reReplaceAll "^[^?]+" "https://prometheus.${internal_domain}/query" }}){{ end }}
       {{ end -}}
       {{- end }}
   alertmanagerSpec:
