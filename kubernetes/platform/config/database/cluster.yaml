@@ -3,6 +3,8 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: platform
+  annotations:
+    cnpg.io/reloadedAt: "2026-06-03T15:00:00Z"
 spec:
   description: "Shared platform PostgreSQL cluster"
   env:
