@@ -13,6 +13,7 @@ spec:
   # Restoring the backed-up CR would apply an initdb spec, overriding recovery.
   excludedResources:
     - clusters.postgresql.cnpg.io
+    - secrets
   # garage: PVC restore recovers object storage (including CNPG Barman archives)
   # database: PVC restore recovers CNPG data PVCs (Barman recovery reads WALs from Garage)
   includedNamespaces:

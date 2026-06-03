@@ -259,6 +259,13 @@ spec:
         version: "${dcgm_exporter_version}"
         url: https://nvidia.github.io/dcgm-exporter/helm-charts
       dependsOn: [nvidia-device-plugin, kube-prometheus-stack]
+    - name: x509-certificate-exporter
+      namespace: monitoring
+      chart:
+        name: x509-certificate-exporter
+        version: "${x509_certificate_exporter_version}"
+        url: https://charts.enix.io
+      dependsOn: [kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
