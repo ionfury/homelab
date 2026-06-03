@@ -91,3 +91,31 @@ spec:
               The most recent backup attempt for cluster {{ $labels.cluster }} failed.
               A failed backup is more recent than the last successful one.
               Check CNPG operator logs and barman backup connectivity to Garage.
+
+    - name: cnpg.pooler-cert
+      rules:
+        - alert: CNPGPoolerCertExpiringSoon14d
+          expr: x509_cert_expires_in_seconds{secret="platform-pooler",namespace="database"} < 86400 * 14
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CNPG pooler TLS cert expires in < 14 days"
+            description: >-
+              platform-pooler cert in namespace database expires in {{ $value | humanizeDuration }}.
+              Check owner reference: kubectl get secret platform-pooler -n database
+              -o jsonpath='{.metadata.ownerReferences}'
+              If missing (Velero restore likely), patch pooler annotation cnpg.io/reloadedAt
+              to trigger CNPG to recreate with correct ownership.
+
+        - alert: CNPGPoolerCertExpiringSoon24h
+          expr: x509_cert_expires_in_seconds{secret="platform-pooler",namespace="database"} < 86400
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "CNPG pooler TLS cert expires in < 24 hours — P1 incident imminent"
+            description: >-
+              platform-pooler cert expires in {{ $value | humanizeDuration }}.
+              Update cnpg.io/reloadedAt annotation on the platform-pooler-rw Pooler CR
+              in Git to trigger CNPG cert rotation immediately.
