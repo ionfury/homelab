@@ -13,7 +13,7 @@ spec:
       rules:
         # Volume Health - Critical
         - alert: LonghornVolumeStatusCritical
-          expr: longhorn_volume_robustness == 3
+          expr: max by (volume, pvc_namespace) (longhorn_volume_robustness) == 3
           for: 5m
           labels:
             severity: critical
@@ -23,7 +23,7 @@ spec:
 
         # Volume Health - Warning
         - alert: LonghornVolumeStatusDegraded
-          expr: longhorn_volume_robustness == 2
+          expr: max by (volume, pvc_namespace) (longhorn_volume_robustness) == 2
           for: 5m
           labels:
             severity: warning
@@ -33,7 +33,7 @@ spec:
 
         # Volume Space - Per Volume
         - alert: LonghornVolumeActualSpaceUsedWarning
-          expr: (longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes) * 100 > 90
+          expr: max by (volume, pvc_namespace) (longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes) * 100 > 90
           for: 5m
           labels:
             severity: warning
@@ -43,7 +43,7 @@ spec:
 
         # Node Storage
         - alert: LonghornNodeStorageWarning
-          expr: (longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100 > 70
+          expr: max by (node) (longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100 > 70
           for: 5m
           labels:
             severity: warning
@@ -53,7 +53,7 @@ spec:
 
         # Disk Storage
         - alert: LonghornDiskStorageWarning
-          expr: (longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) * 100 > 70
+          expr: max by (disk, node) (longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) * 100 > 70
           for: 5m
           labels:
             severity: warning
@@ -73,7 +73,7 @@ spec:
 
         # Instance Manager CPU
         - alert: LonghornInstanceManagerCPUUsageWarning
-          expr: (longhorn_instance_manager_cpu_usage_millicpu / longhorn_instance_manager_cpu_requests_millicpu) * 100 > 300
+          expr: max by (instance_manager) (longhorn_instance_manager_cpu_usage_millicpu / longhorn_instance_manager_cpu_requests_millicpu) * 100 > 300
           for: 5m
           labels:
             severity: warning
@@ -83,7 +83,7 @@ spec:
 
         # Node CPU
         - alert: LonghornNodeCPUUsageWarning
-          expr: (longhorn_node_cpu_usage_millicpu / longhorn_node_cpu_capacity_millicpu) * 100 > 90
+          expr: max by (node) (longhorn_node_cpu_usage_millicpu / longhorn_node_cpu_capacity_millicpu) * 100 > 90
           for: 5m
           labels:
             severity: warning
@@ -93,7 +93,7 @@ spec:
 
         # Volume Read-Only (filesystem issue)
         - alert: LonghornVolumeReadOnly
-          expr: longhorn_volume_file_system_read_only == 1
+          expr: max by (volume, pvc_namespace) (longhorn_volume_file_system_read_only) == 1
           for: 1m
           labels:
             severity: critical
@@ -103,7 +103,7 @@ spec:
 
         # Replica rebuild in progress (informational, longer duration = problem)
         - alert: LonghornRebuildStalled
-          expr: longhorn_engine_rebuild_progress > 0 and longhorn_engine_rebuild_progress < 100
+          expr: max by (volume) (longhorn_engine_rebuild_progress) > 0 and max by (volume) (longhorn_engine_rebuild_progress) < 100
           for: 30m
           labels:
             severity: warning
@@ -113,7 +113,7 @@ spec:
 
         # SSD Endurance - Warning
         - alert: LonghornDiskEnduranceWarning
-          expr: longhorn_disk_health_attribute_raw{attribute_id=~"202|231"} < 30
+          expr: max by (disk, node) (longhorn_disk_health_attribute_raw{attribute_id=~"202|231"}) < 30
           for: 5m
           labels:
             severity: warning
@@ -123,7 +123,7 @@ spec:
 
         # SSD Endurance - Critical
         - alert: LonghornDiskEnduranceCritical
-          expr: longhorn_disk_health_attribute_raw{attribute_id=~"202|231"} < 10
+          expr: max by (disk, node) (longhorn_disk_health_attribute_raw{attribute_id=~"202|231"}) < 10
           for: 5m
           labels:
             severity: critical
