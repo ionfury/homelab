@@ -18,6 +18,7 @@ resources:
   - cilium-alerts.yaml
   - istio-servicemonitors.yaml
   - istio-alerts.yaml
+  - gateway-red-alerts.yaml
   - external-secrets-alerts.yaml
   - grafana-alerts.yaml
   - loki-mixin-alerts.yaml
