@@ -92,8 +92,6 @@ route:
       gethomepage.dev/name: "Tdarr"
       gethomepage.dev/group: "Media"
       gethomepage.dev/icon: "tdarr.svg"
-      gethomepage.dev/widget.type: "tdarr"
-      gethomepage.dev/widget.url: "http://tdarr.media.svc:8265"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=tdarr"
     parentRefs:
       - name: internal

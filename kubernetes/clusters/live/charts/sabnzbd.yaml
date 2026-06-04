@@ -92,8 +92,6 @@ route:
       gethomepage.dev/name: "SABnzbd"
       gethomepage.dev/group: "Media"
       gethomepage.dev/icon: "sabnzbd.svg"
-      gethomepage.dev/widget.type: "sabnzbd"
-      gethomepage.dev/widget.url: "http://sabnzbd.media.svc:8080"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=sabnzbd"
     parentRefs:
       - name: internal
