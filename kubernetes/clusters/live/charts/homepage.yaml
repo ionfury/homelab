@@ -112,10 +112,6 @@ configMaps:
               icon: mdi-server
               style: row
               columns: 4
-          - Gaming:
-              icon: mdi-gamepad-variant
-              style: row
-              columns: 2
       widgets.yaml: |
         - search:
             provider: google
@@ -134,40 +130,7 @@ configMaps:
             timezone: America/New_York
             units: imperial
             cache: 15
-      services.yaml: |
-        - Gaming:
-            - Minecraft:
-                icon: minecraft.svg
-                description: Java + Bedrock crossplay
-                widget:
-                  type: gamedig
-                  serverType: minecraft
-                  host: minecraft.minecraft.svc.cluster.local
-                  port: 25565
-            - Valheim:
-                icon: valheim.svg
-                description: Dedicated server
-                widget:
-                  type: gamedig
-                  serverType: valheim
-                  host: valheim.valheim.svc.cluster.local
-                  port: 2457
-            - Satisfactory:
-                icon: satisfactory.svg
-                description: Dedicated server
-                widget:
-                  type: gamedig
-                  serverType: satisfactory
-                  host: satisfactory.satisfactory.svc.cluster.local
-                  port: 7777
-            - Factorio:
-                icon: factorio.svg
-                description: Space Age
-                widget:
-                  type: gamedig
-                  serverType: factorio
-                  host: factorio.factorio.svc.cluster.local
-                  port: 34197
+      services.yaml: ""
       bookmarks.yaml: |
         - Infrastructure:
             - GitHub:
