@@ -94,6 +94,10 @@ spec:
       namespace: ""
       path: kubernetes/platform/config/infrastructure-policies
       dependsOn: [cilium]
+    - name: external-dns-config
+      namespace: external-dns
+      path: kubernetes/platform/config/external-dns
+      dependsOn: [external-dns, external-secrets-stores]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
