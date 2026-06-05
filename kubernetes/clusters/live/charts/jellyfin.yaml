@@ -45,7 +45,7 @@ controllers:
                 port: 8096
               initialDelaySeconds: 10
               periodSeconds: 5
-              failureThreshold: 30
+              failureThreshold: 60
           liveness:
             enabled: true
             custom: true

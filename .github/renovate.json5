@@ -195,6 +195,18 @@
       ],
       "groupName": "hardware monitoring exporters"
     },
+    {
+      // Jellyfin: restrict upgrades to off-peak hours to avoid SLA impact.
+      // Recreate strategy causes hard downtime on every pod restart; scheduling
+      // updates during low-traffic hours minimises user-visible disruption.
+      "matchDepNames": [
+        "jellyfin"
+      ],
+      "groupName": "jellyfin",
+      "schedule": [
+        "after 2am and before 6am on Monday"
+      ]
+    },
     // ============================================================
     // Version holds — upstream regressions (see .github/version-holds.yaml)
     // ============================================================
