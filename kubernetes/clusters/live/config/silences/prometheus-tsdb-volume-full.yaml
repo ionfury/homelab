@@ -1,5 +1,5 @@
 ---
-# Prometheus self-manages TSDB storage via retentionSize: 50GB on a 50Gi PVC.
+# Prometheus self-manages TSDB storage via retentionSize: 90GB on a 100Gi PVC.
 # Sitting near capacity is expected steady-state behavior — Prometheus trims at
 # the size limit. The Longhorn 90% threshold fires before the retention ceiling
 # kicks in, producing a permanent false positive for these volumes.
