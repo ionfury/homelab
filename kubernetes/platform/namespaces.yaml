@@ -38,6 +38,13 @@ spec:
       dataplane: ambient
       security: restricted
       networkPolicy: false
+    - name: external-dns
+      dataplane: ambient
+      security: restricted
+      networkPolicy:
+        profile: internal-egress
+        enforcement: ""
+      kubeApiAccess: true
     - name: oauth2-proxy
       dataplane: ambient
       security: restricted

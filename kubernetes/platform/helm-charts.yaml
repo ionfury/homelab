@@ -266,6 +266,13 @@ spec:
         version: "${x509_certificate_exporter_version}"
         url: https://charts.enix.io
       dependsOn: [kube-prometheus-stack]
+    - name: external-dns
+      namespace: external-dns
+      chart:
+        name: external-dns
+        version: "${external_dns_version}"
+        url: https://kubernetes-sigs.github.io/external-dns/
+      dependsOn: [external-secrets, kube-prometheus-stack-crds]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
