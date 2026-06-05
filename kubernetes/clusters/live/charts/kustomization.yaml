@@ -13,6 +13,7 @@ configMapGenerator:
       - bazarr.yaml
       - booter.yaml
       - exportarr.yaml
+      - external-dns.yaml
       - factorio.yaml
       - flaresolverr.yaml
       - firefly.yaml
