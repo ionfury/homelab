@@ -6,7 +6,6 @@ provider:
 
 sources:
   - gateway-httproute
-  - gateway
 
 domainFilters:
   - ${external_domain}
