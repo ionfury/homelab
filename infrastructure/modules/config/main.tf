@@ -7,8 +7,8 @@ locals {
       database             = "20Gi"
       dragonfly            = "2Gi"
       loki                 = "50Gi"
-      prometheus           = "50Gi"
-      prometheus_retention = "40GB"
+      prometheus           = "100Gi"
+      prometheus_retention = "90GB"
     }
     minimal = {
       garage_data          = "1Gi"
