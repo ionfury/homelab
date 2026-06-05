@@ -260,6 +260,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: []
+    - name: external-dns
+      namespace: external-dns
+      chart:
+        name: external-dns
+        version: "${external_dns_version}"
+        url: https://kubernetes-sigs.github.io/external-dns/
+      dependsOn: [external-secrets, kube-prometheus-stack-crds]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
