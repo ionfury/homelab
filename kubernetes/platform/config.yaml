@@ -94,6 +94,10 @@ spec:
       namespace: ""
       path: kubernetes/platform/config/infrastructure-policies
       dependsOn: [cilium]
+    - name: unifi-config
+      namespace: unifi
+      path: kubernetes/platform/config/unifi
+      dependsOn: [istiod]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
