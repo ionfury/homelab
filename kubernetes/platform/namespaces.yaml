@@ -57,6 +57,10 @@ spec:
       dataplane: ambient
       security: restricted
       networkPolicy: false
+    - name: unifi
+      dataplane: ambient
+      security: restricted
+      networkPolicy: false
     # --- baseline: require some elevated capabilities (e.g. NET_BIND_SERVICE) ---
     - name: istio-gateway
       dataplane: ambient
