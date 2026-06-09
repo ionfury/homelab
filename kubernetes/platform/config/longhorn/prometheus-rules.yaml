@@ -195,3 +195,52 @@ spec:
               The {{ $labels.pool }} storage pool is at {{ $value | humanizePercentage }} capacity.
               New volume scheduling may fail. Immediate action required: expand disks,
               delete unused volumes, or migrate workloads.
+
+    - name: longhorn-media-library-alerts
+      rules:
+        - alert: LonghornShareManagerMemoryHigh
+          expr: container_memory_working_set_bytes{pod=~"share-manager-.*"} > 4294967296
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn share-manager {{ $labels.pod }} memory > 4 GiB"
+            description: >-
+              Share-manager pod {{ $labels.pod }} working set is {{ $value | humanize1024 }}B.
+              This may indicate the share-manager memory leak (issue #8523). Check pod age and
+              consider restarting if persistent.
+
+        - alert: LonghornDiskUsageHigh
+          expr: max by (disk, node) (longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) > 0.75
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} usage > 75%"
+            description: >-
+              Disk {{ $labels.disk }} on node {{ $labels.node }} is at
+              {{ $value | humanizePercentage }} capacity. Procure next disk trio before reaching 85%.
+
+        - alert: LonghornMediaVolumeRobustnessDegraded
+          expr: max by (volume, pvc_namespace) (longhorn_volume_robustness{volume=~"media-library.*"}) != 1
+          for: 30m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn media volume {{ $labels.volume }} is not healthy"
+            description: >-
+              Media volume {{ $labels.volume }} has been in a non-healthy robustness state for 30
+              minutes. Robustness value {{ $value }} (1=Healthy, 2=Degraded, 3=Faulted).
+              Replica loss on media volumes requires immediate attention.
+
+        - alert: LonghornVolumeSchedulingFailed
+          expr: longhorn_volume_condition{condition="Scheduled", status="False"} > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} cannot be scheduled"
+            description: >-
+              Volume {{ $labels.volume }} has an unmet scheduling condition. This usually means
+              insufficient disk space on tagged disks. Check storageOverProvisioningPercentage
+              and available disk capacity.

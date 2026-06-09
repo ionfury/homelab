@@ -10,3 +10,4 @@ resources:
   - storage-classes/fast-ephemeral.yaml
   - storage-classes/fast.yaml
   - storage-classes/slow.yaml
+  - storage-classes/slow-media.yaml
