@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - media-library-pvc.yaml
+  - media-library-pvcs.yaml
   - sabnzbd-downloads-pvc.yaml
   - qbittorrent-downloads-pvc.yaml
   - secrets.yaml
