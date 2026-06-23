@@ -3,6 +3,19 @@
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
+  name: longhorn-critical
+value: 1000000000
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: >-
+  Longhorn data-plane components: share-manager and instance-manager pods.
+  These hold open NFS mounts for all RWX consumers and must not be preempted
+  under any memory or resource pressure in the cluster.
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/scheduling.k8s.io/priorityclass_v1.json
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
   name: infrastructure-critical
 value: 1000000
 preemptionPolicy: PreemptLowerPriority
