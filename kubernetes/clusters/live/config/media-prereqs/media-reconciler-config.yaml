@@ -1,0 +1,255 @@
+---
+# POLICY: Never set rootFolder on Jellyseerr Override Rules — they override activeDirectory.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: media-reconciler-config
+  namespace: media
+data:
+  config.json: |
+    {
+      "longhorn_url": "http://longhorn-frontend.longhorn-system.svc.cluster.local",
+      "disks": [
+        {"name": "disk-00", "pvc": "media-library",    "placement": "existing-only", "root_folder_path": "/media/library/disk-00", "media_path": "/media/library/disk-00"},
+        {"name": "disk-01", "pvc": "media-library-01", "placement": "eligible",       "root_folder_path": "/media/library/disk-01", "media_path": "/media/library/disk-01"},
+        {"name": "disk-02", "pvc": "media-library-02", "placement": "eligible",       "root_folder_path": "/media/library/disk-02", "media_path": "/media/library/disk-02"},
+        {"name": "disk-03", "pvc": "media-library-03", "placement": "eligible",       "root_folder_path": "/media/library/disk-03", "media_path": "/media/library/disk-03"},
+        {"name": "disk-04", "pvc": "media-library-04", "placement": "eligible",       "root_folder_path": "/media/library/disk-04", "media_path": "/media/library/disk-04"},
+        {"name": "disk-05", "pvc": "media-library-05", "placement": "eligible",       "root_folder_path": "/media/library/disk-05", "media_path": "/media/library/disk-05"},
+        {"name": "disk-06", "pvc": "media-library-06", "placement": "eligible",       "root_folder_path": "/media/library/disk-06", "media_path": "/media/library/disk-06"},
+        {"name": "disk-07", "pvc": "media-library-07", "placement": "eligible",       "root_folder_path": "/media/library/disk-07", "media_path": "/media/library/disk-07"},
+        {"name": "disk-08", "pvc": "media-library-08", "placement": "eligible",       "root_folder_path": "/media/library/disk-08", "media_path": "/media/library/disk-08"},
+        {"name": "disk-09", "pvc": "media-library-09", "placement": "eligible",       "root_folder_path": "/media/library/disk-09", "media_path": "/media/library/disk-09"},
+        {"name": "disk-10", "pvc": "media-library-10", "placement": "eligible",       "root_folder_path": "/media/library/disk-10", "media_path": "/media/library/disk-10"}
+      ],
+      "arr_instances": [
+        {"name": "sonarr",   "type": "sonarr", "url": "http://sonarr.media.svc.cluster.local:8989",   "api_key_env": "SONARR_API_KEY",   "jellyseerr_id": 1, "flags": ["anime"]},
+        {"name": "sonarr4k", "type": "sonarr", "url": "http://sonarr4k.media.svc.cluster.local:8989", "api_key_env": "SONARR4K_API_KEY", "jellyseerr_id": 2, "flags": ["anime"]},
+        {"name": "radarr",   "type": "radarr", "url": "http://radarr.media.svc.cluster.local:7878",   "api_key_env": "RADARR_API_KEY",   "jellyseerr_id": 1},
+        {"name": "radarr4k", "type": "radarr", "url": "http://radarr4k.media.svc.cluster.local:7878", "api_key_env": "RADARR4K_API_KEY", "jellyseerr_id": 2}
+      ],
+      "jellyseerr": {
+        "url": "http://jellyseerr.media.svc.cluster.local:5055",
+        "api_key_env": "JELLYSEERR_API_KEY"
+      },
+      "tdarr": {
+        "url": "http://tdarr.media.svc.cluster.local:8265",
+        "flow_id": "CONFIGURE_ME"
+      }
+    }
+  reconciler.py: |
+    #!/usr/bin/env python3
+    import argparse
+    import json
+    import logging
+    import os
+    import urllib.request
+    import urllib.error
+    from typing import Any
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+    )
+    log = logging.getLogger(__name__)
+
+
+    def http_get(url: str, headers: dict | None = None) -> Any:
+        req = urllib.request.Request(url, headers=headers or {})
+        with urllib.request.urlopen(req) as resp:
+            return json.loads(resp.read())
+
+
+    def http_post(url: str, payload: Any, headers: dict | None = None) -> Any:
+        data = json.dumps(payload).encode()
+        h = {"Content-Type": "application/json", **(headers or {})}
+        req = urllib.request.Request(url, data=data, headers=h, method="POST")
+        with urllib.request.urlopen(req) as resp:
+            return json.loads(resp.read())
+
+
+    def http_put(url: str, payload: Any, headers: dict | None = None) -> Any:
+        data = json.dumps(payload).encode()
+        h = {"Content-Type": "application/json", **(headers or {})}
+        req = urllib.request.Request(url, data=data, headers=h, method="PUT")
+        with urllib.request.urlopen(req) as resp:
+            return json.loads(resp.read())
+
+
+    def pick_emptiest_eligible_disk(disks: list[dict], longhorn_url: str) -> dict | None:
+        try:
+            volumes = http_get(f"{longhorn_url}/v1/volumes?count=500")
+            size_by_pvc: dict[str, int] = {}
+            for item in volumes.get("data", []):
+                pvc = item.get("kubernetesStatus", {}).get("pvcName", "")
+                if pvc:
+                    size_by_pvc[pvc] = item.get("actualSize", 0)
+        except Exception as exc:
+            log.error("Failed to query Longhorn volumes: %s", exc)
+            return None
+
+        eligible = [d for d in disks if d.get("placement") == "eligible"]
+        if not eligible:
+            log.warning("No eligible disks found")
+            return None
+
+        best = min(eligible, key=lambda d: size_by_pvc.get(d["pvc"], 0))
+        log.info("Emptiest eligible disk: %s (pvc=%s, actualSize=%d)",
+                 best["name"], best["pvc"], size_by_pvc.get(best["pvc"], 0))
+        return best
+
+
+    def sync_arr_root_folders(arr: dict, disks: list[dict], target_disk: dict, dry_run: bool) -> None:
+        name = arr["name"]
+        url = arr["url"]
+        api_key = os.environ.get(arr["api_key_env"], "")
+        headers = {"X-Api-Key": api_key}
+
+        desired_paths = {d["root_folder_path"] for d in disks}
+
+        try:
+            existing = http_get(f"{url}/api/v3/rootfolder", headers=headers)
+            existing_paths = {rf["path"] for rf in existing}
+        except Exception as exc:
+            log.error("[%s] Failed to fetch root folders: %s", name, exc)
+            return
+
+        missing = desired_paths - existing_paths
+        extra = existing_paths - desired_paths
+
+        for path in missing:
+            log.info("[%s] Adding root folder: %s", name, path)
+            if not dry_run:
+                try:
+                    http_post(f"{url}/api/v3/rootfolder", {"path": path}, headers=headers)
+                except Exception as exc:
+                    log.error("[%s] Failed to add root folder %s: %s", name, path, exc)
+
+        for path in extra:
+            log.warning("[%s] Extra root folder (not removing — manual action required): %s", name, path)
+
+
+    def sync_jellyseerr(arr: dict, target_disk: dict, jellyseerr_cfg: dict, dry_run: bool) -> None:
+        name = arr["name"]
+        arr_type = arr["type"]
+        jellyseerr_id = arr["jellyseerr_id"]
+        flags = arr.get("flags", [])
+        js_url = jellyseerr_cfg["url"]
+        api_key = os.environ.get(jellyseerr_cfg["api_key_env"], "")
+        headers = {"X-Api-Key": api_key}
+
+        endpoint = f"{js_url}/api/v1/settings/{arr_type}/{jellyseerr_id}"
+        try:
+            settings = http_get(endpoint, headers=headers)
+        except Exception as exc:
+            log.error("[jellyseerr/%s] Failed to fetch settings: %s", name, exc)
+            return
+
+        active_dir = target_disk["media_path"]
+        updated = dict(settings)
+        updated["activeDirectory"] = active_dir
+        if "anime" in flags:
+            updated["activeAnimeDirectory"] = active_dir
+
+        if dry_run:
+            log.info("[jellyseerr/%s] Would set activeDirectory=%s", name, active_dir)
+            return
+
+        try:
+            http_put(endpoint, updated, headers=headers)
+            log.info("[jellyseerr/%s] Set activeDirectory=%s", name, active_dir)
+        except Exception as exc:
+            log.error("[jellyseerr/%s] Failed to update settings: %s", name, exc)
+
+
+    def sync_tdarr_libraries(disks: list[dict], tdarr_cfg: dict, dry_run: bool) -> None:
+        url = tdarr_cfg["url"]
+        flow_id = tdarr_cfg.get("flow_id", "")
+
+        try:
+            existing_resp = http_post(
+                f"{url}/api/v2/cruddb",
+                {"data": {"collection": "LibrarySettingsJSONDB", "mode": "getAll", "docID": ""}},
+            )
+            rows = existing_resp if isinstance(existing_resp, list) else existing_resp.get("array", [])
+            existing_paths = {lib.get("folder", "") for lib in rows}
+        except Exception as exc:
+            log.error("[tdarr] Failed to fetch libraries: %s", exc)
+            return
+
+        for disk in disks:
+            path = disk["media_path"]
+            if path in existing_paths:
+                log.info("[tdarr] Library already exists: %s", path)
+                continue
+
+            log.info("[tdarr] Adding library: %s", path)
+            if dry_run:
+                continue
+
+            payload = {
+                "data": {
+                    "collection": "LibrarySettingsJSONDB",
+                    "mode": "insertOne",
+                    "docID": "",
+                    "document": {
+                        "folder": path,
+                        "folderWatch": True,
+                        "scanOnStart": False,
+                        "holdQueueStagger": 0,
+                        "processLibraryOnNextScan": False,
+                        "skippedFilePaths": [],
+                        "filters": [],
+                        "flowID": flow_id,
+                    },
+                }
+            }
+            try:
+                http_post(f"{url}/api/v2/cruddb", payload)
+            except Exception as exc:
+                log.error("[tdarr] Failed to add library %s: %s", path, exc)
+
+
+    def main() -> None:
+        parser = argparse.ArgumentParser(description="Media storage reconciler")
+        parser.add_argument("--dry-run", action="store_true", help="Log actions without writing")
+        parser.add_argument("--config", default="/scripts/config.json", help="Path to config.json")
+        args = parser.parse_args()
+
+        with open(args.config) as f:
+            cfg = json.load(f)
+
+        disks: list[dict] = cfg["disks"]
+        arr_instances: list[dict] = cfg["arr_instances"]
+        jellyseerr_cfg: dict = cfg["jellyseerr"]
+        tdarr_cfg: dict = cfg["tdarr"]
+        longhorn_url: str = cfg["longhorn_url"]
+
+        if args.dry_run:
+            log.info("DRY RUN mode — no writes will be performed")
+
+        target_disk = pick_emptiest_eligible_disk(disks, longhorn_url)
+        if target_disk is None:
+            log.error("Could not determine target disk; aborting arr/jellyseerr sync")
+        else:
+            for arr in arr_instances:
+                try:
+                    sync_arr_root_folders(arr, disks, target_disk, args.dry_run)
+                except Exception as exc:
+                    log.error("[%s] Unexpected error: %s", arr["name"], exc)
+
+                try:
+                    sync_jellyseerr(arr, target_disk, jellyseerr_cfg, args.dry_run)
+                except Exception as exc:
+                    log.error("[jellyseerr/%s] Unexpected error: %s", arr["name"], exc)
+
+        try:
+            sync_tdarr_libraries(disks, tdarr_cfg, args.dry_run)
+        except Exception as exc:
+            log.error("[tdarr] Unexpected error: %s", exc)
+
+        log.info("Reconciliation complete")
+
+
+    if __name__ == "__main__":
+        main()
