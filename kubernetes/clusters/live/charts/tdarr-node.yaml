@@ -73,7 +73,77 @@ persistence:
     advancedMounts:
       tdarr-node:
         app:
-          - path: /media/library
+          - path: /media/library/disk-00
+  media-library-01:
+    type: persistentVolumeClaim
+    existingClaim: media-library-01
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-01
+  media-library-02:
+    type: persistentVolumeClaim
+    existingClaim: media-library-02
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-02
+  media-library-03:
+    type: persistentVolumeClaim
+    existingClaim: media-library-03
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-03
+  media-library-04:
+    type: persistentVolumeClaim
+    existingClaim: media-library-04
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-04
+  media-library-05:
+    type: persistentVolumeClaim
+    existingClaim: media-library-05
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-05
+  media-library-06:
+    type: persistentVolumeClaim
+    existingClaim: media-library-06
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-06
+  media-library-07:
+    type: persistentVolumeClaim
+    existingClaim: media-library-07
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-07
+  media-library-08:
+    type: persistentVolumeClaim
+    existingClaim: media-library-08
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-08
+  media-library-09:
+    type: persistentVolumeClaim
+    existingClaim: media-library-09
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-09
+  media-library-10:
+    type: persistentVolumeClaim
+    existingClaim: media-library-10
+    advancedMounts:
+      tdarr-node:
+        app:
+          - path: /media/library/disk-10
   transcode-cache:
     type: emptyDir
     advancedMounts:
