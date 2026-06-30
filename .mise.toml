@@ -15,8 +15,8 @@ yamllint = "1.38.0"
 task = "3.51.1"
 
 # Cluster operations
-talosctl = "1.13.4"
-"aqua:cilium/cilium-cli" = "0.19.4"
+talosctl = "1.13.5"
+"aqua:cilium/cilium-cli" = "0.19.5"
 
 # Node.js (for renovate validation)
 node = "24"
@@ -25,7 +25,7 @@ node = "24"
 # NOTE: This section MUST be at the end because TOML nested tables
 # terminate the parent [tools] section's inline definitions
 [tools."github:controlplaneio-fluxcd/flux-operator"]
-version = "0.52.0"
+version = "0.53.0"
 
 [tools."github:controlplaneio-fluxcd/flux-operator".platforms]
 linux-x64 = { asset_pattern = "flux-operator_*_linux_amd64.tar.gz" }
