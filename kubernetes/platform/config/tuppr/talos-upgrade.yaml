@@ -40,14 +40,14 @@ spec:
         status.phase == 'Cluster in healthy state' &&
           status.readyInstances == object.spec.instances
       timeout: 15m
-    - apiVersion: garage.rajsingh.info/v1alpha1
+    - apiVersion: garage.rajsingh.info/v1beta2
       kind: GarageCluster
       name: garage
       namespace: garage
       description: Garage cluster must be running with all replicas ready
       expr: |
         status.phase == 'Running' &&
-          status.readyReplicas == object.spec.replicas
+          status.readyReplicas == status.replicas
       timeout: 10m
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly
