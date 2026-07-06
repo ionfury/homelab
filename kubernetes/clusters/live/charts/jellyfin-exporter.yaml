@@ -58,6 +58,7 @@ controllers:
                 path: /metrics
                 port: 9594
               periodSeconds: 30
+              timeoutSeconds: 30
           readiness:
             enabled: true
             custom: true
@@ -66,6 +67,7 @@ controllers:
                 path: /metrics
                 port: 9594
               periodSeconds: 10
+              timeoutSeconds: 30
 
 service:
   app:
