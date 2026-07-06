@@ -207,6 +207,17 @@
         "after 2am and before 6am on Monday"
       ]
     },
+    {
+      // tdarr server + node MUST run identical versions — a mismatch causes
+      // the node process to hard-exit (incident: node crashlooped 310× for 2d4h
+      // after server bumped independently via a separate Renovate PR).
+      // Grouping forces both into one atomic PR so they can never diverge.
+      "matchDepNames": [
+        "tdarr",
+        "tdarr-node"
+      ],
+      "groupName": "tdarr"
+    },
     // ============================================================
     // Version holds — upstream regressions (see .github/version-holds.yaml)
     // ============================================================
