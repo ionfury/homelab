@@ -112,16 +112,10 @@
     {
       "matchDepNames": [
         "talos",
-        "!siderolabs/talos"
-      ],
-      "groupName": "talos",
-      "automerge": true
-    },
-    {
-      "matchDepNames": [
+        "!siderolabs/talos",
         "kubernetes"
       ],
-      "groupName": "kubernetes",
+      "groupName": "talos-platform",
       "automerge": true
     },
     {

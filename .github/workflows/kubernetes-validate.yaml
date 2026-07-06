@@ -23,6 +23,31 @@ jobs:
       - name: Setup tools
         uses: jdx/mise-action@v4
 
+      - name: Check Talos/Kubernetes version compatibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TALOS=$(grep '^talos_version=' kubernetes/platform/versions.env | cut -d= -f2)
+          K8S=$(grep '^kubernetes_version=' kubernetes/platform/versions.env | cut -d= -f2)
+
+          # Derive compat package from Talos minor (e.g. v1.13.5 -> talos113)
+          TALOS_MINOR=$(echo "${TALOS}" | grep -oP 'v\K\d+\.\d+' | tr -d '.')
+          COMPAT_PATH="pkg/machinery/compatibility/talos${TALOS_MINOR}/talos${TALOS_MINOR}.go"
+
+          COMPAT=$(gh api "/repos/siderolabs/talos/contents/${COMPAT_PATH}?ref=${TALOS}" \
+            --jq '.content' | base64 -d)
+
+          K8S_MIN=$(echo "${COMPAT}" | grep -oP 'MinimumKubernetesVersion\s*=\s*semver\.MustParse\("\K[\d.]+')
+          K8S_MAX=$(echo "${COMPAT}" | grep -oP 'MaximumKubernetesVersion\s*=\s*semver\.MustParse\("\K[\d.]+')
+
+          echo "Talos ${TALOS} supports Kubernetes ${K8S_MIN} - ${K8S_MAX}"
+          echo "Configured: ${K8S}"
+
+          if ! printf '%s\n%s\n%s\n' "${K8S_MIN}" "${K8S}" "${K8S_MAX}" | sort -V -C; then
+            echo "ERROR: kubernetes_version=${K8S} outside supported range [${K8S_MIN}, ${K8S_MAX}] for Talos ${TALOS}" >&2
+            exit 1
+          fi
+
       - name: Validate (cluster-independent)
         run: task k8s:validate
 
