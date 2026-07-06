@@ -34,8 +34,8 @@ jobs:
           TALOS_MINOR=$(echo "${TALOS}" | grep -oP 'v\K\d+\.\d+' | tr -d '.')
           COMPAT_PATH="pkg/machinery/compatibility/talos${TALOS_MINOR}/talos${TALOS_MINOR}.go"
 
-          COMPAT=$(gh api "/repos/siderolabs/talos/contents/${COMPAT_PATH}" \
-            -f ref="${TALOS}" --jq '.content' | base64 -d)
+          COMPAT=$(gh api "/repos/siderolabs/talos/contents/${COMPAT_PATH}?ref=${TALOS}" \
+            --jq '.content' | base64 -d)
 
           K8S_MIN=$(echo "${COMPAT}" | grep -oP 'MinimumKubernetesVersion\s*=\s*semver\.MustParse\("\K[\d.]+')
           K8S_MAX=$(echo "${COMPAT}" | grep -oP 'MaximumKubernetesVersion\s*=\s*semver\.MustParse\("\K[\d.]+')
