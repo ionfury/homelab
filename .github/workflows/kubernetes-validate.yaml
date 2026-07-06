@@ -23,6 +23,22 @@ jobs:
       - name: Setup tools
         uses: jdx/mise-action@v4
 
+      - name: Check Talos/Kubernetes version compatibility
+        run: |
+          TALOS=$(grep '^talos_version=' kubernetes/platform/versions.env | cut -d= -f2)
+          K8S=$(grep '^kubernetes_version=' kubernetes/platform/versions.env | cut -d= -f2)
+
+          EXPECTED=$(curl -sf "https://api.github.com/repos/siderolabs/talos/releases/tags/${TALOS}" \
+            | jq -r '.body' \
+            | grep -oP 'Kubernetes: \K[\d.]+')
+
+          echo "Talos ${TALOS} expects Kubernetes ${EXPECTED}, configured ${K8S}"
+
+          if [[ "$K8S" != "$EXPECTED" ]]; then
+            echo "ERROR: Talos ${TALOS} requires Kubernetes ${EXPECTED} but versions.env has ${K8S}" >&2
+            exit 1
+          fi
+
       - name: Validate (cluster-independent)
         run: task k8s:validate
 
