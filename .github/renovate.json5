@@ -244,6 +244,12 @@
       "allowedVersions": "< 0.11.0"
     },
     {
+      // Pin PostgreSQL to v18 major — CNPG major-version upgrades require
+      // deliberate cluster rebuild or pg_upgrade, not an automatic bump.
+      "matchDepNames": ["cloudnative-pg-postgresql"],
+      "allowedVersions": "^18"
+    },
+    {
       // pluto aqua datasource diverges from GitHub releases - force github-releases
       // to prevent phantom versions that 404 on install
       "matchManagers": ["mise"],
