@@ -33,6 +33,7 @@ configMapGenerator:
       - prowlarr.yaml
       - qbittorrent.yaml
       - radarr.yaml
+      - redlib.yaml
       - radarr4k.yaml
       - recyclarr.yaml
       - sabnzbd.yaml

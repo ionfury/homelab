@@ -6,6 +6,7 @@ resources:
   - booter
   - external-dns
   - it-tools
+  - redlib
   - zipline
   - vaultwarden
   - immich
