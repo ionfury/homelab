@@ -1,6 +1,7 @@
 ---
 # https://github.com/grafana/loki/blob/main/production/helm/loki/values.yaml
 # yaml-language-server: $schema=https://github.com/grafana/loki/blob/main/production/helm/loki/values.schema.json
+fullnameOverride: loki
 deploymentMode: SingleBinary
 loki:
   auth_enabled: false
