@@ -34,6 +34,11 @@ app:
   server:
     # Ambient mode: allow ztunnel to request certificates on behalf of workloads
     caTrustedNodeAccounts: istio-system/ztunnel
+    authenticators:
+      # Allow proxies to renew certs using their existing cert as auth, breaking
+      # the hard dependency on the in-memory istio-token JWT (12h TTL). Without
+      # this, JWT expiry causes a full mesh outage with no renewal fallback.
+      enableClientCert: true
     # Address for Istio components to connect
     serving:
       address: 0.0.0.0
