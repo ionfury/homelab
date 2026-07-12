@@ -7,6 +7,10 @@ data:
   deployment: |
     spec:
       replicas: ${default_replica_count}
+      template:
+        metadata:
+          annotations:
+            kubectl.kubernetes.io/restartedAt: "2026-07-12T17:00:00Z"
   podDisruptionBudget: |
     spec:
       maxUnavailable: 1
