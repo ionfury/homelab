@@ -44,6 +44,44 @@ controllers:
               secretKeyRef:
                 name: sure-secret
                 key: secret-key-base
+          # OIDC via Authelia
+          OIDC_ISSUER: "https://auth.${external_domain}"
+          OIDC_CLIENT_ID: "sure"
+          OIDC_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: sure-oidc-client-secret
+                key: client-secret
+          # SMTP
+          SMTP_ADDRESS:
+            valueFrom:
+              secretKeyRef:
+                name: sure-smtp-credentials
+                key: address
+          SMTP_PORT: "587"
+          SMTP_TLS_ENABLED: "true"
+          SMTP_USERNAME:
+            valueFrom:
+              secretKeyRef:
+                name: sure-smtp-credentials
+                key: username
+          SMTP_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: sure-smtp-credentials
+                key: password
+          EMAIL_SENDER:
+            valueFrom:
+              secretKeyRef:
+                name: sure-smtp-credentials
+                key: sender
+          APP_DOMAIN: "sure.${internal_domain}"
+          # SimpleFIN
+          SIMPLEFIN_ACCESS_URL:
+            valueFrom:
+              secretKeyRef:
+                name: sure-simplefin-credentials
+                key: access_url
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -113,6 +151,12 @@ controllers:
               secretKeyRef:
                 name: sure-secret
                 key: secret-key-base
+          # SimpleFIN
+          SIMPLEFIN_ACCESS_URL:
+            valueFrom:
+              secretKeyRef:
+                name: sure-simplefin-credentials
+                key: access_url
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
