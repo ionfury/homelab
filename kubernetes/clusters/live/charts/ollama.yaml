@@ -20,6 +20,9 @@ controllers:
           OLLAMA_NUM_PARALLEL: "2"
           OLLAMA_MAX_LOADED_MODELS: "1"
           OLLAMA_KEEP_ALIVE: "10m"
+          OLLAMA_CONTEXT_LENGTH: "8192"
+          OLLAMA_FLASH_ATTN: "1"
+          OLLAMA_KV_CACHE_TYPE: "q8_0"
           NVIDIA_VISIBLE_DEVICES: all
         resources:
           requests:
