@@ -4,8 +4,8 @@
 controllers:
   sure:
     type: deployment
-    replicas: 1
-    strategy: Recreate
+    replicas: 2
+    strategy: RollingUpdate
     annotations:
       reloader.stakater.com/auto: "true"
 
