@@ -238,3 +238,15 @@ spec:
   cluster:
     name: platform
   databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: sure-database
+  namespace: database
+spec:
+  name: sure
+  owner: sure
+  cluster:
+    name: platform
+  databaseReclaimPolicy: retain

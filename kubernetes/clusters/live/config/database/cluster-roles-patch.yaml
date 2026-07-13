@@ -81,3 +81,8 @@ spec:
         login: true
         passwordSecret:
           name: firefly-role-password
+      - name: sure
+        ensure: present
+        login: true
+        passwordSecret:
+          name: sure-role-password

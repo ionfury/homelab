@@ -17,6 +17,7 @@ resources:
   - tandoor
   - paperless
   - firefly
+  - sure
   - homepage
   - velero
   - silences

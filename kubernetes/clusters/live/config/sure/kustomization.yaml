@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - sure-db-credentials.yaml
+  - dragonfly-password-replica.yaml
+  - sure-secret.yaml
+  - sure-oidc-client-secret-replica.yaml
+  - network-policy.yaml
