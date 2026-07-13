@@ -40,3 +40,23 @@ spec:
         - ports:
             - port: "11434"
               protocol: TCP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ai-ollama-from-sure
+  namespace: ai
+spec:
+  description: "Ollama ingress from Sure for LLM chat and auto-categorization"
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: ollama
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: sure
+      toPorts:
+        - ports:
+            - port: "11434"
+              protocol: TCP

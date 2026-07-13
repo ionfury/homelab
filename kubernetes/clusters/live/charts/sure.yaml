@@ -53,6 +53,12 @@ controllers:
                 name: sure-oidc-client-secret
                 key: client-secret
           APP_DOMAIN: "sure.${internal_domain}"
+          # LLM — local Ollama (OpenAI-compatible API)
+          OPENAI_ACCESS_TOKEN: "ollama-local"
+          OPENAI_URI_BASE: "http://ollama.ai.svc.cluster.local:11434/v1"
+          OPENAI_MODEL: "qwen2.5:7b"
+          LLM_CONTEXT_WINDOW: "8192"
+          LLM_MAX_RESPONSE_TOKENS: "1024"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -122,6 +128,12 @@ controllers:
               secretKeyRef:
                 name: sure-secret
                 key: secret-key-base
+          # LLM — local Ollama (OpenAI-compatible API)
+          OPENAI_ACCESS_TOKEN: "ollama-local"
+          OPENAI_URI_BASE: "http://ollama.ai.svc.cluster.local:11434/v1"
+          OPENAI_MODEL: "qwen2.5:7b"
+          LLM_CONTEXT_WINDOW: "8192"
+          LLM_MAX_RESPONSE_TOKENS: "1024"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
