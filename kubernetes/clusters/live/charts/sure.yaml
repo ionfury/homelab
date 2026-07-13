@@ -69,6 +69,12 @@ controllers:
           GENERIC_S3_REGION: garage
           GENERIC_S3_ENDPOINT: "http://${garage_s3_endpoint}"
           GENERIC_S3_FORCE_PATH_STYLE: "true"
+          # LLM — local Ollama (OpenAI-compatible API)
+          OPENAI_ACCESS_TOKEN: "ollama-local"
+          OPENAI_URI_BASE: "http://ollama.ai.svc.cluster.local:11434/v1"
+          OPENAI_MODEL: "qwen2.5:7b"
+          LLM_CONTEXT_WINDOW: "8192"
+          LLM_MAX_RESPONSE_TOKENS: "1024"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -154,6 +160,12 @@ controllers:
           GENERIC_S3_REGION: garage
           GENERIC_S3_ENDPOINT: "http://${garage_s3_endpoint}"
           GENERIC_S3_FORCE_PATH_STYLE: "true"
+          # LLM — local Ollama (OpenAI-compatible API)
+          OPENAI_ACCESS_TOKEN: "ollama-local"
+          OPENAI_URI_BASE: "http://ollama.ai.svc.cluster.local:11434/v1"
+          OPENAI_MODEL: "qwen2.5:7b"
+          LLM_CONTEXT_WINDOW: "8192"
+          LLM_MAX_RESPONSE_TOKENS: "1024"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
