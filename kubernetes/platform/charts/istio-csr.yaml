@@ -5,7 +5,7 @@
 # Replaces Istio's built-in CA with cert-manager for unified PKI management.
 # Enables workload identity certificates to be issued by the istio-mesh-ca ClusterIssuer.
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: quay.io/jetstack/cert-manager-istio-csr
