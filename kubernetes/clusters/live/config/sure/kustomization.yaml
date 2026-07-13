@@ -9,3 +9,5 @@ resources:
   - sure-secret.yaml
   - sure-oidc-client-secret-replica.yaml
   - network-policy.yaml
+  - garage-bucket.yaml
+  - garage-key.yaml
