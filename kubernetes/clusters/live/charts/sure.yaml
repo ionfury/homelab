@@ -75,6 +75,7 @@ controllers:
           OPENAI_MODEL: "qwen2.5:7b-instruct-q8_0"
           LLM_CONTEXT_WINDOW: "32768"
           LLM_MAX_RESPONSE_TOKENS: "4096"
+          OPENAI_REQUEST_TIMEOUT: "300"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -166,6 +167,7 @@ controllers:
           OPENAI_MODEL: "qwen2.5:7b-instruct-q8_0"
           LLM_CONTEXT_WINDOW: "32768"
           LLM_MAX_RESPONSE_TOKENS: "4096"
+          OPENAI_REQUEST_TIMEOUT: "300"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
