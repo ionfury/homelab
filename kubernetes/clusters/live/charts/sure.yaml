@@ -76,6 +76,7 @@ controllers:
           LLM_CONTEXT_WINDOW: "8192"
           LLM_MAX_RESPONSE_TOKENS: "4096"
           OPENAI_REQUEST_TIMEOUT: "300"
+          LLM_JSON_MODE: "none"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -168,6 +169,7 @@ controllers:
           LLM_CONTEXT_WINDOW: "8192"
           LLM_MAX_RESPONSE_TOKENS: "4096"
           OPENAI_REQUEST_TIMEOUT: "300"
+          LLM_JSON_MODE: "none"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
