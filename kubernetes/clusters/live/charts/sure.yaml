@@ -1,0 +1,161 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/app-template-4.6.0/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  sure:
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    containers:
+      web:
+        image:
+          repository: ghcr.io/we-promise/sure
+          tag: "${sure_version}"
+        env:
+          SELF_HOSTED: "true"
+          RAILS_FORCE_SSL: "false"
+          RAILS_ASSUME_SSL: "true"
+          RAILS_LOG_TO_STDOUT: "true"
+          # Database — shared CNPG platform cluster via pooler
+          DB_HOST: platform-pooler-rw.database.svc.cluster.local
+          DB_PORT: "5432"
+          POSTGRES_DB: sure
+          POSTGRES_USER: sure
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: sure-db-credentials
+                key: password
+          # Redis — shared Dragonfly instance
+          DRAGONFLY_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: dragonfly-auth
+                key: password
+          REDIS_URL:
+            dependsOn: DRAGONFLY_PASSWORD
+            value: "redis://:$(DRAGONFLY_PASSWORD)@dragonfly.cache.svc.cluster.local:6379/1"
+          # Secret key for session cookies and CSRF protection
+          SECRET_KEY_BASE:
+            valueFrom:
+              secretKeyRef:
+                name: sure-secret
+                key: secret-key-base
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /up
+                port: 3000
+              initialDelaySeconds: 15
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /up
+                port: 3000
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /up
+                port: 3000
+              periodSeconds: 10
+
+      worker:
+        image:
+          repository: ghcr.io/we-promise/sure
+          tag: "${sure_version}"
+        command: ["bundle", "exec", "sidekiq"]
+        env:
+          SELF_HOSTED: "true"
+          RAILS_LOG_TO_STDOUT: "true"
+          DB_HOST: platform-pooler-rw.database.svc.cluster.local
+          DB_PORT: "5432"
+          POSTGRES_DB: sure
+          POSTGRES_USER: sure
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: sure-db-credentials
+                key: password
+          DRAGONFLY_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: dragonfly-auth
+                key: password
+          REDIS_URL:
+            dependsOn: DRAGONFLY_PASSWORD
+            value: "redis://:$(DRAGONFLY_PASSWORD)@dragonfly.cache.svc.cluster.local:6379/1"
+          SECRET_KEY_BASE:
+            valueFrom:
+              secretKeyRef:
+                name: sure-secret
+                key: secret-key-base
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+service:
+  app:
+    controller: sure
+    ports:
+      http:
+        port: 3000
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Sure"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "si-moneygram"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=sure"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "sure.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 3000
+
+persistence:
+  storage:
+    type: persistentVolumeClaim
+    storageClass: fast
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    globalMounts:
+      - path: /rails/storage
