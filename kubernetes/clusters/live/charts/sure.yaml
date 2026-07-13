@@ -4,8 +4,8 @@
 controllers:
   sure:
     type: deployment
-    replicas: 1
-    strategy: Recreate
+    replicas: 2
+    strategy: RollingUpdate
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -53,6 +53,22 @@ controllers:
                 name: sure-oidc-client-secret
                 key: client-secret
           APP_DOMAIN: "sure.${internal_domain}"
+          # Garage S3 — Active Storage backend
+          ACTIVE_STORAGE_SERVICE: generic_s3
+          GENERIC_S3_ACCESS_KEY_ID:
+            valueFrom:
+              secretKeyRef:
+                name: sure-s3-credentials
+                key: access-key-id
+          GENERIC_S3_SECRET_ACCESS_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sure-s3-credentials
+                key: secret-access-key
+          GENERIC_S3_BUCKET: sure
+          GENERIC_S3_REGION: garage
+          GENERIC_S3_ENDPOINT: "http://${garage_s3_endpoint}"
+          GENERIC_S3_FORCE_PATH_STYLE: "true"
           # LLM — local Ollama (OpenAI-compatible API)
           OPENAI_ACCESS_TOKEN: "ollama-local"
           OPENAI_URI_BASE: "http://ollama.ai.svc.cluster.local:11434/v1"
@@ -128,6 +144,22 @@ controllers:
               secretKeyRef:
                 name: sure-secret
                 key: secret-key-base
+          # Garage S3 — Active Storage backend
+          ACTIVE_STORAGE_SERVICE: generic_s3
+          GENERIC_S3_ACCESS_KEY_ID:
+            valueFrom:
+              secretKeyRef:
+                name: sure-s3-credentials
+                key: access-key-id
+          GENERIC_S3_SECRET_ACCESS_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: sure-s3-credentials
+                key: secret-access-key
+          GENERIC_S3_BUCKET: sure
+          GENERIC_S3_REGION: garage
+          GENERIC_S3_ENDPOINT: "http://${garage_s3_endpoint}"
+          GENERIC_S3_FORCE_PATH_STYLE: "true"
           # LLM — local Ollama (OpenAI-compatible API)
           OPENAI_ACCESS_TOKEN: "ollama-local"
           OPENAI_URI_BASE: "http://ollama.ai.svc.cluster.local:11434/v1"
@@ -172,11 +204,4 @@ route:
           - identifier: app
             port: 3000
 
-persistence:
-  storage:
-    type: persistentVolumeClaim
-    storageClass: fast
-    accessMode: ReadWriteOnce
-    size: 5Gi
-    globalMounts:
-      - path: /rails/storage
+persistence: { }
