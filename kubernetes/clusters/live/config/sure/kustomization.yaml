@@ -8,6 +8,4 @@ resources:
   - dragonfly-password-replica.yaml
   - sure-secret.yaml
   - sure-oidc-client-secret-replica.yaml
-  - sure-smtp-credentials.yaml
-  - sure-simplefin-credentials.yaml
   - network-policy.yaml
