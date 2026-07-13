@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+# Permits Sure workers to reach the SimpleFIN bridge for bank transaction sync.
+# All other internet egress is blocked by the namespace's internal profile.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sure-simplefin-egress
+  namespace: sure
+spec:
+  description: "Allow Sure egress to SimpleFIN API (beta-bridge.simplefin.org:443)"
+  endpointSelector: { }
+  egress:
+    - toFQDNs:
+        - matchName: beta-bridge.simplefin.org
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
