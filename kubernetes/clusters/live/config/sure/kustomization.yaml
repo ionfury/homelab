@@ -11,3 +11,4 @@ resources:
   - network-policy.yaml
   - garage-bucket.yaml
   - garage-key.yaml
+  - snaptrade-credentials.yaml
