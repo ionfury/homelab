@@ -46,10 +46,14 @@ spec:
       namespace: monitoring
       path: kubernetes/platform/config/monitoring
       dependsOn: [kube-prometheus-stack, canary-checker, external-secrets-stores]
+    - name: cnpg-pki
+      namespace: cnpg-system
+      path: kubernetes/platform/config/cnpg-pki
+      dependsOn: [cloudnative-pg, cert-manager, issuers]
     - name: database-config
       namespace: database
       path: ${cluster_path}/config/database
-      dependsOn: [cloudnative-pg, garage-config, canary-checker]
+      dependsOn: [cloudnative-pg, cnpg-pki, garage-config, canary-checker]
     - name: dragonfly-config
       namespace: cache
       path: kubernetes/platform/config/dragonfly

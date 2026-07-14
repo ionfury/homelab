@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/certificate_v1.json
+# Webhook TLS certificate for the CNPG operator.
+# secretName matches the secret the operator mounts (cnpg-webhook-cert).
+# cert-manager populates ca.crt in the secret; the CA injector reads it via
+# the cert-manager.io/inject-ca-from annotation on the webhook configurations.
+# renewBefore (30d) keeps the cert fresh well before CNPG's 7-day expiry threshold,
+# preventing the operator from attempting its own (broken) renewal.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cnpg-webhook-cert
+  namespace: cnpg-system
+spec:
+  secretName: cnpg-webhook-cert
+  duration: 2160h
+  renewBefore: 720h
+  issuerRef:
+    name: cnpg-ca-issuer
+    kind: Issuer
+  dnsNames:
+    - cnpg-webhook-service.cnpg-system.svc
+    - cnpg-webhook-service.cnpg-system.svc.cluster.local
+  privateKey:
+    algorithm: ECDSA
+    size: 256
