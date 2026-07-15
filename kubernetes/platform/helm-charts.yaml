@@ -168,6 +168,19 @@ spec:
         version: "${cloudnative_pg_version}"
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+      postRenderers:
+        - kustomize:
+            patches:
+              - target:
+                  kind: ValidatingWebhookConfiguration
+                  name: cnpg-validating-webhook-configuration
+                patch: |
+                  apiVersion: admissionregistration.k8s.io/v1
+                  kind: ValidatingWebhookConfiguration
+                  metadata:
+                    name: cnpg-validating-webhook-configuration
+                    annotations:
+                      cert-manager.io/inject-ca-from-secret: cnpg-system/cnpg-ca-secret
     - name: dragonfly-operator
       namespace: dragonfly-system
       chart:
@@ -320,6 +333,10 @@ spec:
         - kind: ConfigMap
           name: platform-values
           valuesKey: << inputs.name >>.yaml
+      <<- if (index inputs "postRenderers") >>
+      postRenderers:
+        << (index inputs "postRenderers") | toYaml | nindent 8 >>
+      <<- end >>
     ---
     # Wrapper Kustomization enables config Kustomizations to dependsOn this HelmRelease
     apiVersion: kustomize.toolkit.fluxcd.io/v1

@@ -4,11 +4,13 @@ priorityClassName: platform
 crds:
   create: true
 replicaCount: 2
-# Disable operator-managed caBundle injection — cert-manager CA injector owns this.
-# The operator has a bug (upstream PR #9819, unmerged) where it injects the leaf cert
-# instead of the CA cert into caBundle, breaking webhook TLS after the first 90-day rotation.
+# The operator has a bug (upstream PR #9819, unmerged) where cert rotation injects the leaf
+# cert instead of the CA cert into caBundle. Fix: disable operator caBundle injection and let
+# cert-manager CA injector maintain it from cnpg-ca-secret (the operator's own CA secret).
+# The mutating webhook gets this annotation via commonAnnotations; the validating webhook gets
+# it via postRenderers in helm-charts.yaml (chart bug: validating template omits commonAnnotations).
 commonAnnotations:
-  cert-manager.io/inject-ca-from: cnpg-system/cnpg-webhook-cert
+  cert-manager.io/inject-ca-from-secret: cnpg-system/cnpg-ca-secret
 additionalEnv:
   - name: MANAGE_WEBHOOK_CONFIGURATIONS
     value: "false"
