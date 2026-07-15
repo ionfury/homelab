@@ -274,6 +274,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator]
+    - name: papra
+      namespace: papra
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator, external-secrets]
     - name: external-dns
       namespace: external-dns
       chart:

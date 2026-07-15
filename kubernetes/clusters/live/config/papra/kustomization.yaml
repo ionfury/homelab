@@ -1,0 +1,12 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - papra-data-pvc.yaml
+  - papra-auth-secret.yaml
+  - papra-oidc-client-secret-replica.yaml
+  - papra-smtp-credentials.yaml
+  - garage-bucket.yaml
+  - garage-key.yaml

@@ -18,6 +18,7 @@ resources:
   - tandoor-oidc-client-secret.yaml
   - sure-oidc-client-secret.yaml
   - jellyseerr-oidc-client-secret.yaml
+  - papra-oidc-client-secret.yaml
   - authelia-secrets.yaml
   - authelia-smtp-credentials.yaml
   - authelia-smtp-egress.yaml

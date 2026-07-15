@@ -18,6 +18,7 @@ resources:
   - paperless
   - firefly
   - sure
+  - papra
   - homepage
   - velero
   - silences

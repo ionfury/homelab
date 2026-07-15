@@ -1,0 +1,9 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageBucket
+metadata:
+  name: papra
+  namespace: garage
+spec:
+  clusterRef:
+    name: garage
