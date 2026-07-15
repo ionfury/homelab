@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/issuer_v1.json
+# Bootstrap issuer: creates the CNPG webhook CA via self-sign, then hands off to cnpg-ca-issuer.
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cnpg-selfsigned-issuer
+  namespace: cnpg-system
+spec:
+  selfSigned: { }
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/certificate_v1.json
+# CA certificate for signing CNPG webhook TLS certs.
+# Long-lived (10y) since rotation requires re-injection into caBundle — cert-manager handles that automatically.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cnpg-webhook-ca
+  namespace: cnpg-system
+spec:
+  isCA: true
+  commonName: cnpg-webhook-ca
+  secretName: cnpg-webhook-ca-secret
+  duration: 87600h
+  renewBefore: 720h
+  issuerRef:
+    name: cnpg-selfsigned-issuer
+    kind: Issuer
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/issuer_v1.json
+# Issues webhook leaf certs signed by the CNPG webhook CA above.
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cnpg-ca-issuer
+  namespace: cnpg-system
+spec:
+  ca:
+    secretName: cnpg-webhook-ca-secret
