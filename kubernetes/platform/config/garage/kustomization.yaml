@@ -16,3 +16,4 @@ resources:
   - reference-grant-tandoor.yaml
   - reference-grant-zipline.yaml
   - reference-grant-sure.yaml
+  - reference-grant-papra.yaml

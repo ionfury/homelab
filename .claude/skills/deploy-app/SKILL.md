@@ -124,6 +124,8 @@ Add to `kubernetes/platform/namespaces.yaml` inputs array:
 
 For PostgreSQL provisioning, see the [cnpg-database skill](../cnpg-database/SKILL.md).
 
+For Garage S3 storage, see **Section 3.8** below — the `access.network-policy.homelab/garage-s3` label alone is not sufficient.
+
 ### 3.3 Add to helm-charts.yaml
 
 Add to `kubernetes/platform/helm-charts.yaml` inputs array:
@@ -177,6 +179,84 @@ Renovate tracks versions.env entries automatically via inline `# renovate:` anno
 Create `kubernetes/platform/config/<app-name>/` for extra resources. See [references/file-templates.md](references/file-templates.md) for HTTPRoute, secret, and ExternalSecret templates. See [references/monitoring-patterns.md](references/monitoring-patterns.md) for Canary, PrometheusRule, and Grafana dashboard examples.
 
 For gateway routing and TLS, see the [gateway-routing skill](../gateway-routing/SKILL.md).
+
+### 3.8 Garage S3 Object Storage
+
+Garage S3 requires **three resources** across two locations. Missing any one causes an admission webhook denial.
+
+**Step 1: GarageBucket** — in the cluster config, app namespace, under `garage` namespace:
+```yaml
+# kubernetes/clusters/live/config/<app>/garage-bucket.yaml
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageBucket
+metadata:
+  name: <app>
+  namespace: garage
+spec:
+  clusterRef:
+    name: garage
+```
+
+**Step 2: GarageKey** — in the cluster config, app namespace:
+```yaml
+# kubernetes/clusters/live/config/<app>/garage-key.yaml
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: <app>
+  namespace: <app>
+spec:
+  clusterRef:
+    name: garage
+    namespace: garage
+  neverExpires: true
+  bucketPermissions:
+    - bucketRef:
+        name: <app>
+        namespace: garage
+      read: true
+      write: true
+  secretTemplate:
+    name: <app>-s3-credentials
+```
+
+**Step 3: GarageReferenceGrant** — PLATFORM-level, must go in `kubernetes/platform/config/garage/`:
+```yaml
+# kubernetes/platform/config/garage/reference-grant-<app>.yaml
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageReferenceGrant
+metadata:
+  name: allow-<app>
+spec:
+  from:
+    - kind: GarageKey
+      namespace: <app>
+```
+
+Also register it in `kubernetes/platform/config/garage/kustomization.yaml`. Without this, the Garage admission webhook (`vgaragekey.kb.io`) will deny the GarageKey with `cross-namespace reference not permitted`.
+
+**Namespace label** (also required for network access):
+```yaml
+access.network-policy.homelab/garage-s3: "true"
+```
+
+**S3 env vars in the app** (GarageKey generates the `<app>-s3-credentials` secret automatically):
+```yaml
+S3_ACCESS_KEY_ID:
+  valueFrom:
+    secretKeyRef:
+      name: <app>-s3-credentials
+      key: access-key-id
+S3_SECRET_ACCESS_KEY:
+  valueFrom:
+    secretKeyRef:
+      name: <app>-s3-credentials
+      key: secret-access-key
+S3_BUCKET: <app>
+S3_REGION: garage
+S3_ENDPOINT: "http://${garage_s3_endpoint}"
+S3_FORCE_PATH_STYLE: "true"
+```
 
 ---
 
