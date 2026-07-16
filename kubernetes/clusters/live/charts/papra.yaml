@@ -1,0 +1,175 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  papra:
+    type: deployment
+    replicas: 1
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/papra-hq/papra
+          tag: "${papra_version}"
+        env:
+          # Application base URL
+          APP_BASE_URL: "https://papra.${internal_domain}"
+          PORT: "1221"
+          NODE_ENV: production
+
+          # Database — LibSQL (SQLite-compatible); PostgreSQL not supported
+          DATABASE_URL: "file:./app-data/db/db.sqlite"
+
+          # Auth secret — must be ≥32 chars
+          AUTH_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: papra-auth-secret
+                key: auth-secret
+
+          # Registration disabled; new users must authenticate via OIDC SSO
+          AUTH_IS_REGISTRATION_ENABLED: "false"
+          AUTH_IS_EMAIL_VERIFICATION_REQUIRED: "false"
+          AUTH_IS_PASSWORD_RESET_ENABLED: "true"
+          AUTH_FIRST_USER_AS_ADMIN: "true"
+
+          # OIDC/SSO via Authelia (custom OAuth2 provider)
+          PAPRA_OIDC_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: papra-oidc-client-secret
+                key: client-secret
+          AUTH_PROVIDERS_CUSTOMS:
+            dependsOn: PAPRA_OIDC_CLIENT_SECRET
+            value: '[{"providerId":"authelia","providerName":"Authelia","type":"oidc","clientId":"papra","clientSecret":"$(PAPRA_OIDC_CLIENT_SECRET)","discoveryUrl":"https://auth.${external_domain}/.well-known/openid-configuration","scopes":["openid","profile","email"]}]'
+
+          # S3 document storage via Garage
+          DOCUMENT_STORAGE_DRIVER: s3
+          DOCUMENT_STORAGE_S3_ACCESS_KEY_ID:
+            valueFrom:
+              secretKeyRef:
+                name: papra-s3-credentials
+                key: access-key-id
+          DOCUMENT_STORAGE_S3_SECRET_ACCESS_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: papra-s3-credentials
+                key: secret-access-key
+          DOCUMENT_STORAGE_S3_BUCKET_NAME: papra
+          DOCUMENT_STORAGE_S3_REGION: garage
+          DOCUMENT_STORAGE_S3_ENDPOINT: "http://${garage_s3_endpoint}"
+          DOCUMENT_STORAGE_S3_FORCE_PATH_STYLE: "true"
+
+          # Email via SMTP — same relay credentials as Authelia
+          EMAILS_DRIVER: smtp
+          EMAILS_FROM_ADDRESS:
+            valueFrom:
+              secretKeyRef:
+                name: papra-smtp-credentials
+                key: sender
+          EMAILS_DRIVERS_SMTP_HOST: smtp.gmail.com
+          EMAILS_DRIVERS_SMTP_PORT: "465"
+          EMAILS_DRIVERS_SMTP_SECURE: "true"
+          EMAILS_DRIVERS_SMTP_USER:
+            valueFrom:
+              secretKeyRef:
+                name: papra-smtp-credentials
+                key: username
+          EMAILS_DRIVERS_SMTP_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: papra-smtp-credentials
+                key: password
+
+          # Webhook SSRF protection — restrict to cluster-internal hosts only
+          WEBHOOK_SSRF_PROTECTION_ENABLED: "true"
+
+          # Disable anonymous analytics
+          POSTHOG_ENABLED: "false"
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 1221
+              initialDelaySeconds: 15
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 1221
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 1221
+              periodSeconds: 10
+
+service:
+  app:
+    controller: papra
+    ports:
+      http:
+        port: 1221
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Papra"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "paperless-ngx.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=papra"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "papra.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 1221
+
+persistence:
+  data:
+    existingClaim: papra-data
+    globalMounts:
+      - path: /app/app-data
+  tmp:
+    type: emptyDir
+    globalMounts:
+      - path: /tmp

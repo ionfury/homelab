@@ -1,0 +1,13 @@
+---
+# SQLite database and app data; Papra uses LibSQL (SQLite-compatible) — no PostgreSQL support
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: papra-data
+  namespace: papra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

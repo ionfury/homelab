@@ -381,6 +381,25 @@ configMap:
           access_token_signed_response_alg: none
           userinfo_signed_response_alg: none
           token_endpoint_auth_method: client_secret_basic
+        - client_id: papra
+          client_name: Papra
+          client_secret:
+            path: /secrets/papra-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://papra.${internal_domain}/api/auth/callback/authelia
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_basic
 
   regulation:
     max_retries: 3
@@ -407,4 +426,5 @@ secret:
     paperless-oidc-client-secret: { }
     tandoor-oidc-client-secret: { }
     jellyseerr-oidc-client-secret: { }
+    papra-oidc-client-secret: { }
     authelia-smtp-credentials: { }
