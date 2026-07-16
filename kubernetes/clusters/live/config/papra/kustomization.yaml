@@ -10,3 +10,4 @@ resources:
   - papra-smtp-credentials.yaml
   - garage-bucket.yaml
   - garage-key.yaml
+  - papra-config.yaml
