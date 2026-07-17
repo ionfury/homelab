@@ -83,6 +83,13 @@ controllers:
               secretKeyRef:
                 name: sure-snaptrade-credentials
                 key: oauth-client-id
+          # MCP server — enables /mcp for external AI assistants (e.g. Claude)
+          MCP_API_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: sure-mcp-credentials
+                key: mcp-api-token
+          MCP_USER_EMAIL: "ionfury@gmail.com"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
