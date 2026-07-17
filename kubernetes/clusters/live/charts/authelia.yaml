@@ -200,6 +200,7 @@ configMap:
             path: /secrets/immich-oidc-client-secret/client-secret
           public: false
           authorization_policy: photos
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -223,6 +224,7 @@ configMap:
             path: /secrets/grafana-oidc-client-secret/client-secret
           public: false
           authorization_policy: grafana
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -244,6 +246,7 @@ configMap:
             path: /secrets/open-webui-oidc-client-secret/client-secret
           public: false
           authorization_policy: ai
+          consent_mode: implicit
           require_pkce: false
           redirect_uris:
             - https://ai.${internal_domain}/oauth/oidc/callback
@@ -284,6 +287,7 @@ configMap:
             path: /secrets/jellyfin-oidc-client-secret/client-secret
           public: false
           authorization_policy: jellyfin
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           require_pushed_authorization_requests: false
@@ -306,6 +310,7 @@ configMap:
             path: /secrets/jellyseerr-oidc-client-secret/client-secret
           public: false
           authorization_policy: jellyfin
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -325,6 +330,7 @@ configMap:
             path: /secrets/paperless-oidc-client-secret/client-secret
           public: false
           authorization_policy: docs
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -344,6 +350,7 @@ configMap:
             path: /secrets/tandoor-oidc-client-secret/client-secret
           public: false
           authorization_policy: two_factor
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -364,6 +371,7 @@ configMap:
             path: /secrets/vaultwarden-oidc-client-secret/client-secret
           public: false
           authorization_policy: vaultwarden
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -387,6 +395,7 @@ configMap:
             path: /secrets/papra-oidc-client-secret/client-secret
           public: false
           authorization_policy: two_factor
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
