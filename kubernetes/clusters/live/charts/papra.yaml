@@ -70,7 +70,8 @@ controllers:
           DOCUMENT_STORAGE_S3_BUCKET_NAME: papra
           DOCUMENT_STORAGE_S3_REGION: garage
           DOCUMENT_STORAGE_S3_ENDPOINT: "http://${garage_s3_endpoint}"
-          DOCUMENT_STORAGE_S3_FORCE_PATH_STYLE: "true"
+          # forcePathStyle must be a native boolean — set via papra.config.yaml ConfigMap
+          # because Papra 0.9.x schema rejects the string "true" from env vars
 
           # Email via SMTP — same relay credentials as Authelia
           EMAILS_DRIVER: smtp
@@ -169,6 +170,13 @@ persistence:
     existingClaim: papra-data
     globalMounts:
       - path: /app/app-data
+  config:
+    type: configMap
+    name: papra-config
+    globalMounts:
+      - path: /app/app-data/papra.config.yaml
+        subPath: papra.config.yaml
+        readOnly: true
   tmp:
     type: emptyDir
     globalMounts:
