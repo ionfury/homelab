@@ -409,7 +409,7 @@ configMap:
           require_pkce: false
           consent_mode: implicit
           redirect_uris:
-            - https://sure.${internal_domain}/auth/authelia/callback
+            - https://sure.${internal_domain}/auth/openid_connect/callback
           scopes:
             - openid
             - profile
