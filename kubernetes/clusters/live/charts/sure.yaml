@@ -52,6 +52,9 @@ controllers:
               secretKeyRef:
                 name: sure-oidc-client-secret
                 key: client-secret
+          OIDC_REDIRECT_URI: "https://sure.${internal_domain}/auth/openid_connect/callback"
+          OIDC_BUTTON_LABEL: "Sign in with Authelia"
+          OIDC_BUTTON_ICON: "shield"
           APP_DOMAIN: "sure.${internal_domain}"
           # Garage S3 — Active Storage backend
           ACTIVE_STORAGE_SERVICE: generic_s3
