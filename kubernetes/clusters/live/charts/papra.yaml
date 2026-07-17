@@ -53,7 +53,7 @@ controllers:
                 key: client-secret
           AUTH_PROVIDERS_CUSTOMS:
             dependsOn: PAPRA_OIDC_CLIENT_SECRET
-            value: '[{"providerId":"authelia","providerName":"Authelia","type":"oidc","clientId":"papra","clientSecret":"$(PAPRA_OIDC_CLIENT_SECRET)","discoveryUrl":"https://auth.${external_domain}/.well-known/openid-configuration","scopes":["openid","profile","email"]}]'
+            value: '[{"providerId":"authelia","providerName":"Authelia","type":"oidc","clientId":"papra","clientSecret":"$(PAPRA_OIDC_CLIENT_SECRET)","discoveryUrl":"https://auth.${external_domain}/.well-known/openid-configuration","scopes":["openid","profile","email"],"pkce":true}]'
 
           # S3 document storage via Garage
           DOCUMENT_STORAGE_DRIVER: s3
