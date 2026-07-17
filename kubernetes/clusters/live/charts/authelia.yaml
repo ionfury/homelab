@@ -390,7 +390,7 @@ configMap:
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
-            - https://papra.${internal_domain}/api/auth/callback/authelia
+            - https://papra.${internal_domain}/api/auth/oauth2/callback/authelia
           scopes:
             - openid
             - profile
@@ -399,7 +399,7 @@ configMap:
             - code
           grant_types:
             - authorization_code
-          token_endpoint_auth_method: client_secret_basic
+          token_endpoint_auth_method: client_secret_post
         - client_id: sure
           client_name: Sure
           client_secret:

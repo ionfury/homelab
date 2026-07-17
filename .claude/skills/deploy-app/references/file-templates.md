@@ -297,3 +297,63 @@ resources:
 | Secrets | `secretName`, `existingSecret`, `auth.existingSecret` |
 
 Always check the specific chart's values.yaml or use `helm show values <chart>` for exact keys.
+
+---
+
+## Garage S3 Storage
+
+Three files required. See SKILL.md Section 3.8 for the full workflow.
+
+### GarageBucket (cluster config, garage namespace)
+
+```yaml
+# kubernetes/clusters/live/config/<app>/garage-bucket.yaml
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageBucket
+metadata:
+  name: <app>
+  namespace: garage
+spec:
+  clusterRef:
+    name: garage
+```
+
+### GarageKey (cluster config, app namespace)
+
+```yaml
+# kubernetes/clusters/live/config/<app>/garage-key.yaml
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: <app>
+  namespace: <app>
+spec:
+  clusterRef:
+    name: garage
+    namespace: garage
+  neverExpires: true
+  bucketPermissions:
+    - bucketRef:
+        name: <app>
+        namespace: garage
+      read: true
+      write: true
+  secretTemplate:
+    name: <app>-s3-credentials
+```
+
+### GarageReferenceGrant (PLATFORM-level — kubernetes/platform/config/garage/)
+
+```yaml
+# kubernetes/platform/config/garage/reference-grant-<app>.yaml
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageReferenceGrant
+metadata:
+  name: allow-<app>
+spec:
+  from:
+    - kind: GarageKey
+      namespace: <app>
+```
+
+Register in `kubernetes/platform/config/garage/kustomization.yaml` resources list. Without this, the admission webhook denies the GarageKey.
