@@ -12,3 +12,4 @@ resources:
   - garage-bucket.yaml
   - garage-key.yaml
   - snaptrade-credentials.yaml
+  - sure-mcp-credentials.yaml
