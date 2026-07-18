@@ -16,7 +16,6 @@ configMapGenerator:
       - external-dns.yaml
       - factorio.yaml
       - flaresolverr.yaml
-      - firefly.yaml
       - homepage.yaml
       - houndarr.yaml
       - immich.yaml
