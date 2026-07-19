@@ -17,30 +17,30 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "Canary check {{ $labels.name }} is failing"
+            summary: "Canary check {{ $labels.canary_name }} is failing"
             description: >-
-              Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
+              Canary check {{ $labels.canary_name }} (type: {{ $labels.type }}) in namespace
               {{ $labels.canary_namespace }} has been failing for more than 5 minutes.
               This indicates a potential service degradation or outage.
 
         - alert: CanaryCheckHighFailureRate
           expr: |
             (
-              sum by (name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+              sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
               /
               (
-                sum by (name, exported_namespace, type) (increase(canary_check_success_count[15m]))
+                sum by (canary_name, exported_namespace, type) (increase(canary_check_success_count[15m]))
                 +
-                sum by (name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+                sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
               )
             ) > 0.2
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Canary check {{ $labels.name }} has high failure rate"
+            summary: "Canary check {{ $labels.canary_name }} has high failure rate"
             description: >-
-              Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
+              Canary check {{ $labels.canary_name }} (type: {{ $labels.type }}) in namespace
               {{ $labels.exported_namespace }} has a failure rate above 20% over the
               last 15 minutes. Investigate potential intermittent issues.
 
