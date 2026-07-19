@@ -201,6 +201,11 @@ spec:
             }[6h])) by (destination_workload, source_workload)
 
         # 60000ms threshold: jellyfin (long-lived video streams)
+        # CAVEAT: the 60s bucket is correct for genuine stream latency but is NOT
+        # an availability signal — an 8s upstream stall still counts as "fast".
+        # Connection wedges (response_code=0 / DC / DR, e.g. a hung ambient HBONE
+        # connect_originate tunnel) are caught by GatewayZeroResponseCode in
+        # gateway-dataplane-alerts.yaml, not by this latency SLO.
         - record: gateway:requests_fast:rate5m
           expr: |
             sum(rate(istio_request_duration_milliseconds_bucket{
