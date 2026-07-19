@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/longhorn.io/recurringjob_v1beta2.json
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: &name snapshot-frequent
+spec:
+  name: *name
+  cron: "0 20 * * 5"
+  task: snapshot
+  concurrency: 1
+  retain: 2
+  groups:
+    - *name
+  labels:
+    jobname: *name
