@@ -6,6 +6,18 @@ controllers:
     type: deployment
 
     pod:
+      # TEMPORARY WORKAROUND for istio/istio#60074 (+ #60767): the external
+      # gateway's ambient connect_originate HTTP/2 pool leaks HBONE streams to
+      # Jellyfin and never closes them, wedging playback after client-aborted
+      # Range requests (Infuse seeking/buffering). No config-level fix exists
+      # upstream and only a gateway restart clears it. Opting Jellyfin out of
+      # ambient makes the gateway route directly to the pod (plain cluster, no
+      # HBONE), sidestepping the leak. Cost: no ambient mTLS on the
+      # gateway->Jellyfin hop. Jellyfin is public, gateway-TLS-terminated, and
+      # self-authenticating, and no AuthorizationPolicy targets its workload.
+      # REMOVE this label once #60074 is fixed and the fix is deployed.
+      labels:
+        istio.io/dataplane-mode: none
       runtimeClassName: nvidia
       nodeSelector:
         nvidia.com/gpu.present: "true"
