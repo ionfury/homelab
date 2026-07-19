@@ -19,6 +19,7 @@ resources:
   - istio-servicemonitors.yaml
   - istio-alerts.yaml
   - gateway-red-alerts.yaml
+  - gateway-dataplane-alerts.yaml
   - external-secrets-alerts.yaml
   - grafana-alerts.yaml
   - loki-mixin-alerts.yaml
