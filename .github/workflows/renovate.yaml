@@ -2,8 +2,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Renovate
 on:
-  schedule:
-    - cron: "0 * * * *"
+  # Temp disabled
+  # schedule:
+  #   - cron: "0 * * * *"
 
   workflow_dispatch:
     inputs:

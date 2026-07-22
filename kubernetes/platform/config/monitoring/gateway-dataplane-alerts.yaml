@@ -1,0 +1,280 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gateway-dataplane-alerts
+  labels:
+    app.kubernetes.io/name: gateway
+    release: kube-prometheus-stack
+spec:
+  groups:
+    # ── Data-plane request failures ───────────────────────────────────────────
+    # Covers BOTH the external and internal Istio gateways generically, grouped
+    # by destination_workload — no hard-coded per-app list. Ambient mode only
+    # emits source-side telemetry, so every rule pins reporter="source" and
+    # source_workload to the gateway deployments.
+    #
+    # WHY response_code="0" matters: Istio's default Envoy stats matcher strips
+    # the internal `connect_originate` cluster stats, so a wedged HBONE tunnel
+    # (gateway → ztunnel) is invisible to per-cluster Envoy metrics. The only
+    # in-mesh signal is istio_requests_total with response_code=0 / connection
+    # response_flags. This is the failure mode behind the Jellyfin outage and
+    # upstream istio/istio#60074 + #60767 (stale connect_originate pool; only a
+    # gateway restart clears it). The black-box CanaryCheckFailure alert is the
+    # complementary probe.
+    - name: gateway.traffic
+      rules:
+        # Zero-response-code wedge — primary detector for the connect_originate
+        # stall. A meaningful rate of code=0 (no upstream bytes) on a route that
+        # otherwise carries traffic means the HBONE tunnel is hung.
+        - alert: GatewayZeroResponseCode
+          expr: |
+            (
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*", response_code="0"}[5m])
+              ) > 0.05
+            )
+            and
+            (
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*", response_code="0"}[5m])
+              )
+              /
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*"}[5m])
+              )
+            ) > 0.1
+          for: 5m
+          labels:
+            severity: critical
+            app: '{{ $labels.destination_workload }}'
+          annotations:
+            summary: "Gateway {{ $labels.source_workload }} → {{ $labels.destination_workload }} returning response_code=0"
+            description: >-
+              More than 10% of requests from {{ $labels.source_workload }} to
+              {{ $labels.destination_workload }} are completing with response_code=0
+              (no upstream bytes). This is the signature of a wedged Istio ambient
+              HBONE tunnel in the gateway's connect_originate connection pool
+              (istio/istio#60074, #60767). The only known remediation is restarting
+              the affected gateway pods. Confirm with the CanaryCheckFailure probe.
+
+        # Upstream connection failures — UC/UF/UO/URX only. DC/DR are deliberately
+        # excluded here because normal client-aborted streams (e.g. Jellyfin video
+        # seeking) legitimately produce DC; the wedge is caught by code=0 above.
+        - alert: GatewayUpstreamConnectionFailures
+          expr: |
+            (
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*", response_flags=~"UC|UF|UO|URX"}[5m])
+              )
+              /
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*"}[5m])
+              )
+            ) > 0.2
+          for: 10m
+          labels:
+            severity: warning
+            app: '{{ $labels.destination_workload }}'
+          annotations:
+            summary: "Gateway {{ $labels.source_workload }} → {{ $labels.destination_workload }} upstream connection failures > 20%"
+            description: >-
+              Over 20% of requests to {{ $labels.destination_workload }} are failing
+              with upstream connection flags (UC/UF/UO/URX) for 10 minutes. Indicates
+              the upstream is unreachable, overloaded (circuit break), or exhausting
+              retries. Check the destination pod health and the ztunnel on its node.
+
+        # No healthy upstream (503 UH) — endpoints exist but all unhealthy.
+        - alert: GatewayNoHealthyUpstream
+          expr: |
+            sum by (source_workload, destination_workload) (
+              rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*", response_flags="UH"}[5m])
+            ) > 0
+          for: 5m
+          labels:
+            severity: critical
+            app: '{{ $labels.destination_workload }}'
+          annotations:
+            summary: "Gateway has no healthy upstream for {{ $labels.destination_workload }}"
+            description: >-
+              {{ $labels.source_workload }} is returning 503 UH (no healthy upstream)
+              for {{ $labels.destination_workload }}. All endpoints for the service
+              are marked unhealthy or the service has zero ready pods.
+
+        # Generic 5xx error rate — gives the INTERNAL gateway first-class error
+        # coverage (the per-app SLO burn rules in gateway-red-alerts.yaml only
+        # enumerate external destinations). Kept generic to stay DRY.
+        - alert: GatewayServerErrorRateHigh
+          expr: |
+            (
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*", response_code=~"5.."}[5m])
+              ) > 0.05
+            )
+            and
+            (
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*", response_code=~"5.."}[5m])
+              )
+              /
+              sum by (source_workload, destination_workload) (
+                rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*"}[5m])
+              )
+            ) > 0.1
+          for: 10m
+          labels:
+            severity: warning
+            app: '{{ $labels.destination_workload }}'
+          annotations:
+            summary: "Gateway {{ $labels.source_workload }} → {{ $labels.destination_workload }} 5xx rate > 10%"
+            description: >-
+              {{ $labels.destination_workload }} is serving more than 10% 5xx
+              responses through {{ $labels.source_workload }} for 10 minutes.
+
+        # No route (NR) — sustained NR usually means a missing/broken HTTPRoute
+        # or requests for an unconfigured host reaching the gateway listener.
+        - alert: GatewayNoRoute
+          expr: |
+            sum by (source_workload) (
+              rate(istio_requests_total{reporter="source", source_workload=~"external-istio.*|internal-istio.*", response_flags="NR"}[5m])
+            ) > 0.1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gateway {{ $labels.source_workload }} returning NR (no route)"
+            description: >-
+              {{ $labels.source_workload }} has a sustained rate of NR (no route)
+              responses. A HTTPRoute may be missing, misconfigured, or clients are
+              requesting a host with no matching route.
+
+    # ── Envoy proxy process health (per pod) ──────────────────────────────────
+    - name: gateway.proxy
+      rules:
+        # Envoy not LIVE (0=LIVE, 1=DRAINING, 2=PRE_INITIALIZING, 3=INITIALIZING).
+        - alert: GatewayEnvoyNotLive
+          expr: |
+            envoy_server_state{namespace="istio-gateway"} != 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Gateway Envoy {{ $labels.pod }} not in LIVE state"
+            description: >-
+              Envoy on gateway pod {{ $labels.pod }} has been in a non-LIVE state
+              (draining/initializing) for 5+ minutes. It is not serving traffic
+              normally.
+
+        # Heap near exhaustion.
+        - alert: GatewayEnvoyMemoryHigh
+          expr: |
+            envoy_server_memory_allocated{namespace="istio-gateway"}
+            / envoy_server_memory_heap_size{namespace="istio-gateway"} > 0.9
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gateway Envoy {{ $labels.pod }} heap > 90%"
+            description: >-
+              Envoy on {{ $labels.pod }} has allocated over 90% of its heap for
+              15 minutes. Risk of OOM / connection drops. Check for a config or
+              connection leak.
+
+        # Replicas degraded / fully unavailable.
+        - alert: GatewayReplicasDegraded
+          expr: |
+            kube_deployment_status_replicas_available{namespace="istio-gateway", deployment=~"external-istio|internal-istio"}
+            < kube_deployment_spec_replicas{namespace="istio-gateway", deployment=~"external-istio|internal-istio"}
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gateway {{ $labels.deployment }} has unavailable replicas"
+            description: >-
+              {{ $labels.deployment }} has fewer available replicas than desired for
+              5 minutes. Reduced gateway capacity / redundancy.
+
+        - alert: GatewayNoReplicasAvailable
+          expr: |
+            kube_deployment_status_replicas_available{namespace="istio-gateway", deployment=~"external-istio|internal-istio"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Gateway {{ $labels.deployment }} has zero available replicas"
+            description: >-
+              {{ $labels.deployment }} has no available replicas. All ingress
+              through this gateway is down.
+
+        - alert: GatewayPodCrashLooping
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="istio-gateway"}[1h]) > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gateway pod {{ $labels.pod }} crash-looping"
+            description: >-
+              Gateway pod {{ $labels.pod }} has restarted more than 3 times in the
+              last hour. Check the Envoy/istio-proxy logs for the crash cause.
+
+    # NOTE: per-service endpoint/LB health (envoy_cluster_membership_*,
+    # lb_healthy_panic, upstream_rq_pending_overflow) is intentionally NOT alerted
+    # on — Istio's default Envoy stats matcher strips outbound-cluster stats on
+    # the gateways (only xds-grpc survives), so those series do not exist here.
+    # The request-level GatewayNoHealthyUpstream (response_flags=UH) above covers
+    # the "no healthy endpoint" case instead.
+
+    # ── Config plane → proxy (xDS) ────────────────────────────────────────────
+    - name: gateway.config
+      rules:
+        # Proxy rejecting istiod config = data plane running on stale config.
+        - alert: GatewayConfigRejected
+          expr: |
+            increase(envoy_cluster_manager_cds_update_rejected{namespace="istio-gateway"}[5m]) > 0
+            or increase(envoy_listener_manager_lds_update_rejected{namespace="istio-gateway"}[5m]) > 0
+            or increase(envoy_workload_discovery_update_rejected{namespace="istio-gateway"}[5m]) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Gateway {{ $labels.pod }} rejecting Istio config (CDS/LDS/WDS)"
+            description: >-
+              Envoy on {{ $labels.pod }} is rejecting xDS updates from istiod. The
+              gateway is running on stale configuration — new routes, endpoints, or
+              certificates will not take effect. Check istiod and the proxy logs.
+
+        # Proxy losing its xDS connection to istiod.
+        - alert: GatewayXdsConnectionFailing
+          expr: |
+            increase(envoy_cluster_upstream_cx_connect_fail{namespace="istio-gateway", cluster_name="xds-grpc"}[10m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gateway {{ $labels.pod }} failing to connect to istiod (xds-grpc)"
+            description: >-
+              Envoy on {{ $labels.pod }} is failing to (re)connect to istiod over
+              xds-grpc. Sustained failures mean the gateway cannot receive config or
+              certificate rotations. Check istiod availability.
+
+    # ── Security / WAF ────────────────────────────────────────────────────────
+    # NOTE: TLS certificate expiry for the gateway listener (external-tls) is
+    # already covered generically by cert-manager-alerts.yaml — not duplicated
+    # here. Local rate limiting is covered by ExternalGatewayRateLimiting in
+    # istio-alerts.yaml.
+    - name: gateway.security
+      rules:
+        - alert: GatewayWafReloadFailure
+          expr: |
+            increase(envoy_wasm_istio_gateway_coraza_waf_istio_translated_wasmplugin_vm_reload_failure[15m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "External gateway Coraza WAF WASM VM reload failing"
+            description: >-
+              The Coraza WAF WASM plugin on the external gateway is failing to
+              reload its VM. WAF rule enforcement may be degraded or stale. Check
+              the WasmPlugin config and gateway proxy logs.
