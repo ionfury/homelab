@@ -35,6 +35,14 @@ env:
       secretKeyRef:
         name: cloudflare-api-token
         key: token
+  - name: PUBLIC_IP
+    valueFrom:
+      secretKeyRef:
+        name: cluster-public-ip
+        key: ip
+
+extraArgs:
+  - --default-targets=$(PUBLIC_IP)
 
 serviceMonitor:
   enabled: true
