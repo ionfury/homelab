@@ -5,8 +5,19 @@ kind: Kustomization
 
 resources:
   - prometheus-rules.yaml
-  - recurring-jobs/filesystem-trim-daily.yaml
-  # Disable temporaraly
+  # TEMPORARILY SUSPENDED 2026-07-22 (incident): filesystem-trim's daily coalesce
+  # mutates the source snapshot chain of the media-library volume
+  # (pvc-cd6ba345-906b-4a8a-be87-bbc8328b3219) mid-rebuild, tearing down and
+  # restarting the Longhorn replica rebuild from scratch every day at ~09:48 UTC.
+  # The rebuild needs ~50-60h uninterrupted on HDD. Restore this line once the
+  # volume is back to robustness=healthy (both replicas RW).
+  # - recurring-jobs/filesystem-trim-daily.yaml
+  # HELD OUT OF LIVE 2026-07-22 (incident): #1398 added this job but it never
+  # promoted (cluster is under lockdown, live frozen at rev 0.1.1073). The media
+  # volume still carries the `snapshot-frequent` group label, so promoting this
+  # job now would start taking snapshots on that volume mid-rebuild and add a
+  # second source-chain mutator, risking another rebuild reset. Re-introduce only
+  # after the media rebuild completes AND the job is re-scoped off the HDD tier.
   # - recurring-jobs/snapshot-frequent.yaml
   - routes/
   - storage-classes/fast-ephemeral.yaml
