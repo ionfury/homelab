@@ -1,0 +1,17 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: slow-media
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "3"
+  fsType: xfs
+  staleReplicaTimeout: "30"
+  dataLocality: disabled
+  diskSelector: slow
+  recurringJobSelector: '[{"name": "filesystem-trim-daily", "isGroup": true}]'
+  nfsOptions: "soft,timeo=600,retrans=5"
