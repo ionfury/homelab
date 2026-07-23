@@ -25,6 +25,13 @@ defaultSettings:
   storageMinimalAvailablePercentage: 10
   autoCleanupSystemGeneratedSnapshot: true
   snapshotMaxCount: 3
+  # TEMPORARY 2026-07-23 (incident): raise the long-gRPC deadline from the 86400s
+  # (24h) default to 96h. The media-library volume replica rebuild (~8.9 TiB on
+  # HDD at ~50 MB/s ≈ 57h) exceeds the 24h file-sync RPC deadline, failing with
+  # DeadlineExceeded and restarting from scratch every 24h — it can never finish.
+  # Revert to the default (drop this line) once the rebuild reaches
+  # robustness=healthy. Value is in seconds.
+  longGRPCTimeOut: 345600
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}
