@@ -25,6 +25,7 @@ defaultSettings:
   storageMinimalAvailablePercentage: 10
   autoCleanupSystemGeneratedSnapshot: true
   snapshotMaxCount: 3
+  longGRPCTimeOut: 345600
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}
