@@ -98,6 +98,13 @@ controllers:
           PAPERLESS_FILENAME_FORMAT: "{created_year}/{correspondent}/{created_year}-{created_month}-{created_day} {title}"
           PAPERLESS_FILENAME_FORMAT_REMOVE_NONE: "true"
           PAPERLESS_CONSUMER_DELETE_DUPLICATES: "true"
+          # Barcode / ASN — QR-code labelling of physical documents (ASN#####) read at
+          # consume time; PATCH-T separator pages split batch scans. ZXING backend is
+          # required (default pyzbar misreads small QR codes; needs paperless >= 1.14).
+          # Inert until physical ASN labels are applied to scanned documents.
+          PAPERLESS_CONSUMER_ENABLE_BARCODES: "true"
+          PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: "true"
+          PAPERLESS_CONSUMER_BARCODE_SCANNER: "ZXING"
           # Storage paths
           PAPERLESS_DATA_DIR: "/data"
           PAPERLESS_MEDIA_ROOT: "/media"
