@@ -91,6 +91,13 @@ controllers:
           PAPERLESS_SOCIALACCOUNT_PROVIDERS:
             dependsOn: PAPERLESS_OIDC_CLIENT_SECRET
             value: '{"openid_connect": {"OAUTH_PKCE_ENABLED": true, "APPS": [{"provider_id": "authelia", "name": "Authelia", "client_id": "paperless", "secret": "$(PAPERLESS_OIDC_CLIENT_SECRET)", "settings": {"server_url": "https://auth.${external_domain}/.well-known/openid-configuration"}}]}}'
+          # Filename format — organise media into year/correspondent/date-title hierarchy
+          # NOTE: changing PAPERLESS_FILENAME_FORMAT on an existing instance causes paperless
+          # to re-file every document in the media volume on next startup (high I/O on the
+          # 'slow' storage-class PVC). Plan maintenance accordingly.
+          PAPERLESS_FILENAME_FORMAT: "{created_year}/{correspondent}/{created_year}-{created_month}-{created_day} {title}"
+          PAPERLESS_FILENAME_FORMAT_REMOVE_NONE: "true"
+          PAPERLESS_CONSUMER_DELETE_DUPLICATES: "true"
           # Storage paths
           PAPERLESS_DATA_DIR: "/data"
           PAPERLESS_MEDIA_ROOT: "/media"
