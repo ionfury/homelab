@@ -11,3 +11,4 @@ resources:
   - paperless-oidc-client-secret-replica.yaml
   - paperless-secret.yaml
   - canary.yaml
+  - imap-egress.yaml
