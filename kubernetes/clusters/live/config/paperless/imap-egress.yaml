@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+# Allows paperless-ngx to reach Gmail IMAP for mail-based document ingestion.
+# The internal profile only permits egress on port 443; IMAPS uses port 993.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: paperless-imap-egress
+  namespace: paperless
+spec:
+  description: "Allow paperless-ngx IMAP egress to Gmail (port 993)"
+  endpointSelector: { }
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "993"
+              protocol: TCP
