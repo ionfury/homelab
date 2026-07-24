@@ -13,6 +13,11 @@ spec:
     # Computed once per scrape interval; alerts reference these cheap metrics.
     # All rules pin reporter="source" — Ambient mode only produces source-side
     # metrics from ztunnel; destination-side metrics do not exist.
+    #
+    # Each rule emits one series per (destination_workload, source_workload).
+    # The SLO alerts below are generic: they consume these series and fan out
+    # to one alert per app automatically via label propagation, so apps never
+    # need to be enumerated in the alert expressions.
     - name: gateway.recording
       rules:
         # Total requests ── all four burn-rate windows
@@ -88,6 +93,11 @@ spec:
         # Fast requests (≤ threshold) ── grouped by shared latency SLO bucket.
         # Grouping apps by bucket reduces rules from 36 to 16 without any loss
         # of correctness — each group emits distinct destination_workload labels.
+        #
+        # NOTE: le values MUST match the histogram exactly. istio emits float
+        # bucket boundaries (le="500.0", not le="500"); an integer string
+        # matches nothing and silently produces zero series — which previously
+        # left every latency SLO alert permanently dead.
 
         # 500ms threshold: authelia, oauth2-proxy
         - record: gateway:requests_fast:rate5m
@@ -96,7 +106,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"authelia|oauth2-proxy",
-              le="500"
+              le="500.0"
             }[5m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate30m
@@ -105,7 +115,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"authelia|oauth2-proxy",
-              le="500"
+              le="500.0"
             }[30m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate1h
@@ -114,7 +124,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"authelia|oauth2-proxy",
-              le="500"
+              le="500.0"
             }[1h])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate6h
@@ -123,7 +133,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"authelia|oauth2-proxy",
-              le="500"
+              le="500.0"
             }[6h])) by (destination_workload, source_workload)
 
         # 1000ms threshold: kromgo, jfa-go, tandoor
@@ -133,7 +143,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"kromgo|jfa-go|tandoor",
-              le="1000"
+              le="1000.0"
             }[5m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate30m
@@ -142,7 +152,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"kromgo|jfa-go|tandoor",
-              le="1000"
+              le="1000.0"
             }[30m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate1h
@@ -151,7 +161,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"kromgo|jfa-go|tandoor",
-              le="1000"
+              le="1000.0"
             }[1h])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate6h
@@ -160,7 +170,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"kromgo|jfa-go|tandoor",
-              le="1000"
+              le="1000.0"
             }[6h])) by (destination_workload, source_workload)
 
         # 2500ms threshold: immich-server, jellyseerr, zipline
@@ -170,7 +180,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"immich-server|jellyseerr|zipline",
-              le="2500"
+              le="2500.0"
             }[5m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate30m
@@ -179,7 +189,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"immich-server|jellyseerr|zipline",
-              le="2500"
+              le="2500.0"
             }[30m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate1h
@@ -188,7 +198,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"immich-server|jellyseerr|zipline",
-              le="2500"
+              le="2500.0"
             }[1h])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate6h
@@ -197,7 +207,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload=~"immich-server|jellyseerr|zipline",
-              le="2500"
+              le="2500.0"
             }[6h])) by (destination_workload, source_workload)
 
         # 60000ms threshold: jellyfin (long-lived video streams)
@@ -212,7 +222,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload="jellyfin",
-              le="60000"
+              le="60000.0"
             }[5m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate30m
@@ -221,7 +231,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload="jellyfin",
-              le="60000"
+              le="60000.0"
             }[30m])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate1h
@@ -230,7 +240,7 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload="jellyfin",
-              le="60000"
+              le="60000.0"
             }[1h])) by (destination_workload, source_workload)
 
         - record: gateway:requests_fast:rate6h
@@ -239,25 +249,27 @@ spec:
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
               destination_workload="jellyfin",
-              le="60000"
+              le="60000.0"
             }[6h])) by (destination_workload, source_workload)
 
     # ── Availability SLO alerts ───────────────────────────────────────────────
     # SLO: 99% of requests must return non-5xx over a 30-day window.
     # Error budget = 1%. Burn rates: fast=14.4x (2% budget/1h), slow=6x (5%/6h).
+    #
+    # Generic: the same 14.4% / 6% burn thresholds apply to every app, so a
+    # single rule per burn window fans out to one alert per app via the
+    # destination_workload / source_workload labels carried by the recording
+    # rules. Apps are enumerated once, in the recording rules — not here.
     - name: gateway.slo.availability
       rules:
-        # Authelia
-        - alert: AutheliaAvailabilityBudgetBurningFast
+        - alert: GatewayAvailabilityBudgetBurningFast
           expr: |
             (
-              gateway:requests_errors:rate1h{destination_workload="authelia"}
-              / gateway:requests:rate1h{destination_workload="authelia"}
+              gateway:requests_errors:rate1h / gateway:requests:rate1h
             ) > 0.144
             and
             (
-              gateway:requests_errors:rate5m{destination_workload="authelia"}
-              / gateway:requests:rate5m{destination_workload="authelia"}
+              gateway:requests_errors:rate5m / gateway:requests:rate5m
             ) > 0.144
           for: 2m
           labels:
@@ -271,392 +283,14 @@ spec:
               of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
               will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
 
-        - alert: AutheliaAvailabilityBudgetBurningSlow
+        - alert: GatewayAvailabilityBudgetBurningSlow
           expr: |
             (
-              gateway:requests_errors:rate6h{destination_workload="authelia"}
-              / gateway:requests:rate6h{destination_workload="authelia"}
+              gateway:requests_errors:rate6h / gateway:requests:rate6h
             ) > 0.06
             and
             (
-              gateway:requests_errors:rate30m{destination_workload="authelia"}
-              / gateway:requests:rate30m{destination_workload="authelia"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # oauth2-proxy
-        - alert: Oauth2ProxyAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="oauth2-proxy"}
-              / gateway:requests:rate1h{destination_workload="oauth2-proxy"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="oauth2-proxy"}
-              / gateway:requests:rate5m{destination_workload="oauth2-proxy"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: Oauth2ProxyAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="oauth2-proxy"}
-              / gateway:requests:rate6h{destination_workload="oauth2-proxy"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="oauth2-proxy"}
-              / gateway:requests:rate30m{destination_workload="oauth2-proxy"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Immich
-        - alert: ImmichAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="immich-server"}
-              / gateway:requests:rate1h{destination_workload="immich-server"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="immich-server"}
-              / gateway:requests:rate5m{destination_workload="immich-server"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: ImmichAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="immich-server"}
-              / gateway:requests:rate6h{destination_workload="immich-server"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="immich-server"}
-              / gateway:requests:rate30m{destination_workload="immich-server"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Kromgo
-        - alert: KromgoAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="kromgo"}
-              / gateway:requests:rate1h{destination_workload="kromgo"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="kromgo"}
-              / gateway:requests:rate5m{destination_workload="kromgo"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: KromgoAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="kromgo"}
-              / gateway:requests:rate6h{destination_workload="kromgo"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="kromgo"}
-              / gateway:requests:rate30m{destination_workload="kromgo"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Jellyfin
-        - alert: JellyfinAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="jellyfin"}
-              / gateway:requests:rate1h{destination_workload="jellyfin"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="jellyfin"}
-              / gateway:requests:rate5m{destination_workload="jellyfin"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: JellyfinAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="jellyfin"}
-              / gateway:requests:rate6h{destination_workload="jellyfin"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="jellyfin"}
-              / gateway:requests:rate30m{destination_workload="jellyfin"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Jellyseerr
-        - alert: JellyseerrAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="jellyseerr"}
-              / gateway:requests:rate1h{destination_workload="jellyseerr"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="jellyseerr"}
-              / gateway:requests:rate5m{destination_workload="jellyseerr"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: JellyseerrAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="jellyseerr"}
-              / gateway:requests:rate6h{destination_workload="jellyseerr"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="jellyseerr"}
-              / gateway:requests:rate30m{destination_workload="jellyseerr"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # jfa-go
-        - alert: JfaGoAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="jfa-go"}
-              / gateway:requests:rate1h{destination_workload="jfa-go"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="jfa-go"}
-              / gateway:requests:rate5m{destination_workload="jfa-go"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: JfaGoAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="jfa-go"}
-              / gateway:requests:rate6h{destination_workload="jfa-go"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="jfa-go"}
-              / gateway:requests:rate30m{destination_workload="jfa-go"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Tandoor
-        - alert: TandoorAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="tandoor"}
-              / gateway:requests:rate1h{destination_workload="tandoor"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="tandoor"}
-              / gateway:requests:rate5m{destination_workload="tandoor"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: TandoorAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="tandoor"}
-              / gateway:requests:rate6h{destination_workload="tandoor"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="tandoor"}
-              / gateway:requests:rate30m{destination_workload="tandoor"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 6% for slow burn). At this rate 5% of the 30-day error budget
-              will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Zipline
-        - alert: ZiplineAvailabilityBudgetBurningFast
-          expr: |
-            (
-              gateway:requests_errors:rate1h{destination_workload="zipline"}
-              / gateway:requests:rate1h{destination_workload="zipline"}
-            ) > 0.144
-            and
-            (
-              gateway:requests_errors:rate5m{destination_workload="zipline"}
-              / gateway:requests:rate5m{destination_workload="zipline"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} 5xx error budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} is returning 5xx errors at {{ $value | humanizePercentage }}
-              of requests (threshold: 14.4% for fast burn). At this rate the 30-day error budget
-              will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: ZiplineAvailabilityBudgetBurningSlow
-          expr: |
-            (
-              gateway:requests_errors:rate6h{destination_workload="zipline"}
-              / gateway:requests:rate6h{destination_workload="zipline"}
-            ) > 0.06
-            and
-            (
-              gateway:requests_errors:rate30m{destination_workload="zipline"}
-              / gateway:requests:rate30m{destination_workload="zipline"}
+              gateway:requests_errors:rate30m / gateway:requests:rate30m
             ) > 0.06
           for: 15m
           labels:
@@ -673,19 +307,21 @@ spec:
     # ── Latency SLO alerts ────────────────────────────────────────────────────
     # SLO: 99% of requests must complete within per-app threshold over 30 days.
     # slow_ratio = 1 - (fast_count / total_count). Burn rates same as above.
+    #
+    # Generic: the per-app latency threshold is baked into the requests_fast
+    # recording rules (via the le bucket), so the alert only compares the
+    # slow-request ratio against the same 14.4% / 6% burn rates for every app.
+    # One rule per burn window fans out to one alert per app.
     - name: gateway.slo.latency
       rules:
-        # Authelia (500ms)
-        - alert: AutheliaLatencyBudgetBurningFast
+        - alert: GatewayLatencyBudgetBurningFast
           expr: |
             (
-              1 - gateway:requests_fast:rate1h{destination_workload="authelia"}
-                  / gateway:requests:rate1h{destination_workload="authelia"}
+              1 - gateway:requests_fast:rate1h / gateway:requests:rate1h
             ) > 0.144
             and
             (
-              1 - gateway:requests_fast:rate5m{destination_workload="authelia"}
-                  / gateway:requests:rate5m{destination_workload="authelia"}
+              1 - gateway:requests_fast:rate5m / gateway:requests:rate5m
             ) > 0.144
           for: 2m
           labels:
@@ -696,19 +332,17 @@ spec:
             summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
             description: >-
               {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 500ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
+              exceeding its latency SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
               latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
 
-        - alert: AutheliaLatencyBudgetBurningSlow
+        - alert: GatewayLatencyBudgetBurningSlow
           expr: |
             (
-              1 - gateway:requests_fast:rate6h{destination_workload="authelia"}
-                  / gateway:requests:rate6h{destination_workload="authelia"}
+              1 - gateway:requests_fast:rate6h / gateway:requests:rate6h
             ) > 0.06
             and
             (
-              1 - gateway:requests_fast:rate30m{destination_workload="authelia"}
-                  / gateway:requests:rate30m{destination_workload="authelia"}
+              1 - gateway:requests_fast:rate30m / gateway:requests:rate30m
             ) > 0.06
           for: 15m
           labels:
@@ -719,381 +353,5 @@ spec:
             summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
             description: >-
               {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 500ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # oauth2-proxy (500ms)
-        - alert: Oauth2ProxyLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="oauth2-proxy"}
-                  / gateway:requests:rate1h{destination_workload="oauth2-proxy"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="oauth2-proxy"}
-                  / gateway:requests:rate5m{destination_workload="oauth2-proxy"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 500ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: Oauth2ProxyLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="oauth2-proxy"}
-                  / gateway:requests:rate6h{destination_workload="oauth2-proxy"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="oauth2-proxy"}
-                  / gateway:requests:rate30m{destination_workload="oauth2-proxy"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 500ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Immich (2500ms)
-        - alert: ImmichLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="immich-server"}
-                  / gateway:requests:rate1h{destination_workload="immich-server"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="immich-server"}
-                  / gateway:requests:rate5m{destination_workload="immich-server"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 2500ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: ImmichLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="immich-server"}
-                  / gateway:requests:rate6h{destination_workload="immich-server"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="immich-server"}
-                  / gateway:requests:rate30m{destination_workload="immich-server"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 2500ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Kromgo (1000ms)
-        - alert: KromgoLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="kromgo"}
-                  / gateway:requests:rate1h{destination_workload="kromgo"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="kromgo"}
-                  / gateway:requests:rate5m{destination_workload="kromgo"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 1000ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: KromgoLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="kromgo"}
-                  / gateway:requests:rate6h{destination_workload="kromgo"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="kromgo"}
-                  / gateway:requests:rate30m{destination_workload="kromgo"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 1000ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Jellyfin (60000ms — long-lived video streams)
-        - alert: JellyfinLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="jellyfin"}
-                  / gateway:requests:rate1h{destination_workload="jellyfin"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="jellyfin"}
-                  / gateway:requests:rate5m{destination_workload="jellyfin"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 60000ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: JellyfinLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="jellyfin"}
-                  / gateway:requests:rate6h{destination_workload="jellyfin"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="jellyfin"}
-                  / gateway:requests:rate30m{destination_workload="jellyfin"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 60000ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Jellyseerr (2500ms)
-        - alert: JellyseerrLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="jellyseerr"}
-                  / gateway:requests:rate1h{destination_workload="jellyseerr"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="jellyseerr"}
-                  / gateway:requests:rate5m{destination_workload="jellyseerr"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 2500ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: JellyseerrLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="jellyseerr"}
-                  / gateway:requests:rate6h{destination_workload="jellyseerr"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="jellyseerr"}
-                  / gateway:requests:rate30m{destination_workload="jellyseerr"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 2500ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # jfa-go (1000ms)
-        - alert: JfaGoLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="jfa-go"}
-                  / gateway:requests:rate1h{destination_workload="jfa-go"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="jfa-go"}
-                  / gateway:requests:rate5m{destination_workload="jfa-go"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 1000ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: JfaGoLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="jfa-go"}
-                  / gateway:requests:rate6h{destination_workload="jfa-go"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="jfa-go"}
-                  / gateway:requests:rate30m{destination_workload="jfa-go"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 1000ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Tandoor (1000ms)
-        - alert: TandoorLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="tandoor"}
-                  / gateway:requests:rate1h{destination_workload="tandoor"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="tandoor"}
-                  / gateway:requests:rate5m{destination_workload="tandoor"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 1000ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: TandoorLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="tandoor"}
-                  / gateway:requests:rate6h{destination_workload="tandoor"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="tandoor"}
-                  / gateway:requests:rate30m{destination_workload="tandoor"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 1000ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
-              latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
-
-        # Zipline (2500ms)
-        - alert: ZiplineLatencyBudgetBurningFast
-          expr: |
-            (
-              1 - gateway:requests_fast:rate1h{destination_workload="zipline"}
-                  / gateway:requests:rate1h{destination_workload="zipline"}
-            ) > 0.144
-            and
-            (
-              1 - gateway:requests_fast:rate5m{destination_workload="zipline"}
-                  / gateway:requests:rate5m{destination_workload="zipline"}
-            ) > 0.144
-          for: 2m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning fast via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 2500ms SLO threshold (fast burn limit: 14.4%). At this rate the 30-day
-              latency budget will be exhausted in under 2 hours. Gateway: {{ $labels.source_workload }}.
-
-        - alert: ZiplineLatencyBudgetBurningSlow
-          expr: |
-            (
-              1 - gateway:requests_fast:rate6h{destination_workload="zipline"}
-                  / gateway:requests:rate6h{destination_workload="zipline"}
-            ) > 0.06
-            and
-            (
-              1 - gateway:requests_fast:rate30m{destination_workload="zipline"}
-                  / gateway:requests:rate30m{destination_workload="zipline"}
-            ) > 0.06
-          for: 15m
-          labels:
-            severity: warning
-            app: '{{ $labels.destination_workload }}'
-            gateway: '{{ $labels.source_workload }}'
-          annotations:
-            summary: "{{ $labels.destination_workload }} latency budget burning slow via {{ $labels.source_workload }}"
-            description: >-
-              {{ $labels.destination_workload }} has {{ $value | humanizePercentage }} of requests
-              exceeding the 2500ms SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
+              exceeding its latency SLO threshold (slow burn limit: 6%). At this rate 5% of the 30-day
               latency budget will be consumed in 6 hours. Gateway: {{ $labels.source_workload }}.
