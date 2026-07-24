@@ -91,6 +91,10 @@ controllers:
           PAPERLESS_SOCIALACCOUNT_PROVIDERS:
             dependsOn: PAPERLESS_OIDC_CLIENT_SECRET
             value: '{"openid_connect": {"OAUTH_PKCE_ENABLED": true, "APPS": [{"provider_id": "authelia", "name": "Authelia", "client_id": "paperless", "secret": "$(PAPERLESS_OIDC_CLIENT_SECRET)", "settings": {"server_url": "https://auth.${external_domain}/.well-known/openid-configuration"}}]}}'
+          # Tika + Gotenberg — office document ingestion (.docx/.xlsx/.odt/.pptx)
+          PAPERLESS_TIKA_ENABLED: "true"
+          PAPERLESS_TIKA_ENDPOINT: "http://tika.paperless.svc.cluster.local:9998"
+          PAPERLESS_TIKA_GOTENBERG_ENDPOINT: "http://gotenberg.paperless.svc.cluster.local:3000"
           # Storage paths
           PAPERLESS_DATA_DIR: "/data"
           PAPERLESS_MEDIA_ROOT: "/media"

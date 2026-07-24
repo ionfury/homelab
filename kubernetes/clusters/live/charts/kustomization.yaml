@@ -28,9 +28,11 @@ configMapGenerator:
       - minecraft.yaml
       - ollama.yaml
       - open-webui.yaml
+      - gotenberg.yaml
       - papra.yaml
       - paperless.yaml
       - prowlarr.yaml
+      - tika.yaml
       - qbittorrent.yaml
       - radarr.yaml
       - redlib.yaml
