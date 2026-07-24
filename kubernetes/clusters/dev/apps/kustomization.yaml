@@ -11,4 +11,6 @@ configMapGenerator:
     namespace: flux-system
     behavior: create
     files:
+      - gotenberg.yaml=paperless/gotenberg.yaml
       - paperless.yaml=paperless/values.yaml
+      - tika.yaml=paperless/tika.yaml
