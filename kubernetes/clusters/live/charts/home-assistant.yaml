@@ -29,11 +29,6 @@ controllers:
               secretKeyRef:
                 name: hass-db-credentials
                 key: uri
-          HASS_PROMETHEUS_TOKEN:
-            valueFrom:
-              secretKeyRef:
-                name: hass-prometheus-token
-                key: token
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
