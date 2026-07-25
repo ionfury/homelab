@@ -10,6 +10,7 @@ resources:
   - garage-canary.yaml
   - cnpg-platform-bucket.yaml
   - cnpg-immich-bucket.yaml
+  - cnpg-hass-bucket.yaml
   - dragonfly-bucket.yaml
   - reference-grant-database.yaml
   - reference-grant-cache.yaml

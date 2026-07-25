@@ -1,0 +1,64 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: hass-database
+  namespace: database
+spec:
+  inheritedMetadata:
+    annotations:
+      replicator.v1.mittwald.de/replication-allowed: "true"
+      replicator.v1.mittwald.de/replication-allowed-namespaces: "home-assistant"
+  description: "Home Assistant recorder PostgreSQL cluster"
+  env:
+    - name: AWS_DEFAULT_REGION
+      value: "garage"
+  imageName: ghcr.io/cloudnative-pg/postgresql:${postgresql_image_version}
+  instances: ${default_replica_count}
+  primaryUpdateStrategy: unsupervised
+
+  postgresql:
+    parameters:
+      shared_buffers: "128MB"
+      max_connections: "100"
+
+  bootstrap:
+    initdb:
+      database: hass
+      owner: hass
+
+  storage:
+    storageClass: fast
+    size: 10Gi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://cnpg-hass-backups/
+      endpointURL: http://${garage_s3_endpoint}
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-hass-s3-credentials
+          key: access-key-id
+        secretAccessKey:
+          name: cnpg-hass-s3-credentials
+          key: secret-access-key
+      wal:
+        compression: gzip
+      data:
+        compression: gzip
+    retentionPolicy: "14d"
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+  monitoring:
+    enablePodMonitor: true
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
