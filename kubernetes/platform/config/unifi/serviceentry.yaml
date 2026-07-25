@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/networking.istio.io/serviceentry_v1.json
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: unifi-network
+spec:
+  # Synthetic mesh-external host referenced by the HTTPRoute backendRef.
+  # Not resolved via DNS: resolution=STATIC routes straight to the endpoint IP.
+  hosts:
+    - unifi-network.egress.local
+  location: MESH_EXTERNAL
+  resolution: STATIC
+  ports:
+    - number: 443
+      name: https
+      protocol: HTTPS
+  endpoints:
+    # UniFi Network controller (UDM) on the LAN, self-signed HTTPS.
+    - address: 192.168.1.1
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/networking.istio.io/serviceentry_v1.json
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: unifi-protect
+spec:
+  hosts:
+    - unifi-protect.egress.local
+  location: MESH_EXTERNAL
+  resolution: STATIC
+  ports:
+    - number: 443
+      name: https
+      protocol: HTTPS
+  endpoints:
+    # UniFi Protect NVR on the LAN, self-signed HTTPS.
+    - address: 192.168.1.40

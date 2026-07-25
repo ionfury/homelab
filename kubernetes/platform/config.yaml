@@ -38,6 +38,10 @@ spec:
       namespace: istio-gateway
       path: kubernetes/platform/config/gateway
       dependsOn: [istiod]
+    - name: unifi-config
+      namespace: istio-gateway
+      path: kubernetes/platform/config/unifi
+      dependsOn: [istiod, canary-checker]
     - name: oauth2-proxy-config
       namespace: oauth2-proxy
       path: kubernetes/platform/config/oauth2-proxy
