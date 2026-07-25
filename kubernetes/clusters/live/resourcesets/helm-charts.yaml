@@ -281,6 +281,13 @@ spec:
         version: "${external_dns_version}"
         url: https://kubernetes-sigs.github.io/external-dns/
       dependsOn: [external-secrets, kube-prometheus-stack-crds]
+    - name: home-assistant
+      namespace: home-assistant
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [cloudnative-pg, secret-generator, external-secrets]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

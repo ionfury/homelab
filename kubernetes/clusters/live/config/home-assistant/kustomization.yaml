@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - hass-config-pvc.yaml
+  - hass-config-configmap.yaml
+  - hass-db-credentials.yaml
+  - hass-prometheus-token.yaml
+  - hass-database-cluster.yaml
+  - hass-database-backup.yaml
+  - hass-cnpg-garage-key.yaml
+  - prometheus-rules.yaml
+  - canary.yaml

@@ -1,0 +1,11 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: hass-database-daily
+  namespace: database
+spec:
+  schedule: "0 4 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: hass-database
