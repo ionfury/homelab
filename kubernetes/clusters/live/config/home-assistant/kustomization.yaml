@@ -11,5 +11,4 @@ resources:
   - hass-database-cluster.yaml
   - hass-database-backup.yaml
   - hass-cnpg-garage-key.yaml
-  - prometheus-rules.yaml
   - canary.yaml
