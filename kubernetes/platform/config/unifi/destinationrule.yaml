@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/networking.istio.io/destinationrule_v1.json
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: unifi-network
+spec:
+  host: unifi-network.egress.local
+  trafficPolicy:
+    tls:
+      # Originate TLS toward the self-signed UniFi backend. The gateway already
+      # terminated the client's TLS with the internal wildcard cert; here we
+      # re-encrypt hop-by-hop. insecureSkipVerify accepts the self-signed cert.
+      mode: SIMPLE
+      insecureSkipVerify: true
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/networking.istio.io/destinationrule_v1.json
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: unifi-protect
+spec:
+  host: unifi-protect.egress.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+      insecureSkipVerify: true

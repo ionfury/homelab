@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: unifi-network
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "UniFi Network"
+    gethomepage.dev/group: "Network"
+    gethomepage.dev/icon: "unifi.svg"
+spec:
+  parentRefs:
+    - name: internal
+      namespace: istio-gateway
+  hostnames:
+    - "network.${internal_domain}"
+  rules:
+    - backendRefs:
+        # Route to the mesh-external UniFi Network host defined by the
+        # ServiceEntry of the same name. DestinationRule originates TLS.
+        - group: networking.istio.io
+          kind: Hostname
+          name: unifi-network.egress.local
+          port: 443
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: unifi-protect
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "UniFi Protect"
+    gethomepage.dev/group: "Network"
+    gethomepage.dev/icon: "unifi.svg"
+spec:
+  parentRefs:
+    - name: internal
+      namespace: istio-gateway
+  hostnames:
+    - "protect.${internal_domain}"
+  rules:
+    - backendRefs:
+        - group: networking.istio.io
+          kind: Hostname
+          name: unifi-protect.egress.local
+          port: 443

@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/canaries.flanksource.com/canary_v1.json
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-unifi-network
+spec:
+  schedule: "@every 1m"
+  http:
+    - name: unifi-network-gateway-health
+      url: https://network.${internal_domain}
+      # UniFi serves an SPA at root and may redirect to the login/manage path.
+      responseCodes: [200, 302, 307]
+      maxSSLExpiry: 7
+      thresholdMillis: 5000
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/canaries.flanksource.com/canary_v1.json
+apiVersion: canaries.flanksource.com/v1
+kind: Canary
+metadata:
+  name: http-check-unifi-protect
+spec:
+  schedule: "@every 1m"
+  http:
+    - name: unifi-protect-gateway-health
+      url: https://protect.${internal_domain}
+      responseCodes: [200, 302, 307]
+      maxSSLExpiry: 7
+      thresholdMillis: 5000
