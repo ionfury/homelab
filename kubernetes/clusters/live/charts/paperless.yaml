@@ -109,7 +109,7 @@ controllers:
           PAPERLESS_AI_ENABLED: "true"
           PAPERLESS_AI_LLM_BACKEND: "ollama"
           PAPERLESS_AI_LLM_MODEL: "qwen2.5:7b-instruct-q8_0"
-          PAPERLESS_AI_LLM_URL: "http://ollama.ai.svc.cluster.local:11434"
+          PAPERLESS_AI_LLM_ENDPOINT: "http://ollama.ai.svc.cluster.local:11434"
           # Storage paths
           PAPERLESS_DATA_DIR: "/data"
           PAPERLESS_MEDIA_ROOT: "/media"
