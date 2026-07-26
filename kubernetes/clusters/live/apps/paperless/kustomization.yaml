@@ -2,10 +2,12 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-# Migration prep: prevent garbage collection while ownership transfers from the
-# cluster-config Kustomization to the per-app cluster-apps Kustomization.
+# Transitional: keep prune protection until the ownership transfer from
+# cluster-config/cluster-resources has converged on live. Safe to remove
+# afterwards; consider keeping it on the PVCs as permanent data protection.
 commonAnnotations:
   kustomize.toolkit.fluxcd.io/prune: disabled
+  fluxcd.controlplane.io/prune: disabled
 resources:
   - namespace.yaml
   - data-pvc.yaml
@@ -17,3 +19,5 @@ resources:
   - canary.yaml
   - imap-egress.yaml
   - ollama-egress.yaml
+  - helmrepository.yaml
+  - helmrelease.yaml

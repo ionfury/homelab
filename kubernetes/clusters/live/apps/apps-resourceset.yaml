@@ -1,0 +1,55 @@
+---
+# Registry of per-app Kustomizations. Each input maps one self-contained app
+# directory (HelmRelease, values, namespace, PVCs, secrets, routes, canary)
+# to a generated Flux Kustomization. The dependency graph lives here because
+# it is cross-app information; everything app-local lives in the app folder.
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: cluster-apps
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcile: "enabled"
+    fluxcd.controlplane.io/reconcileEvery: "30m"
+    fluxcd.controlplane.io/reconcileTimeout: "3m"
+spec:
+  inputs:
+    - name: paperless
+      path: kubernetes/clusters/live/apps/paperless
+      dependsOn: [cloudnative-pg, secret-generator]
+  resourcesTemplate: |
+    ---
+    apiVersion: kustomize.toolkit.fluxcd.io/v1
+    kind: Kustomization
+    metadata:
+      name: << inputs.name >>
+      namespace: flux-system
+    spec:
+      <<- if inputs.dependsOn >>
+      dependsOn:
+      <<- range $dep := inputs.dependsOn >>
+        - name: << $dep >>
+      <<- end >>
+      <<- end >>
+      interval: 3m
+      path: << inputs.path >>
+      prune: true
+      sourceRef:
+        kind: ${source_kind}
+        name: flux-system
+      healthChecks:
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          name: << inputs.name >>
+          namespace: flux-system
+      postBuild:
+        substituteFrom:
+          - kind: ConfigMap
+            name: cluster-vars
+            optional: false
+          - kind: ConfigMap
+            name: platform-versions
+            optional: false
+          - kind: ConfigMap
+            name: cluster-versions
+            optional: false

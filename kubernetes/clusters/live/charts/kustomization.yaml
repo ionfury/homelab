@@ -31,7 +31,6 @@ configMapGenerator:
       - open-webui.yaml
       - palworld.yaml
       - papra.yaml
-      - paperless.yaml
       - prowlarr.yaml
       - qbittorrent.yaml
       - radarr.yaml
