@@ -1,117 +1,115 @@
 version: 1
 skill: promotion-pipeline
-description: "Verify the OCI artifact promotion pipeline is correctly described: full flow, tagging strategy, semver constraints, debugging procedures, and manual promotion."
+description: "Verify the direct build-to-live OCI artifact pipeline is correctly described: full flow, tagging strategy, semver constraints, debugging procedures, and rollback."
 tests:
   - id: PRM-01
     description: "Full pipeline flow from PR merge to live"
     category: coverage
     severity: critical
     prompt: |
-      Walk me through the complete promotion pipeline from when a PR is merged to main until the change reaches the live cluster. What are all the stages and what happens at each one?
+      Walk me through the complete pipeline from when a PR is merged to main until the change reaches the live cluster. What are all the stages and what happens at each one?
     scoring:
       mode: both
       keywords:
         required:
           - build-platform-artifact
-          - integration
-          - tag-validated-artifact
           - live
           - OCIRepository
         any_of:
-          - rc.N
           - X.Y.Z
-          - repository_dispatch
+          - stable
           - validated
+          - canary
+        forbidden:
+          - tag-validated-artifact
+          - repository_dispatch
+          - rc.N
       judge_criteria: |
-        Score 0-10 on completeness of the pipeline description.
-        10: Covers all 6 stages in order: (1) GHA build triggered on merge, (2) OCI artifact pushed to GHCR with rc tag, (3) integration OCIRepository picks it up via semver >= 0.0.0-0, (4) Flux reconciles and Kustomization succeeds, (5) validation-success Alert fires repository_dispatch triggering tag-validated-artifact workflow, (6) stable X.Y.Z tag added and live OCIRepository picks it up. Mentions idempotency guard.
-        7-9: Covers most stages but missing one or two details (e.g. idempotency guard, exact semver constraints).
-        4-6: Covers the general flow (build -> integration -> live) but missing key details like the Alert/repository_dispatch mechanism.
-        1-3: Only partial description, missing multiple stages.
+        Score 0-10 on completeness and correctness of the pipeline description.
+        10: Covers the direct build-to-live flow: (1) GHA build triggered on merge to main when kubernetes/ changed, (2) build queries GHCR for highest stable tag and bumps patch, (3) OCI artifact pushed with stable X.Y.Z plus sha-<short> and validated-<short> tags and a GitHub Release is created, (4) live OCIRepository picks it up via semver >= 0.0.0 and Flux reconciles, (5) canary-checker provides a post-deploy health signal, not a gate. Does NOT describe an integration validation stage or a separate promotion workflow.
+        7-9: Correct direct flow but missing one or two details (e.g. tag set, canary signal).
+        4-6: Correct general direction but incomplete tagging/reconciliation details.
+        1-3: Describes the old RC/integration-gated flow or misses multiple stages.
         0: Incorrect or no pipeline description.
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Describes all six pipeline stages in order. Explains that the build workflow pushes an rc-tagged OCI artifact, integration picks it up via the >= 0.0.0-0 semver constraint, the validation-success Alert fires repository_dispatch to GitHub, tag-validated-artifact strips the rc suffix to create a stable semver tag, and the live cluster picks up the stable tag via >= 0.0.0 constraint.
+      Describes the direct build-to-live flow: build workflow tags the artifact as stable X.Y.Z (plus sha-<short> and validated-<short>) at build time and creates a GitHub Release; live picks up the stable tag via the >= 0.0.0 semver constraint. Notes there is no integration validation gate and canary-checker is a post-deploy signal only.
     tags:
-      - trimmed-2026-03-22
       - promotion-pipeline-skill
 
   - id: PRM-02
-    description: "Artifact tagging strategy — all five tags and their purposes"
+    description: "Artifact tagging strategy — all tags applied at build time"
     category: coverage
     severity: critical
     prompt: |
-      What tags does an OCI artifact accumulate as it moves through the promotion pipeline? List each tag, what creates it, and what it is used for.
+      What tags does a platform OCI artifact receive, what creates each tag, and what is each used for?
     scoring:
       mode: both
       keywords:
         required:
           - sha-
-          - integration-
           - validated-
         any_of:
-          - X.Y.Z-rc
-          - rc.N
+          - X.Y.Z
           - stable
           - build workflow
+          - GitHub Release
+        forbidden:
           - tag-validated-artifact
+          - integration-
+          - rc.N
       judge_criteria: |
-        Score 0-10 based on how completely the five tags are described.
-        10: Correctly names and explains all five tags: X.Y.Z-rc.N (build, integration semver), sha-<7char> (build, immutable commit ref), integration-<7char> (build, marks for integration), validated-<7char> (tag workflow, traceability), X.Y.Z (tag workflow, stable semver for live). Correctly identifies which workflow creates each.
-        7-9: Names and explains 4 of the 5 tags correctly.
-        4-6: Knows 3 tags or confuses which workflow creates which tags.
-        1-3: Only aware of 1-2 tags.
+        Score 0-10 based on how completely the tags are described.
+        10: Correctly names all three tags — X.Y.Z (stable semver for OCIRepository polling), sha-<7char> (immutable commit reference), validated-<7char> (compatibility tag for live's tag_pattern filter) — and states all are applied by the build workflow at build time. May mention the GitHub Release.
+        7-9: Names all three tags but misses which purpose one serves.
+        4-6: Knows 2 tags or incorrectly attributes tags to a separate promotion workflow.
+        1-3: Describes the old five-tag RC scheme or only 1 tag.
         0: Does not describe the tagging strategy at all.
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Lists all five artifact tags: X.Y.Z-rc.N and sha-<7char> and integration-<7char> (all created by the build workflow) plus validated-<7char> and X.Y.Z (created by tag-validated-artifact). Explains purpose of each.
+      Lists the three artifact tags — X.Y.Z, sha-<7char>, and validated-<7char> — all created by the build workflow at build time, and explains the purpose of each. No separate promotion workflow adds tags.
     tags:
-      - trimmed-2026-03-22
       - promotion-pipeline-skill
 
   - id: PRM-03
-    description: "Semver constraints per cluster and why they differ"
+    description: "Semver constraints per cluster and where they are configured"
     category: coverage
     severity: critical
     prompt: |
-      Why does the integration cluster accept RC artifact versions but the live cluster does not? What are the exact semver constraints configured on each cluster's OCIRepository, and where is this configured?
+      What are the exact semver constraints configured on each cluster's OCIRepository, where is this configured, and do integration and live receive different artifacts?
     scoring:
       mode: both
       keywords:
         required:
-          - ">= 0.0.0-0"
           - ">= 0.0.0"
-          - integration
           - live
         any_of:
-          - pre-release
-          - rc
+          - ">= 0.0.0-0"
           - infrastructure/modules/config
-          - semver
-          - "-0"
+          - pre-release
+          - same artifacts
       judge_criteria: |
         Score 0-10 on accuracy of semver constraint explanation.
-        10: States integration uses >= 0.0.0-0 (accepts pre-releases because of the -0 suffix per semver spec) and live uses >= 0.0.0 (stable only, no -rc suffix). Identifies infrastructure/modules/config/main.tf as where constraints are configured.
-        7-9: Correct constraints but missing the explanation of why -0 allows pre-releases, or missing the config file location.
-        4-6: Gets the general idea (integration accepts RC, live does not) but wrong or missing exact constraint strings.
-        1-3: Partially correct, major inaccuracies.
+        10: States live uses >= 0.0.0 (stable only) and integration uses >= 0.0.0-0 (would accept pre-releases, but none are built today so both clusters receive the same stable artifacts). Identifies infrastructure/modules/config/main.tf as where constraints are configured, and notes integration is not a validation gate.
+        7-9: Correct constraints and location but missing that both clusters now receive the same artifacts.
+        4-6: Correct general idea but wrong or missing exact constraint strings.
+        1-3: Claims integration receives RC artifacts as a validation stage.
         0: Incorrect or no answer.
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Explains that integration uses >= 0.0.0-0 (the -0 suffix is what allows pre-release versions per semver spec) while live uses >= 0.0.0 (stable only). References infrastructure/modules/config/main.tf as the configuration location.
+      Explains that live uses >= 0.0.0 and integration uses >= 0.0.0-0, configured in infrastructure/modules/config/main.tf. Since only stable tags are built, both clusters receive the same artifacts — integration is not a gate.
     tags:
-      - trimmed-2026-03-22
       - promotion-pipeline-skill
 
   - id: PRM-04
-    description: "Debugging an artifact stuck in integration — decision tree"
+    description: "Debugging live not updating — decision tree"
     category: coverage
     severity: critical
     prompt: |
-      A change was merged to main two hours ago and I can see the OCI artifact in GHCR with an rc tag, but the integration cluster has not picked it up. Walk me through the debugging steps.
+      A change was merged to main two hours ago and I can see the OCI artifact in GHCR with a stable tag, but the live cluster has not picked it up. Walk me through the debugging steps.
     scoring:
       mode: both
       keywords:
@@ -119,55 +117,56 @@ tests:
           - OCIRepository
           - semver
         any_of:
-          - ">= 0.0.0-0"
+          - ">= 0.0.0"
           - kubectl get ocirepository
           - flux reconcile source oci
           - .status.conditions
           - Kustomization
+        forbidden:
+          - repository_dispatch
+          - validation-success
+          - tag-validated-artifact
       judge_criteria: |
         Score 0-10 on actionability and completeness of debugging guidance.
-        10: Walks through the decision tree: (1) check OCIRepository semver constraint is >= 0.0.0-0, (2) check OCIRepository .status.conditions for errors, (3) force reconcile with flux reconcile source oci, (4) check Kustomization status for dependency/schema errors, (5) check validation-success Alert and github-dispatch Provider. Provides exact commands.
-        7-9: Covers most steps with working commands but missing one branch of the decision tree.
-        4-6: General guidance with 2-3 correct steps but incomplete or missing commands.
-        1-3: Vague or partially correct.
+        10: Walks through the decision tree: (1) check live OCIRepository semver constraint is >= 0.0.0 and the new tag is strictly higher than current, (2) check OCIRepository .status.conditions for errors, (3) force reconcile with flux reconcile source oci, (4) check platform Kustomization status for dependency/schema errors, (5) check HelmRelease health blocking rollout. Provides exact commands with --context live.
+        7-9: Covers most steps with working commands but missing one branch.
+        4-6: General guidance with 2-3 correct steps but incomplete commands.
+        1-3: Routes debugging through integration validation or Flux Alerts that no longer exist.
         0: Incorrect.
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Follows the stuck-in-integration decision tree from the skill: verifies artifact is in GHCR, checks OCIRepository semver constraint (must be >= 0.0.0-0), checks OCIRepository status conditions, checks Kustomization reconciliation status, and checks the validation-success Alert and github-dispatch Provider.
+      Follows the live-not-updating decision tree: verifies the stable tag in GHCR is higher than current, checks the live OCIRepository semver constraint and status conditions, force-reconciles the OCI source, then checks Kustomization and HelmRelease health.
     tags:
-      - trimmed-2026-03-22
       - promotion-pipeline-skill
 
   - id: PRM-05
-    description: "Manual promotion procedure when automation fails"
+    description: "Rollback procedure options"
     category: coverage
     severity: high
     prompt: |
-      The tag-validated-artifact workflow did not trigger automatically after integration validation succeeded. How do I manually trigger promotion for a specific commit SHA?
+      A bad change reached the live cluster. What are my rollback options, from safest to fastest?
     scoring:
       mode: both
       keywords:
         required:
-          - gh workflow run
-          - tag-validated-artifact.yaml
-          - artifact_sha
+          - revert
         any_of:
           - manual-promote.sh
-          - workflow_dispatch
-          - 7char
-          - short sha
+          - flux tag artifact
+          - pin
+          - ocirepository
+          - higher
       judge_criteria: |
-        Score 0-10 on correctness and completeness of the manual promotion procedure.
-        10: Provides the exact command (gh workflow run tag-validated-artifact.yaml -f artifact_sha=<7char-sha>) as the first option, explains the idempotency guard (skips if validated-* tag already exists), and mentions the manual-promote.sh script as a fallback if the workflow itself is broken.
-        7-9: Provides the gh workflow run command with correct syntax, mentions the manual script as fallback but missing idempotency explanation.
-        4-6: Knows to use gh workflow run but wrong syntax or missing the -f artifact_sha parameter.
-        1-3: Vague, missing the specific command.
+        Score 0-10 on correctness and completeness of the rollback options.
+        10: Presents all three options: (1) revert the PR on main (safest — rebuilds through the normal pipeline), (2) re-tag a known-good artifact with a higher stable version (manual-promote.sh or flux tag artifact; new tag must be strictly higher than current), (3) pin the live OCIRepository to a previous tag (immediate, but the pin must be reverted later).
+        7-9: Two of the three options with correct mechanics.
+        4-6: One correct option, or re-tagging described without the higher-version requirement.
+        1-3: Suggests re-running a promotion workflow that no longer exists.
         0: Incorrect.
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Provides the exact command: gh workflow run tag-validated-artifact.yaml -f artifact_sha=<7char-sha>. Explains this is the simplest option. Mentions the manual-promote.sh script as a fallback when the workflow itself is broken. Notes the idempotency guard.
+      Recommends reverting the PR as the safest option, describes emergency re-tagging of a known-good sha with a higher stable version (manual-promote.sh), and pinning the OCIRepository tag as an immediate stopgap.
     tags:
-      - trimmed-2026-03-22
       - promotion-pipeline-skill

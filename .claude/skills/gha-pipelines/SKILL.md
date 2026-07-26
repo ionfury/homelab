@@ -21,8 +21,8 @@ This repository uses `mise` for tool version management so CI and local dev use 
 **Tool setup** — always `jdx/mise-action@v3`, never `apt-get`/`brew`:
 ```yaml
 steps:
-  - uses: actions/checkout@v6
-  - uses: jdx/mise-action@v3
+  - uses: actions/checkout@v7
+  - uses: jdx/mise-action@v4
   - run: task k8s:validate
 ```
 
@@ -30,10 +30,10 @@ steps:
 
 | Need | Action |
 |------|--------|
-| Checkout | `actions/checkout@v6` |
-| Tool setup | `jdx/mise-action@v3` (reads `.mise.toml`) |
-| GHCR login | `docker/login-action@v3` |
-| GitHub API | `actions/github-script@v7` |
+| Checkout | `actions/checkout@v7` |
+| Tool setup | `jdx/mise-action@v4` (reads `.mise.toml`) |
+| GHCR login | `docker/login-action@v4` |
+| GitHub API | `actions/github-script@v9` |
 | Flux CLI | `fluxcd/flux2/action@v2` |
 
 **Path-based triggers** — always include the workflow file itself and `.mise.toml`:
@@ -69,8 +69,8 @@ permissions:
 | `kubernetes-validate.yaml` | PR (kubernetes/) | Lint, expand ResourceSets, build, template, kubeconform, pluto |
 | `infrastructure-validate.yaml` | PR (infrastructure/) | Format checks, module tests (matrix per module) |
 | `renovate-validate.yaml` | PR (renovate config) | Validate Renovate configuration |
-| `build-platform-artifact.yaml` | Push to main (kubernetes/) | Build OCI artifact, tag for integration |
-| `tag-validated-artifact.yaml` | Status event / manual | Promote validated artifact to stable semver |
+| `build-platform-artifact.yaml` | Push to main (kubernetes/) | Build OCI artifact, tag as stable, create GitHub Release |
+| `check-version-holds.yaml` | Weekly / push (version-holds.yaml) / manual | Monitor upstream issues for held-back versions |
 | `renovate.yaml` | Scheduled (hourly) | Dependency update automation |
 | `label-sync.yaml` | Scheduled / manual | Sync GitHub labels |
 
@@ -79,9 +79,9 @@ permissions:
 For full pipeline tracing and debugging, see the [promotion-pipeline skill](../promotion-pipeline/SKILL.md).
 
 Key design decisions when modifying these workflows:
-- Integration polls with `semver >= 0.0.0-0` (accepts `-rc.N`); live polls `>= 0.0.0` (stable only)
-- `tag-validated-artifact` has idempotency guard — checks for existing `validated-*` tag before re-tagging (Flux Alerts fire on every reconciliation cycle)
-- Build workflow queries GHCR for latest stable tag, bumps patch, creates next RC
+- The pipeline is direct build-to-live: the build workflow tags artifacts as stable (`X.Y.Z` + `sha-<short>` + `validated-<short>`) at build time — there is no separate promotion workflow
+- Build workflow queries GHCR for the latest stable tag, bumps patch, and creates a GitHub Release
+- Integration polls with `semver >= 0.0.0-0`; live polls `>= 0.0.0` — both receive the same stable artifacts (integration is not a gate)
 
 ## New Validation Workflow Template
 
@@ -102,8 +102,8 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: jdx/mise-action@v3
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v4
       - run: task <domain>:validate
 ```
 

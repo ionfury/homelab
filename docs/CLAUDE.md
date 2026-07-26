@@ -50,7 +50,7 @@ Architecture docs describe **how the system works today** — living documents u
 |------|--------|---------|
 | `coraza-waf.md` | Implemented | Coraza WAF integration for ingress protection |
 | `network-policy-architecture.md` | Implemented | Two-tier network policy model (namespace + workload) |
-| `oci-artifact-promotion.md` | In Progress | OCI-based GitOps promotion pipeline |
+| `oci-artifact-promotion.md` | Implemented (simplified) | OCI-based GitOps pipeline — original integration-gated design was simplified to direct build-to-live in PR #858; see `architecture/promotion-pipeline.md` for current state |
 
 ---
 

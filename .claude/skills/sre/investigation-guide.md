@@ -38,11 +38,10 @@ Secret:   ExternalSecret fails → Secret missing → Pod CrashLoopBackOff
 |-------|---------|--------------|
 | Build | Workflow did not trigger | `kubernetes/` not in changed paths |
 | Build | Artifact push failed | GHCR auth (`GITHUB_TOKEN` permissions) |
-| Integration | OCIRepository not updating | Semver constraint mismatch (not accepting RCs) |
-| Validation | Kustomization failed | Actual config error in the merged PR |
-| Promotion | `repository_dispatch` not received | Provider secret missing `repo` scope |
-| Promotion | Workflow skipped (idempotency guard) | Artifact already tagged as validated |
-| Live | OCIRepository not updating | Stable semver tag not created by tag workflow |
+| Build | No GitHub Release created | Release step failed (`contents: write` permission) |
+| Live | OCIRepository not updating | Semver constraint mismatch or tag not higher than current |
+| Live | Kustomization failed | Actual config error in the merged PR |
+| Live | Canary alert firing after deploy | Broken config reached live — consider revert |
 
 ## 5 Whys: Red Flags You Haven't Reached Root Cause
 
