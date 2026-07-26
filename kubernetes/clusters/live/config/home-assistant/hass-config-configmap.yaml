@@ -39,6 +39,21 @@ data:
     logger:
       default: warning
 
+    # OpenID Connect SSO via hass-oidc-auth custom component.
+    # The component registers itself alongside the built-in homeassistant auth provider;
+    # local login remains available as a break-glass fallback via ?skip_oidc_redirect=true.
+    # Mobile app uses the device-code flow (one-time; see component docs).
+    # client_secret is injected from the replicated OIDC secret — never committed.
+    auth_oidc:
+      client_id: home-assistant
+      client_secret: !env_var HASS_OIDC_CLIENT_SECRET
+      discovery_url: "https://auth.${external_domain}/.well-known/openid-configuration"
+      display_name: "Authelia (SSO)"
+      roles:
+        admin: "lldap_admins"
+      features:
+        default_redirect: true
+
     # Core integrations (explicit list — discovery components intentionally omitted)
     config:
     frontend:
