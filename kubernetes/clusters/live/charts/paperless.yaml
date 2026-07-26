@@ -55,7 +55,7 @@ controllers:
           PAPERLESS_TASK_WORKERS: "2"
           PAPERLESS_THREADS_PER_WORKER: "2"
           # Disable consumer directory — web upload only
-          PAPERLESS_CONSUMER_POLLING: "0"
+          PAPERLESS_CONSUMER_POLLING_INTERVAL: "0"
           # Secret key for session cookies and CSRF tokens
           PAPERLESS_SECRET_KEY:
             valueFrom:
@@ -68,6 +68,7 @@ controllers:
               secretKeyRef:
                 name: paperless-db-credentials
                 key: password
+          PAPERLESS_DBENGINE: postgresql
           PAPERLESS_DBHOST: platform-pooler-rw.database.svc.cluster.local
           PAPERLESS_DBPORT: "5432"
           PAPERLESS_DBNAME: paperless
@@ -81,6 +82,7 @@ controllers:
           PAPERLESS_REDIS:
             dependsOn: DRAGONFLY_PASSWORD
             value: "redis://:$(DRAGONFLY_PASSWORD)@dragonfly.cache.svc.cluster.local:6379"
+          PAPERLESS_ALLAUTH_TRUSTED_PROXY_COUNT: "1"
           # OIDC/SSO via Authelia
           PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
           PAPERLESS_OIDC_CLIENT_SECRET:
@@ -99,12 +101,10 @@ controllers:
           PAPERLESS_FILENAME_FORMAT_REMOVE_NONE: "true"
           PAPERLESS_CONSUMER_DELETE_DUPLICATES: "true"
           # Barcode / ASN — QR-code labelling of physical documents (ASN#####) read at
-          # consume time; PATCH-T separator pages split batch scans. ZXING backend is
-          # required (default pyzbar misreads small QR codes; needs paperless >= 1.14).
+          # consume time; PATCH-T separator pages split batch scans.
           # Inert until physical ASN labels are applied to scanned documents.
           PAPERLESS_CONSUMER_ENABLE_BARCODES: "true"
           PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: "true"
-          PAPERLESS_CONSUMER_BARCODE_SCANNER: "ZXING"
           # Storage paths
           PAPERLESS_DATA_DIR: "/data"
           PAPERLESS_MEDIA_ROOT: "/media"
