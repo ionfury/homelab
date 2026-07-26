@@ -51,15 +51,3 @@ spec:
             description: >-
               One or more Grafana plugins have failed to load in the last 5 minutes.
               This may cause certain panels or datasources to be unavailable.
-
-        - alert: GrafanaDown
-          expr: |
-            up{job=~".*grafana.*"} == 0
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Grafana is unavailable"
-            description: >-
-              Grafana has been unreachable for more than 5 minutes. Dashboard access
-              and alerting through Grafana are unavailable.

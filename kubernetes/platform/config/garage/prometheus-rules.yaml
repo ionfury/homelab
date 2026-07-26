@@ -34,6 +34,18 @@ spec:
               Garage cluster cannot serve all requests because too many
               storage nodes are disconnected. S3 operations will fail.
 
+        # Node connectivity
+        - alert: GarageNodeDisconnected
+          expr: cluster_layout_node_connected{job=~".*garage.*"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Garage node disconnected from cluster layout"
+            description: >-
+              Node {{ $labels.id }} is in the cluster layout but not connected.
+              Data redundancy is reduced until it reconnects.
+
         # Storage node connectivity
         - alert: GarageStorageNodeDown
           expr: |

@@ -9,19 +9,6 @@ metadata:
     release: kube-prometheus-stack
 spec:
   groups:
-    - name: ups.targets
-      rules:
-        - alert: UpsSnmpTargetDown
-          expr: up{job="scrapeConfig/monitoring/snmp-exporter-ups-targets"} == 0
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "UPS SNMP target {{ $labels.instance }} unreachable"
-            description: >-
-              SNMP exporter cannot reach UPS at {{ $labels.instance }} for 5+ minutes.
-              Check UPS network connectivity and SNMP service status.
-
     - name: ups.power
       rules:
         - alert: UpsOnBattery

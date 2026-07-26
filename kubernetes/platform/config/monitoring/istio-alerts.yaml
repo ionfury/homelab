@@ -149,26 +149,6 @@ spec:
               Ztunnel DaemonSet has {{ $value }} pods not ready. Some nodes may
               not have Ambient mode mesh connectivity.
 
-        # Ztunnel chronic restarts — precursor to cert rotation failures.
-        # A crash-looping ztunnel is likely to reconnect to istiod during a cert
-        # rotation window and fail if istiod is not reloading certs correctly.
-        - alert: ZtunnelCrashLooping
-          expr: |
-            increase(kube_pod_container_status_restarts_total{
-              namespace="istio-system",
-              pod=~"ztunnel-.*"
-            }[1h]) > 5
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Ztunnel pod crash-looping on node {{ $labels.node }}"
-            description: >-
-              Ztunnel pod {{ $labels.pod }} has restarted {{ $value | humanize }} times
-              in the last hour. A crash-looping ztunnel risks reconnecting to istiod
-              during a cert rotation window, causing node-level mesh failure if istiod
-              is serving a stale certificate.
-
     - name: istio-csr
       rules:
         # istio-csr availability

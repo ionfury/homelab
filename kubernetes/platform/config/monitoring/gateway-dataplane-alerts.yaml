@@ -207,18 +207,6 @@ spec:
               {{ $labels.deployment }} has no available replicas. All ingress
               through this gateway is down.
 
-        - alert: GatewayPodCrashLooping
-          expr: |
-            increase(kube_pod_container_status_restarts_total{namespace="istio-gateway"}[1h]) > 3
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Gateway pod {{ $labels.pod }} crash-looping"
-            description: >-
-              Gateway pod {{ $labels.pod }} has restarted more than 3 times in the
-              last hour. Check the Envoy/istio-proxy logs for the crash cause.
-
     # NOTE: per-service endpoint/LB health (envoy_cluster_membership_*,
     # lb_healthy_panic, upstream_rq_pending_overflow) is intentionally NOT alerted
     # on — Istio's default Envoy stats matcher strips outbound-cluster stats on
