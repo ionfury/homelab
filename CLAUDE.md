@@ -40,7 +40,7 @@ If uncertain:
 ## Deployment Model
 
 - `main` = desired production state
-- Changes flow: PR → merge → artifact → integration → validation → live
+- Changes flow: PR → merge → stable OCI artifact → live (direct; canary-checker validates post-deploy)
 - Integration and live are **strict GitOps (Flux-managed)**
 - Dev cluster allows controlled experimentation
 

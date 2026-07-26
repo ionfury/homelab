@@ -85,16 +85,16 @@ A combined kubeconfig is at `~/.kube/config` with all three clusters registered.
 | Cluster | Source Type | Bootstrap Status |
 |---------|-------------|------------------|
 | `dev/` | GitRepository | Fully provisioned - syncs from git main branch |
-| `integration/` | OCIRepository | Static files committed - syncs from `integration-*` tagged OCI artifacts |
-| `live/` | OCIRepository | Static files committed - syncs from `validated-*` tagged OCI artifacts |
+| `integration/` | OCIRepository | Static files committed - syncs stable OCI artifacts (semver `>= 0.0.0-0`) |
+| `live/` | OCIRepository | Static files committed - syncs stable OCI artifacts (semver `>= 0.0.0`) |
 
 ## Promotion Path
 
 For end-to-end promotion pipeline tracing and debugging, invoke the `promotion-pipeline` skill.
 
 - **dev**: Git-based manual experimentation — validate changes here before creating a PR
-- **integration**: OCI artifact-based — auto-deploys `integration-*` tagged artifacts from GHCR
-- **live**: OCI artifact-based — auto-deploys `validated-*` tagged artifacts after canary-checker validation passes
+- **integration**: OCI artifact-based — auto-deploys the same stable artifacts as live; not a validation gate
+- **live**: OCI artifact-based — auto-deploys stable `X.Y.Z` artifacts directly after merge; canary-checker provides a post-deploy health signal
 
 ## Adding a New Cluster
 

@@ -29,7 +29,7 @@ These skills are composed by agents internally — not invoked directly by users
 | `network-policy` | Cilium network policy management, Hubble debugging, escape hatch | troubleshooter, implementer | - | - |
 | `opentofu-modules` | OpenTofu module development and testing patterns | implementer | opentofu-testing.md | - |
 | `prometheus` | Query Prometheus API for metrics and alerts | troubleshooter | - | promql.sh |
-| `promotion-pipeline` | OCI artifact promotion pipeline tracing and rollback | troubleshooter, implementer | - | - |
+| `promotion-pipeline` | Direct build-to-live OCI artifact pipeline tracing and rollback | troubleshooter, implementer | pipeline-reference.md | manual-promote.sh |
 | `secrets` | Secret provisioning: secret-generator, ExternalSecret, app-secrets | implementer | - | - |
 | `security-testing` | Adversarial security testing methodology and attack surface inventory | security-tester | attack-surface.md | - |
 | `self-improvement` | Capture user feedback to enhance documentation | orchestrator | - | - |

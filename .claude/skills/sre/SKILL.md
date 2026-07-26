@@ -145,28 +145,25 @@ the failure mode table. Quick diagnostic flow:
 1. PR merged → did build-platform-artifact.yaml trigger?
    └─ If not: was kubernetes/ modified? (paths filter)
 
-2. OCI artifact in GHCR?
-   └─ flux list artifact oci://ghcr.io/<repo>/platform | grep integration
+2. OCI artifact in GHCR with stable X.Y.Z tag?
+   └─ flux list artifact oci://ghcr.io/<repo>/platform | grep <short-sha>
+   └─ gh release list — a GitHub Release is created per build
 
-3. Integration OCIRepository seeing new version?
-   └─ kubectl --context integration get ocirepository -n flux-system
-   └─ Semver constraint must be ">= 0.0.0-0" to accept RCs
-
-4. Integration Kustomization healthy?
-   └─ flux --context integration get kustomizations -n flux-system
-
-5. Flux Alert fired repository_dispatch?
-   └─ kubectl --context integration describe alert validation-success -n flux-system
-
-6. tag-validated-artifact.yaml ran?
-   └─ GitHub Actions → "Tag Validated Artifact" workflow
-
-7. Live OCIRepository seeing stable semver?
+3. Live OCIRepository seeing the new version?
    └─ kubectl --context live get ocirepository -n flux-system
-   └─ Semver constraint must be ">= 0.0.0" (stable only, no RCs)
+   └─ Semver constraint must be ">= 0.0.0" and the tag strictly higher than current
+
+4. Live Kustomization healthy?
+   └─ flux --context live get kustomizations -n flux-system
+
+5. HelmReleases healthy / canary firing?
+   └─ flux --context live get helmreleases -A
+   └─ kubectl --context live get canaries -n monitoring
 ```
 
-See `.github/CLAUDE.md` for full pipeline architecture and rollback procedures.
+The pipeline is direct build-to-live — artifacts are tagged stable at build time; there is no
+integration validation gate or promotion workflow. See `docs/architecture/promotion-pipeline.md`
+for full architecture and rollback procedures.
 
 ## Keywords
 

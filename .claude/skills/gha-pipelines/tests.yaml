@@ -15,16 +15,18 @@ tests:
           - kubernetes-validate.yaml
           - infrastructure-validate.yaml
           - build-platform-artifact.yaml
-          - tag-validated-artifact.yaml
         any_of:
           - renovate-validate.yaml
           - renovate.yaml
           - label-sync.yaml
+          - check-version-holds.yaml
           - pull_request
           - push to main
+        forbidden:
+          - tag-validated-artifact
       judge_criteria: |
         Score 0-10 on completeness of workflow inventory.
-        10: Names all seven workflows: kubernetes-validate (PR on kubernetes/), infrastructure-validate (PR on infrastructure/), renovate-validate (PR on renovate config), build-platform-artifact (push to main on kubernetes/), tag-validated-artifact (status event or manual), renovate (scheduled hourly), label-sync (scheduled or manual). Describes purpose of each.
+        10: Names all seven workflows: kubernetes-validate (PR on kubernetes/), infrastructure-validate (PR on infrastructure/), renovate-validate (PR on renovate config), build-platform-artifact (push to main on kubernetes/), check-version-holds (weekly/push/manual), renovate (scheduled hourly), label-sync (scheduled or manual). Describes purpose of each. Does NOT list a tag-validated-artifact workflow (deleted).
         7-9: Names 5-6 workflows with correct triggers and purposes.
         4-6: Names 3-4 core workflows accurately.
         1-3: Only 1-2 workflows mentioned.
@@ -32,7 +34,7 @@ tests:
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Lists all seven workflows with their triggers and purposes. Correctly identifies that build-platform-artifact triggers on push to main when kubernetes/ files change, and tag-validated-artifact triggers on status events or manually.
+      Lists all seven workflows with their triggers and purposes. Correctly identifies that build-platform-artifact triggers on push to main when kubernetes/ files change and tags artifacts as stable at build time.
     tags:
       - trimmed-2026-03-22
       - gha-pipelines-skill
@@ -57,7 +59,7 @@ tests:
           - NEVER brew
       judge_criteria: |
         Score 0-10 on correctness of the tool setup pattern.
-        10: Shows the three-step pattern (checkout, mise-action@v3, task command), explains that mise reads .mise.toml so CI and local dev use identical versions, and explicitly states apt-get and brew are forbidden.
+        10: Shows the three-step pattern (checkout, mise-action, task command), explains that mise reads .mise.toml so CI and local dev use identical versions, and explicitly states apt-get and brew are forbidden.
         7-9: Shows the mise-action pattern correctly but missing the .mise.toml explanation or the prohibition on apt-get/brew.
         4-6: Mentions mise but shows incorrect action syntax or version.
         1-3: Suggests apt-get or brew (anti-pattern) or very vague.
@@ -65,7 +67,7 @@ tests:
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Shows the canonical three-step pattern: actions/checkout@v6, jdx/mise-action@v3, then task <domain>:validate. Explains that mise reads .mise.toml for version pinning so CI matches local dev. States that apt-get, brew, and hardcoded versions in workflow files are forbidden.
+      Shows the canonical three-step pattern: actions/checkout@v7, jdx/mise-action@v4, then task <domain>:validate. Explains that mise reads .mise.toml for version pinning so CI matches local dev. States that apt-get, brew, and hardcoded versions in workflow files are forbidden.
     tags:
       - trimmed-2026-03-22
       - gha-pipelines-skill
@@ -102,37 +104,37 @@ tests:
       - gha-pipelines-skill
 
   - id: GHA-04
-    description: "OCI promotion integration — idempotency guard and semver design"
+    description: "OCI build integration — stable tagging at build time and semver design"
     category: coverage
     severity: high
     prompt: |
-      I'm modifying the tag-validated-artifact workflow. What are the key design constraints I need to be aware of, particularly around idempotency and how it interacts with the Flux alert system?
+      I'm modifying the build-platform-artifact workflow. What are the key design constraints I need to be aware of, particularly around versioning and how clusters pick up artifacts?
     scoring:
       mode: both
       keywords:
         required:
-          - idempotency
-          - validated-
-        any_of:
-          - reconciliation cycle
-          - Alert fires
-          - every reconciliation
-          - semver
-          - rc.N
           - stable
-          - ">= 0.0.0-0"
+          - semver
+        any_of:
+          - validated-
+          - sha-
           - ">= 0.0.0"
+          - GitHub Release
+          - bumps patch
+        forbidden:
+          - tag-validated-artifact
+          - repository_dispatch
       judge_criteria: |
         Score 0-10 on accuracy of the design constraint explanation.
-        10: Explains that the Flux Alert fires on every reconciliation cycle (not just once), so the workflow must check for an existing validated-* tag before re-tagging (idempotency guard). Also mentions the semver promotion design: integration polls >= 0.0.0-0 (accepts RC), live polls >= 0.0.0 (stable only), and the workflow strips the RC suffix to create the stable tag.
-        7-9: Covers the idempotency guard correctly but missing the semver constraint details or vice versa.
+        10: Explains that the workflow resolves the next version by querying GHCR for the highest stable X.Y.Z tag and bumping patch, tags the artifact X.Y.Z + sha-<short> + validated-<short> at build time, and creates a GitHub Release. Mentions the direct build-to-live design: live polls >= 0.0.0, integration polls >= 0.0.0-0, both receive the same stable artifacts, and no separate promotion workflow exists.
+        7-9: Covers the stable-at-build tagging correctly but missing the semver resolution or Release details.
         4-6: Aware of one of the two main constraints.
-        1-3: Vague awareness of the issue.
+        1-3: Describes the old RC/promotion design.
         0: Incorrect.
     expect_refusal: false
     manual_review: false
     expected_behavior: |
-      Explains the idempotency guard (check for existing validated-* tag before acting, because the Alert fires on every reconciliation cycle not just once). Also explains the semver design: integration uses >= 0.0.0-0 to accept RC versions, live uses >= 0.0.0 for stable only, and the workflow's job is to strip the rc suffix.
+      Explains that versioning is resolved from GHCR (highest stable tag, patch bump), all tags (X.Y.Z, sha-<short>, validated-<short>) are applied at build time, a GitHub Release is created, and clusters pick up artifacts directly via their semver constraints — there is no separate promotion workflow.
     tags:
       - trimmed-2026-03-22
       - gha-pipelines-skill

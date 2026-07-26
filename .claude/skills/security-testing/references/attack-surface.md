@@ -192,15 +192,15 @@ The Garage admin API is reachable from the istio-gateway namespace.
 
 ## Supply Chain Layer
 
-### SC-001: Integration Auto-Deploy
+### SC-001: Direct-to-Live Auto-Deploy
 
-**Component**: OCI promotion pipeline, Flux ImagePolicy
+**Component**: OCI build pipeline, Flux OCIRepository
 
-Any OCI artifact tagged `integration-*` auto-deploys to the integration cluster.
+Any OCI artifact pushed to GHCR with a stable semver tag higher than the currently deployed version auto-deploys to the live cluster (and integration) on the next OCIRepository poll — the pipeline is direct build-to-live with no validation gate.
 
-- **Exploitation**: Push a malicious artifact to GHCR with an `integration-*` tag → auto-deployed
-- **RBAC requirement**: Must have GHCR push access (GitHub token)
-- **Severity**: High (arbitrary code execution on integration)
+- **Exploitation**: Push a malicious artifact to GHCR with a higher `X.Y.Z` tag → auto-deployed to live
+- **RBAC requirement**: Must have GHCR push access (GitHub token with `packages:write`)
+- **Severity**: Critical (arbitrary code execution on live)
 
 ### SC-002: PXE Boot Shell Option
 

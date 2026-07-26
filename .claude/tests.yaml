@@ -207,18 +207,18 @@ tests:
     scoring:
       mode: both
       keywords:
-        required: [OCI, integration, promotion]
-        any_of: [artifact, semver, tag, OCIRepository, validated]
-        forbidden: [kubectl apply, manually apply]
+        required: [OCI, artifact]
+        any_of: [semver, tag, OCIRepository, validated, build-platform-artifact]
+        forbidden: [kubectl apply, manually apply, tag-validated-artifact, repository_dispatch]
       judge_criteria: |
-        Score 0-10 based on coverage of the promotion pipeline debugging steps:
-        - 0-2: Suggests manual fixes without mentioning OCI promotion pipeline
+        Score 0-10 based on coverage of the pipeline debugging steps:
+        - 0-2: Suggests manual fixes without mentioning the OCI artifact pipeline
         - 3-4: Mentions Flux but not OCI artifact
         - 5-6: References OCI artifact and at least one checkpoint
         - 7-8: Traces through at least three pipeline stages with specific commands
-        - 9-10: Full trace: GHA build → GHCR artifact → integration OCIRepository → validation → live pickup
+        - 9-10: Full direct build-to-live trace: GHA build → stable-tagged GHCR artifact → live OCIRepository pickup → Kustomization/HelmRelease health
     expected_behavior: |
-      Trace through the OCI promotion pipeline from GHA build to live OCIRepository.
+      Trace through the direct build-to-live OCI pipeline from GHA build to live OCIRepository.
     tags: [trimmed-2026-03-22, routing]
 
   - id: REPO-12
@@ -438,24 +438,25 @@ tests:
         forbidden: []
     expected_behavior: |
       The build-platform-artifact workflow triggers on push to main when kubernetes/ files change.
-      It builds an OCI artifact tagged as X.Y.Z-rc.N and pushed to GHCR.
+      It builds an OCI artifact tagged as stable X.Y.Z (plus sha-<short> and validated-<short>),
+      pushes it to GHCR, and creates a GitHub Release.
     tags: [trimmed-2026-03-22, gha]
 
   - id: GHA-02
-    description: "Knows tag-validated-artifact filters on kustomization/platform/ commit status"
+    description: "Knows how the build workflow resolves the next stable version"
     category: coverage
     severity: medium
     prompt: |
-      How does the tag-validated-artifact workflow know when to promote an RC artifact to a
-      stable semver tag?
+      How does the build-platform-artifact workflow decide what semver version to tag a new
+      OCI artifact with?
     scoring:
       mode: keywords
       keywords:
-        required: ["kustomization/platform", success]
-        any_of: [status, commit status, rc, semver, validated]
-        forbidden: []
+        required: [GHCR, stable]
+        any_of: [patch, bump, highest, X.Y.Z, semver]
+        forbidden: [tag-validated-artifact, rc.N, commit status]
     expected_behavior: |
-      It listens for a GitHub commit status event with state=success and a context that starts
-      with kustomization/platform/ (posted by Flux's github Provider). It then strips -rc.N
-      from the RC tag to derive the stable semver and tags the artifact.
+      It queries GHCR for all existing tags, finds the highest stable X.Y.Z tag, and bumps the
+      patch version. The artifact is tagged stable at build time — no RC suffix and no separate
+      promotion workflow.
     tags: [trimmed-2026-03-22, gha]
