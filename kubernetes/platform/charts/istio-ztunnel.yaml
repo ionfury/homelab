@@ -7,3 +7,6 @@ profile: ambient
 # Point to istio-csr for certificate requests (Ambient mode)
 # ztunnel authenticates with its own identity but requests certs for workloads on its node
 caAddress: cert-manager-istio-csr.cert-manager.svc:443
+
+podAnnotations:
+  kubectl.kubernetes.io/restartedAt: "2026-07-12T17:00:00Z"

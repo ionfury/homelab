@@ -6,10 +6,9 @@ priorityClassName: platform
 podAnnotations:
   reloader.stakater.com/auto: "true"
 
+proxyVarsAsSecrets: false
+
 config:
-  clientID: "override-me"
-  clientSecret: "override-me"
-  cookieSecret: "override-me"
   configFile: |
     provider = "github"
     github_users = ["ionfury"]
@@ -73,4 +72,4 @@ resources:
     cpu: 10m
     memory: 32Mi
   limits:
-    memory: 64Mi
+    memory: 256Mi

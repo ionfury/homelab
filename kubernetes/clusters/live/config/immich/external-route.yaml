@@ -5,12 +5,18 @@ kind: HTTPRoute
 metadata:
   name: immich-external
   namespace: immich
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Immich"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/icon: "immich.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=server"
 spec:
   parentRefs:
     - name: external
       namespace: istio-gateway
   hostnames:
-    - "immich.${external_domain}"
+    - "photos.${external_domain}"
   rules:
     - backendRefs:
         - name: immich-server

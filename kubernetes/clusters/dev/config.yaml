@@ -7,7 +7,7 @@ metadata:
 spec:
   dependsOn:
     - name: platform
-  interval: 10m
+  interval: 3m
   path: kubernetes/clusters/dev/config
   postBuild:
     substituteFrom:

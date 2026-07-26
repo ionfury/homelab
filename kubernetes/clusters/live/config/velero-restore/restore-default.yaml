@@ -1,0 +1,22 @@
+---
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-default
+  namespace: velero
+spec:
+  # Automatically selects the most recent successful backup from this schedule
+  scheduleName: default
+  restorePVs: true
+  existingResourcePolicy: none
+  excludedResources:
+    - clusters.postgresql.cnpg.io
+  includedNamespaces:
+    - immich
+    - satisfactory
+    - valheim
+    - factorio
+    - minecraft
+    - paperless
+    - media
+    - vaultwarden

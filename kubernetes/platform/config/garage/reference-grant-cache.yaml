@@ -1,0 +1,9 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageReferenceGrant
+metadata:
+  name: allow-cache
+spec:
+  from:
+    - kind: GarageKey
+      namespace: cache

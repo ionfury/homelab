@@ -9,7 +9,7 @@ spec:
   schedule: "@every 1m"
   http:
     - name: immich-gateway-health
-      url: https://immich.${external_domain}
+      url: https://photos.${external_domain}
       responseCodes: [200]
       maxSSLExpiry: 7
       thresholdMillis: 5000

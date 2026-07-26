@@ -6,42 +6,40 @@ This document describes the current storage classification and data protection s
 
 ## Storage Class Taxonomy
 
-Every persistent volume in the cluster uses one of five storage classes. Each class encodes replication, disk tier, and backup behavior at the StorageClass level, so workloads inherit the correct data protection simply by choosing the right class.
+Every persistent volume in the cluster uses one of two storage classes. Each class encodes replication, disk tier, and snapshot behavior at the StorageClass level.
 
-| Storage Class | Replicas (dev/int/live) | Disk Tier | Longhorn Snapshots | Longhorn Backups (S3) | FS Trim | Use Case |
-|---|---|---|---|---|---|---|
-| `fast` | 1/3/3 | fast (NVMe) | Daily, retain 3 | Daily, retain 7 | Daily | Critical user data (games, app state) |
-| `slow` | 1/3/3 | slow (HDD) | Daily, retain 3 | Daily, retain 7 | Daily | Bulk user data (photo library) |
-| `fast-nr` | 1/1/1 | fast (NVMe) | Daily, retain 3 | Daily, retain 7 | Daily | Internally-replicated apps (Garage) |
-| `fast-local` | 1/3/3 | fast (NVMe) | Daily, retain 1 | None | Daily | Re-derivable observability data |
-| `ephemeral` | 1/1/1 | fast (NVMe) | None | None | None | Temporary/app-managed-backup data |
+| Storage Class | Replicas (dev/int/live) | Disk Tier | Longhorn Snapshots | FS Trim | Use Case |
+|---|---|---|---|---|---|
+| `fast` | 1/3/3 | fast (NVMe) | Every 4h, retain 12 | Daily | All NVMe-backed workloads |
+| `slow` | 1/3/3 | slow (HDD) | Every 4h, retain 12 | Daily | Bulk data on HDD |
 
-> **Note:** `fast-local` and tiered backup frequency (more frequent snapshots for high-value data) are being implemented in a parallel PR. The table above reflects the target state. Until that PR merges, `fast` and `slow` use the same `snapshot-daily` / `backup-daily` / `filesystem-trim-daily` recurring job groups as `fast-nr`.
+> **Note:** Backup orchestration is handled by Velero at the orchestration layer, not by Longhorn recurring jobs. The previous `fast-nb` / `slow-nb` "no-backup" variants have been removed -- the distinction is no longer needed with Velero managing backup selection.
 
 ### How It Works
 
 Storage classes are defined in `kubernetes/platform/config/longhorn/storage-classes/`. Each class specifies:
 
-- **`numberOfReplicas`**: Either `${storage_replica_count}` (computed from machine count, capped at 3) or hardcoded `"1"` for `fast-nr` and `ephemeral`
+- **`numberOfReplicas`**: `${storage_replica_count}` (computed from machine count, capped at 3) for all classes
 - **`diskSelector`**: Routes volumes to the correct disk tier (`fast` for NVMe, `slow` for HDD)
-- **`recurringJobSelectors`**: JSON array of recurring job groups that attach snapshot, backup, and trim schedules
+- **`recurringJobSelectors`**: JSON array of recurring job groups that attach snapshot and trim schedules
 
-Recurring jobs are defined in `kubernetes/platform/config/longhorn/recurring-jobs/`:
+Platform-level recurring jobs are defined in `kubernetes/platform/config/longhorn/recurring-jobs/`:
 
 | Job | Schedule | Task | Retain | Concurrency |
 |-----|----------|------|--------|-------------|
 | `snapshot-daily` | `0 1 * * *` (01:00 UTC) | snapshot | 3 | 5 |
-| `backup-daily` | `0 2 * * *` (02:00 UTC) | backup | 7 | 2 |
+| `snapshot-frequent` | `0 */4 * * *` (every 4h) | snapshot | 12 | 5 |
+| `snapshot-minimal` | `0 1 * * *` (01:00 UTC) | snapshot | 1 | 5 |
 | `filesystem-trim-daily` | `0 4 * * *` (04:00 UTC) | filesystem-trim | N/A | 1 |
 
-### Why Five Classes?
+### Why Two Classes?
 
-The classes represent distinct data protection tiers rather than a one-size-fits-all approach:
+The two classes represent the two physical disk tiers in the cluster:
 
-- **`fast` / `slow`**: Full protection for data that cannot be recreated. The only difference is disk tier (NVMe vs HDD) for cost-performance tradeoffs on large volumes.
-- **`fast-nr`**: Single Longhorn replica because the application already replicates internally (Garage uses `replication.factor: ${default_replica_count}`). Still backed up to S3 because internal replication does not protect against cluster-wide loss.
-- **`fast-local`**: Full replica count for availability but no S3 backup. Observability data (Prometheus, Loki) is re-derivable from live metrics and can be rebuilt by simply re-scraping.
-- **`ephemeral`**: No Longhorn-level protection at all. Used exclusively by workloads with their own backup mechanism (CNPG Barman, Dragonfly S3 snapshots) or truly disposable data.
+- **`fast`**: NVMe-backed storage for performance-sensitive workloads (databases, caches, application state)
+- **`slow`**: HDD-backed storage for bulk data where capacity matters more than IOPS (media libraries)
+
+Both classes share identical snapshot and trim schedules. Backup decisions are made at the Velero level, not the StorageClass level, allowing backup policies to be managed independently of storage provisioning.
 
 ---
 
@@ -49,31 +47,30 @@ The classes represent distinct data protection tiers rather than a one-size-fits
 
 Every workload with persistent state, its storage class, protection mechanisms, and recovery characteristics for the live cluster.
 
-| Workload | Storage Class | Volume Size (live) | Longhorn S3 Backup | App-Level Backup | Backup Target | RPO | Retention |
+| Workload | Storage Class | Volume Size (live) | Velero Backup | App-Level Backup | Backup Target | RPO | Retention |
 |---|---|---|---|---|---|---|---|
-| Immich Library | `slow` | 500Gi | Yes | No | AWS S3 | 24h | 7 days |
-| Prometheus | `fast-local` (target) | 50Gi | No | No | Local only | N/A (re-derivable) | N/A |
-| Loki | `fast-local` (target) | 50Gi | No | No | Local only | N/A (re-derivable) | N/A |
-| Satisfactory | `fast` | 30Gi | Yes | No | AWS S3 | 24h | 7 days |
-| Valheim | `fast` | 10Gi | Yes | Yes (built-in) | AWS S3 + local saves | 24h | 7d + 10 saves |
-| Factorio | `fast` | 10Gi | Yes | No | AWS S3 | 24h | 7 days |
-| Garage Metadata | `fast-nr` | 10Gi | Yes (x3 PVCs) | No | AWS S3 | 24h | 7 days |
-| Garage Data | `fast-nr` | 100Gi | Yes (x3 PVCs) | No | AWS S3 | 24h | 7 days |
-| Platform PostgreSQL | `ephemeral` | 20Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
-| Immich PostgreSQL | `ephemeral` | 10Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
-| Dragonfly snapshot buffer | `ephemeral` | 2Gi | No | S3 snapshots to Garage | Garage S3 (internal) | 6h | Rolling |
-| Immich ML Cache | `ephemeral` | 10Gi | No | None | N/A | N/A (rebuildable) | N/A |
+| Immich Library | `slow` | 500Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Prometheus | `fast` | 50Gi | No | No | Local only | N/A (re-derivable) | N/A |
+| Loki | `fast` | 50Gi | No | No | Local only | N/A (re-derivable) | N/A |
+| Satisfactory | `fast` | 30Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Valheim | `fast` | 10Gi | Yes | Yes (built-in) | AWS S3 + local saves | 7 days | 28d + 10 saves |
+| Factorio | `fast` | 10Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Garage Metadata | `fast` | 10Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Garage Data | `fast` | 100Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Platform PostgreSQL | `fast` | 20Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
+| Immich PostgreSQL | `fast` | 10Gi | No | Barman to Garage S3 | Garage S3 (internal) | Continuous WAL | 14 days |
+| Dragonfly snapshot buffer | `fast` | 2Gi | No | S3 snapshots to Garage | Garage S3 (internal) | 6h | Rolling |
+| Vaultwarden | `fast` | 5Gi | Yes | No | AWS S3 | 7 days | 28 days |
+| Immich ML Cache | `fast` | 10Gi | No | None | N/A | N/A (rebuildable) | N/A |
 | Grafana | Stateless | -- | -- | -- | -- | -- | -- |
 | Kromgo | Stateless | -- | -- | -- | -- | -- | -- |
 
-> **Note:** Prometheus and Loki currently use `fast` storage class. The migration to `fast-local` is part of the tiered backup PR.
-
 ### Reading the Matrix
 
-- **Longhorn S3 Backup**: Whether Longhorn's `backup-daily` recurring job sends volume snapshots to AWS S3. Controlled by the StorageClass recurring job selectors.
+- **Velero Backup**: Whether Velero includes this volume in scheduled backup jobs. Controlled by Velero backup schedules and label selectors, not by StorageClass.
 - **App-Level Backup**: Whether the application itself has a backup mechanism independent of Longhorn (e.g., Barman WAL streaming, Dragonfly S3 snapshots, Valheim's built-in save system).
-- **RPO (Recovery Point Objective)**: Maximum data loss in a disaster. "24h" means up to one day of data could be lost (daily backup schedule). "Continuous WAL" means near-zero data loss.
-- **Retention**: How long backups are kept before expiration.
+- **RPO (Recovery Point Objective)**: Maximum data loss in a disaster. "7 days" means up to one week of data could be lost (weekly backup schedule). "Continuous WAL" means near-zero data loss. Weekly RPO is acceptable for this homelab -- we store family data, not customer data.
+- **Retention**: How long backups are kept before expiration. S3 lifecycle expiration (35 days) acts as a safety net beyond Velero's 28-day TTL.
 
 ---
 
@@ -83,13 +80,13 @@ Data flows to two distinct S3 endpoints, each serving a different purpose.
 
 ### AWS S3 (External, Off-Site)
 
-**Purpose:** Longhorn volume backups for disaster recovery.
+**Purpose:** Velero volume backups for disaster recovery.
 
-- **What goes here:** Longhorn backup-daily snapshots from `fast`, `slow`, and `fast-nr` storage classes
-- **How:** Longhorn connects to AWS S3 via IAM credentials provisioned by the `storage` infrastructure stack and injected via ExternalSecret (`kubernetes/platform/config/longhorn/backup/external-secret.yaml`)
-- **Bucket naming:** `homelab-longhorn-backup-{dev,integration,live}` (one per cluster)
+- **What goes here:** Velero volume snapshots for selected workloads
+- **How:** Velero connects to AWS S3 via IAM credentials for scheduled and on-demand backups
+- **Bucket naming:** `homelab-velero-backup-{dev,integration,live}` (one per cluster)
 - **Durability:** AWS S3 standard (11 nines)
-- **Why external:** Off-site backup is the last line of defense. If the entire cluster (including Garage) is lost, Longhorn backups in AWS S3 enable full volume restoration
+- **Why external:** Off-site backup is the last line of defense. If the entire cluster (including Garage) is lost, Velero backups in AWS S3 enable full volume restoration.
 
 ### Garage S3 (Internal, Same-Cluster)
 
@@ -98,28 +95,28 @@ Data flows to two distinct S3 endpoints, each serving a different purpose.
 - **What goes here:** CNPG WAL archives + base backups, Dragonfly snapshots
 - **How:** Applications connect to Garage via its in-cluster S3 API (`${garage_s3_endpoint}`)
 - **Buckets:** `cnpg-platform-backups`, `cnpg-immich-backups`, `dragonfly-snapshots`
-- **Durability:** Garage's own replication factor (`${default_replica_count}`) on `fast-nr` volumes, which are themselves backed up to AWS S3
+- **Durability:** Garage's own replication factor (`${default_replica_count}`) on `fast` volumes with local snapshots
 
 ---
 
 ## Backup Data Flow
 
-### Longhorn Path (Volume-Level)
+### Velero Path (Volume-Level)
 
 ```
-Application Volume
+Application Volume (Longhorn PVC)
       |
       v
-Longhorn Snapshot (local, scheduled by recurring job)
+CSI VolumeSnapshot (triggered by Velero schedule)
       |
       v
-Longhorn Backup (incremental, uploaded by recurring job)
+Velero node-agent data mover (reads snapshot, uploads to BSL)
       |
       v
-AWS S3 Bucket (homelab-longhorn-backup-<cluster>)
+AWS S3 Bucket (homelab-velero-backup-<cluster>)
 ```
 
-This path protects `fast`, `slow`, and `fast-nr` volumes. The `ephemeral` and `fast-local` classes opt out of this path entirely (no `backup-daily` group in their recurring job selectors).
+Velero uses CSI snapshots with `snapshotMoveData: true` to move volume data off-site. Two weekly schedules (Sunday 02:00 UTC) control what gets backed up: `platform` (garage namespace) and `default` (application namespaces). Weekly frequency keeps S3 costs low (~$9-34/month) while providing off-site disaster recovery for family data.
 
 ### CNPG Path (Database-Level)
 
@@ -131,16 +128,13 @@ PostgreSQL (primary)
       '-- Periodic base backup -----> Barman --> Garage S3 bucket
                                                    |
                                                    v
-                                      Garage volumes (fast-nr PVCs)
+                                      Garage volumes (fast PVCs)
                                                    |
                                                    v
-                                      Longhorn backup-daily
-                                                   |
-                                                   v
-                                      AWS S3 (off-site)
+                                      Local snapshots (every 4h)
 ```
 
-CNPG databases use `ephemeral` storage (no direct Longhorn backup) because Barman provides continuous WAL archiving with lower RPO. The Barman archives live in Garage S3, and Garage's own PVCs are backed up to AWS S3 via Longhorn -- creating a layered backup chain.
+CNPG databases use `fast` storage with Barman providing continuous WAL archiving for low RPO. The Barman archives live in Garage S3, and Garage's PVCs are backed up off-site by the Velero `platform` schedule. Velero excludes database volumes themselves since Barman provides superior RPO.
 
 ### Dragonfly Path (Cache-Level)
 
@@ -154,16 +148,13 @@ S3 snapshot (every 6h, cron: "0 */6 * * *")
 Garage S3 bucket (dragonfly-snapshots/)
       |
       v
-Garage volumes (fast-nr PVCs)
+Garage volumes (fast PVCs)
       |
       v
-Longhorn backup-daily
-      |
-      v
-AWS S3 (off-site)
+Local snapshots (every 4h)
 ```
 
-Dragonfly uses `ephemeral` for its snapshot buffer PVC and writes snapshots directly to Garage S3. Like the CNPG path, ultimate off-site durability comes through Garage's Longhorn backups.
+Dragonfly uses `fast` for its snapshot buffer PVC and writes snapshots directly to Garage S3. Like the CNPG path, Garage's PVCs have local snapshots for point-in-time recovery.
 
 ---
 
@@ -179,39 +170,38 @@ These are deliberate architectural decisions, not oversights. Each represents a 
 
 **Trade-off:** Creates a layered dependency -- if Garage is down, new WAL archives cannot be written. Acceptable because Garage runs with `${default_replica_count}` replicas and PostgreSQL retains unarchived WAL segments locally until Garage recovers.
 
-### 2. Garage's Three PVCs Are All Backed Up to AWS S3
+### 2. Garage PVCs ARE Backed Up by Velero (Platform Schedule)
 
-**Decision:** All three Garage PVCs (metadata + data per replica) are included in Longhorn's daily backup to AWS S3.
+**Decision:** Garage PVCs are included in the Velero `platform` backup schedule, providing off-site durability for the data that underpins other backup chains.
 
-**Why:** Longhorn recurring jobs operate at the StorageClass level. The `fast-nr` class includes the `backup-daily` group, so every `fast-nr` volume is backed up. There is no per-volume opt-out mechanism in Longhorn's recurring job model.
+**Why:** Garage is the keystone of the backup chain -- CNPG Barman WAL archives and Dragonfly snapshots both reside in Garage S3 buckets, which are stored on Garage PVCs. Without off-site Garage backup, the entire CNPG and Dragonfly backup chain has no off-site durability. A total cluster loss would lose all database backups and cache snapshots.
 
-**Trade-off:** This triples the backup cost for Garage data that is already internally replicated. Accepted because the storage cost is modest and the alternative (a separate storage class just for Garage without backups) adds complexity without meaningful benefit.
+**Trade-off:** Additional S3 storage cost for Garage data (~110Gi per weekly copy, 4 copies retained). Acceptable because Garage stores irreplaceable backup artifacts (WAL archives), and the cost is small compared to the data protection it provides.
 
-### 3. Prometheus and Loki Are Not Backed Up to S3
+### 3. Prometheus and Loki Are Not Backed Up by Velero
 
-**Decision:** Observability data uses `fast-local` (target state) with no S3 backup.
+**Decision:** Observability data uses `fast` storage but is excluded from Velero backup schedules.
 
 **Why:** Metrics and logs are re-derivable data. Prometheus re-scrapes all targets on startup and rebuilds its TSDB. Loki ingests new log streams continuously. Losing historical data is inconvenient but not catastrophic -- it does not affect application functionality or user data.
 
 **Trade-off:** After a disaster recovery, dashboards will show gaps in historical data. Acceptable because the alternative (backing up 50Gi+ of observability data to S3) is expensive relative to the value of that data.
 
-### 4. `ephemeral` Naming Is Retained for Database Volumes
+### 4. Database Volumes Are Not Backed Up by Velero
 
-**Decision:** CNPG clusters use StorageClass `ephemeral` despite PostgreSQL data being critical.
+**Decision:** CNPG clusters use `fast` storage but are excluded from Velero backup schedules despite PostgreSQL data being critical.
 
-**Why:** The name describes Longhorn's treatment of the volume (single replica, no snapshots, no backups), not the importance of the data. Databases have their own backup mechanism (Barman) that provides better RPO (continuous WAL) than Longhorn's daily schedule ever could. Using `ephemeral` avoids paying for redundant Longhorn-level backups on data that is already protected by a superior mechanism.
+**Why:** Databases have their own backup mechanism (Barman) that provides better RPO (continuous WAL) than Velero's scheduled backups ever could. Excluding them from Velero avoids paying for redundant backups on data that is already protected by a superior mechanism. Local snapshots (every 4h) provide an additional safety net.
 
-**Trade-off:** The name `ephemeral` can be misleading for database volumes. Mitigated by this documentation and the explicit `backup:` configuration in every CNPG Cluster manifest.
+**Trade-off:** Database volumes have no direct off-site backup via Velero. Off-site durability depends on the CNPG->Barman->Garage chain. Mitigated by Garage's inclusion in the Velero `platform` schedule (off-site Barman archives) and the explicit `backup:` configuration in every CNPG Cluster manifest.
 
-### 5. Snapshot and Backup Frequency Varies by Storage Class
+### 5. Backup Selection Is Managed at the Velero Layer
 
-**Decision:** High-value user data gets more frequent snapshots and backups; observability data gets minimal protection.
+**Decision:** Backup decisions are made by Velero via label selectors and schedule definitions, not encoded in StorageClass recurring job groups.
 
-**Why:** Not all data has equal recovery value. Game saves and user photos justify higher backup frequency because loss is permanent. Observability data regenerates naturally. Tiered frequency reduces storage costs and backup job contention.
+**Why:** Decoupling backup policy from storage provisioning simplifies the storage class taxonomy (two classes instead of four) and gives Velero full control over what gets backed up, when, and where. This is a cleaner separation of concerns -- StorageClasses handle provisioning (disk tier, replication, snapshots), while Velero handles backup orchestration.
 
-**Trade-off:** More complex StorageClass definitions with different recurring job group assignments. Accepted because the complexity is encoded in the StorageClass (single point of configuration) and workloads remain unaware of the backup tier.
+**Trade-off:** Backup behavior is no longer implicit from the StorageClass name. Operators must check Velero schedules to understand which workloads are backed up. Accepted because Velero provides richer backup policies (label selectors, inclusion/exclusion rules) than StorageClass recurring job groups ever could.
 
-> **Note:** Tiered frequency is being implemented in a parallel PR. Currently all backed-up classes use the same daily schedule.
 
 ---
 
@@ -242,15 +232,7 @@ These values are derived from `infrastructure/modules/config/main.tf`:
 
 ## DR Validation
 
-A disaster recovery exercise plan exists at `docs/plans/longhorn-dr-exercise.md`. The plan defines an automated workflow to:
-
-1. Deploy a test workload with known data to the dev cluster
-2. Back up the volume to AWS S3 via Longhorn
-3. Destroy and rebuild the dev cluster from scratch
-4. Restore the volume from S3
-5. Verify data integrity
-
-**Status:** Planned but not yet exercised. The exercise will validate the complete backup chain from volume snapshot through S3 restoration.
+Disaster recovery is validated via `task dr:exercise`, which seeds known data, triggers a Velero backup, destroys and rebuilds dev, then verifies both Garage S3 and CNPG Barman recovery. See `docs/runbooks/velero-disaster-recovery.md` for the full restoration procedure.
 
 ---
 
@@ -258,14 +240,15 @@ A disaster recovery exercise plan exists at `docs/plans/longhorn-dr-exercise.md`
 
 | File | Purpose |
 |------|---------|
-| `kubernetes/platform/config/longhorn/storage-classes/` | StorageClass definitions (fast, slow, fast-nr, ephemeral) |
-| `kubernetes/platform/config/longhorn/recurring-jobs/` | Snapshot, backup, and trim schedules |
-| `kubernetes/platform/config/longhorn/backup/` | Longhorn S3 backup target credentials |
+| `kubernetes/platform/config/longhorn/storage-classes/` | StorageClass definitions (fast, slow) |
+| `kubernetes/platform/config/longhorn/recurring-jobs/` | Platform snapshot and trim schedules |
+| `kubernetes/platform/charts/velero.yaml` | Velero Helm values (node-agent, BSL, VSL) |
+| `kubernetes/platform/config/velero/schedule-platform.yaml` | Platform Velero schedule (garage namespace) |
+| `kubernetes/clusters/live/config/velero/schedule-default.yaml` | Live cluster Velero schedule (app namespaces) |
 | `kubernetes/platform/config/database/cluster.yaml` | Platform CNPG cluster with Barman backup config |
 | `kubernetes/clusters/live/config/immich/immich-cluster.yaml` | Immich-dedicated CNPG cluster with Barman backup |
 | `kubernetes/platform/config/dragonfly/dragonfly-instance.yaml` | Dragonfly S3 snapshot configuration |
 | `kubernetes/platform/config/garage/garage-cluster.yaml` | Garage replication and storage settings |
 | `infrastructure/modules/config/main.tf` | Per-cluster volume sizes and replica counts |
 | `infrastructure/stacks/*/terragrunt.stack.hcl` | Per-cluster `storage_provisioning` setting |
-| `docs/plans/longhorn-dr-exercise.md` | DR exercise plan |
-| `docs/runbooks/longhorn-disaster-recovery.md` | DR execution runbook |
+| `docs/runbooks/velero-disaster-recovery.md` | DR execution runbook |

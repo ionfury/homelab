@@ -384,8 +384,10 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "red", "value": null },
-                  { "color": "yellow", "value": 110 },
-                  { "color": "green", "value": 118 }
+                  { "color": "yellow", "value": 100 },
+                  { "color": "green", "value": 108 },
+                  { "color": "yellow", "value": 132 },
+                  { "color": "red", "value": 140 }
                 ]
               },
               "unit": "volt",
@@ -428,8 +430,10 @@ data:
                 "mode": "absolute",
                 "steps": [
                   { "color": "red", "value": null },
-                  { "color": "yellow", "value": 110 },
-                  { "color": "green", "value": 118 }
+                  { "color": "yellow", "value": 100 },
+                  { "color": "green", "value": 108 },
+                  { "color": "yellow", "value": 132 },
+                  { "color": "red", "value": 140 }
                 ]
               },
               "unit": "volt",
@@ -471,7 +475,11 @@ data:
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "green", "value": null }
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 59 },
+                  { "color": "green", "value": 59.5 },
+                  { "color": "yellow", "value": 60.5 },
+                  { "color": "red", "value": 61 }
                 ]
               },
               "unit": "hertz",

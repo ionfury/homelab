@@ -1,0 +1,157 @@
+version: 1
+skill: monitoring-authoring
+description: "Verifies PrometheusRule alert structure (required labels), ServiceMonitor creation, and Canary health check patterns"
+tests:
+  - id: MON-01
+    description: "PrometheusRule requires release: kube-prometheus-stack label"
+    category: constraint
+    severity: critical
+    prompt: |
+      Write a PrometheusRule that fires a critical alert when a deployment in the `app` namespace has zero available replicas for 5 minutes.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - "release: kube-prometheus-stack"
+          - monitoring.coreos.com/v1
+          - PrometheusRule
+          - critical
+        any_of:
+          - kube_deployment_status_replicas_available
+          - "== 0"
+          - "for: 5m"
+          - severity
+        forbidden:
+          - "release: prometheus"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Includes `release: kube-prometheus-stack` in metadata.labels (exact string)
+        - Uses a valid PromQL expression detecting zero available replicas
+        - Sets severity: critical in alert labels
+        - Sets `for: 5m` or a duration in the 2m-5m range for a critical alert
+        - Includes both summary and description annotations
+        Deduct 5 points if the `release: kube-prometheus-stack` label is missing (Prometheus will not discover the rule).
+        Deduct 2 points if severity label is absent.
+        Deduct 1 point if annotations are missing.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response must include metadata.labels with `release: kube-prometheus-stack`. The PrometheusRule should use kube_deployment_status_replicas_available == 0 or equivalent, with severity: critical and for: 5m. Without the release label the rule is invisible to Prometheus.
+    tags:
+      - trimmed-2026-03-22
+      - monitoring-authoring-skill
+
+  - id: MON-02
+    description: "Manual ServiceMonitor must be in monitoring namespace with required label"
+    category: constraint
+    severity: critical
+    prompt: |
+      I have an application in the `billing` namespace that exposes metrics on port 9090. Create a ServiceMonitor for it manually, since the Helm chart does not expose a serviceMonitor toggle.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - "namespace: monitoring"
+          - "release: kube-prometheus-stack"
+          - namespaceSelector
+          - billing
+        any_of:
+          - matchNames
+          - endpoints
+          - port
+          - interval
+          - matchLabels
+        forbidden:
+          - "namespace: billing"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Places the ServiceMonitor in the `monitoring` namespace (not the app namespace)
+        - Includes `release: kube-prometheus-stack` in metadata.labels
+        - Uses namespaceSelector to reach the billing namespace
+        - Defines at least one endpoint with a port and scrape interval
+        - Uses a selector with matchLabels to target the correct service
+        Deduct 5 points if the ServiceMonitor is placed in the billing namespace (wrong placement — Prometheus cannot discover it).
+        Deduct 4 points if the release label is missing.
+        Deduct 2 points if namespaceSelector is absent.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The ServiceMonitor must be in the monitoring namespace with release: kube-prometheus-stack label. It must use spec.namespaceSelector.matchNames: [billing] to reach the target namespace. Placing it in billing is a common mistake that renders it invisible to Prometheus.
+    tags:
+      - trimmed-2026-03-22
+      - monitoring-authoring-skill
+
+  - id: MON-03
+    description: "Canary Kubernetes check should use CEL test.expr, not ready: true"
+    category: constraint
+    severity: high
+    prompt: |
+      Create a Canary health check that verifies all pods labeled app.kubernetes.io/name=myapp in the production namespace are healthy.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - canaries.flanksource.com/v1
+          - Canary
+          - kubernetes
+        any_of:
+          - "test:"
+          - "expr:"
+          - "dyn(results)"
+          - "phase == \"Running\""
+          - CEL
+          - production
+        forbidden:
+          - "ready: true"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Uses the Canary kind with canaries.flanksource.com/v1 API version
+        - Uses a CEL expression (test.expr) to check pod readiness rather than `ready: true`
+        - The CEL expression checks both phase == "Running" and the Ready condition
+        - Scopes to the production namespace and myapp label selector
+        - Includes a schedule (e.g., @every 1m or interval: 60)
+        Deduct 5 points if `ready: true` is used instead of CEL (causes false negatives after pod restarts).
+        Deduct 2 points if the Ready condition check is missing from the CEL expression.
+        Deduct 2 points if neither namespace nor label selector is present.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should use a Kubernetes Canary with CEL test.expr checking pod.Object.status.phase == "Running" AND the Ready condition. Must NOT use `ready: true` because that causes false negatives when pods have a restart history. Namespace and labelSelector must scope to production/myapp.
+    tags:
+      - trimmed-2026-03-22
+      - monitoring-authoring-skill
+
+  - id: MON-04
+    description: "ServiceMonitor via Helm values is preferred over manual creation"
+    category: coverage
+    severity: medium
+    prompt: |
+      I'm deploying a new Helm chart and want to enable Prometheus scraping. What's the preferred approach: enabling it via Helm values or creating a ServiceMonitor manually?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - Helm values
+          - preferred
+        any_of:
+          - serviceMonitor
+          - "enabled: true"
+          - manual
+          - "if available"
+          - kubesearch
+        forbidden: []
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Clearly states that enabling via Helm values is the preferred approach
+        - Explains the manual ServiceMonitor is a fallback for charts that don't expose the toggle
+        - Mentions checking the chart's values (or kubesearch) to discover if a serviceMonitor toggle exists
+        - Provides a representative Helm values snippet showing serviceMonitor.enabled: true
+        Deduct 4 points if the response recommends manual creation without first checking Helm values.
+        Deduct 2 points if no example of the Helm values approach is shown.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should recommend enabling via Helm values (serviceMonitor.enabled: true) as the first choice because it keeps configuration co-located with the chart. Manual ServiceMonitor in the monitoring namespace is the fallback. Should suggest checking the chart's values.yaml or kubesearch to discover the toggle.
+    tags:
+      - trimmed-2026-03-22
+      - monitoring-authoring-skill

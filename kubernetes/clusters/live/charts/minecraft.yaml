@@ -45,12 +45,19 @@ controllers:
           # Container runs as UID 1000 internally via gosu
           UID: "1000"
           GID: "1000"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
         resources:
           requests:
             cpu: 500m
             memory: 4Gi
           limits:
-            memory: 6Gi
+            memory: 32Gi
         probes:
           startup:
             enabled: true
@@ -103,7 +110,38 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 2Gi
+        probes:
+          startup:
+            enabled: false
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+
+      monitor:
+        image:
+          repository: itzg/mc-monitor
+          tag: "${mc_monitor_version}"
+        args:
+          - export-for-prometheus
+        env:
+          EXPORT_SERVERS: "localhost"
+          DEBUG: "false"
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 256Mi
         probes:
           startup:
             enabled: false
@@ -128,6 +166,20 @@ service:
       rcon:
         port: 25575
         protocol: TCP
+
+  metrics:
+    controller: minecraft
+    ports:
+      metrics:
+        port: 8080
+
+serviceMonitor:
+  metrics:
+    serviceName: minecraft-metrics
+    endpoints:
+      - port: metrics
+        interval: 60s
+        scrapeTimeout: 30s
 
 persistence:
   data:

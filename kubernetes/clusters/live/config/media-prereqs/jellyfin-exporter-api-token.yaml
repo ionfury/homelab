@@ -8,12 +8,17 @@ metadata:
   name: jellyfin-exporter-api-token
   namespace: media
 spec:
-  refreshInterval: 1h
+  refreshInterval: 24h
   secretStoreRef:
     kind: ClusterSecretStore
     name: aws-ssm
   target:
     name: jellyfin-exporter-api-token
+    template:
+      metadata:
+        annotations:
+          replicator.v1.mittwald.de/replication-allowed: "true"
+          replicator.v1.mittwald.de/replication-allowed-namespaces: "homepage"
   data:
     - secretKey: JELLYFIN_TOKEN
       remoteRef:

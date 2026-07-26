@@ -34,6 +34,7 @@ controllers:
                 key: password
           SONARR__POSTGRES__MAINDB: sonarr-main
           SONARR__POSTGRES__LOGDB: sonarr-log
+          SONARR__AUTH__METHOD: External
           SONARR__AUTH__APIKEY:
             valueFrom:
               secretKeyRef:
@@ -49,7 +50,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 1Gi
+            memory: 4Gi
         probes:
           startup:
             enabled: true
@@ -85,7 +86,34 @@ service:
       http:
         port: 8989
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Sonarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "sonarr.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=sonarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "sonarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8989
+
 persistence:
+  tmp:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 1Gi
+    advancedMounts:
+      sonarr:
+        app:
+          - path: /tmp
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
@@ -95,13 +123,20 @@ persistence:
       sonarr:
         app:
           - path: /config
-  media-downloads:
+  sabnzbd-downloads:
     type: persistentVolumeClaim
-    existingClaim: media-downloads
+    existingClaim: sabnzbd-downloads
     advancedMounts:
       sonarr:
         app:
-          - path: /media/downloads
+          - path: /downloads/sabnzbd
+  qbittorrent-downloads:
+    type: persistentVolumeClaim
+    existingClaim: qbittorrent-downloads
+    advancedMounts:
+      sonarr:
+        app:
+          - path: /downloads/qbittorrent
   media-library:
     type: persistentVolumeClaim
     existingClaim: media-library

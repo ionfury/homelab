@@ -1,0 +1,146 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  radarr4k:
+    type: deployment
+
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/home-operations/radarr
+          tag: "${radarr4k_version}"
+        env:
+          RADARR__POSTGRES__HOST: platform-rw.database.svc.cluster.local
+          RADARR__POSTGRES__PORT: "5432"
+          RADARR__POSTGRES__USER: radarr4k
+          RADARR__POSTGRES__PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: radarr4k-db-credentials
+                key: password
+          RADARR__POSTGRES__MAINDB: radarr4k-main
+          RADARR__POSTGRES__LOGDB: radarr4k-log
+          RADARR__AUTH__METHOD: External
+          RADARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: radarr4k-api-key
+                key: api-key
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 4Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                port: 7878
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                port: 7878
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                port: 7878
+              periodSeconds: 10
+
+service:
+  app:
+    controller: radarr4k
+    ports:
+      http:
+        port: 7878
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Radarr 4K"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "radarr.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=radarr4k"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "radarr4k.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 7878
+
+persistence:
+  tmp:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 1Gi
+    advancedMounts:
+      radarr4k:
+        app:
+          - path: /tmp
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: fast
+    advancedMounts:
+      radarr4k:
+        app:
+          - path: /config
+  sabnzbd-downloads:
+    type: persistentVolumeClaim
+    existingClaim: sabnzbd-downloads
+    advancedMounts:
+      radarr4k:
+        app:
+          - path: /downloads/sabnzbd
+  qbittorrent-downloads:
+    type: persistentVolumeClaim
+    existingClaim: qbittorrent-downloads
+    advancedMounts:
+      radarr4k:
+        app:
+          - path: /downloads/qbittorrent
+  media-library:
+    type: persistentVolumeClaim
+    existingClaim: media-library
+    advancedMounts:
+      radarr4k:
+        app:
+          - path: /media/library

@@ -1,0 +1,141 @@
+version: 1
+skill: network-policy
+description: "Verify profile selection, pod label requirements, Hubble debugging, and emergency escape hatch"
+tests:
+  - id: NET-01
+    description: "Profile selection based on traffic pattern"
+    category: routing
+    severity: critical
+    prompt: |
+      I am deploying three new apps:
+      1. "internal-dashboard" — accessible only via the internal gateway, no external API calls.
+      2. "webhook-processor" — no inbound traffic, calls external HTTPS APIs.
+      3. "public-app" — accessible via both gateways, needs to call external APIs.
+      Which network policy profile should each app use?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - internal
+          - internal-egress
+          - standard
+        forbidden:
+          - isolated
+          - privileged
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model should map: internal-dashboard → `internal`, webhook-processor → `internal-egress`
+      (no inbound, external egress), public-app → `standard`. It should not suggest `isolated` for
+      anything that needs inbound traffic, and should not conflate PodSecurity levels with network
+      policy profiles.
+    tags:
+      - trimmed-2026-03-22
+      - network-policy-skill
+
+  - id: NET-02
+    description: "Pod label requirement — network-policy.homelab/profile on namespace"
+    category: dedup
+    severity: critical
+    prompt: |
+      I have deployed an app in a new namespace called "my-app" but traffic from the internal gateway
+      is being blocked. I checked and there are no explicit CiliumNetworkPolicy objects in the namespace.
+      What label must be present on the namespace, and where is it set?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - network-policy.homelab/profile
+          - namespaces.yaml
+        any_of:
+          - kubernetes/platform/namespaces.yaml
+          - platform/namespaces.yaml
+        forbidden:
+          - kubectl label
+          - kubectl apply
+          - ad-hoc
+      judge_criteria: |
+        Score 0-10.
+        10: Identifies `network-policy.homelab/profile` as the required label; states it is set
+            declaratively in `kubernetes/platform/namespaces.yaml` (not via kubectl); names the
+            appropriate profile value (e.g., `internal`) for an internal-gateway-accessible app.
+        7-9: Correct label and file but vague about which profile value to pick.
+        4-6: Knows the label is needed but suggests applying it ad-hoc via kubectl instead of git.
+        0-3: Does not know the label or suggests creating explicit deny policies.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must identify `network-policy.homelab/profile` as the missing label and instruct the
+      user to set it in `kubernetes/platform/namespaces.yaml` — not via kubectl. This is a dedup test:
+      the label requirement was removed from kubernetes/clusters/CLAUDE.md and must be authoritative
+      in this skill.
+    tags:
+      - trimmed-2026-03-22
+      - network-policy-skill
+      - dedup-pod-label
+
+  - id: NET-03
+    description: "Hubble debugging — dropped traffic investigation"
+    category: coverage
+    severity: high
+    prompt: |
+      My application in namespace "zipline" can't reach the PostgreSQL pooler in the "database"
+      namespace. How do I use Hubble to identify what is being dropped and what is the correct fix?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - hubble observe
+          - DROPPED
+          - access.network-policy.homelab/postgres
+        any_of:
+          - scripts/hubble-debug.sh
+          - hubble-debug.sh
+          - "\"true\""
+        forbidden:
+          - kubectl apply.*NetworkPolicy
+          - default-deny
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model should direct the user to run `hubble observe --verdict DROPPED --namespace zipline`
+      (or the `scripts/hubble-debug.sh` helper), identify the missing access label, and instruct them
+      to add `access.network-policy.homelab/postgres: "true"` to the namespace in namespaces.yaml.
+      It must not suggest creating explicit default-deny policies.
+    tags:
+      - trimmed-2026-03-22
+      - network-policy-skill
+
+  - id: NET-04
+    description: "Emergency escape hatch — correct procedure and alert awareness"
+    category: coverage
+    severity: high
+    prompt: |
+      Network policies are blocking traffic in the "payments" namespace and I need immediate relief
+      while I investigate. Walk me through the emergency escape hatch procedure, including what alerts
+      will fire and how to restore enforcement.
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - network-policy.homelab/enforcement=disabled
+          - NetworkPolicyEnforcementDisabled
+          - NetworkPolicyEnforcementDisabledLong
+          - network-policy.homelab/enforcement-
+        any_of:
+          - "5 minutes"
+          - "5m"
+          - "24 hours"
+          - "24h"
+        forbidden:
+          - kubectl delete.*NetworkPolicy
+          - remove the policy
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      The model must provide the exact label command to disable enforcement, name both alerts
+      (warning at 5m, critical at 24h), and then provide the label-removal command to re-enable.
+      It should not suggest deleting network policies as an alternative.
+    tags:
+      - trimmed-2026-03-22
+      - network-policy-skill

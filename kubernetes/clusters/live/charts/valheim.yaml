@@ -49,7 +49,7 @@ controllers:
             cpu: "4"
             memory: 6Gi
           limits:
-            memory: 6Gi
+            memory: 8Gi
         probes:
           startup:
             enabled: true

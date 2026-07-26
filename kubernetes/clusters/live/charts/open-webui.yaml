@@ -31,15 +31,14 @@ extraEnvVars:
         name: open-webui-db-credentials
         key: password
   - name: DATABASE_URL
-    value: "postgresql://open-webui:$(DB_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/open-webui"
-  - name: ENABLE_WEBSOCKET_SUPPORT
-    value: "True"
+    value: "postgresql://open-webui:$(DB_PASSWORD)@platform-pooler-rw.database.svc.\
+      cluster.local:5432/open-webui"
   - name: WEBSOCKET_MANAGER
     value: "redis"
   - name: DRAGONFLY_PASS
     valueFrom:
       secretKeyRef:
-        name: dragonfly-password
+        name: dragonfly-auth
         key: password
   - name: REDIS_URL
     value: "redis://:$(DRAGONFLY_PASS)@dragonfly.cache.svc.cluster.local:6379/0"
@@ -48,11 +47,13 @@ extraEnvVars:
   - name: WEBUI_URL
     value: "https://ai.${internal_domain}"
   - name: ENABLE_SIGNUP
-    value: "false"
+    value: "true"
   - name: DEFAULT_USER_ROLE
     value: "user"
   - name: ENABLE_OPENAI_API
     value: "false"
+  - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+    value: "true"
 
 sso:
   enabled: true
@@ -62,7 +63,7 @@ sso:
     clientId: open-webui
     clientExistingSecret: open-webui-oidc-client-secret
     clientExistingSecretKey: client-secret
-    providerUrl: "https://auth.${internal_domain}/.well-known/openid-configuration"
+    providerUrl: "https://auth.${external_domain}/.well-known/openid-configuration"
     providerName: Homelab
     scopes: "openid email profile groups"
 
@@ -78,7 +79,7 @@ containerSecurityContext:
 persistence:
   enabled: true
   size: 5Gi
-  storageClass: fast-nb
+  storageClass: fast
 
 ingress:
   enabled: false
@@ -95,7 +96,7 @@ startupProbe:
 
 livenessProbe:
   httpGet:
-    path: /health
+    path: /health/db
     port: http
   periodSeconds: 30
 

@@ -1,0 +1,7 @@
+---
+controller:
+  priorityClassName: infrastructure-critical
+  serviceMonitor:
+    create: false
+webhook:
+  priorityClassName: infrastructure-critical

@@ -5,7 +5,9 @@ kind: Kustomization
 resources:
   - platform.yaml
   - config.yaml
+  - apps.yaml
   - helm-charts.yaml
+  - velero-restore.yaml
 configMapGenerator:
   - name: cluster-vars
     options:
@@ -21,9 +23,3 @@ configMapGenerator:
     behavior: create
     envs:
       - versions.env
-  - name: cluster-values
-    options:
-      disableNameSuffixHash: true
-    namespace: flux-system
-    behavior: create
-    files: []

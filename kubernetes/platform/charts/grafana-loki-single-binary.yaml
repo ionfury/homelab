@@ -1,6 +1,7 @@
 ---
 # https://github.com/grafana/loki/blob/main/production/helm/loki/values.yaml
 # yaml-language-server: $schema=https://github.com/grafana/loki/blob/main/production/helm/loki/values.schema.json
+fullnameOverride: loki
 deploymentMode: SingleBinary
 loki:
   auth_enabled: false
@@ -32,9 +33,15 @@ loki:
 singleBinary:
   replicas: 1
   priorityClassName: platform
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 4Gi
   persistence:
     enabled: true
-    storageClass: fast-nb
+    storageClass: fast
     size: ${loki_volume_size}
 gateway:
   replicas: 0

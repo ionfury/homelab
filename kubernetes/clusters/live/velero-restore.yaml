@@ -1,0 +1,40 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: velero-restore
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: velero-config
+    - name: cilium
+  interval: 3m
+  path: kubernetes/clusters/live/config/velero-restore
+  prune: true
+  healthChecks:
+    - apiVersion: batch/v1
+      kind: Job
+      name: velero-restore-gate
+      namespace: velero
+    - apiVersion: velero.io/v1
+      kind: Restore
+      name: restore-platform
+      namespace: velero
+  healthCheckExprs:
+    - apiVersion: velero.io/v1
+      kind: Restore
+      current: "has(status.phase) && status.phase == 'Completed'"
+      failed: "has(status.phase) && (status.phase == 'Failed' || status.phase == 'PartiallyFailed' || status.phase == 'FailedValidation')"
+  timeout: 30m
+  sourceRef:
+    kind: OCIRepository
+    name: flux-system
+    namespace: flux-system
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-vars
+        optional: false
+      - kind: ConfigMap
+        name: platform-versions
+        optional: true

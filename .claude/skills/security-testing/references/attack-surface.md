@@ -220,3 +220,15 @@ Skips kubelet serving certificate validation, creating an MITM opportunity.
 - **Exploitation**: MITM on kubelet-to-metrics-server path → inject false resource metrics
 - **Design rationale**: Standard pattern for Talos clusters with self-signed kubelet certs
 - **Severity**: Low (requires network-level MITM within cluster)
+
+---
+
+## Finding Severity Guide
+
+| Severity | Criteria | Example |
+|----------|----------|---------|
+| **Critical** | RCE, credential theft, cluster takeover | AWS IAM key exfil, container escape |
+| **High** | Auth bypass, cross-namespace data access, privilege escalation | WAF bypass + unauthenticated admin, RBAC to read secrets |
+| **Medium** | Information disclosure, policy bypass with limited impact | Prometheus intel, intra-namespace lateral movement |
+| **Low** | Minor policy gap, defense-in-depth weakness | DNS tunneling, 7-day cookie |
+| **Informational** | Design observation, accepted risk | FAIL_OPEN strategy, PL1 WAF level |

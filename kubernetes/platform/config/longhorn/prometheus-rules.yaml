@@ -13,7 +13,7 @@ spec:
       rules:
         # Volume Health - Critical
         - alert: LonghornVolumeStatusCritical
-          expr: longhorn_volume_robustness == 3
+          expr: max by (volume, pvc_namespace) (longhorn_volume_robustness) == 3
           for: 5m
           labels:
             severity: critical
@@ -23,7 +23,7 @@ spec:
 
         # Volume Health - Warning
         - alert: LonghornVolumeStatusDegraded
-          expr: longhorn_volume_robustness == 2
+          expr: max by (volume, pvc_namespace) (longhorn_volume_robustness) == 2
           for: 5m
           labels:
             severity: warning
@@ -33,7 +33,7 @@ spec:
 
         # Volume Space - Per Volume
         - alert: LonghornVolumeActualSpaceUsedWarning
-          expr: (longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes) * 100 > 90
+          expr: max by (volume, pvc_namespace) (longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes) * 100 > 90
           for: 5m
           labels:
             severity: warning
@@ -43,7 +43,7 @@ spec:
 
         # Node Storage
         - alert: LonghornNodeStorageWarning
-          expr: (longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100 > 70
+          expr: max by (node) (longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100 > 70
           for: 5m
           labels:
             severity: warning
@@ -53,7 +53,7 @@ spec:
 
         # Disk Storage
         - alert: LonghornDiskStorageWarning
-          expr: (longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) * 100 > 70
+          expr: max by (disk, node) (longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) * 100 > 70
           for: 5m
           labels:
             severity: warning
@@ -73,7 +73,7 @@ spec:
 
         # Instance Manager CPU
         - alert: LonghornInstanceManagerCPUUsageWarning
-          expr: (longhorn_instance_manager_cpu_usage_millicpu / longhorn_instance_manager_cpu_requests_millicpu) * 100 > 300
+          expr: max by (instance_manager) (longhorn_instance_manager_cpu_usage_millicpu / longhorn_instance_manager_cpu_requests_millicpu) * 100 > 300
           for: 5m
           labels:
             severity: warning
@@ -83,7 +83,7 @@ spec:
 
         # Node CPU
         - alert: LonghornNodeCPUUsageWarning
-          expr: (longhorn_node_cpu_usage_millicpu / longhorn_node_cpu_capacity_millicpu) * 100 > 90
+          expr: max by (node) (longhorn_node_cpu_usage_millicpu / longhorn_node_cpu_capacity_millicpu) * 100 > 90
           for: 5m
           labels:
             severity: warning
@@ -91,19 +91,9 @@ spec:
             summary: "Longhorn node {{ $labels.node }} CPU > 90%"
             description: "Node {{ $labels.node }} Longhorn CPU usage is at {{ $value | printf \"%.1f\" }}%. High CPU pressure can impact storage performance."
 
-        # Backup State - Error
-        - alert: LonghornBackupFailed
-          expr: longhorn_backup_state == 4
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Longhorn backup {{ $labels.backup }} failed"
-            description: "Backup {{ $labels.backup }} for volume {{ $labels.volume }} is in error state. Check backup target connectivity and available space."
-
         # Volume Read-Only (filesystem issue)
         - alert: LonghornVolumeReadOnly
-          expr: longhorn_volume_file_system_read_only == 1
+          expr: max by (volume, pvc_namespace) (longhorn_volume_file_system_read_only) == 1
           for: 1m
           labels:
             severity: critical
@@ -113,7 +103,7 @@ spec:
 
         # Replica rebuild in progress (informational, longer duration = problem)
         - alert: LonghornRebuildStalled
-          expr: longhorn_engine_rebuild_progress > 0 and longhorn_engine_rebuild_progress < 100
+          expr: max by (volume) (longhorn_engine_rebuild_progress) > 0 and max by (volume) (longhorn_engine_rebuild_progress) < 100
           for: 30m
           labels:
             severity: warning
@@ -121,35 +111,25 @@ spec:
             summary: "Longhorn replica rebuild stalled on {{ $labels.volume }}"
             description: "Volume {{ $labels.volume }} has been rebuilding for over 30 minutes at {{ $value }}%. This may indicate disk I/O issues or network problems."
 
-        # Backup Staleness - volume has backup but no recent success
-        - alert: LonghornBackupStale
-          expr: |
-            (time() - longhorn_volume_last_backup_at) > 129600
-            and longhorn_volume_last_backup_at > 0
+        # SSD Endurance - Warning
+        - alert: LonghornDiskEnduranceWarning
+          expr: max by (disk, node) (longhorn_disk_health_attribute_raw{attribute_id=~"202|231"}) < 30
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} endurance < 30%"
+            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value }}% SSD lifetime remaining. Plan disk replacement."
+
+        # SSD Endurance - Critical
+        - alert: LonghornDiskEnduranceCritical
+          expr: max by (disk, node) (longhorn_disk_health_attribute_raw{attribute_id=~"202|231"}) < 10
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "Longhorn volume {{ $labels.volume }} backup is stale"
-            description: >-
-              Volume {{ $labels.volume }} (PVC {{ $labels.pvc }}, ns {{ $labels.pvc_namespace }})
-              last successful backup was {{ $value | humanizeDuration }} ago (threshold: 36h).
-              Check recurring backup job status and backup target connectivity.
-
-        # Backup Never Completed - volume exists but has never been backed up
-        - alert: LonghornBackupNeverCompleted
-          expr: |
-            longhorn_volume_last_backup_at == 0
-            and longhorn_volume_robustness >= 0
-          for: 1h
-          labels:
-            severity: warning
-          annotations:
-            summary: "Longhorn volume {{ $labels.volume }} has never been backed up"
-            description: >-
-              Volume {{ $labels.volume }} reports a last backup timestamp of 0,
-              meaning no backup has ever completed. Verify recurring job configuration
-              and backup target availability.
+            summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} endurance < 10%"
+            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value }}% SSD lifetime remaining. Immediate replacement required to prevent data loss."
 
     # Recording rules that aggregate disk metrics by storage pool (fast/slow)
     # based on disk name patterns from inventory (ssd = fast, hdd = slow).

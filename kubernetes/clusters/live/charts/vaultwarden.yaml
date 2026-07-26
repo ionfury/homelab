@@ -26,7 +26,7 @@ controllers:
           tag: "${vaultwarden_version}"
         env:
           # Core configuration
-          DOMAIN: "https://vault.${external_domain}"
+          DOMAIN: "https://vault.${internal_domain}"
           SIGNUPS_ALLOWED: "false"
           INVITATIONS_ALLOWED: "true"
           SHOW_PASSWORD_HINT: "false"
@@ -47,6 +47,24 @@ controllers:
             value: "postgresql://vaultwarden:$(DATABASE_PASSWORD)@platform-pooler-rw.database.svc.cluster.local:5432/vaultwarden"
           # Websocket notifications (enabled by default in recent versions)
           ENABLE_WEBSOCKET: "true"
+          # SSO via Authelia OIDC
+          SSO_ENABLED: "true"
+          SSO_ONLY: "true"
+          SSO_PKCE: "true"
+          SSO_AUTHORITY: "https://auth.${internal_domain}"
+          SSO_CLIENT_ID: "vaultwarden"
+          SSO_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-oidc-client-secret
+                key: client-secret
+          SSO_SCOPES: "openid profile email offline_access"
+          ENABLE_METRICS: "true"
+          METRICS_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: vaultwarden-metrics-token
+                key: token
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -57,7 +75,7 @@ controllers:
             cpu: 10m
             memory: 128Mi
           limits:
-            memory: 512Mi
+            memory: 1Gi
         probes:
           startup:
             enabled: true
@@ -92,6 +110,37 @@ service:
     ports:
       http:
         port: 80
+
+serviceMonitor:
+  app:
+    serviceName: vaultwarden-app
+    endpoints:
+      - port: http
+        interval: 60s
+        scrapeTimeout: 30s
+        path: /metrics
+        bearerTokenSecret:
+          name: vaultwarden-metrics-token
+          key: token
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Vaultwarden"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "vaultwarden.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=vaultwarden"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "vault.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 80
 
 persistence:
   data:

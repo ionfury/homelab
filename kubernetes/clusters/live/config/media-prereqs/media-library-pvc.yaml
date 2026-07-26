@@ -4,10 +4,12 @@ kind: PersistentVolumeClaim
 metadata:
   name: media-library
   namespace: media
+  labels:
+    velero.io/exclude-from-backup: "true"
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: slow-nb
+  storageClassName: slow
   resources:
     requests:
       storage: 10Ti

@@ -522,3 +522,58 @@ run "version_propagation" {
     error_message = "Machine secrets should use specified Talos version"
   }
 }
+
+# Talos module accepts machine configs containing machine.sysctls (hugepages 2M)
+run "sysctls_in_machine_config" {
+  command = plan
+
+  variables {
+    talos_machines = [
+      {
+        install = {
+          selector = "disk.model = *"
+        }
+        configs = [
+          <<-EOT
+          cluster:
+            clusterName: talos.local
+            controlPlane:
+              endpoint: https://talos.local:6443
+          machine:
+            type: controlplane
+            sysctls:
+              vm.nr_hugepages: "512"
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: HostnameConfig
+          hostname: host1
+          EOT
+          ,
+          <<-EOT
+          apiVersion: v1alpha1
+          kind: BondConfig
+          name: bond0
+          links:
+            - link0_0
+          bondMode: active-backup
+          mtu: 1500
+          addresses:
+            - address: 10.10.10.10/24
+          EOT
+        ]
+      }
+    ]
+  }
+
+  assert {
+    condition     = strcontains(data.talos_machine_configuration.this["host1"].config_patches[0], "vm.nr_hugepages")
+    error_message = "Talos module should accept and preserve sysctls in machine config"
+  }
+
+  assert {
+    condition     = talos_machine_configuration_apply.machines["host1"].endpoint == "10.10.10.10"
+    error_message = "Endpoint should still be extracted correctly with sysctls present"
+  }
+}

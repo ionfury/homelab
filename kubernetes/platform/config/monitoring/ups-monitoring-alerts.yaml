@@ -36,7 +36,7 @@ spec:
               indicating a utility power failure. Check mains power immediately.
 
         - alert: UpsOutputOverload
-          expr: upsAdvanceOutputLoad > 80
+          expr: upsAdvanceOutputLoad > 80 and upsAdvanceOutputLoad <= 95
           for: 5m
           labels:
             severity: warning
@@ -84,7 +84,7 @@ spec:
     - name: ups.temperature
       rules:
         - alert: UpsHighTemperature
-          expr: upsAdvanceBatteryTemperature > 40
+          expr: upsAdvanceBatteryTemperature > 40 and upsAdvanceBatteryTemperature <= 50
           for: 10m
           labels:
             severity: warning

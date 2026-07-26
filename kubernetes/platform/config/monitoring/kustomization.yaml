@@ -18,11 +18,13 @@ resources:
   - cilium-alerts.yaml
   - istio-servicemonitors.yaml
   - istio-alerts.yaml
+  - gateway-red-alerts.yaml
+  - gateway-dataplane-alerts.yaml
   - external-secrets-alerts.yaml
   - grafana-alerts.yaml
   - loki-mixin-alerts.yaml
   - loki-mixin-recording-rules.yaml
-
+  - kromgo-recording-rules.yaml
   - flux-podmonitor.yaml
   - flux-alerts.yaml
   - alloy-alerts.yaml
@@ -33,9 +35,14 @@ resources:
   - ups-monitoring-scrape.yaml
   - ups-monitoring-alerts.yaml
   - backup-health-dashboard.yaml
+  - canary-sla-dashboard.yaml
   - garage-s3-dashboard.yaml
   - platform-signals-dashboard.yaml
   - power-accounting-dashboard.yaml
   - hardware-health-dashboard.yaml
   - gpu-monitoring-alerts.yaml
+  - velero-alerts.yaml
+  - velero-dashboard.yaml
+  - network-throughput-dashboard.yaml
   - platform-home-dashboard.yaml
+  - grafana-dashboard-loki-logs.yaml

@@ -1,0 +1,21 @@
+---
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-platform
+  namespace: velero
+spec:
+  # Automatically selects the most recent successful backup from this schedule
+  scheduleName: platform
+  restorePVs: true
+  existingResourcePolicy: none
+  # Exclude CNPG Cluster CR -- Flux manages it via cnpg-recovery.yaml overlay.
+  # Restoring the backed-up CR would apply an initdb spec, overriding recovery.
+  excludedResources:
+    - clusters.postgresql.cnpg.io
+    - secrets
+  # garage: PVC restore recovers object storage (including CNPG Barman archives)
+  # database: PVC restore recovers CNPG data PVCs (Barman recovery reads WALs from Garage)
+  includedNamespaces:
+    - garage
+    - database

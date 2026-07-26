@@ -57,6 +57,20 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
+    - name: it-tools
+      namespace: it-tools
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
+    - name: redlib
+      namespace: redlib
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
     - name: factorio
       namespace: factorio
       chart:
@@ -78,8 +92,8 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
-    - name: pxe-boot
-      namespace: pxe-boot
+    - name: booter
+      namespace: booter
       chart:
         name: app-template
         version: "${app_template_version}"
@@ -92,6 +106,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
+    - name: flaresolverr
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
     - name: prowlarr
       namespace: media
       chart:
@@ -112,7 +133,7 @@ spec:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: []
+      dependsOn: [secret-generator]
     - name: radarr
       namespace: media
       chart:
@@ -120,6 +141,27 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [secret-generator]
+    - name: sonarr4k
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator]
+    - name: radarr4k
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator]
+    - name: jfa-go
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [jellyfin]
     - name: jellyfin
       namespace: media
       chart:
@@ -162,20 +204,27 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator]
+    - name: sabnzbd
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
     - name: recyclarr
       namespace: media
       chart:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: [sonarr, radarr]
+      dependsOn: [sonarr, radarr, sonarr4k, radarr4k]
     - name: exportarr
       namespace: media
       chart:
         name: app-template
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: [sonarr, radarr, prowlarr]
+      dependsOn: [sonarr, radarr, sonarr4k, radarr4k, bazarr, sabnzbd]
     - name: paperless
       namespace: paperless
       chart:
@@ -204,6 +253,41 @@ spec:
         version: "${open_webui_version}"
         url: "https://helm.openwebui.com"
       dependsOn: [ollama, cloudnative-pg, secret-generator]
+    - name: houndarr
+      namespace: media
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: []
+    - name: sure
+      namespace: sure
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [cloudnative-pg, secret-generator]
+    - name: papra
+      namespace: papra
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [secret-generator, external-secrets]
+    - name: external-dns
+      namespace: external-dns
+      chart:
+        name: external-dns
+        version: "${external_dns_version}"
+        url: https://kubernetes-sigs.github.io/external-dns/
+      dependsOn: [external-secrets, kube-prometheus-stack-crds]
+    - name: home-assistant
+      namespace: home-assistant
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [cloudnative-pg, secret-generator, external-secrets]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1

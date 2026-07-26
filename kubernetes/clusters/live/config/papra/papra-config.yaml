@@ -1,0 +1,16 @@
+---
+# Native YAML boolean for forcePathStyle — avoids string coercion bug in Papra 0.9.x
+# where DOCUMENT_STORAGE_S3_FORCE_PATH_STYLE env var fails validation ("Expected boolean, received string").
+# c12 config loader merges this file with env vars; env vars take precedence for all other settings.
+# Remove once Papra upgrades figue/valibot schema to coerce booleans from env var strings.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: papra-config
+  namespace: papra
+data:
+  papra.config.yaml: |
+    documentsStorage:
+      drivers:
+        s3:
+          forcePathStyle: true

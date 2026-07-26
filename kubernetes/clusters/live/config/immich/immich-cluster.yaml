@@ -34,7 +34,7 @@ spec:
         - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
 
   storage:
-    storageClass: fast-nb
+    storageClass: fast
     size: 10Gi
 
   backup:
@@ -59,7 +59,7 @@ spec:
       cpu: 50m
       memory: 256Mi
     limits:
-      memory: 1Gi
+      memory: 2Gi
 
   monitoring:
     enablePodMonitor: true

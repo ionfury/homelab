@@ -11,25 +11,37 @@ configMapGenerator:
     files:
       - authelia.yaml
       - bazarr.yaml
+      - booter.yaml
       - exportarr.yaml
+      - external-dns.yaml
       - factorio.yaml
+      - flaresolverr.yaml
+      - home-assistant.yaml
       - homepage.yaml
+      - houndarr.yaml
       - immich.yaml
+      - it-tools.yaml
       - jellyfin-exporter.yaml
+      - jfa-go.yaml
       - jellyfin.yaml
       - jellyseerr.yaml
       - lldap.yaml
       - minecraft.yaml
       - ollama.yaml
       - open-webui.yaml
+      - papra.yaml
       - paperless.yaml
       - prowlarr.yaml
-      - pxe-boot.yaml
       - qbittorrent.yaml
       - radarr.yaml
+      - redlib.yaml
+      - radarr4k.yaml
       - recyclarr.yaml
+      - sabnzbd.yaml
       - satisfactory.yaml
       - sonarr.yaml
+      - sure.yaml
+      - sonarr4k.yaml
       - tandoor.yaml
       - tdarr-node.yaml
       - tdarr.yaml

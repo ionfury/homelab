@@ -1,0 +1,141 @@
+version: 1
+skill: sre
+description: "Verifies SRE debugging methodology: pod failure diagnosis, cluster-health.sh usage, and 5 Whys root cause analysis"
+tests:
+  - id: SRE-01
+    description: "CrashLoopBackOff diagnosis workflow"
+    category: coverage
+    severity: critical
+    prompt: |
+      A pod in the `database` namespace is stuck in CrashLoopBackOff. Walk me through how to diagnose this.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - kubectl
+          - logs
+          - describe
+          - previous
+        any_of:
+          - events
+          - CrashLoopBackOff
+          - "--previous"
+          - "kubectl get pods"
+        forbidden:
+          - "kubectl apply"
+          - "kubectl delete"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Identifies logs from both current and previous container instance (--previous flag or equivalent)
+        - Instructs use of kubectl describe pod to inspect events
+        - Mentions checking resource limits (OOMKilled) as a possible cause
+        - Avoids recommending irreversible remediation actions before root cause is known
+        Deduct 3 points if no mention of --previous logs.
+        Deduct 3 points if the response skips events entirely.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should walk through: (1) kubectl get pods to confirm state, (2) kubectl describe pod for events, (3) kubectl logs --previous to see the exit reason, (4) check for OOMKilled or config errors. Should not recommend fixes before diagnosis.
+    tags:
+      - trimmed-2026-03-22
+      - sre-skill
+
+  - id: SRE-02
+    description: "5 Whys methodology applied to a Pending pod"
+    category: coverage
+    severity: high
+    prompt: |
+      A pod in the `longhorn` namespace is stuck in Pending. Apply 5 Whys analysis to find the root cause.
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - "Why"
+          - root cause
+        any_of:
+          - PVC
+          - StorageClass
+          - node
+          - taint
+          - resource
+          - "5 Whys"
+          - schedule
+        forbidden: []
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Explicitly iterates through multiple "why" levels (at least 3 distinct levels)
+        - Does not stop at "pod is Pending" as the final answer
+        - Reaches a concrete root cause (e.g., missing StorageClass, node taints, resource limits)
+        - Shows the causal chain connecting each layer
+        Deduct 4 points if the response stops at the first "why" without drilling deeper.
+        Deduct 2 points if no concrete root cause category is named.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should demonstrate iterative why-asking: Pending -> scheduler can't place -> node constraints or missing resources -> specific cause (PVC not bound, no schedulable node, resource quota). Should reach a concrete root cause category, not stop at "pod is Pending".
+    tags:
+      - trimmed-2026-03-22
+      - sre-skill
+
+  - id: SRE-03
+    description: "cluster-health.sh script is the recommended first step for snapshot collection"
+    category: routing
+    severity: high
+    prompt: |
+      I want to get a quick snapshot of what's going wrong across the monitoring namespace. What's the fastest way to collect data?
+    scoring:
+      mode: keywords
+      keywords:
+        required:
+          - cluster-health.sh
+        any_of:
+          - scripts/
+          - namespace
+          - snapshot
+        forbidden:
+          - "kubectl get all"
+      judge_criteria: ""
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should reference the cluster-health.sh script as the fast snapshot tool, optionally with a namespace argument. Should not recommend running a long sequence of manual kubectl commands before using the script.
+    tags:
+      - trimmed-2026-03-22
+      - sre-skill
+
+  - id: SRE-04
+    description: "OOMKilled diagnosis and remediation guidance"
+    category: coverage
+    severity: high
+    prompt: |
+      kubectl describe shows my pod terminated with reason OOMKilled. What does this mean and what should I do?
+    scoring:
+      mode: both
+      keywords:
+        required:
+          - memory
+          - limit
+        any_of:
+          - OOMKilled
+          - resources
+          - "kubectl top"
+          - increase
+          - request
+        forbidden:
+          - "kubectl delete pod"
+          - "--force"
+      judge_criteria: |
+        Score 0-10. Award full marks if the response:
+        - Correctly explains OOMKilled means the container exceeded its memory limit
+        - Recommends checking actual memory usage (kubectl top pods) to inform the new limit
+        - Suggests increasing the memory limit as the fix
+        - Notes the limit should be set generously (not tight)
+        Deduct 3 points if the response recommends deleting the pod without increasing the limit.
+        Deduct 2 points if no mention of checking actual usage before adjusting limits.
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Response should explain OOMKilled, recommend using kubectl top to check actual memory usage, and suggest increasing the memory limit with appropriate headroom. Should not recommend deleting the pod without addressing the underlying limit.
+    tags:
+      - trimmed-2026-03-22
+      - sre-skill

@@ -13,4 +13,4 @@ parameters:
   staleReplicaTimeout: "30"
   dataLocality: best-effort
   diskSelector: slow
-  recurringJobSelector: '[{"name": "snapshot-frequent", "isGroup": true}, {"name": "backup-frequent", "isGroup": true}, {"name": "filesystem-trim-daily", "isGroup": true}]'
+  recurringJobSelector: '[{"name": "snapshot-frequent", "isGroup": true}, {"name": "filesystem-trim-daily", "isGroup": true}]'

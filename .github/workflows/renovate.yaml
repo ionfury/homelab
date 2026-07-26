@@ -2,8 +2,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Renovate
 on:
-  schedule:
-    - cron: "0 * * * *"
+  # Temp disabled
+  # schedule:
+  #   - cron: "0 * * * *"
 
   workflow_dispatch:
     inputs:
@@ -31,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get Token
-        uses: actions/create-github-app-token@v2.2.1
+        uses: actions/create-github-app-token@v3.2.0
         id: token
         with:
           app-id: ${{ secrets.RENOVATE_APP_ID }}
@@ -40,10 +41,10 @@ jobs:
           repositories: homelab
 
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.0
 
       - name: Run Renovate
-        uses: renovatebot/github-action@v46.1.3
+        uses: renovatebot/github-action@v46.1.19
         env:
           LOG_LEVEL: ${{ inputs.logLevel }}
           RENOVATE_AUTODISCOVER: true

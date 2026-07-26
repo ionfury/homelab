@@ -13,8 +13,7 @@ if [[ -z "$APP_NAME" ]]; then
     exit 1
 fi
 
-KUBECONFIG="${KUBECONFIG:-$HOME/.kube/dev.yaml}"
-export KUBECONFIG
+CONTEXT="${CONTEXT:-dev}"
 
 echo "=== Canary Health Check: $APP_NAME ==="
 echo ""

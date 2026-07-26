@@ -13,33 +13,88 @@ spec:
         - alert: CanaryCheckFailure
           expr: |
             canary_check == 1
-          for: 2m
+          for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "Canary check {{ $labels.name }} is failing"
+            summary: "Canary check {{ $labels.canary_name }} is failing"
             description: >-
-              Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
-              {{ $labels.exported_namespace }} has been failing for more than 2 minutes.
+              Canary check {{ $labels.canary_name }} (type: {{ $labels.type }}) in namespace
+              {{ $labels.canary_namespace }} has been failing for more than 5 minutes.
               This indicates a potential service degradation or outage.
 
         - alert: CanaryCheckHighFailureRate
           expr: |
             (
-              sum by (name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+              sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
               /
               (
-                sum by (name, exported_namespace, type) (increase(canary_check_success_count[15m]))
+                sum by (canary_name, exported_namespace, type) (increase(canary_check_success_count[15m]))
                 +
-                sum by (name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+                sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
               )
             ) > 0.2
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Canary check {{ $labels.name }} has high failure rate"
+            summary: "Canary check {{ $labels.canary_name }} has high failure rate"
             description: >-
-              Canary check {{ $labels.name }} (type: {{ $labels.type }}) in namespace
+              Canary check {{ $labels.canary_name }} (type: {{ $labels.type }}) in namespace
               {{ $labels.exported_namespace }} has a failure rate above 20% over the
               last 15 minutes. Investigate potential intermittent issues.
+
+    - name: canary-checker.sla
+      interval: 5m
+      rules:
+        - record: canary:availability:1h
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[1h]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[1h]) + increase(canary_check_failed_count[1h])
+                ),
+                1
+              )
+            ) * 100
+
+        - record: canary:availability:24h
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[24h]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[24h]) + increase(canary_check_failed_count[24h])
+                ),
+                1
+              )
+            ) * 100
+
+        - record: canary:availability:7d
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[7d]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[7d]) + increase(canary_check_failed_count[7d])
+                ),
+                1
+              )
+            ) * 100
+
+        - record: canary:availability:30d
+          expr: |
+            (
+              sum by (name, canary_name, canary_namespace, type) (increase(canary_check_success_count[30d]))
+              /
+              clamp_min(
+                sum by (name, canary_name, canary_namespace, type) (
+                  increase(canary_check_success_count[30d]) + increase(canary_check_failed_count[30d])
+                ),
+                1
+              )
+            ) * 100

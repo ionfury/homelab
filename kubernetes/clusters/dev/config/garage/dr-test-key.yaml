@@ -1,0 +1,16 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: dr-test-s3
+  namespace: garage
+spec:
+  clusterRef:
+    name: garage
+  bucketPermissions:
+    - bucketRef:
+        name: dr-test
+      read: true
+      write: true
+  secretTemplate:
+    name: dr-test-s3-credentials

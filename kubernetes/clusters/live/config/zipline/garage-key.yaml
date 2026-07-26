@@ -1,17 +1,19 @@
 ---
-apiVersion: garage.rajsingh.info/v1alpha1
+apiVersion: garage.rajsingh.info/v1beta1
 kind: GarageKey
 metadata:
   name: zipline
-  namespace: garage
+  namespace: zipline
 spec:
   clusterRef:
     name: garage
+    namespace: garage
   neverExpires: true
   bucketPermissions:
-    - bucketRef: zipline
+    - bucketRef:
+        name: zipline
+        namespace: garage
       read: true
       write: true
   secretTemplate:
     name: zipline-s3-credentials
-    namespace: zipline

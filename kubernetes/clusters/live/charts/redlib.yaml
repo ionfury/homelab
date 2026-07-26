@@ -1,0 +1,85 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/app-template-4.6.0/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  redlib:
+    type: deployment
+    replicas: 1
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: quay.io/redlib/redlib
+          tag: "${redlib_version}"
+        env:
+          TZ: UTC
+          REDLIB_PORT: "8080"
+          REDLIB_DEFAULT_SHOW_NSFW: "false"
+          REDLIB_DEFAULT_HIDE_HLS_NOTIFICATION: "true"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities:
+            drop: [ALL]
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /settings
+                port: 8080
+              initialDelaySeconds: 5
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /settings
+                port: 8080
+              initialDelaySeconds: 5
+              periodSeconds: 10
+
+service:
+  app:
+    controller: redlib
+    ports:
+      http:
+        port: 8080
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Redlib"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "reddit.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=redlib"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "redlib.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8080

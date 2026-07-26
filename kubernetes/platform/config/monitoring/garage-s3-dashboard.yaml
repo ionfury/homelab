@@ -114,7 +114,9 @@ data:
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "green", "value": null }
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "green", "value": 3 }
                 ]
               }
             },
@@ -156,7 +158,9 @@ data:
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "green", "value": null }
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 2 },
+                  { "color": "green", "value": 3 }
                 ]
               }
             },

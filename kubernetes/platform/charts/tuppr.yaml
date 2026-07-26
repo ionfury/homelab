@@ -1,5 +1,8 @@
 ---
 # https://github.com/home-operations/tuppr
+replicaCount: 0
 monitoring:
   serviceMonitor:
+    enabled: true
+  prometheusRule:
     enabled: true

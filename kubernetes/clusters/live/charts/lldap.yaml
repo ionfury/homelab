@@ -5,6 +5,7 @@ controllers:
   lldap:
     type: deployment
     replicas: 2
+    strategy: RollingUpdate
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -23,7 +24,7 @@ controllers:
         image:
           repository: busybox
           # renovate: datasource=docker depName=busybox
-          tag: "1.37.0"
+          tag: "1.38.0"
         command:
           - /bin/sh
           - -c
@@ -41,7 +42,7 @@ controllers:
         image:
           repository: ghcr.io/lldap/lldap
           # renovate: datasource=docker depName=ghcr.io/lldap/lldap
-          tag: v0.6.2
+          tag: v0.6.3
         command:
           - /bin/sh
           - -c
@@ -65,7 +66,7 @@ controllers:
             cpu: 10m
             memory: 64Mi
           limits:
-            memory: 256Mi
+            memory: 512Mi
         probes:
           liveness:
             enabled: true
@@ -94,6 +95,25 @@ service:
         port: 3890
       http:
         port: 17170
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "LLDAP"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "light-ldap.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=lldap"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "lldap.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 17170
 
 persistence:
   data:

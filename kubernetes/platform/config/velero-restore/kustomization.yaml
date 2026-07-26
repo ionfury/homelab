@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - gate-job.yaml
+  - rbac.yaml
+configMapGenerator:
+  - name: velero-restore-gate-script
+    namespace: velero
+    options:
+      disableNameSuffixHash: true
+    files:
+      - gate.sh

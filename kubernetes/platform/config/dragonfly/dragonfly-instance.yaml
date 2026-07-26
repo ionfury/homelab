@@ -23,7 +23,7 @@ spec:
 
   authentication:
     passwordFromSecret:
-      name: dragonfly-password
+      name: dragonfly-auth
       key: password
 
   resources:
@@ -31,7 +31,7 @@ spec:
       cpu: 100m
       memory: 256Mi
     limits:
-      memory: 1Gi
+      memory: 2Gi
 
   args:
     - "--maxmemory"
@@ -44,6 +44,7 @@ spec:
     - "--s3_endpoint"
     - "${garage_s3_endpoint}"
     - "--s3_use_https=false"
+    - "--default_lua_flags=allow-undeclared-keys"
 
   env:
     - name: AWS_ACCESS_KEY_ID
@@ -65,7 +66,7 @@ spec:
     persistentVolumeClaimSpec:
       accessModes:
         - ReadWriteOnce
-      storageClassName: fast-nb
+      storageClassName: fast
       resources:
         requests:
           storage: ${dragonfly_volume_size:-1Gi}

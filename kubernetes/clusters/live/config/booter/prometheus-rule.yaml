@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: booter-alerts
+  namespace: booter
+  labels:
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: booter.rules
+      rules:
+        - alert: BooterDeploymentNotFullyReady
+          expr: |
+            (
+              kube_deployment_status_replicas_ready{namespace="booter", deployment="booter"}
+              / kube_deployment_spec_replicas{namespace="booter", deployment="booter"}
+            ) < 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Booter Deployment is not fully ready"
+            description: "{{ $value | humanizePercentage }} of booter pods are ready. PXE booting may be unavailable."
+
+        - alert: BooterBootAssetUnreachable
+          expr: |
+            probe_success{job="blackbox", instance=~"https://pxe.factory.talos.dev/.*"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Talos image factory PXE endpoint is unreachable"
+            description: "The Talos image factory at pxe.factory.talos.dev is not responding. PXE boot asset downloads will fail."

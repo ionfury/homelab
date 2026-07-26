@@ -21,6 +21,188 @@ data:
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+          "id": null,
+          "title": "Hardware Summary",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Count of disks reporting SMART status != 1 (not healthy). Zero means all disks are healthy.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              },
+              "unit": "short",
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "All Healthy", "color": "green" } } }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+          "id": null,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "count(smartctl_device_smart_status != 1) or vector(0)",
+              "legendFormat": "Unhealthy Disks",
+              "refId": "A"
+            }
+          ],
+          "title": "Unhealthy Disks",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Total number of SMART error log entries across all disks. Non-zero values indicate disk errors that may precede failure.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 10 }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+          "id": null,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "sum(smartctl_device_error_log_count) or vector(0)",
+              "legendFormat": "Error Log Entries",
+              "refId": "A"
+            }
+          ],
+          "title": "SMART Error Count",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Cumulative XID error count across all GPUs. XID errors indicate hardware or driver issues. No GPUs returns 0.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 10 }
+                ]
+              },
+              "unit": "short",
+              "noValue": "No GPUs"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+          "id": null,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "sum(DCGM_FI_DEV_XID_ERRORS) or vector(0)",
+              "legendFormat": "XID Errors",
+              "refId": "A"
+            }
+          ],
+          "title": "GPU XID Errors",
+          "type": "stat"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Maximum current disk temperature across all drives. Above 45C is warm; above 55C is hot and may reduce drive longevity.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 45 },
+                  { "color": "red", "value": 55 }
+                ]
+              },
+              "unit": "celsius"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+          "id": null,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "max(smartctl_device_temperature{temperature_type=\"current\"})",
+              "legendFormat": "Hottest Disk",
+              "refId": "A"
+            }
+          ],
+          "title": "Hottest Disk Temp",
+          "type": "stat"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
           "id": 10,
           "title": "Disk Health",
           "type": "row"
@@ -49,7 +231,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 1 },
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 7 },
           "id": 11,
           "options": {
             "cellHeight": "sm",
@@ -116,7 +298,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
           "id": 12,
           "options": {
             "displayMode": "gradient",
@@ -184,7 +366,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
           "id": 13,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -226,7 +408,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
           "id": 14,
           "options": {
             "cellHeight": "sm",
@@ -289,7 +471,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 17 },
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 23 },
           "id": 15,
           "options": {
             "colorMode": "background",
@@ -332,7 +514,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 17 },
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 23 },
           "id": 16,
           "options": {
             "colorMode": "background",
@@ -389,7 +571,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 27 },
           "id": 17,
           "options": {
             "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -414,7 +596,7 @@ data:
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
           "id": 20,
           "title": "Server Sensors (IPMI)",
           "type": "row"
@@ -459,7 +641,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 30 },
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 36 },
           "id": 21,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },

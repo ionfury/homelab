@@ -5,6 +5,35 @@ crds:
 cleanPrometheusOperatorObjectNames: true
 alertmanager:
   enabled: true
+  templateFiles:
+    discord.tmpl: |-
+      {{ define "homelab.discord.title" -}}
+      {{ if eq .Status "firing" }}🔥 FIRING{{ else }}✅ RESOLVED{{ end }}{{ if gt (len .Alerts.Firing) 1 }} ×{{ len .Alerts.Firing }}{{ end }}: {{ .CommonLabels.alertname }} [{{ .CommonLabels.severity | toUpper }}]
+      {{- end }}
+
+      {{ define "homelab.discord.message" -}}
+      {{ range $i, $a := .Alerts -}}
+      {{ if gt $i 0 }}─────────────────
+      {{ end -}}
+      {{ if $a.Annotations.summary }}**{{ $a.Annotations.summary }}**
+      {{ end -}}
+      {{ if $a.Annotations.description }}{{ $a.Annotations.description | reReplaceAll " on cluster [^.]*\\." "" }}
+      {{ end -}}
+      {{ if or $a.Labels.namespace $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset $a.Labels.pod $a.Labels.kubernetes_node -}}
+      **Context:** {{ if $a.Labels.namespace }}`ns/{{ $a.Labels.namespace }}`{{ end }}{{ if $a.Labels.deployment }} `deploy/{{ $a.Labels.deployment }}`{{ end }}{{ if $a.Labels.statefulset }} `sts/{{ $a.Labels.statefulset }}`{{ end }}{{ if $a.Labels.daemonset }} `ds/{{ $a.Labels.daemonset }}`{{ end }}{{ if and $a.Labels.pod (not (or $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset)) }} `pod/{{ $a.Labels.pod }}`{{ end }}{{ if $a.Labels.kubernetes_node }} `node/{{ $a.Labels.kubernetes_node }}`{{ end }}
+      {{ end -}}
+      {{ $matchers := printf "{alertname=\"%s\"" $a.Labels.alertname -}}
+      {{ if $a.Labels.namespace }}{{ $matchers = printf "%s,namespace=\"%s\"" $matchers $a.Labels.namespace }}{{ end -}}
+      {{ if $a.Labels.deployment }}{{ $matchers = printf "%s,deployment=\"%s\"" $matchers $a.Labels.deployment }}{{ end -}}
+      {{ if $a.Labels.statefulset }}{{ $matchers = printf "%s,statefulset=\"%s\"" $matchers $a.Labels.statefulset }}{{ end -}}
+      {{ if $a.Labels.daemonset }}{{ $matchers = printf "%s,daemonset=\"%s\"" $matchers $a.Labels.daemonset }}{{ end -}}
+      {{ if and $a.Labels.pod (not (or $a.Labels.deployment $a.Labels.statefulset $a.Labels.daemonset)) }}{{ $matchers = printf "%s,pod=\"%s\"" $matchers $a.Labels.pod }}{{ end -}}
+      {{ if $a.Labels.kubernetes_node }}{{ $matchers = printf "%s,kubernetes_node=\"%s\"" $matchers $a.Labels.kubernetes_node }}{{ end -}}
+      {{ $matchers = printf "%s}" $matchers -}}
+      {{ if $a.Annotations.runbook_url }}[📖 Runbook]({{ $a.Annotations.runbook_url }}) · {{ end -}}
+      [🔕 Silence](https://alertmanager.${internal_domain}/#/silences/new?filter={{ $matchers | urlquery }}){{ if $a.GeneratorURL }} · [📈 Query]({{ $a.GeneratorURL | reReplaceAll "^[^?]+" "https://prometheus.${internal_domain}/query" }}){{ end }}
+      {{ end -}}
+      {{- end }}
   alertmanagerSpec:
     priorityClassName: platform
     podMetadata:
@@ -15,6 +44,10 @@ alertmanager:
       name: alertmanager
       global:
         resolveTimeout: 5m
+      templates:
+        - secret:
+            name: alertmanager-kube-prometheus-stack
+            key: discord.tmpl
     externalUrl: https://alertmanager.${external_domain}
     storage:
       emptyDir: { }
@@ -24,6 +57,10 @@ kubeApiServer:
       matchLabels:
         component: apiserver
         provider: kubernetes
+    metricRelabelings:
+      - action: drop
+        sourceLabels: [__name__]
+        regex: 'apiserver_(request_body_size_bytes|watch_list_duration_seconds|watch_cache_read_wait_seconds|response_sizes|watch_events_sizes|request_sli_duration_seconds)_bucket|etcd_request_duration_seconds_bucket'
 kubeScheduler:
   service:
     selector:
@@ -41,7 +78,7 @@ prometheus:
     enabled: false
   prometheusSpec:
     priorityClassName: platform
-    replicas: 2
+    replicas: 1
     podMetadata:
       labels:
         networking/allow-ingress-internal: "true"
@@ -57,17 +94,18 @@ prometheus:
     walCompression: true
     enableFeatures:
       - memory-snapshot-on-shutdown
-    retention: 14d
+    retention: 7d
     retentionSize: ${prometheus_retention_size}
+    queryTimeout: 5m
     resources:
       requests:
         cpu: 100m
       limits:
-        memory: 2000Mi
+        memory: 8Gi
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: fast-nb
+          storageClassName: fast
           resources:
             requests:
               storage: ${prometheus_volume_size}
@@ -82,6 +120,11 @@ prometheus-node-exporter:
           replacement: $1
           sourceLabels: ["__meta_kubernetes_pod_node_name"]
           targetLabel: kubernetes_node
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          sourceLabels: ["__meta_kubernetes_pod_node_name"]
+          targetLabel: instance
 kube-state-metrics:
   fullnameOverride: kube-state-metrics
   metricLabelsAllowlist:
@@ -100,11 +143,36 @@ kube-state-metrics:
 grafana:
   enabled: false
   forceDeployDashboards: true
+  sidecar:
+    dashboards:
+      annotations:
+        grafana_folder: "Kubernetes"
 defaultRules:
   create: true
   disabled:
     KubeClientCertificateExpiration: true
+    NodeDiskIOSaturation: true
 additionalPrometheusRulesMap:
+  node-disk-rules:
+    groups:
+      - name: node-disk
+        rules:
+          - alert: NodeDiskIOSaturation
+            annotations:
+              description: |
+                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above 10 for the last 30 minutes, is currently at {{ printf "%.2f" $value }}.
+                This symptom might indicate disk saturation.
+              runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodediskiosaturation
+              summary: Disk IO queue is high.
+            expr: |
+              (
+                rate(node_disk_io_time_weighted_seconds_total{job="node-exporter", device=~"(/dev/)?(mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|md.+|dasd.+)"}[5m])
+              * on(instance, device) group_left()
+                node_disk_info{model!="VIRTUAL-DISK"}
+              ) > 10
+            for: 30m
+            labels:
+              severity: warning
   oom-rules:
     groups:
       - name: oom

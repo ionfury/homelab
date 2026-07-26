@@ -22,18 +22,6 @@ spec:
               will expire in less than 14 days. Verify cert-manager is renewing
               certificates correctly.
 
-        - alert: CertificateExpiringSoon7d
-          expr: |
-            certmanager_certificate_expiration_timestamp_seconds{name!="istiod"} - time() < 86400 * 7
-          labels:
-            severity: warning
-          annotations:
-            summary: "Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in less than 7 days"
-            description: >-
-              Certificate {{ $labels.name }} in namespace {{ $labels.namespace }}
-              will expire in less than 7 days. Immediate attention required to
-              prevent service disruption.
-
         - alert: CertificateExpiringSoon24h
           expr: |
             certmanager_certificate_expiration_timestamp_seconds{name!="istiod"} - time() < 86400

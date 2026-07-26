@@ -1,0 +1,13 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: platform
+spec:
+  managed:
+    roles:
+      - name: paperless
+        ensure: present
+        login: true
+        passwordSecret:
+          name: paperless-role-password

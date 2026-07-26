@@ -7,7 +7,7 @@ metadata:
   annotations:
     fluxcd.controlplane.io/reconcile: "enabled"
     fluxcd.controlplane.io/reconcileEvery: "30m"
-    fluxcd.controlplane.io/reconcileTimeout: "10m"
+    fluxcd.controlplane.io/reconcileTimeout: "3m"
 spec:
   inputs:
     - name: authelia-prereqs
@@ -21,7 +21,20 @@ spec:
       dependsOn: [platform, secret-generator, external-secrets-stores]
     - name: media-config
       path: kubernetes/clusters/live/config/media
-      dependsOn: [bazarr, jellyfin-exporter, jellyfin, jellyseerr, sonarr, radarr, prowlarr, qbittorrent, exportarr, canary-checker, kube-prometheus-stack]
+      dependsOn:
+        [
+          bazarr,
+          jellyfin-exporter,
+          jellyfin,
+          jellyseerr,
+          sonarr,
+          radarr,
+          prowlarr,
+          qbittorrent,
+          exportarr,
+          canary-checker,
+          kube-prometheus-stack,
+        ]
     - name: ai-prereqs
       path: kubernetes/clusters/live/config/ai-prereqs
       dependsOn: [platform, secret-generator, external-secrets-stores]
@@ -42,7 +55,7 @@ spec:
         - name: << $dep >>
       <<- end >>
       <<- end >>
-      interval: 10m
+      interval: 3m
       path: << inputs.path >>
       prune: true
       sourceRef:

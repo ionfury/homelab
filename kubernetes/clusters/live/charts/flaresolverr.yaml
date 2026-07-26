@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  flaresolverr:
+    type: deployment
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/flaresolverr/flaresolverr
+          tag: "${flaresolverr_version}"
+        env:
+          LOG_LEVEL: info
+          LOG_HTML: "false"
+          CAPTCHA_SOLVER: none
+          TZ: UTC
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            memory: 4Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8191
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8191
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8191
+              periodSeconds: 10
+
+service:
+  app:
+    controller: flaresolverr
+    ports:
+      http:
+        port: 8191

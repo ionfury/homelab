@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/vmware-tanzu/helm-charts/main/charts/velero/values.schema.json
+---
+# CSI plugin is built into Velero core since v1.14 -- only the AWS plugin needs an init container
+initContainers:
+  - name: velero-plugin-for-aws
+    # renovate: datasource=docker depName=velero/velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.14.2
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 65534
+      seccompProfile:
+        type: RuntimeDefault
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+snapshotsEnabled: true
+deployNodeAgent: true
+
+nodeAgent:
+  podSecurityContext:
+    runAsUser: 0
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 1Gi
+
+configuration:
+  features: EnableCSI
+  defaultRepoMaintainFrequency: "24h"
+  backupStorageLocation:
+    - name: aws
+      provider: aws
+      bucket: homelab-velero-backup-${cluster_name}
+      default: true
+      validationFrequency: "1h"
+      credential:
+        name: velero-s3-credentials
+        key: cloud
+      config:
+        region: us-east-2
+  volumeSnapshotLocation:
+    - name: csi
+      provider: csi
+
+credentials:
+  useSecret: false
+  existingSecret: velero-s3-credentials
+
+priorityClassName: platform
+
+podSecurityContext: { }
+
+containerSecurityContext: { }
+
+kubectl:
+  # Pin to last published bitnamilegacy tag -- upstream dropped kubectl images for K8s >= 1.34
+  # https://github.com/vmware-tanzu/helm-charts/issues/698
+  image:
+    repository: docker.io/bitnamilegacy/kubectl
+    tag: "1.33"
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+
+upgradeCRDsJob:
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

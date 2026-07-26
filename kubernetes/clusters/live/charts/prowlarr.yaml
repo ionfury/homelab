@@ -49,7 +49,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 2Gi
         probes:
           startup:
             enabled: true
@@ -84,6 +84,25 @@ service:
     ports:
       http:
         port: 9696
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Prowlarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "prowlarr.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=prowlarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "prowlarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 9696
 
 persistence:
   config:

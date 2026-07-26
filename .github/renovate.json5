@@ -1,5 +1,5 @@
 {
- "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
     ":dependencyDashboard",
@@ -10,24 +10,42 @@
   "dependencyDashboardTitle": "Dependency Dashboard",
   "prHourlyLimit": 5,
   "prConcurrentLimit": 20,
+  "prCreation": "immediate",
+  "internalChecksFilter": "none",
   "terraform": {
-    "managerFilePatterns": ["/(^|/)infrastructure/.+\\.tf$/"],
-    "registryUrls": ["https://registry.opentofu.org"]
+    "managerFilePatterns": [
+      "/(^|/)infrastructure/.+\\.tf$/"
+    ],
+    "registryUrls": [
+      "https://registry.opentofu.org"
+    ]
   },
-  "kubernetes": {"managerFilePatterns": ["/^kubernetes/.*\\.ya?ml$/"]},
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^kubernetes/.*\\.ya?ml$/"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^\\.opentofu-version$/"],
-      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
+      "managerFilePatterns": [
+        "/^\\.opentofu-version$/"
+      ],
+      "matchStrings": [
+        "^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"
+      ],
       "depNameTemplate": "opentofu",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "opentofu/opentofu"
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^\\.terragrunt-version$/"],
-      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"],
+      "managerFilePatterns": [
+        "/^\\.terragrunt-version$/"
+      ],
+      "matchStrings": [
+        "^(?<currentValue>\\d+\\.\\d+\\.\\d+)$"
+      ],
       "depNameTemplate": "terragrunt",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "gruntwork-io/terragrunt"
@@ -38,7 +56,9 @@
     // ============================================================
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/(platform|clusters/[^/]+)/versions\\.env$/"],
+      "managerFilePatterns": [
+        "/^kubernetes/(platform|clusters/[^/]+)/versions\\.env$/"
+      ],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+packageName=(?<packageName>[^\\s]+))?(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?(?:\\s+registryUrl=(?<registryUrl>[^\\s]+))?(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n[A-Za-z_]+=(?<currentValue>.+)"
@@ -50,7 +70,9 @@
     // ============================================================
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^kubernetes/.*\\.ya?ml$/"],
+      "managerFilePatterns": [
+        "/^kubernetes/.*\\.ya?ml$/"
+      ],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+versioning=(?<versioning>[^\\s]+))?\\n\\s+tag:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?",
@@ -65,55 +87,130 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["mise"],
+      "matchManagers": [
+        "mise"
+      ],
       "groupName": "mise tools",
-      "schedule": ["before 9am on monday"]
+      "schedule": [
+        "before 9am on monday"
+      ]
     },
     {
       // Disable hashicorp/terraform lookups - we use OpenTofu
       // The actual OpenTofu version is tracked via .opentofu-version custom manager
-      "matchDatasources": ["github-releases"],
-      "matchPackageNames": ["hashicorp/terraform"],
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "hashicorp/terraform"
+      ],
       "enabled": false
     },
     // ============================================================
     // Platform version grouping (versions.env)
     // ============================================================
     {
-      // Infrastructure versions - NEVER automerge (cluster-critical)
-      "matchDepNames": ["talos", "kubernetes", "cilium", "gateway-api", "flux"],
-      "groupName": "infrastructure versions",
-      "automerge": false
+      "matchDepNames": [
+        "talos",
+        "!siderolabs/talos",
+        "kubernetes"
+      ],
+      "groupName": "talos-platform",
+      "automerge": true
+    },
+    {
+      "matchDepNames": [
+        "cilium"
+      ],
+      "groupName": "cilium",
+      "automerge": true
+    },
+    {
+      "matchDepNames": [
+        "gateway-api"
+      ],
+      "groupName": "gateway-api",
+      "automerge": true
+    },
+    {
+      "matchDepNames": [
+        "flux"
+      ],
+      "groupName": "flux",
+      "automerge": true
     },
     {
       // Grafana stack (monitoring visualization)
-      "matchDepNames": ["grafana", "loki", "alloy"],
+      "matchDepNames": [
+        "grafana",
+        "loki",
+        "alloy"
+      ],
       "groupName": "grafana stack"
     },
     {
       // Prometheus stack (monitoring collection)
-      "matchDepNames": ["kube-prometheus-stack", "prometheus-operator-crds"],
+      "matchDepNames": [
+        "kube-prometheus-stack",
+        "prometheus-operator-crds"
+      ],
       "groupName": "prometheus stack"
     },
     {
       // Istio service mesh
-      "matchDepNames": ["base", "cert-manager-istio-csr"],
+      "matchDepNames": [
+        "base",
+        "cert-manager-istio-csr"
+      ],
       "groupName": "istio mesh"
     },
     {
       // Mittwald utilities (replicator, secret-generator)
-      "matchDepNames": ["kubernetes-replicator", "kubernetes-secret-generator"],
+      "matchDepNames": [
+        "kubernetes-replicator",
+        "kubernetes-secret-generator"
+      ],
       "groupName": "mittwald utilities"
     },
     {
       // Authelia stack (authentication)
-      "matchDepNames": ["authelia", "lldap"],
+      "matchDepNames": [
+        "authelia",
+        "lldap"
+      ],
       "groupName": "authelia stack"
     },
     {
       // Hardware monitoring exporters
-      "matchDepNames": ["prometheus-snmp-exporter", "prometheus-ipmi-exporter", "prometheus-smartctl-exporter"],
+      "matchDepNames": [
+        "prometheus-snmp-exporter",
+        "prometheus-ipmi-exporter",
+        "prometheus-smartctl-exporter"
+      ],
       "groupName": "hardware monitoring exporters"
+    },
+    {
+      // Jellyfin: restrict upgrades to off-peak hours to avoid SLA impact.
+      // Recreate strategy causes hard downtime on every pod restart; scheduling
+      // updates during low-traffic hours minimises user-visible disruption.
+      "matchDepNames": [
+        "jellyfin"
+      ],
+      "groupName": "jellyfin",
+      "schedule": [
+        "after 2am and before 6am on Monday"
+      ]
+    },
+    {
+      // tdarr server + node MUST run identical versions — a mismatch causes
+      // the node process to hard-exit (incident: node crashlooped 310× for 2d4h
+      // after server bumped independently via a separate Renovate PR).
+      // Grouping forces both into one atomic PR so they can never diverge.
+      "matchDepNames": [
+        "tdarr",
+        "tdarr-node"
+      ],
+      "groupName": "tdarr"
     },
     // ============================================================
     // Version holds — upstream regressions (see .github/version-holds.yaml)
@@ -121,8 +218,54 @@
     {
       // gluetun v3.41.x: healthcheck regression blocks DNS to kube-dns
       // Upstream: https://github.com/qdm12/gluetun/issues/3132
-      "matchDepNames": ["gluetun"],
+      "matchDepNames": [
+        "gluetun"
+      ],
       "allowedVersions": "!/^v3\\.41\\./"
+    },
+    {
+      // talos v1.13.3: RenderConfigsStaticPodController panics on scheduler.config integer fields
+      // Upstream: https://github.com/siderolabs/talos/issues/13445
+      "matchDepNames": [
+        "talos"
+      ],
+      "allowedVersions": "!/^v1\\.13\\.3$/"
+    },
+    {
+      // siderolabs/talos terraform provider 0.11.0: on_destroy.reset unknown value
+      // causes Value Conversion Error on plan/validate
+      // Upstream: https://github.com/siderolabs/terraform-provider-talos/issues/334
+      "matchManagers": [
+        "terraform"
+      ],
+      "matchPackageNames": [
+        "siderolabs/talos"
+      ],
+      "allowedVersions": "< 0.11.0"
+    },
+    {
+      // Pin PostgreSQL to v18 major — CNPG major-version upgrades require
+      // deliberate cluster rebuild or pg_upgrade, not an automatic bump.
+      "matchDepNames": ["cloudnative-pg-postgresql"],
+      "allowedVersions": "^18"
+    },
+    {
+      // pluto aqua datasource diverges from GitHub releases - force github-releases
+      // to prevent phantom versions that 404 on install
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["FairwindsOps/pluto"],
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "FairwindsOps/pluto",
+      "extractVersion": "^v(?<version>.+)$"
+    },
+    {
+      // cilium-cli aqua datasource diverges from GitHub releases - force github-releases
+      // to prevent phantom versions that 404 on install
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["cilium/cilium-cli"],
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "cilium/cilium-cli",
+      "extractVersion": "^v(?<version>.+)$"
     }
   ]
 }

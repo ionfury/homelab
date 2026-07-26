@@ -7,3 +7,4 @@ resources:
   - dragonfly-instance.yaml
   - podmonitor.yaml
   - prometheus-rules.yaml
+  - dragonfly-key.yaml

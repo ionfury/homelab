@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+# Allows Authelia to reach Gmail SMTP for sending notification emails
+# (TOTP registration, password reset). The standard profile only permits
+# egress to port 443; SMTPS uses port 465.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: authelia-smtp-egress
+  namespace: authelia
+spec:
+  description: "Allow Authelia SMTP egress to Gmail (port 465)"
+  endpointSelector: { }
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "465"
+              protocol: TCP

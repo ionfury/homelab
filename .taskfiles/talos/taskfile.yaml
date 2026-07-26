@@ -29,3 +29,41 @@ tasks:
         else
           echo "no"
         fi
+
+  wipe-volumes-*:
+    desc: Wipes user volume partitions on a running node, preserving STATE and EPHEMERAL. Node reboots and rejoins the cluster.
+    prompt: |-
+      This will wipe user volume partitions ({{.LABELS}}) on {{index .MATCH 0}} ({{.IP}}).
+      STATE and EPHEMERAL are preserved — the node will reboot and rejoin the cluster with fresh user volumes.
+      Continue?
+    vars:
+      HOST: "{{index .MATCH 0}}"
+      CLUSTER:
+        sh: hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts.{{.HOST}}.cluster'
+      IP:
+        sh: hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts.{{.HOST}}.bonds[0].addresses[0]'
+      TALOSCONFIG: "~/.talos/{{.CLUSTER}}.yaml"
+      LABELS:
+        sh: hcl2json < infrastructure/inventory.hcl | jq -r '.locals[0].hosts.{{.HOST}}.volumes // [] | map("u-" + .name) | join(",")'
+    cmds:
+      - |
+        echo "Host:    {{.HOST}}"
+        echo "Cluster: {{.CLUSTER}}"
+        echo "IP:      {{.IP}}"
+        echo "Labels:  {{.LABELS}}"
+        echo ""
+        echo "Wiping user volume partitions..."
+        talosctl --talosconfig {{.TALOSCONFIG}} -n {{.IP}} reset --system-labels-to-wipe {{.LABELS}} --reboot --graceful=false
+        echo ""
+        echo "Wipe complete. Node will reboot and rejoin the cluster with fresh user volumes."
+    preconditions:
+      - sh: command -v talosctl
+        msg: "talosctl not found"
+      - sh: '[ -n "{{.IP}}" ] && [ "{{.IP}}" != "null" ]'
+        msg: "Could not resolve IP for host {{.HOST}} from inventory.hcl"
+      - sh: test -f {{.TALOSCONFIG}}
+        msg: "Talosconfig not found at {{.TALOSCONFIG}} — pull it from SSM first"
+      - sh: '[ -n "{{.LABELS}}" ]'
+        msg: "{{.HOST}} has no user volumes defined in inventory.hcl"
+      - sh: '[ "$(task talos:maint-{{.HOST}})" = "no" ]'
+        msg: "{{.HOST}} ({{.IP}}) is in maintenance mode — reset requires a running node"

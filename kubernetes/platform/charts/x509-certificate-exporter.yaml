@@ -1,0 +1,7 @@
+watchedSecrets:
+  - name: platform-pooler
+    namespace: database
+prometheusServiceMonitor:
+  enabled: true
+  labels:
+    release: kube-prometheus-stack

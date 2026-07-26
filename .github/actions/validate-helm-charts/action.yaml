@@ -21,7 +21,7 @@ runs:
   using: "composite"
   steps:
     - name: Validate Helm values YAML
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       env:
         CHARTS_DIR: ${{ inputs.charts-dir }}
       with:
@@ -46,12 +46,12 @@ runs:
           }
 
     - name: Setup Helm
-      uses: azure/setup-helm@v4
+      uses: azure/setup-helm@v5
       with:
         version: ${{ inputs.helm-version }}
 
     - name: Helm template critical charts
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       env:
         CHARTS_DIR: ${{ inputs.charts-dir }}
         HELM_CHARTS_FILE: ${{ inputs.helm-charts-file }}
@@ -86,7 +86,7 @@ runs:
             cluster_name: 'ci-test',
             cluster_pod_subnet: '10.244.0.0/16',
             internal_domain: 'internal.ci.example.com',
-            external_domain: 'external.ci.example.com',
+            external_domain: 'ci.example.com',
             default_replica_count: '1'
           };
 

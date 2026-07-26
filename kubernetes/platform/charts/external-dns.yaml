@@ -1,25 +1,34 @@
-# upstream: https://github.com/kubernetes-sigs/external-dns/blob/main/charts/external-dns/values.yaml
+---
+# https://github.com/kubernetes-sigs/external-dns/blob/master/charts/external-dns/values.yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kubernetes-sigs/external-dns/master/charts/external-dns/values.schema.json
 provider:
   name: cloudflare
 
 sources:
   - gateway-httproute
+  - gateway
 
 domainFilters:
-  - "${external_domain}"
+  - ${external_domain}
 
-policy: upsert-only
+policy: sync
 
-registry: txt
-txtOwnerId: "homelab-${cluster_name}"
-txtPrefix: "_externaldns."
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  fsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
 
-interval: "1m"
-
-extraArgs:
-  - --cloudflare-dns-records-per-page=5000
-  - --gateway-namespace=istio-gateway
-  - --default-targets=gw.${external_domain}
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  seccompProfile:
+    type: RuntimeDefault
 
 env:
   - name: CF_API_TOKEN
@@ -28,16 +37,11 @@ env:
         name: cloudflare-api-token
         key: token
 
-priorityClassName: platform
-
 serviceMonitor:
   enabled: true
+  interval: 1m
 
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop: ["ALL"]
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi

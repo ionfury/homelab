@@ -7,7 +7,7 @@ data:
   config.yaml: |
     metrics:
       - name: cluster_uptime
-        query: round((time() - min(node_boot_time_seconds)) / 86400)
+        query: kromgo:cluster_uptime_days:instant
         suffix: " days"
         colors:
           - { color: "red", min: 0, max: 7 }
@@ -15,19 +15,19 @@ data:
           - { color: "green", min: 30, max: 9999 }
 
       - name: node_count
-        query: count(kube_node_info)
+        query: kromgo:node_count:instant
         suffix: " nodes"
         colors:
           - { color: "green", min: 1, max: 9999 }
 
       - name: pod_count
-        query: count(kube_pod_info)
+        query: kromgo:pod_count:instant
         suffix: " pods"
         colors:
           - { color: "green", min: 1, max: 9999 }
 
       - name: cluster_cpu_usage
-        query: round(avg(1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100, 0.1)
+        query: kromgo:cluster_cpu_usage_percent:instant
         suffix: "%"
         colors:
           - { color: "green", min: 0, max: 50 }
@@ -35,7 +35,7 @@ data:
           - { color: "red", min: 80, max: 100 }
 
       - name: cluster_memory_usage
-        query: round((1 - sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)) * 100, 0.1)
+        query: kromgo:cluster_memory_usage_percent:instant
         suffix: "%"
         colors:
           - { color: "green", min: 0, max: 50 }
@@ -43,7 +43,7 @@ data:
           - { color: "red", min: 80, max: 100 }
 
       - name: kubernetes_version
-        query: kubernetes_build_info{service="kubernetes"}
+        query: kromgo:kubernetes_version_info:instant
         label: git_version
         colors:
           - { color: "blue", min: 0, max: 0 }

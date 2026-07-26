@@ -1,0 +1,86 @@
+version: 1
+skill: versions-renovate
+description: "Verify annotation key ordering, datasource selection rules, and OCI registry handling"
+tests:
+  - id: VER-01
+    description: "Annotation keys follow fixed ordering: datasource, depName, packageName, extractVersion, registryUrl, versioning"
+    category: constraint
+    severity: critical
+    prompt: |
+      Add a version entry to versions.env for the cert-manager Helm chart from charts.jetstack.io. The chart versions have a 'v' prefix but we want to store without it.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["datasource=helm", "depName=cert-manager", "extractVersion=^v(?<version>.*)$", "registryUrl=https://charts.jetstack.io"]
+        forbidden: ["registryUrl=", "extractVersion="]
+    expect_refusal: false
+    manual_review: true
+    expected_behavior: |
+      Must produce annotation with keys in correct order: datasource first, depName second,
+      extractVersion before registryUrl. Swapped key order causes Renovate to silently ignore
+      the entry.
+    tags:
+      - trimmed-2026-03-22
+      - versions-renovate-skill
+
+  - id: VER-02
+    description: "Uses datasource=docker (not helm) for OCI registries, no oci:// prefix in packageName"
+    category: constraint
+    severity: critical
+    prompt: |
+      Add a version entry for the app-template chart at oci://ghcr.io/bjw-s-labs/helm/app-template.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["datasource=docker", "packageName=ghcr.io/bjw-s-labs/helm/app-template"]
+        forbidden: ["datasource=helm", "oci://"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must use datasource=docker for OCI Helm registries. packageName must not include the
+      oci:// prefix. Using datasource=helm for OCI causes Renovate to fail silently.
+    tags:
+      - trimmed-2026-03-22
+      - versions-renovate-skill
+
+  - id: VER-03
+    description: "Annotation must appear on the line immediately above the variable assignment"
+    category: constraint
+    severity: high
+    prompt: |
+      I wrote a Renovate annotation but it's two lines above the version variable with a blank line between them. Will this work?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["immediately above", "line above"]
+        any_of: ["silently", "ignored", "not work", "regex"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must state that the annotation must be on the line immediately above the key=value
+      assignment. A blank line between them causes the regex match to fail and Renovate
+      silently ignores the entry.
+    tags:
+      - trimmed-2026-03-22
+      - versions-renovate-skill
+
+  - id: VER-04
+    description: "Uses versioning=loose for non-semver container image versions"
+    category: coverage
+    severity: medium
+    prompt: |
+      I need to track a container image that uses versions like '18.1-1.0.0' which isn't standard semver. How do I annotate this in versions.env?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["versioning=loose", "datasource=docker"]
+        forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must recommend versioning=loose for non-semver version schemes. Must use datasource=docker
+      for container images. Should place versioning last in the annotation key order.
+    tags:
+      - trimmed-2026-03-22
+      - versions-renovate-skill

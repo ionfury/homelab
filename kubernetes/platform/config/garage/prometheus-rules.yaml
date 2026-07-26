@@ -13,7 +13,7 @@ spec:
       rules:
         # Cluster health
         - alert: GarageClusterUnhealthy
-          expr: cluster_healthy{job=~".*garage.*"} == 0
+          expr: min(cluster_healthy{job=~".*garage.*"}) == 0
           for: 2m
           labels:
             severity: critical
@@ -24,7 +24,7 @@ spec:
               are connected. S3 requests may fail or return stale data.
 
         - alert: GarageClusterDegraded
-          expr: cluster_available{job=~".*garage.*"} == 0
+          expr: min(cluster_available{job=~".*garage.*"}) == 0
           for: 2m
           labels:
             severity: critical
@@ -37,8 +37,8 @@ spec:
         # Storage node connectivity
         - alert: GarageStorageNodeDown
           expr: |
-            cluster_storage_nodes_ok{job=~".*garage.*"}
-            < cluster_storage_nodes{job=~".*garage.*"}
+            min(cluster_storage_nodes_ok{job=~".*garage.*"})
+            < max(cluster_storage_nodes{job=~".*garage.*"})
           for: 5m
           labels:
             severity: warning
@@ -51,8 +51,8 @@ spec:
         # Partition quorum
         - alert: GaragePartitionQuorumLoss
           expr: |
-            cluster_partitions_quorum{job=~".*garage.*"}
-            < cluster_partitions{job=~".*garage.*"}
+            min(cluster_partitions_quorum{job=~".*garage.*"})
+            < max(cluster_partitions{job=~".*garage.*"})
           for: 2m
           labels:
             severity: critical
@@ -64,8 +64,8 @@ spec:
 
         - alert: GaragePartitionsDegraded
           expr: |
-            cluster_partitions_all_ok{job=~".*garage.*"}
-            < cluster_partitions{job=~".*garage.*"}
+            min(cluster_partitions_all_ok{job=~".*garage.*"})
+            < max(cluster_partitions{job=~".*garage.*"})
           for: 10m
           labels:
             severity: warning

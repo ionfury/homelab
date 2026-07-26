@@ -9,6 +9,7 @@ metadata:
     gethomepage.dev/name: "Hubble"
     gethomepage.dev/group: "Platform"
     gethomepage.dev/icon: "cilium.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=hubble-ui"
 spec:
   parentRefs:
     - name: internal

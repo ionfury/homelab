@@ -517,6 +517,103 @@ run "valid_multiple_bonds" {
   }
 }
 
+# Hugepages validation - valid sizes
+run "valid_hugepages_2m" {
+  command = plan
+
+  variables {
+    machines = {
+      node1 = {
+        cluster = "validation-test"
+        type    = "controlplane"
+        features = {
+          hugepages = { size = "2M", count = 512 }
+        }
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
+  }
+
+  assert {
+    condition     = output.machines["node1"].sysctls["vm.nr_hugepages"] == "512"
+    error_message = "2M hugepages should be accepted"
+  }
+}
+
+run "valid_hugepages_1g" {
+  command = plan
+
+  variables {
+    machines = {
+      node1 = {
+        cluster = "validation-test"
+        type    = "controlplane"
+        features = {
+          hugepages = { size = "1G", count = 4 }
+        }
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
+  }
+
+  assert {
+    condition     = contains(output.machines["node1"].install.extra_kernel_args, "hugepages=4")
+    error_message = "1G hugepages should be accepted"
+  }
+}
+
+run "invalid_hugepages_size" {
+  command         = plan
+  expect_failures = [var.machines]
+
+  variables {
+    machines = {
+      node1 = {
+        cluster = "validation-test"
+        type    = "controlplane"
+        features = {
+          hugepages = { size = "4K", count = 100 }
+        }
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
+  }
+}
+
+run "invalid_hugepages_count_zero" {
+  command         = plan
+  expect_failures = [var.machines]
+
+  variables {
+    machines = {
+      node1 = {
+        cluster = "validation-test"
+        type    = "controlplane"
+        features = {
+          hugepages = { size = "2M", count = 0 }
+        }
+        install = { selector = "disk.model = *" }
+        bonds = [{
+          link_permanentAddr = ["aa:bb:cc:dd:ee:01"]
+          addresses          = ["192.168.10.101"]
+        }]
+      }
+    }
+  }
+}
+
 # Volumes validation
 run "valid_volumes" {
   command = plan

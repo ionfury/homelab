@@ -56,18 +56,19 @@ This document captures the WHY behind each major technology choice in the homela
 
 ## Longhorn (over Rook-Ceph/OpenEBS)
 
-**Decision**: Distributed block storage with S3 backup integration
+**Decision**: Distributed block storage for persistent volumes
 
 **Rationale**:
 - **Simplicity**: Deploys as standard Kubernetes workload, no special kernel modules
-- **Backup integration**: Native S3 backup to Garage for disaster recovery
 - **UI optional**: Operates fully via CRDs, UI is informational only
 - **Bare-metal friendly**: Designed for non-cloud environments
-- **Incremental snapshots**: Efficient backup with delta-based snapshots
+- **Incremental snapshots**: Efficient volume snapshots via CSI
+
+**Note**: Off-site backup is handled exclusively by Velero (AWS S3). Longhorn's native S3 backup feature was removed in favor of Velero as the single backup mechanism.
 
 **Rejected alternatives**:
 - Rook-Ceph: More powerful but significantly more complex to operate, overkill for homelab scale
-- OpenEBS: Good alternative, but Longhorn's backup integration with S3 was the deciding factor
+- OpenEBS: Good alternative, Longhorn chosen for simplicity and bare-metal fit
 
 ---
 

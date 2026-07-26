@@ -1,0 +1,91 @@
+version: 1
+skill: kubesearch
+description: "Verify three-step workflow execution, URL conversion, and structured output format"
+tests:
+  - id: KBS-01
+    description: "Executes three-step workflow: search, get repos, fetch raw configs"
+    category: coverage
+    severity: high
+    prompt: |
+      Research how other homelabs configure the Grafana Helm chart before I set up values for it.
+    scoring:
+      mode: both
+      keywords:
+        required: ["kubesearch.dev", "raw.githubusercontent.com"]
+        any_of: ["WebFetch", "blob", "raw"]
+      judge_criteria: |
+        Score 0-10. Award points for:
+        - Fetching kubesearch.dev search page first (3pts)
+        - Converting registry path to URL format (replacing / with -) (2pts)
+        - Converting GitHub blob URLs to raw URLs for fetching (3pts)
+        - Fetching 3-5 configs in parallel (2pts)
+    expect_refusal: false
+    manual_review: true
+    expected_behavior: |
+      Must follow the three-step workflow: search kubesearch.dev, get repository links via the
+      converted URL path, then fetch raw GitHub config files. Should fetch 3-5 in parallel.
+    tags:
+      - trimmed-2026-03-22
+      - kubesearch-skill
+
+  - id: KBS-02
+    description: "Correctly converts registry path to kubesearch URL format"
+    category: factored
+    severity: medium
+    prompt: |
+      If a chart is at registry path ghcr.io/grafana-helm-charts/grafana, what URL do I use on kubesearch.dev to find repos using it?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["ghcr.io-grafana-helm-charts-grafana"]
+        forbidden: ["ghcr.io/grafana-helm-charts/grafana"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must produce the correct URL path with slashes replaced by hyphens:
+      ghcr.io-grafana-helm-charts-grafana, used at kubesearch.dev/hr/<path>.
+    tags:
+      - trimmed-2026-03-22
+      - kubesearch-skill
+
+  - id: KBS-03
+    description: "Presents findings in the standard structured output format"
+    category: factored
+    severity: low
+    prompt: |
+      You've finished researching how other homelabs configure Longhorn. How should you present those findings?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["Common Patterns", "Repository Examples", "Recommended Configuration"]
+        any_of: ["stars", "values.yaml"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must structure output with: Common Patterns section, Repository Examples with star count
+      and version, and a Recommended Configuration section with suggested values.yaml.
+    tags:
+      - trimmed-2026-03-22
+      - kubesearch-skill
+
+  - id: KBS-04
+    description: "Selects repositories based on recency and infrastructure similarity"
+    category: coverage
+    severity: medium
+    prompt: |
+      When choosing which homelab repositories to study on kubesearch.dev, what criteria matter?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["star", "chart version"]
+        any_of: ["6 months", "bare-metal", "GitOps", "Talos", "recent"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must mention recency (within 6 months), star count, similar chart version, and similar
+      infrastructure goals (bare-metal, GitOps, Talos). Optionally name the known good repos.
+    tags:
+      - trimmed-2026-03-22
+      - kubesearch-skill

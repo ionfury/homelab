@@ -6,6 +6,21 @@ controllers:
     type: deployment
 
     pod:
+      # TEMPORARY WORKAROUND for istio/istio#60074 (+ #60767): the external
+      # gateway's ambient connect_originate HTTP/2 pool leaks HBONE streams to
+      # Jellyfin and never closes them, wedging playback after client-aborted
+      # Range requests (Infuse seeking/buffering). No config-level fix exists
+      # upstream and only a gateway restart clears it. Opting Jellyfin out of
+      # ambient makes the gateway route directly to the pod (plain cluster, no
+      # HBONE), sidestepping the leak. Cost: no ambient mTLS on the
+      # gateway->Jellyfin hop. Jellyfin is public, gateway-TLS-terminated, and
+      # self-authenticating, and no AuthorizationPolicy targets its workload.
+      # REMOVE this label once #60074 is fixed and the fix is deployed.
+      labels:
+        istio.io/dataplane-mode: none
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
@@ -27,10 +42,11 @@ controllers:
             drop: [ALL]
         resources:
           requests:
-            cpu: 100m
+            cpu: 4
             memory: 512Mi
           limits:
-            memory: 4Gi
+            memory: 16Gi
+            nvidia.com/gpu: 1
         probes:
           startup:
             enabled: true
@@ -41,7 +57,7 @@ controllers:
                 port: 8096
               initialDelaySeconds: 10
               periodSeconds: 5
-              failureThreshold: 30
+              failureThreshold: 60
           liveness:
             enabled: true
             custom: true
@@ -66,7 +82,44 @@ service:
       http:
         port: 8096
 
+route:
+  external:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Jellyfin"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "jellyfin.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=jellyfin"
+    parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "watch.${external_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8096
+
 persistence:
+  cache:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass: fast
+    advancedMounts:
+      jellyfin:
+        app:
+          - path: /cache
+  transcodes:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 200Gi
+    storageClass: fast-ephemeral
+    advancedMounts:
+      jellyfin:
+        app:
+          - path: /transcodes
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
@@ -83,4 +136,3 @@ persistence:
       jellyfin:
         app:
           - path: /media/library
-            readOnly: true

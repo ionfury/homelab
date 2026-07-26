@@ -5,6 +5,7 @@ controllers:
   zipline:
     type: deployment
     replicas: 2
+    strategy: RollingUpdate
     annotations:
       reloader.stakater.com/auto: "true"
 
@@ -23,7 +24,7 @@ controllers:
         image:
           repository: ghcr.io/diced/zipline
           # renovate: datasource=docker depName=ghcr.io/diced/zipline
-          tag: 4.4.1
+          tag: 4.6.4
         env:
           CORE_PORT: "3000"
           CORE_HOSTNAME: "0.0.0.0"
@@ -40,7 +41,8 @@ controllers:
                 key: password
           DATABASE_URL:
             dependsOn: POSTGRES_PASSWORD
-            value: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-rw.database.svc.cluster.local:5432/zipline"
+            value: "postgresql://zipline:$(POSTGRES_PASSWORD)@platform-rw.database.svc.clus\
+              ter.local:5432/zipline"
           # S3 — credentials auto-created by GarageKey operator
           DATASOURCE_TYPE: s3
           DATASOURCE_S3_REGION: garage
@@ -67,7 +69,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 2Gi
         probes:
           startup:
             enabled: true
@@ -102,3 +104,22 @@ service:
     ports:
       http:
         port: 3000
+
+route:
+  external:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Zipline"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "zipline.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=zipline"
+    parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "img.${external_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 3000

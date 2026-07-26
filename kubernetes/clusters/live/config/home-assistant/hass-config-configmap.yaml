@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hass-config
+  namespace: home-assistant
+data:
+  configuration.yaml: |
+    # Home Assistant base configuration — delivered via Flux ConfigMap (read-only mount).
+    # UI state and the .storage directory are written to the /config PVC (not git-tracked).
+    # Device integrations, automations, and HACS are managed via the HA UI post-deploy.
+    #
+    # Discovery disabled: zeroconf, ssdp, and usb are intentionally omitted from this config.
+    # The official image does not perform mDNS/SSDP discovery without these integrations loaded,
+    # and pod networking does not support multicast. Device setup is handled post-deploy via UI.
+
+    homeassistant:
+      external_url: "https://hass.${internal_domain}"
+      internal_url: "https://hass.${internal_domain}"
+
+    # HTTP: reverse-proxy trust for istio gateway
+    http:
+      use_x_forwarded_for: true
+      # Trust the pod CIDR — istio ztunnel/gateway pods originate requests from this range
+      trusted_proxies:
+        - ${cluster_pod_subnet}
+
+    # Recorder: PostgreSQL backend — connection URI injected from CNPG-generated secret
+    recorder:
+      db_url: !env_var HASS_RECORDER_DB_URL
+      purge_keep_days: 30
+      commit_interval: 30
+
+    # Prometheus metrics integration (requires a Long-Lived Access Token — see PR notes)
+    prometheus:
+      namespace: hass
+
+    # Logging
+    logger:
+      default: warning
+
+    # Core integrations (explicit list — discovery components intentionally omitted)
+    config:
+    frontend:
+    history:
+    logbook:
+    map:
+    mobile_app:
+    my:
+    person:
+    system_health:
+    updater:

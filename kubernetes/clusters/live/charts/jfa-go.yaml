@@ -1,0 +1,175 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+# https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+controllers:
+  jfa-go:
+    type: deployment
+
+    pod:
+      securityContext:
+        runAsNonRoot: false
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: hrfee/jfa-go
+          tag: latest
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 512Mi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8056
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8056
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8056
+              periodSeconds: 10
+
+service:
+  app:
+    controller: jfa-go
+    ports:
+      http:
+        port: 8056
+
+route:
+  internal:
+    enabled: true
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "jfa-go.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8056
+  external:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Join"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "jellyfin.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=jfa-go"
+    parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "join.${external_domain}"
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /invite
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /my
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /user
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /captcha
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /token
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /lang
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /js
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /css
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /reset
+        backendRefs:
+          - identifier: app
+            port: 8056
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        filters:
+          - type: RequestRedirect
+            requestRedirect:
+              path:
+                type: ReplaceFullPath
+                replaceFullPath: /invite
+              statusCode: 302
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: fast
+    advancedMounts:
+      jfa-go:
+        app:
+          - path: /data

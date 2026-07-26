@@ -83,11 +83,16 @@ for chart_name in $(echo "$charts_json" | jq -r '.[].name'); do
       ;;
   esac
 
-  # Strip null values from rendered output. Some charts use per-field template
-  # expressions (e.g. `cpu: {{ .Values.resources.limits.cpu }}`) instead of toYaml,
-  # which renders `cpu: ` (YAML null) when a value is explicitly nulled. The K8s API
-  # server ignores null fields, but kubeconform rejects them as invalid Quantity types.
-  yq --inplace 'del(.. | select(. == null))' "$output_file"
+  # Post-process rendered output:
+  # 1. Filter out non-Kubernetes documents (no `kind` field). Helm 4.2.1+ writes OCI
+  #    pull messages ("Pulled: oci://..." and "Digest: sha256:...") to stdout, which
+  #    end up in the output file as a YAML document without `kind`. kubeconform rejects
+  #    these with "missing 'kind' key". All valid Kubernetes resources have `kind`.
+  # 2. Strip null values. Some charts use per-field template expressions
+  #    (e.g. `cpu: {{ .Values.resources.limits.cpu }}`) instead of toYaml, which
+  #    renders `cpu: ` (YAML null) when a value is explicitly nulled. The K8s API
+  #    server ignores null fields, but kubeconform rejects them as invalid Quantity types.
+  yq --inplace 'select(.kind != null) | del(.. | select(. == null))' "$output_file"
 done
 
 echo ""

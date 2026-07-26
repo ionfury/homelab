@@ -6,9 +6,9 @@ locals {
   clusters = ["dev", "integration", "live"]
 }
 
-unit "longhorn_storage" {
-  source = "../../units/longhorn-storage"
-  path   = "longhorn-storage"
+unit "velero_storage" {
+  source = "../../units/velero-storage"
+  path   = "velero-storage"
 
   values = {
     clusters = local.clusters
@@ -28,6 +28,11 @@ unit "ingress_pki" {
 unit "lldap_secrets" {
   source = "../../units/lldap-secrets"
   path   = "lldap-secrets"
+}
+
+unit "authelia_secrets" {
+  source = "../../units/authelia-secrets"
+  path   = "authelia-secrets"
 }
 
 unit "unifi_gateway" {

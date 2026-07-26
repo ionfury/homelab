@@ -1,33 +1,20 @@
 ---
 name: sync-claude
 description: |
-  Synchronize and validate Claude documentation (CLAUDE.md files and skills) before commits.
-  Ensures documentation accuracy by validating all claims against actual codebase state.
+  Validate and synchronize Claude documentation (CLAUDE.md files and skills) against actual codebase state.
+  Two modes: full (all docs) or changed (only docs affected by current branch, default).
 
-  Use when: (1) Before creating a PR to ensure docs are accurate, (2) After making changes
-  that might invalidate documentation claims, (3) When explicitly syncing Claude docs,
-  (4) When reviewing documentation for staleness.
+  Use when: (1) Before creating a PR, (2) After changes that might invalidate doc claims,
+  (3) Reviewing documentation for staleness.
 
   Triggers: "sync claude", "validate claude docs", "check documentation", "update CLAUDE.md",
   "before commit", "docs out of sync", "/sync-claude", "stale documentation"
-
-  Two modes:
-  - full: Exhaustive validation of all Claude docs in repository
-  - changed: Smart detection of docs affected by current branch changes
 user-invocable: false
 ---
 
 # Claude Documentation Sync
 
-Validate and synchronize all Claude-related documentation before commits.
-
-## Quick Start
-
-```
-Mode selection:
-- full    → Exhaustive validation of all docs
-- changed → Only docs affected by current branch (default)
-```
+Validate all Claude-related documentation before commits. Default mode is `changed` (branch-scoped); use `full` for exhaustive validation.
 
 ## Execution Flow
 
@@ -79,31 +66,7 @@ Validate documentation consistency:
 
 ### Phase 3: Aggregation
 
-Collect results from all agents into a unified report:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ SYNC-CLAUDE VALIDATION REPORT                               │
-├─────────────────────────────────────────────────────────────┤
-│ Mode: [full|changed]                                        │
-│ Docs Scanned: N                                             │
-│ Issues Found: N                                             │
-├─────────────────────────────────────────────────────────────┤
-│ ISSUES BY CATEGORY:                                         │
-│                                                             │
-│ 🔴 Path References (N issues)                               │
-│   • infrastructure/CLAUDE.md:45 - path not found            │
-│     Referenced: infrastructure/units/foo/                   │
-│     Suggestion: Path was renamed to infrastructure/units/bar│
-│                                                             │
-│ 🟡 Command References (N issues)                            │
-│   • .taskfiles/CLAUDE.md:67 - task not found                │
-│     Referenced: task tg:deploy-live                         │
-│     Suggestion: Task was renamed to task tg:apply-live      │
-│                                                             │
-│ 🟢 Valid References: N                                      │
-└─────────────────────────────────────────────────────────────┘
-```
+Collect results from all agents into a unified report grouped by severity (CRITICAL / WARNING / INFO), showing doc path, line number, the broken reference, and a suggested fix. Count valid references. Present issues before proposing edits.
 
 ### Phase 4: Opus Validation
 
@@ -113,144 +76,17 @@ Spawn Opus agent to:
 3. Generate proposed edits for each issue
 4. Present final change list for approval
 
-## Agent Prompts
+## Agent Responsibilities
 
-### Discovery Agent (Haiku)
+Discovery Agent (Haiku): Use `discover-claude-docs.sh` (or `discover-claude-docs.sh --changed`) to enumerate files. For each file, run `extract-references.sh` to get path refs, dir refs, commands, skill refs, and CLI tools as structured JSON. Scripts are in `.claude/skills/sync-claude/scripts/`.
 
-```
-Discover all Claude documentation files in the repository.
+Path Validator Agents (Haiku, one per directory domain): Verify each path ref exists using Glob/Read. For misses, fuzzy-search for renames. Return valid/invalid lists with suggestions.
 
-Search patterns:
-- **/CLAUDE.md (exclude .terragrunt-cache/, .terragrunt-stack/)
-- .claude/skills/*/SKILL.md
-- .claude/skills/*/references/*.md
+Command Validator Agent (Haiku): Verify `task <name>` commands exist in Taskfile.yaml or `.taskfiles/*`. Verify CLI tools appear in Brewfile. kubectl/git: syntax check only. Return valid/invalid with suggestions.
 
-For each file found, extract:
-1. All file path references (markdown links, code blocks)
-2. All directory references
-3. All command examples (task, kubectl, git, etc.)
-4. All cross-references to other docs/skills
+Change Impact Analyzer (Haiku, changed mode only): Parse `git diff --name-only origin/main...HEAD`. Find docs directly modified. Search all docs for references to changed paths/directories. Return impacted doc list.
 
-Return structured JSON:
-{
-  "file": "path/to/doc.md",
-  "path_refs": ["path1", "path2"],
-  "dir_refs": ["dir1/", "dir2/"],
-  "commands": ["task foo", "kubectl get"],
-  "cross_refs": ["skill:name", "doc:path"]
-}
-```
-
-### Path Validator Agent (Haiku)
-
-```
-Validate file and directory references in Claude documentation.
-
-Input: List of {doc_path, references}
-
-For each reference:
-1. Check if path exists using Glob/Read
-2. If not found, search for similar paths (fuzzy match)
-3. Determine if path was renamed, moved, or deleted
-
-Return:
-{
-  "valid": [...],
-  "invalid": [
-    {
-      "doc": "path/to/doc.md",
-      "line": 45,
-      "reference": "infrastructure/foo/",
-      "status": "not_found",
-      "suggestion": "Renamed to infrastructure/bar/"
-    }
-  ]
-}
-```
-
-### Command Validator Agent (Haiku)
-
-```
-Validate command examples in Claude documentation.
-
-Input: List of {doc_path, commands}
-
-Validation steps:
-1. task commands: Verify in Taskfile.yaml or .taskfiles/*
-2. CLI tools: Verify in Brewfile
-3. kubectl commands: Syntax check only (no cluster access)
-4. git commands: Syntax validation
-
-Return:
-{
-  "valid": [...],
-  "invalid": [
-    {
-      "doc": "path/to/doc.md",
-      "line": 67,
-      "command": "task tg:deploy",
-      "status": "task_not_found",
-      "suggestion": "Did you mean: task tg:apply-*"
-    }
-  ]
-}
-```
-
-### Change Impact Analyzer (Haiku) - Changed Mode Only
-
-```
-Analyze git diff to find impacted documentation.
-
-Steps:
-1. Parse diff: git diff --name-only origin/main...HEAD
-2. For each changed file, find docs that might reference it:
-   - Direct path references
-   - Parent directory references
-   - Related command references (if Taskfile changed)
-3. Include any directly modified Claude docs
-
-Return list of doc paths requiring validation.
-```
-
-### Opus Validator Agent
-
-```
-Review sync-claude validation results and propose fixes.
-
-Input: Aggregated validation results from all Haiku agents
-
-Tasks:
-1. Deduplicate findings
-2. Categorize by severity:
-   - CRITICAL: Broken references users will hit
-   - WARNING: Outdated but still functional
-   - INFO: Style/cosmetic issues
-3. For each issue, generate a proposed Edit:
-   - old_string: exact text to replace
-   - new_string: corrected text
-4. Verify proposed edits don't break other references
-
-Output format:
-{
-  "summary": {
-    "total_issues": N,
-    "critical": N,
-    "warning": N,
-    "info": N
-  },
-  "proposed_edits": [
-    {
-      "file": "path/to/doc.md",
-      "severity": "CRITICAL",
-      "description": "Fix broken path reference",
-      "old_string": "[foo](infrastructure/foo/)",
-      "new_string": "[foo](infrastructure/bar/)"
-    }
-  ]
-}
-
-Present edits for user approval before applying.
-```
+Opus Validator Agent: Deduplicate all Haiku findings. Categorize severity (CRITICAL: broken refs users will hit; WARNING: outdated but functional; INFO: cosmetic). Generate proposed Edit operations (old_string/new_string). Present for user approval before applying.
 
 ## Mode Selection Logic
 

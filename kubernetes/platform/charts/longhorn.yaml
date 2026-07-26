@@ -1,11 +1,5 @@
 ---
 # https://raw.githubusercontent.com/longhorn/charts/master/charts/longhorn/values.yaml
-# Temporary instance manager image override for v1.11.0 memory leak hotfix
-# https://github.com/longhorn/longhorn/issues/12573
-image:
-  longhorn:
-    instanceManager:
-      tag: ${longhorn_instance_manager_tag}
 longhornManager:
   priorityClass: infrastructure-critical
 longhornDriver:
@@ -23,15 +17,15 @@ persistence:
   defaultClassReplicaCount: ${default_replica_count}
 defaultSettings:
   defaultReplicaCount: ${default_replica_count}
+  replicaAutoBalance: best-effort
   createDefaultDiskLabeledNodes: true
-  storageReservedPercentageForDefaultDisk: 0
+  storageReservedPercentageForDefaultDisk: 10
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
   storageOverProvisioningPercentage: 500
   storageMinimalAvailablePercentage: 10
-defaultBackupStore:
-  backupTarget: s3://homelab-longhorn-backup-${cluster_name}@us-east-2/
-  backupTargetCredentialSecret: longhorn-s3-backup-credentials
-  pollInterval: "86400"
+  autoCleanupSystemGeneratedSnapshot: true
+  snapshotMaxCount: 3
+  longGRPCTimeOut: 345600
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}

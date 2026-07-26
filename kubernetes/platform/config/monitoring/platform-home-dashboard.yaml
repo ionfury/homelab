@@ -8,7 +8,7 @@ metadata:
   labels:
     grafana_dashboard: "true"
   annotations:
-    grafana_folder: ""
+    grafana_folder: "Platform"
 data:
   platform-home.json: |-
     {
@@ -776,7 +776,7 @@ data:
                   { "color": "red", "value": 129600 }
                 ]
               },
-              "unit": "s"
+              "unit": "dtdurations"
             },
             "overrides": []
           },

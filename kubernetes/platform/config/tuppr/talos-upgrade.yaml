@@ -6,6 +6,11 @@ metadata:
 spec:
   talos:
     version: ${talos_version}
+  maintenance:
+    windows:
+      - start: "0 2 * * 6"  # Every Saturday at 2:00 AM
+        duration: 4h
+        timezone: EST
   policy:
     rebootMode: default
     timeout: 30m
@@ -20,7 +25,8 @@ spec:
     - apiVersion: longhorn.io/v1beta2
       kind: Volume
       namespace: longhorn-system
-      description: All attached Longhorn volumes must be robust (detached volumes are excluded)
+      description: All attached Longhorn volumes must be robust (detached volumes are
+        excluded)
       expr: |
         status.state != 'attached' ||
           status.robustness == 'healthy'
@@ -34,14 +40,14 @@ spec:
         status.phase == 'Cluster in healthy state' &&
           status.readyInstances == object.spec.instances
       timeout: 15m
-    - apiVersion: garage.rajsingh.info/v1alpha1
+    - apiVersion: garage.rajsingh.info/v1beta2
       kind: GarageCluster
       name: garage
       namespace: garage
       description: Garage cluster must be running with all replicas ready
       expr: |
         status.phase == 'Running' &&
-          status.readyReplicas == object.spec.replicas
+          status.readyReplicas == status.replicas
       timeout: 10m
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly
@@ -49,6 +55,6 @@ spec:
       namespace: cache
       description: Dragonfly must be ready and not in a rolling update
       expr: |
-        status.phase == 'ready' &&
-          !status.isRollingUpdate
+        status.phase == 'Ready' &&
+          (!has(status.isRollingUpdate) || !status.isRollingUpdate)
       timeout: 10m

@@ -5,7 +5,7 @@
 # Replaces Istio's built-in CA with cert-manager for unified PKI management.
 # Enables workload identity certificates to be issued by the istio-mesh-ca ClusterIssuer.
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: quay.io/jetstack/cert-manager-istio-csr
@@ -24,9 +24,9 @@ app:
   tls:
     # Workload certificate validity (24h)
     certificateDuration: 24h
-    # istiod serving certificate (24h with 12h rotation)
-    istiodCertificateDuration: 24h
-    istiodCertificateRenewBefore: 12h
+    # istiod serving certificate (168h with 72h rotation)
+    istiodCertificateDuration: 168h  # 7 days
+    istiodCertificateRenewBefore: 72h  # 3 days
     istiodCertificateEnable: true
     # Mount root CA for distribution to namespaces
     rootCAFile: /var/run/secrets/istio-csr/ca.pem
@@ -34,6 +34,11 @@ app:
   server:
     # Ambient mode: allow ztunnel to request certificates on behalf of workloads
     caTrustedNodeAccounts: istio-system/ztunnel
+    authenticators:
+      # Allow proxies to renew certs using their existing cert as auth, breaking
+      # the hard dependency on the in-memory istio-token JWT (12h TTL). Without
+      # this, JWT expiry causes a full mesh outage with no renewal fallback.
+      enableClientCert: true
     # Address for Istio components to connect
     serving:
       address: 0.0.0.0
@@ -70,10 +75,17 @@ volumeMounts:
 podLabels:
   networking/allow-ingress-prometheus: "true"
   networking/allow-cluster-egress: "true"
+  # cert-manager-istio-csr IS the cert provider for the mesh — it cannot
+  # be in the mesh it is bootstrapping. On cold start, ztunnel waits for
+  # istio-csr to issue its certificate while istio-cni blocks the istio-csr
+  # pod sandbox until ztunnel is running, creating a deadlock. Opting out
+  # of ambient here breaks the cycle without affecting mesh functionality.
+  # The label is checked by Istio's CNI plugin at pod sandbox creation.
+  istio.io/dataplane-mode: none
 
 resources:
   requests:
     cpu: 10m
     memory: 32Mi
   limits:
-    memory: 128Mi
+    memory: 256Mi

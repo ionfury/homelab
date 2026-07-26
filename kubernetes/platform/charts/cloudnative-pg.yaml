@@ -4,13 +4,25 @@ priorityClassName: platform
 crds:
   create: true
 replicaCount: 2
+# The operator has a bug (upstream PR #9819, unmerged) where cert rotation injects the leaf
+# cert instead of the CA cert into caBundle. Fix: disable operator caBundle injection and let
+# cert-manager CA injector maintain it from cnpg-ca-secret (the operator's own CA secret).
+# The mutating webhook gets this annotation via commonAnnotations; the validating webhook gets
+# it via postRenderers in helm-charts.yaml (chart bug: validating template omits commonAnnotations).
+commonAnnotations:
+  cert-manager.io/inject-ca-from-secret: cnpg-system/cnpg-ca-secret
+additionalEnv:
+  - name: MANAGE_WEBHOOK_CONFIGURATIONS
+    value: "false"
 monitoring:
   podMonitorEnabled: true
   grafanaDashboard:
     create: true
+    annotations:
+      grafana_folder: "Database"
 resources:
   requests:
     cpu: 10m
     memory: 100Mi
   limits:
-    memory: 256Mi
+    memory: 800Mi

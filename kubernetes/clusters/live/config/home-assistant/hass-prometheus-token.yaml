@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+# The Long-Lived Access Token (LLAT) for Prometheus scraping must be created manually
+# in the Home Assistant UI post-deploy, then stored in AWS SSM at:
+#   /homelab/kubernetes/${cluster_name}/hass-prometheus-token
+# with a JSON body: {"token": "<llat-value>"}
+# Until the SSM parameter is populated, the ExternalSecret will be in error state
+# and the ServiceMonitor will fail to authenticate (no metrics scraped).
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: hass-prometheus-token
+  namespace: home-assistant
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: aws-ssm
+  target:
+    name: hass-prometheus-token
+  data:
+    - secretKey: token
+      remoteRef:
+        key: /homelab/kubernetes/${cluster_name}/hass-prometheus-token
+        property: token

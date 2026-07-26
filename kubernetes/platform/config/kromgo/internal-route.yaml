@@ -9,6 +9,7 @@ metadata:
     gethomepage.dev/name: "Kromgo"
     gethomepage.dev/group: "Platform"
     gethomepage.dev/icon: "json.svg"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=kromgo"
 spec:
   parentRefs:
     - name: internal

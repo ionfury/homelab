@@ -6,18 +6,25 @@ pod:
   replicas: 2
   annotations:
     reloader.stakater.com/auto: "true"
+  env:
+    - name: SMTP_SENDER
+      valueFrom:
+        secretKeyRef:
+          name: authelia-smtp-credentials
+          key: sender
+    - name: SMTP_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: authelia-smtp-credentials
+          key: username
   extraVolumeMounts:
     - name: oidc-jwk
       mountPath: /secrets/oidc-jwk
       readOnly: true
-    - name: notification
-      mountPath: /config
   extraVolumes:
     - name: oidc-jwk
       secret:
         secretName: authelia-oidc-jwk
-    - name: notification
-      emptyDir: { }
   securityContext:
     pod:
       runAsNonRoot: true
@@ -56,7 +63,8 @@ configMap:
       address: ldap://lldap.authelia.svc.cluster.local:3890
       base_dn: dc=homelab,dc=local
       additional_users_dn: ou=people
-      users_filter: "(&(|({username_attribute}={input})({email_attribute}={input}))(objectClass=person))"
+      users_filter: "(&(|({username_attribute}={input})({email_attribute}={input}))(o\
+        bjectClass=person))"
       additional_groups_dn: ou=groups
       groups_filter: "(member={dn})"
       attributes:
@@ -85,7 +93,7 @@ configMap:
       host: dragonfly.cache.svc.cluster.local
       port: 6379
       password:
-        secret_name: dragonfly-password
+        secret_name: dragonfly-auth
         path: password
 
   storage:
@@ -99,9 +107,14 @@ configMap:
         path: password
 
   notifier:
-    filesystem:
+    smtp:
       enabled: true
-      filename: /config/notification.txt
+      address: submissions://smtp.gmail.com:465
+      sender: "{{ env \"SMTP_SENDER\" }}"
+      username: "{{ env \"SMTP_USERNAME\" }}"
+      password:
+        secret_name: authelia-smtp-credentials
+        path: password
 
   telemetry:
     metrics:
@@ -130,13 +143,88 @@ configMap:
             - name
             - groups
             - preferred_username
+      authorization_policies:
+        photos:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:photos"
+        vaultwarden:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:vaultwarden"
+        jellyfin:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:jellyfin_users"
+                - "group:jellyfin_admins"
+        grafana:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:grafana"
+        ai:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:ai"
+        img:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:img"
+        docs:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:docs"
+        recipes:
+          default_policy: deny
+          rules:
+            - policy: two_factor
+              subject:
+                - "group:recipes"
       clients:
+        - client_id: "immich"
+          client_name: Immich
+          client_secret:
+            path: /secrets/immich-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: photos
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://photos.${external_domain}/auth/login
+            - https://photos.${external_domain}/user-settings
+            - app.immich:///oauth-callback
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          access_token_signed_response_alg: none
+          userinfo_signed_response_alg: none
+          token_endpoint_auth_method: client_secret_post
         - client_id: grafana
           client_name: Grafana
           client_secret:
             path: /secrets/grafana-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
+          authorization_policy: grafana
+          consent_mode: implicit
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
@@ -157,15 +245,183 @@ configMap:
           client_secret:
             path: /secrets/open-webui-oidc-client-secret/client-secret
           public: false
-          authorization_policy: two_factor
-          require_pkce: true
-          pkce_challenge_method: S256
+          authorization_policy: ai
+          consent_mode: implicit
+          require_pkce: false
           redirect_uris:
             - https://ai.${internal_domain}/oauth/oidc/callback
           scopes:
             - openid
             - profile
             - groups
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_basic
+        - client_id: zipline
+          client_name: Zipline
+          client_secret:
+            path: /secrets/zipline-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: img
+          require_pkce: false
+          consent_mode: implicit
+          redirect_uris:
+            - https://img.${external_domain}/api/auth/oauth/oidc
+          scopes:
+            - openid
+            - profile
+            - email
+            - offline_access
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+            - refresh_token
+          token_endpoint_auth_method: client_secret_post
+        - client_id: jellyfin
+          client_name: Jellyfin
+          client_secret:
+            path: /secrets/jellyfin-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: jellyfin
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          require_pushed_authorization_requests: false
+          redirect_uris:
+            - https://watch.${external_domain}/sso/OID/redirect/authelia
+          scopes:
+            - openid
+            - profile
+            - groups
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          access_token_signed_response_alg: none
+          userinfo_signed_response_alg: none
+          token_endpoint_auth_method: client_secret_post
+        - client_id: jellyseerr
+          client_name: Jellyseerr
+          client_secret:
+            path: /secrets/jellyseerr-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: jellyfin
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://requests.${external_domain}/api/v1/auth/oidc-callback
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_post
+        - client_id: paperless
+          client_name: Paperless
+          client_secret:
+            path: /secrets/paperless-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: docs
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://paperless.${internal_domain}/accounts/oidc/authelia/login/callback/
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_basic
+        - client_id: tandoor
+          client_name: Tandoor
+          client_secret:
+            path: /secrets/tandoor-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://recipes.${internal_domain}/accounts/oidc/authelia/login/callback/
+            - https://recipes.${external_domain}/accounts/oidc/authelia/login/callback/
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_post
+        - client_id: vaultwarden
+          client_name: Vaultwarden
+          client_secret:
+            path: /secrets/vaultwarden-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: vaultwarden
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://vault.${internal_domain}/identity/connect/oidc-signin
+          scopes:
+            - openid
+            - profile
+            - email
+            - offline_access
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+            - refresh_token
+          access_token_signed_response_alg: none
+          userinfo_signed_response_alg: none
+          token_endpoint_auth_method: client_secret_basic
+        - client_id: papra
+          client_name: Papra
+          client_secret:
+            path: /secrets/papra-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://papra.${internal_domain}/api/auth/oauth2/callback/authelia
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_post
+        - client_id: sure
+          client_name: Sure
+          client_secret:
+            path: /secrets/sure-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          require_pkce: false
+          consent_mode: implicit
+          redirect_uris:
+            - https://sure.${internal_domain}/auth/openid_connect/callback
+          scopes:
+            - openid
+            - profile
             - email
           response_types:
             - code
@@ -184,10 +440,20 @@ configMap:
         - ForwardAuth
 
 secret:
-  existingSecret: ''
+  existingSecret: "authelia-secrets"
   additionalSecrets:
     lldap-secrets: { }
     authelia-db-credentials: { }
-    dragonfly-password: { }
+    dragonfly-auth: { }
     grafana-oidc-client-secret: { }
     open-webui-oidc-client-secret: { }
+    immich-oidc-client-secret: { }
+    jellyfin-oidc-client-secret: { }
+    zipline-oidc-client-secret: { }
+    vaultwarden-oidc-client-secret: { }
+    paperless-oidc-client-secret: { }
+    tandoor-oidc-client-secret: { }
+    jellyseerr-oidc-client-secret: { }
+    papra-oidc-client-secret: { }
+    sure-oidc-client-secret: { }
+    authelia-smtp-credentials: { }

@@ -22,6 +22,13 @@ controllers:
           MAXPLAYERS: "4"
           MAXTICKRATE: "30"
           AUTOSAVENUM: "5"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
         resources:
           requests:
             cpu: 500m

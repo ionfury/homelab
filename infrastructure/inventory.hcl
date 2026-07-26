@@ -100,7 +100,7 @@ locals {
       }
       install = {
         selector   = "disk.dev_path == '/dev/sda'"
-        extensions = ["nonfree-kmod-nvidia-production", "nvidia-container-toolkit-production"]
+        extensions = ["nonfree-kmod-nvidia-lts", "nvidia-container-toolkit-lts"]
       }
       volumes = [
         { # 480GB MegaRAID SSD virtual drive
@@ -229,8 +229,8 @@ locals {
       }]
     }
     node44 = { // Supermicro 8C@2.1GHz 32Gi
-      cluster = "none"
-      type    = "none"
+      cluster = "live"
+      type    = "worker"
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }
@@ -259,6 +259,12 @@ locals {
     node45 = { // Supermicro 8C@2.1GHz 32Gi
       cluster = "dev"
       type    = "controlplane"
+      features = {
+        hugepages = {
+          size  = "2M"
+          count = 512
+        }
+      }
       install = {
         selector = "disk.model == 'Micron_5100_MTFD'"
       }

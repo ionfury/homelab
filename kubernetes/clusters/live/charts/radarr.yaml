@@ -34,6 +34,7 @@ controllers:
                 key: password
           RADARR__POSTGRES__MAINDB: radarr-main
           RADARR__POSTGRES__LOGDB: radarr-log
+          RADARR__AUTH__METHOD: External
           RADARR__AUTH__APIKEY:
             valueFrom:
               secretKeyRef:
@@ -49,7 +50,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 1Gi
+            memory: 4Gi
         probes:
           startup:
             enabled: true
@@ -85,7 +86,34 @@ service:
       http:
         port: 7878
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Radarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "radarr.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=radarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "radarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 7878
+
 persistence:
+  tmp:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 1Gi
+    advancedMounts:
+      radarr:
+        app:
+          - path: /tmp
   config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
@@ -95,13 +123,20 @@ persistence:
       radarr:
         app:
           - path: /config
-  media-downloads:
+  sabnzbd-downloads:
     type: persistentVolumeClaim
-    existingClaim: media-downloads
+    existingClaim: sabnzbd-downloads
     advancedMounts:
       radarr:
         app:
-          - path: /media/downloads
+          - path: /downloads/sabnzbd
+  qbittorrent-downloads:
+    type: persistentVolumeClaim
+    existingClaim: qbittorrent-downloads
+    advancedMounts:
+      radarr:
+        app:
+          - path: /downloads/qbittorrent
   media-library:
     type: persistentVolumeClaim
     existingClaim: media-library

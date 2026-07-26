@@ -6,6 +6,11 @@ controllers:
     type: deployment
 
     pod:
+      labels:
+        # tdarr-node connects to its own service IP, which ztunnel intercepts
+        # and rejects as a recursive call. The node is a GPU transcoding worker
+        # that communicates only with the tdarr server — no mesh benefit.
+        istio.io/dataplane-mode: none
       runtimeClassName: nvidia
       nodeSelector:
         nvidia.com/gpu.present: "true"
@@ -48,32 +53,18 @@ controllers:
             cpu: 500m
             memory: 2Gi
           limits:
-            memory: 4Gi
+            memory: 16Gi
             nvidia.com/gpu: 1
         probes:
+          # Tdarr_Node v2.x is a purely outbound worker — it connects to the
+          # server on port 8266 and never binds any local port. There is no
+          # HTTP API to probe; liveness is process-level only.
           startup:
-            enabled: true
-            custom: true
-            spec:
-              tcpSocket:
-                port: 15001
-              initialDelaySeconds: 10
-              periodSeconds: 5
-              failureThreshold: 30
+            enabled: false
           liveness:
-            enabled: true
-            custom: true
-            spec:
-              tcpSocket:
-                port: 15001
-              periodSeconds: 30
+            enabled: false
           readiness:
-            enabled: true
-            custom: true
-            spec:
-              tcpSocket:
-                port: 15001
-              periodSeconds: 10
+            enabled: false
 
 persistence:
   media-library:

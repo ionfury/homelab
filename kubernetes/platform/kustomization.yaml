@@ -40,9 +40,11 @@ configMapGenerator:
       - silence-operator.yaml=charts/silence-operator.yaml
       - spegel.yaml=charts/spegel.yaml
       - tuppr.yaml=charts/tuppr.yaml
+      - snapshot-controller.yaml=charts/snapshot-controller.yaml
+      - velero.yaml=charts/velero.yaml
       - prometheus-snmp-exporter.yaml=charts/prometheus-snmp-exporter.yaml
       - prometheus-ipmi-exporter.yaml=charts/prometheus-ipmi-exporter.yaml
       - prometheus-smartctl-exporter.yaml=charts/prometheus-smartctl-exporter.yaml
       - nvidia-device-plugin.yaml=charts/nvidia-device-plugin.yaml
       - dcgm-exporter.yaml=charts/dcgm-exporter.yaml
-      - external-dns.yaml=charts/external-dns.yaml
+      - x509-certificate-exporter.yaml=charts/x509-certificate-exporter.yaml

@@ -7,5 +7,5 @@ metadata:
   annotations:
     secret-generator.v1.mittwald.de/autogenerate: ADMIN_TOKEN
     secret-generator.v1.mittwald.de/length: "48"
-    secret-generator.v1.mittwald.de/encoding: base64
+    secret-generator.v1.mittwald.de/encoding: hex
 data: { }

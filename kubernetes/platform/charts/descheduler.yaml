@@ -14,6 +14,12 @@ deschedulerPolicy:
             evictLocalStoragePods: true
             evictSystemCriticalPods: false
             nodeFit: true
+            namespaceLabelSelector:
+              matchExpressions:
+                - key: kubernetes.io/metadata.name
+                  operator: NotIn
+                  values:
+                    - velero
         - name: RemovePodsViolatingInterPodAntiAffinity
         - name: RemovePodsViolatingNodeAffinity
           args:

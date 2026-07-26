@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/networking.istio.io/destinationrule_v1.json
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: homepage-sticky
+  namespace: homepage
+spec:
+  host: homepage.homepage.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpCookie:
+          name: HOMEPAGE_SESSION
+          ttl: 3600s

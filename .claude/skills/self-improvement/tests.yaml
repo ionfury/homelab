@@ -1,0 +1,87 @@
+version: 1
+skill: self-improvement
+description: "Verify classification routing to correct target, confirmation before applying, and proactive invocation"
+tests:
+  - id: SLF-01
+    description: "Routes 'never do X' feedback to root CLAUDE.md as an anti-pattern"
+    category: routing
+    severity: high
+    prompt: |
+      Remember this: we should never use xargs for Terraform state operations because it mangles quoted resource names.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["CLAUDE.md", "anti-pattern"]
+        any_of: ["root CLAUDE.md", "NEVER", "confirm", "AskUserQuestion"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must classify this as an anti-pattern and route it to root CLAUDE.md. Must ask the user
+      to confirm before applying the update. Should show a preview of the proposed change.
+    tags:
+      - trimmed-2026-03-22
+      - self-improvement-skill
+
+  - id: SLF-02
+    description: "Routes multi-step workflow discovery to a skill, not CLAUDE.md"
+    category: routing
+    severity: medium
+    prompt: |
+      I just discovered a 7-step process for debugging CNPG cluster failures. Should I add this to CLAUDE.md?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["skill"]
+        any_of: ["5+ steps", "procedural", "CLAUDE.md", "workflow"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must recommend creating or updating a skill rather than CLAUDE.md, because multi-step
+      workflows (5+ steps) belong in skills. Should reference the decision tree from classification.md.
+    tags:
+      - trimmed-2026-03-22
+      - self-improvement-skill
+
+  - id: SLF-03
+    description: "Confirms before applying any documentation update"
+    category: constraint
+    severity: high
+    prompt: |
+      Add to the documentation that cert-manager must always be deployed before external-secrets.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["confirm", "preview"]
+        any_of: ["AskUserQuestion", "proposed change", "target", "location"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: true
+    expected_behavior: |
+      Must confirm with the user before making any documentation change. Must show the
+      classified target location and a preview of the proposed addition. Never apply silently.
+    tags:
+      - trimmed-2026-03-22
+      - self-improvement-skill
+
+  - id: SLF-04
+    description: "Documentation updates belong in the current branch, not separate PRs"
+    category: coverage
+    severity: medium
+    prompt: |
+      We discovered a new pattern while implementing a feature. When should we update the skill documentation?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["current branch", "same"]
+        any_of: ["not separate", "current PR", "part of", "hand-in-hand"]
+      forbidden: ["separate PR", "later", "follow-up"]
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must state that documentation updates go in the current branch/PR, not deferred to a
+      separate PR. Knowledge should be captured immediately alongside the work that revealed it.
+    tags:
+      - trimmed-2026-03-22
+      - self-improvement-skill

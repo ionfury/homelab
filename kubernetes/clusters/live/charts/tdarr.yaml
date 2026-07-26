@@ -84,6 +84,25 @@ service:
       server:
         port: 8266
 
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Tdarr"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "tdarr.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=tdarr"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "tdarr.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8265
+
 persistence:
   config:
     type: persistentVolumeClaim
@@ -110,7 +129,7 @@ persistence:
       tdarr:
         app:
           - path: /media/library
-            readOnly: true
+            readOnly: false
   transcode-cache:
     type: emptyDir
     advancedMounts:

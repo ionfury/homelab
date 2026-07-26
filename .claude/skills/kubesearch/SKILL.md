@@ -20,64 +20,21 @@ Search kubesearch.dev to find real-world Helm configurations from other homelab 
 
 ## Workflow
 
-### 1. Search for the Helm Chart
+**Step 1 — Find chart:** `WebFetch https://kubesearch.dev/?search=<chart-name>` → list matching releases with registry paths.
 
-Fetch the search page to find available charts:
+**Step 2 — Get repository links:** Convert registry path to URL format (replace `/` with `-`), then `WebFetch https://kubesearch.dev/hr/<url-path>` → list repositories with direct GitHub links to HelmRelease files.
 
-```
-WebFetch: https://kubesearch.dev/?search=<chart-name>
-Prompt: List all matching helm releases with their full registry paths
-```
+Examples of the URL conversion:
+- `ghcr.io/grafana-helm-charts/grafana` → `ghcr.io-grafana-helm-charts-grafana`
+- `charts.longhorn.io/longhorn` → `charts.longhorn.io-longhorn`
 
-### 2. Get Chart Page with Direct Links
+**Step 3 — Fetch configs:** Convert GitHub blob URLs to raw URLs, then fetch 3-5 in parallel:
+- Blob: `github.com/<owner>/<repo>/blob/<branch>/<path>`
+- Raw: `raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>`
 
-Convert the registry path to URL format (replace `/` with `-`):
-
-| Registry Path | URL Path |
-|---------------|----------|
-| `ghcr.io/grafana-helm-charts/grafana` | `ghcr.io-grafana-helm-charts-grafana` |
-| `charts.longhorn.io/longhorn` | `charts.longhorn.io-longhorn` |
-
-Fetch the chart page:
-
-```
-WebFetch: https://kubesearch.dev/hr/<url-path>
-Prompt: List repositories with their DIRECT LINKS to HelmRelease files. Include: repo name, stars, version, and the GitHub URL to the config file.
-```
-
-The page provides direct links to each repository's HelmRelease configuration:
-- `https://github.com/angelnu/k8s-gitops/blob/main/apps/longhorn-system/app/helmrelease.yaml`
-- `https://github.com/blackjid/home-ops/blob/main/kubernetes/apps/.../helmrelease.yaml`
-
-### 3. Fetch Configurations
-
-Use the direct links from Step 2. Convert blob URLs to raw URLs for fetching:
-
-| URL Type | Format |
-|----------|--------|
-| Blob (view) | `github.com/<owner>/<repo>/blob/<branch>/<path>` |
-| Raw (fetch) | `raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>` |
-
-Fetch multiple configs in parallel for comparison:
-
-```
-WebFetch: https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>/helmrelease.yaml
-Prompt: Extract all helm values configuration. Show the complete values section.
-```
-
-## Parallel Repository Research
-
-When comparing multiple implementations, fetch 3-5 repositories in parallel using WebFetch.
-
-**Selection criteria:**
-- Recent activity (updated within 6 months)
-- Higher star count (indicates community trust)
-- Using similar chart version to target
-- Similar infrastructure goals (bare-metal, GitOps, Talos, etc.)
+**Selection criteria:** recent activity (within 6 months), higher star count, similar chart version, similar infrastructure goals (bare-metal, GitOps, Talos).
 
 ## Common Homelab Repositories
-
-High-quality references frequently appearing on kubesearch:
 
 | Repository | Focus |
 |------------|-------|
@@ -86,30 +43,4 @@ High-quality references frequently appearing on kubesearch:
 | `buroa/k8s-gitops` | Talos + Flux |
 | `mirceanton/home-ops` | Well-documented configs |
 
-## Output Format
-
-When presenting findings, structure as:
-
-```markdown
-## <Chart Name> Configuration Research
-
-### Common Patterns
-- Pattern 1: ...
-- Pattern 2: ...
-
-### Repository Examples
-
-#### <repo-1> (X stars, vY.Z)
-- Key configs: ...
-- Notable: ...
-
-#### <repo-2>
-...
-
-### Recommended Configuration
-Based on findings, suggested values for this homelab:
-```yaml
-# values.yaml
-...
-```
-```
+See [references/output-format.md](references/output-format.md) for the standard output structure when presenting findings.

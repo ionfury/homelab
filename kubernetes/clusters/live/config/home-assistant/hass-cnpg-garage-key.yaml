@@ -1,0 +1,18 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: cnpg-hass-s3
+  namespace: database
+spec:
+  clusterRef:
+    name: garage
+    namespace: garage
+  bucketPermissions:
+    - bucketRef:
+        name: cnpg-hass-backups
+        namespace: garage
+      read: true
+      write: true
+  secretTemplate:
+    name: cnpg-hass-s3-credentials

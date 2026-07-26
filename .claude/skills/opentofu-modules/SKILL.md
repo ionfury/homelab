@@ -1,38 +1,20 @@
 ---
 name: opentofu-modules
 description: |
-  Write OpenTofu/Terraform modules and comprehensive tests for homelab infrastructure.
+  Write OpenTofu modules and tests for homelab infrastructure (infrastructure/modules/).
 
-  Use when: (1) Creating new OpenTofu or Terraform modules, (2) Writing or modifying .tftest.hcl test files,
-  (3) Adding variables, outputs, or resources to modules, (4) Debugging test failures,
-  (5) Understanding module testing patterns, (6) Writing infrastructure unit tests,
-  (7) Questions about tftest syntax or assertions.
+  Use when: creating new modules, writing or modifying .tftest.hcl test files, adding
+  variables/outputs/resources, debugging test failures, or questions about tftest syntax.
 
   Triggers: "opentofu module", "terraform module", "tofu module", "create module",
   ".tftest.hcl", "tftest", "test my module", "module test", "infrastructure test",
-  "test infrastructure", "variables.tf", "outputs.tf", "module testing", "assertion",
-  "task tg:test", "test-config", "test failures"
-
-  This skill covers OpenTofu v1.11 testing syntax, variable inheritance patterns,
-  assertion best practices, and repository-specific conventions in infrastructure/modules/.
+  "variables.tf", "outputs.tf", "module testing", "assertion", "task tg:test", "test-config"
 user-invocable: false
 ---
 
 # OpenTofu Modules & Testing
 
-Write OpenTofu modules and tests for the homelab infrastructure. Modules live in `infrastructure/modules/`, tests in `infrastructure/modules/<name>/tests/`.
-
-## Quick Reference
-
-```bash
-# Run tests for a module
-task tg:test-<module>          # e.g., task tg:test-config
-
-# Format all HCL
-task tg:fmt
-
-# Version pinned in .opentofu-version (currently 1.11.2)
-```
+Write OpenTofu modules and tests for the homelab infrastructure. Modules live in `infrastructure/modules/`, tests in `infrastructure/modules/<name>/tests/`. Run tests with `task tg:test-<module>` (e.g., `task tg:test-config`); format with `task tg:fmt`. OpenTofu version is pinned in `.opentofu-version`.
 
 ## Module Structure
 
@@ -94,47 +76,7 @@ run "descriptive_test_name" {
 
 ## Key Patterns
 
-### Use `command = plan`
-Always use plan mode for tests. This validates configuration without creating resources.
-
-### Variable Inheritance
-Only include variables in `run` blocks when they differ from defaults. Minimizes duplication.
-
-```hcl
-# CORRECT: Override only what changes
-run "feature_enabled" {
-  command = plan
-  variables {
-    features = ["prometheus"]
-  }
-  assert { ... }
-}
-
-# AVOID: Repeating all variables
-run "feature_enabled" {
-  command = plan
-  variables {
-    name     = "test-cluster"      # Unnecessary - inherited
-    features = ["prometheus"]
-    machines = { ... }             # Unnecessary - inherited
-  }
-}
-```
-
-### Assert Against Outputs
-Reference module outputs in assertions, not internal resources.
-
-```hcl
-assert {
-  condition     = length(output.machines) == 2
-  error_message = "Expected 2 machines"
-}
-
-assert {
-  condition     = output.talos.kubernetes_version == "1.32.0"
-  error_message = "Version mismatch"
-}
-```
+Always use `command = plan` — validates configuration without creating resources. Only include variables in `run` blocks when they differ from top-level defaults; inherited variables need not be repeated. Assert against module outputs, not internal resources.
 
 ### Test Feature Flags
 Test both enabled and disabled states:
@@ -181,34 +123,6 @@ run "invalid_version_rejected" {
   }
   expect_failures = [var.versions]
 }
-```
-
-## Common Assertions
-
-```hcl
-# Check length
-condition = length(output.items) == 3
-
-# Check key exists
-condition = contains(keys(output.map), "expected_key")
-
-# Check value in list
-condition = contains(output.list, "expected_value")
-
-# Check string contains
-condition = strcontains(output.config, "expected_substring")
-
-# Check all items match
-condition = alltrue([for item in output.list : item.enabled == true])
-
-# Check any item matches
-condition = anytrue([for item in output.list : item.name == "target"])
-
-# Nested check with labels/annotations
-condition = anytrue([
-  for label in output.machines["node1"].labels :
-  label.key == "expected-label" && label.value == "expected-value"
-])
 ```
 
 ## Test Organization

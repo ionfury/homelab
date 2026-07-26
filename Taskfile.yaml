@@ -2,6 +2,7 @@
 version: "3"
 
 includes:
+  dr: .taskfiles/dr
   inv: .taskfiles/inventory
   k8s: .taskfiles/kubernetes
   talos: .taskfiles/talos

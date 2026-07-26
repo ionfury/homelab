@@ -61,11 +61,21 @@ alloy:
           selector = "{app=\"loki\"}"
           action   = "drop"
         }
-        forward_to = [loki.write.default.receiver]
+        forward_to = [loki.process.drop_old_entries.receiver]
       }
 
       // Collect Kubernetes events (new capability beyond Promtail)
       loki.source.kubernetes_events "events" {
+        forward_to = [loki.process.drop_old_entries.receiver]
+      }
+
+      // Drop entries older than 7 days to prevent Loki 400 rejections after mass pod recycles
+      // (e.g., Helm upgrades that leave stale tail positions replayed on Alloy resync)
+      loki.process "drop_old_entries" {
+        stage.drop {
+          older_than          = "168h"
+          drop_counter_reason = "too_old"
+        }
         forward_to = [loki.write.default.receiver]
       }
 

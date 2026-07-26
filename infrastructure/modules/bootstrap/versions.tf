@@ -3,15 +3,15 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "3.1.0"
+      version = "3.2.0"
     }
     github = {
       source  = "integrations/github"
-      version = "6.10.2"
+      version = "6.13.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "3.0.1"
+      version = "3.2.1"
     }
     healthchecksio = {
       source  = "kristofferahl/healthchecksio"

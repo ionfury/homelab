@@ -96,7 +96,7 @@ spec:
       chart:
         name: "loki"
         version: "${loki_version}"
-        url: "https://grafana.github.io/helm-charts"
+        url: "https://grafana-community.github.io/helm-charts"
       dependsOn: [cilium, longhorn]
     - name: alloy
       namespace: monitoring
@@ -168,6 +168,19 @@ spec:
         version: "${cloudnative_pg_version}"
         url: https://cloudnative-pg.github.io/charts
       dependsOn: [cilium, longhorn, kube-prometheus-stack-crds, secret-generator]
+      postRenderers:
+        - kustomize:
+            patches:
+              - target:
+                  kind: ValidatingWebhookConfiguration
+                  name: cnpg-validating-webhook-configuration
+                patch: |
+                  apiVersion: admissionregistration.k8s.io/v1
+                  kind: ValidatingWebhookConfiguration
+                  metadata:
+                    name: cnpg-validating-webhook-configuration
+                    annotations:
+                      cert-manager.io/inject-ca-from-secret: cnpg-system/cnpg-ca-secret
     - name: dragonfly-operator
       namespace: dragonfly-system
       chart:
@@ -231,6 +244,20 @@ spec:
         version: "${prometheus_smartctl_exporter_version}"
         url: https://prometheus-community.github.io/helm-charts
       dependsOn: [kube-prometheus-stack]
+    - name: snapshot-controller
+      namespace: kube-system
+      chart:
+        name: snapshot-controller
+        version: "${snapshot_controller_version}"
+        url: https://piraeus.io/helm-charts
+      dependsOn: [cilium]
+    - name: velero
+      namespace: velero
+      chart:
+        name: velero
+        version: "${velero_version}"
+        url: https://vmware-tanzu.github.io/helm-charts
+      dependsOn: [longhorn, external-secrets]
     - name: nvidia-device-plugin
       namespace: gpu-system
       chart:
@@ -245,13 +272,13 @@ spec:
         version: "${dcgm_exporter_version}"
         url: https://nvidia.github.io/dcgm-exporter/helm-charts
       dependsOn: [nvidia-device-plugin, kube-prometheus-stack]
-    - name: "external-dns"
-      namespace: "external-dns"
+    - name: x509-certificate-exporter
+      namespace: monitoring
       chart:
-        name: "external-dns"
-        version: "${external_dns_version}"
-        url: "https://kubernetes-sigs.github.io/external-dns"
-      dependsOn: [cilium]
+        name: x509-certificate-exporter
+        version: "${x509_certificate_exporter_version}"
+        url: https://charts.enix.io
+      dependsOn: [kube-prometheus-stack]
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
@@ -306,6 +333,10 @@ spec:
         - kind: ConfigMap
           name: platform-values
           valuesKey: << inputs.name >>.yaml
+      <<- if (index inputs "postRenderers") >>
+      postRenderers:
+        << (index inputs "postRenderers") | toYaml | nindent 8 >>
+      <<- end >>
     ---
     # Wrapper Kustomization enables config Kustomizations to dependsOn this HelmRelease
     apiVersion: kustomize.toolkit.fluxcd.io/v1

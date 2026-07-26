@@ -574,3 +574,405 @@ rawResources:
     labels: {}
     spec: {}                       # Resource-specific spec
 ```
+
+---
+
+## Controller Examples
+
+### Basic Deployment
+
+```yaml
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    pod:
+      securityContext:
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    containers:
+      main:
+        image:
+          repository: ghcr.io/org/app
+          tag: v1.0.0
+        env:
+          TZ: UTC
+          CONFIG_PATH: /config
+```
+
+### Multiple Controllers
+
+```yaml
+controllers:
+  web:
+    containers:
+      main:
+        image:
+          repository: nginx
+          tag: latest
+
+  worker:
+    type: deployment
+    replicas: 3
+    containers:
+      main:
+        image:
+          repository: myapp/worker
+          tag: v1.0.0
+```
+
+### Sidecar Containers
+
+```yaml
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: myapp
+          tag: v1.0.0
+
+      sidecar:
+        dependsOn: main
+        image:
+          repository: sidecar-image
+          tag: latest
+        args: ["--config", "/config/sidecar.yaml"]
+```
+
+### StatefulSet with VolumeClaimTemplates
+
+```yaml
+controllers:
+  main:
+    type: statefulset
+    statefulset:
+      volumeClaimTemplates:
+        - name: data
+          accessMode: ReadWriteOnce
+          size: 10Gi
+          globalMounts:
+            - path: /data
+```
+
+### CronJob
+
+```yaml
+controllers:
+  backup:
+    type: cronjob
+    cronjob:
+      schedule: "0 2 * * *"
+      concurrencyPolicy: Forbid
+      successfulJobsHistory: 3
+      failedJobsHistory: 1
+    containers:
+      main:
+        image:
+          repository: backup-tool
+          tag: v1.0.0
+        args: ["--backup", "/data"]
+```
+
+---
+
+## Service Examples
+
+```yaml
+service:
+  main:
+    controller: main
+    type: ClusterIP
+    ports:
+      http:
+        port: 8080
+      metrics:
+        port: 9090
+
+  websocket:
+    controller: main
+    ports:
+      ws:
+        port: 3012
+```
+
+---
+
+## Ingress Examples
+
+```yaml
+ingress:
+  main:
+    className: nginx
+    hosts:
+      - host: app.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+    tls:
+      - hosts:
+          - app.example.com
+        secretName: app-tls
+```
+
+Multiple paths to different services:
+
+```yaml
+ingress:
+  main:
+    hosts:
+      - host: app.example.com
+        paths:
+          - path: /
+            service:
+              identifier: main
+              port: http
+          - path: /ws
+            service:
+              identifier: websocket
+              port: ws
+```
+
+---
+
+## Persistence Examples
+
+### PersistentVolumeClaim
+
+```yaml
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    globalMounts:
+      - path: /config
+```
+
+### Existing PVC
+
+```yaml
+persistence:
+  config:
+    existingClaim: my-existing-pvc
+    globalMounts:
+      - path: /config
+```
+
+### NFS Mount
+
+```yaml
+persistence:
+  backup:
+    type: nfs
+    server: nas.local
+    path: /volume/backups
+    globalMounts:
+      - path: /backup
+```
+
+### EmptyDir (Shared Between Containers)
+
+```yaml
+persistence:
+  shared-data:
+    type: emptyDir
+    globalMounts:
+      - path: /shared
+```
+
+### Advanced Mounts (Per-Controller/Container)
+
+```yaml
+persistence:
+  config:
+    existingClaim: app-config
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+        sidecar:
+          - path: /config
+            readOnly: true
+```
+
+---
+
+## Environment Variable Examples
+
+### Direct Values
+
+```yaml
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          TZ: UTC
+          LOG_LEVEL: info
+          TEMPLATE_VAR: "{{ .Release.Name }}"
+```
+
+### From Secrets/ConfigMaps
+
+```yaml
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          DATABASE_URL:
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: url
+        envFrom:
+          - secretRef:
+              name: app-secrets
+          - configMapRef:
+              name: app-config
+```
+
+---
+
+## Security Context Examples
+
+### Restricted Profile (Required for restricted namespaces)
+
+Namespaces with `security: restricted` (cert-manager, external-secrets, system, database, kromgo) enforce PodSecurity `restricted`. All containers MUST have the following or pods will be rejected at admission time.
+
+```yaml
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534             # Use if image runs as root; omit if already non-root
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: myapp
+          tag: v1.0.0
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+```
+
+If the application writes to the filesystem, mount writable `emptyDir` volumes at the required paths rather than disabling `readOnlyRootFilesystem`.
+
+### Pod-Level (Baseline namespaces)
+
+```yaml
+defaultPodOptions:
+  securityContext:
+    runAsUser: 568
+    runAsGroup: 568
+    fsGroup: 568
+    fsGroupChangePolicy: OnRootMismatch
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: myapp
+          tag: v1.0.0
+```
+
+### Container-Level (Privileged Sidecar)
+
+```yaml
+controllers:
+  main:
+    containers:
+      main:
+        securityContext:
+          runAsUser: 568
+          runAsGroup: 568
+
+      vpn:
+        image:
+          repository: vpn-client
+          tag: latest
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+```
+
+---
+
+## Probe Examples
+
+Default probes use TCP on the primary service port. Customize:
+
+```yaml
+controllers:
+  main:
+    containers:
+      main:
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 30
+          readiness:
+            enabled: true
+            type: HTTP
+            spec:
+              path: /ready
+              port: 8080
+          startup:
+            enabled: false
+```
+
+---
+
+## Resource Limits Examples
+
+```yaml
+controllers:
+  main:
+    containers:
+      main:
+        resources:
+          requests:
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+```
+
+Note: Never set CPU limits unless the workload is genuinely CPU-abusive.
+
+---
+
+## ServiceMonitor Example
+
+```yaml
+serviceMonitor:
+  main:
+    enabled: true
+    serviceName: main
+    endpoints:
+      - port: metrics
+        scheme: http
+        path: /metrics
+        interval: 30s
+```

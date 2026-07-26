@@ -3,6 +3,8 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Pooler
 metadata:
   name: platform-pooler-rw
+  annotations:
+    cnpg.io/reloadedAt: "2026-06-03T12:00:00Z"
 spec:
   cluster:
     name: platform

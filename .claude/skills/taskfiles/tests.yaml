@@ -1,0 +1,86 @@
+version: 1
+skill: taskfiles
+description: "Verify schema/version header, wildcard task patterns, preconditions, and namespace conventions"
+tests:
+  - id: TSK-01
+    description: "Always includes schema and version header in new Taskfiles"
+    category: constraint
+    severity: high
+    prompt: |
+      Create a new Taskfile for managing database operations under the namespace 'db'.
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["yaml-language-server: $schema=https://taskfile.dev/schema.json", "version: \"3\""]
+        forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must include the schema comment and version: "3" header. Must follow the repository
+      Taskfile template structure with proper namespace and includes wiring.
+    tags:
+      - trimmed-2026-03-22
+      - taskfiles-skill
+
+  - id: TSK-02
+    description: "Uses wildcard task pattern for parameterized stack operations"
+    category: coverage
+    severity: medium
+    prompt: |
+      I need a Taskfile task that can run 'my-tool deploy' for any stack name, like 'task deploy:production' or 'task deploy:staging'. How should I write it?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["MATCH", "label:"]
+        any_of: ["{{index .MATCH 0}}", "deploy-*", "*"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must use wildcard task syntax (e.g., deploy-*) with MATCH variable to capture the
+      parameterized portion. Must use label: for task display. Should include preconditions.
+    tags:
+      - trimmed-2026-03-22
+      - taskfiles-skill
+
+  - id: TSK-03
+    description: "Uses CLI_ARGS pattern for pass-through arguments"
+    category: factored
+    severity: medium
+    prompt: |
+      How do I write a task that accepts a name argument, like 'task wt:new -- my-branch'?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["CLI_ARGS", "requires:", "vars:"]
+        any_of: ["-- my-branch", "{{.CLI_ARGS}}"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must show the CLI_ARGS pattern with requires.vars to enforce the argument is provided,
+      then assign it to a named var. Must show the -- separator usage example.
+    tags:
+      - trimmed-2026-03-22
+      - taskfiles-skill
+
+  - id: TSK-04
+    description: "Uses internal: true for helper tasks not meant for direct invocation"
+    category: coverage
+    severity: low
+    prompt: |
+      I have a helper task that runs ipmitool and should only be called by other tasks, not directly by users. How do I mark it?
+    scoring:
+      mode: keywords
+      keywords:
+        required: ["internal: true"]
+        any_of: ["silent: true", "requires:", "vars:"]
+      forbidden: []
+    expect_refusal: false
+    manual_review: false
+    expected_behavior: |
+      Must use internal: true to hide the task from task --list output. Should also recommend
+      silent: true and requires.vars for helper tasks that need specific inputs.
+    tags:
+      - trimmed-2026-03-22
+      - taskfiles-skill

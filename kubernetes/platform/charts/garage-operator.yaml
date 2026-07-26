@@ -5,11 +5,18 @@ resources:
     cpu: 10m
     memory: 128Mi
   limits:
-    memory: 256Mi
+    memory: 1Gi
 
 metrics:
   enabled: true
 
 serviceMonitor:
   enabled: true
-  interval: 60s
+
+grafanaDashboard:
+  enabled: true
+
+prometheusRules:
+  enabled: true
+  additionalLabels:
+    release: kube-prometheus-stack
