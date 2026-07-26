@@ -1,55 +1,62 @@
-# Unifi Gateway DDNS (Cloudflare)
+# Unifi Gateway DDNS (Cloudflare) — Verification
 
-Configure the Unifi gateway to automatically update a Cloudflare DNS A record
-with the WAN public IP. This is the anchor record that ExternalDNS CNAME records
-point to.
+The Unifi gateway maintains the Cloudflare A record `gw.<external_domain>`
+(the anchor that ExternalDNS CNAME records point to) with the WAN public IP.
 
-## When to Use
+This is **fully declarative**: the `unifi_dynamic_dns` resource in
+`infrastructure/modules/unifi-gateway/` (global stack) provisions the DDNS
+entry. There is no manual UI configuration.
 
-- Initial setup of external gateway access
-- After gateway replacement or factory reset
-- When changing the DDNS hostname or Cloudflare zone
+## DNS Chain
+
+```
+app.<external_domain>  CNAME → gw.<external_domain>  A → WAN public IP
+   (ExternalDNS)                  (Unifi DDNS)          (never stored in code)
+```
+
+## When to Use This Runbook
+
+- After `task tg:apply-global` changes the unifi-gateway unit
+- After gateway replacement or factory reset (re-apply the global stack)
+- When external services stop resolving
 
 ## Prerequisites
 
-- Unifi gateway running UniFi OS 4.x+
-- Cloudflare API token with `Zone:Read` + `DNS:Edit` permissions for `tomnowak.work`
-  - Token stored at SSM: `/homelab/infrastructure/accounts/cloudflare/token`
-- Cloudflare zone ID: (from `infrastructure/accounts.hcl`)
+- Cloudflare API token with `Zone:Read` + `DNS:Edit` scoped to the external
+  zone only, stored at SSM: `/homelab/infrastructure/accounts/cloudflare/token`
+- UniFi OS Cloudflare DDNS field mapping (handled by the module):
+  - `host_name` = full record name (e.g. `gw.ionfury.tv`)
+  - `login` = Cloudflare zone name (e.g. `ionfury.tv`)
+  - `password` = API token
+  - `server` = empty (controller knows the endpoint)
 
-## Procedure
+## Verify
 
-### 1. Access Gateway Settings
-
-Navigate to: **Settings → Internet → WAN → Dynamic DNS**
-
-### 2. Add DDNS Entry
-
-| Field | Value |
-|-------|-------|
-| Service | Cloudflare |
-| Hostname | `gw.external.tomnowak.work` |
-| Username | (leave blank or enter zone ID) |
-| Password | Cloudflare API token |
-| Server | Cloudflare zone ID from `accounts.hcl` |
-
-> Note: Field mapping varies by UniFi OS version. If "Service" doesn't list
-> Cloudflare, use "custom" and set server to `api.cloudflare.com`.
-
-### 3. Verify
-
-Wait 1-2 minutes for the gateway to update Cloudflare, then:
+Wait 1-2 minutes after apply for the gateway to push the update, then:
 
 ```bash
-nslookup gw.external.tomnowak.work
-# Should resolve to your WAN public IP
-
-curl -s https://api.cloudflare.com/client/v4/zones/<zone_id>/dns_records \
-  -H "Authorization: Bearer <token>" | jq '.result[] | select(.name == "gw.external.tomnowak.work")'
+nslookup gw.<external_domain> 1.1.1.1
 ```
 
-## Why Not IaC?
+Should resolve to the WAN public IP (compare with `curl -s ifconfig.me` from
+inside the network).
 
-The `filipowm/unifi` Terraform provider v1.0.0 does not include a
-`unifi_dynamic_dns` resource. If the provider adds support in a future
-version, migrate this to the `unifi-gateway` module in the global stack.
+Check the record via the Cloudflare API:
+
+```bash
+curl -s https://api.cloudflare.com/client/v4/zones/<zone_id>/dns_records \
+  -H "Authorization: Bearer <token>" | jq '.result[] | select(.name | startswith("gw."))'
+```
+
+Zone ID lives in `infrastructure/accounts.hcl`.
+
+## Troubleshooting
+
+- **Record not updating**: check DDNS status in UniFi under
+  Settings → Internet → WAN → Dynamic DNS (state is Terraform-managed;
+  do not edit fields there — fix the module/unit instead).
+- **401 from Cloudflare**: token expired or scope wrong; rotate the SSM
+  parameter and re-run `task tg:apply-global`.
+- **UniFi OS version quirks**: some UniFi OS releases changed the Cloudflare
+  field mapping. If the entry shows an error state, validate the mapping on
+  the dev stack before touching the global stack.

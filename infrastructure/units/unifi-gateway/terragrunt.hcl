@@ -30,5 +30,14 @@ inputs = {
       protocol = "tcp"
     }
   }
+  dynamic_dns = {
+    external_gateway = {
+      service        = "cloudflare"
+      host_name      = "gw.${local.live.external_tld}"
+      server         = ""
+      login          = local.live.external_tld
+      password_store = local.accounts_vars.locals.accounts.cloudflare.api_token_store
+    }
+  }
   unifi = local.accounts_vars.locals.accounts.unifi
 }

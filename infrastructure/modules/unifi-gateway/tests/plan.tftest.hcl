@@ -8,6 +8,7 @@ variables {
     api_key_store = "/test/api-key"
   }
   port_forwards = {}
+  dynamic_dns   = {}
 }
 
 run "external_gateway_forwards" {
@@ -92,5 +93,43 @@ run "empty_forwards" {
   assert {
     condition     = length(unifi_port_forward.rule) == 0
     error_message = "No port forwards should be created with empty input"
+  }
+  assert {
+    condition     = length(unifi_dynamic_dns.record) == 0
+    error_message = "No dynamic DNS entries should be created with empty input"
+  }
+}
+
+run "dynamic_dns_cloudflare" {
+  command   = plan
+  providers = { unifi = unifi.mock, aws = aws.mock }
+
+  variables {
+    dynamic_dns = {
+      external_gateway = {
+        service        = "cloudflare"
+        host_name      = "gw.example.com"
+        server         = ""
+        login          = "example.com"
+        password_store = "/test/cloudflare-token"
+      }
+    }
+  }
+
+  assert {
+    condition     = length(unifi_dynamic_dns.record) == 1
+    error_message = "Single dynamic DNS entry should be created"
+  }
+  assert {
+    condition     = unifi_dynamic_dns.record["external_gateway"].service == "cloudflare"
+    error_message = "Dynamic DNS service should be cloudflare"
+  }
+  assert {
+    condition     = unifi_dynamic_dns.record["external_gateway"].host_name == "gw.example.com"
+    error_message = "Dynamic DNS host_name should be the gateway anchor record"
+  }
+  assert {
+    condition     = unifi_dynamic_dns.record["external_gateway"].login == "example.com"
+    error_message = "Dynamic DNS login should be the Cloudflare zone name"
   }
 }
