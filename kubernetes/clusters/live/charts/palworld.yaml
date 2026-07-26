@@ -44,12 +44,15 @@ controllers:
               secretKeyRef:
                 name: palworld-admin-password
                 key: password
+        # Upstream sizing: 4 cores, 16GB RAM min / 32GB+ for stable operation.
+        # Requesting 20Gi guarantees placement on the XL node (node2, 128GiB) —
+        # the 16GB workers cannot fit this alongside existing workloads.
         resources:
           requests:
             cpu: "4"
-            memory: 12Gi
+            memory: 20Gi
           limits:
-            memory: 16Gi
+            memory: 32Gi
         probes:
           startup:
             enabled: true
