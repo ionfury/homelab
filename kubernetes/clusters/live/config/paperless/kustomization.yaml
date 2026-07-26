@@ -2,6 +2,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+# Migration prep: prevent garbage collection while ownership transfers from the
+# cluster-config Kustomization to the per-app cluster-apps Kustomization.
+commonAnnotations:
+  kustomize.toolkit.fluxcd.io/prune: disabled
 resources:
   - namespace.yaml
   - data-pvc.yaml
