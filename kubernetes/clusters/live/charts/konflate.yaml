@@ -1,0 +1,31 @@
+---
+# https://github.com/home-operations/konflate/blob/main/charts/konflate/values.yaml
+config:
+  repo: "github://${github_org}/${github_repository}"
+  clusterPath: kubernetes/clusters/live
+
+secret:
+  existingSecret: konflate-secret
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: internal
+      namespace: istio-gateway
+  hostnames:
+    - "konflate.${internal_domain}"
+
+serviceMonitor:
+  enabled: true
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  size: 5Gi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    memory: 1Gi

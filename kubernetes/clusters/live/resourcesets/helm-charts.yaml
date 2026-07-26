@@ -288,6 +288,14 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator, external-secrets]
+    - name: konflate
+      namespace: konflate
+      chart:
+        name: konflate
+        version: "${konflate_version}"
+        url: oci://ghcr.io/home-operations/charts
+      dependsOn: [external-secrets]
+
   resourcesTemplate: |
     ---
     apiVersion: source.toolkit.fluxcd.io/v1
