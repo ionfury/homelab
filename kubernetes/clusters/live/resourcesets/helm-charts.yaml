@@ -234,6 +234,7 @@ spec:
       dependsOn: [sonarr, radarr, sonarr4k, radarr4k, bazarr, sabnzbd]
     - name: paperless
       namespace: paperless
+      pruneDisabled: true
       chart:
         name: app-template
         version: "${app_template_version}"
@@ -302,6 +303,10 @@ spec:
     metadata:
       name: << inputs.name >>
       namespace: << inputs.provider.namespace >>
+      <<- if and (hasKey inputs "pruneDisabled") inputs.pruneDisabled >>
+      annotations:
+        fluxcd.controlplane.io/prune: disabled
+      <<- end >>
     spec:
       interval: 10m
       <<- if hasPrefix "oci://" inputs.chart.url >>
@@ -314,6 +319,10 @@ spec:
     metadata:
       name: << inputs.name >>
       namespace: << inputs.provider.namespace >>
+      <<- if and (hasKey inputs "pruneDisabled") inputs.pruneDisabled >>
+      annotations:
+        fluxcd.controlplane.io/prune: disabled
+      <<- end >>
     spec:
       <<- if inputs.dependsOn >>
       dependsOn:
@@ -356,6 +365,10 @@ spec:
     metadata:
       name: << inputs.name >>
       namespace: << inputs.provider.namespace >>
+      <<- if and (hasKey inputs "pruneDisabled") inputs.pruneDisabled >>
+      annotations:
+        fluxcd.controlplane.io/prune: disabled
+      <<- end >>
     spec:
       <<- if inputs.dependsOn >>
       dependsOn:
