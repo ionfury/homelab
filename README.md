@@ -1,6 +1,6 @@
 # 🏠 ionfury-homelab
 
-This repo documents my homelab infrastructure and GitOps configuration. I've recently rebuilt the whole stack on Talos, moving away from Rancher and Harvester. This setup is fully declarative, modular, and automated from PXE to production workloads.
+Enterprise-grade bare-metal Kubernetes platform, managed declaratively from PXE boot to production workloads. Three physical clusters, a promotion pipeline with automated validation, and zero manual operations — if it's not in git, it doesn't exist.
 
 ---
 
@@ -20,10 +20,13 @@ This repo documents my homelab infrastructure and GitOps configuration. I've rec
 
 <div align="center">
 
-![Talos](https://img.shields.io/badge/Talos-1.10.4-blue?logo=kubernetes&style=for-the-badge)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33.0-blue?logo=kubernetes&style=for-the-badge)
-![Terragrunt](https://img.shields.io/badge/Terragrunt-0.81.5-blue?logo=terraform&style=for-the-badge)
-![OpenTofu](https://img.shields.io/badge/OpenTofu-1.8.9-blue?logo=terraform&style=for-the-badge)
+![Talos](https://img.shields.io/badge/Talos-1.13-blue?logo=kubernetes&style=for-the-badge)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.36-blue?logo=kubernetes&style=for-the-badge)
+![Flux](https://img.shields.io/badge/Flux-2.9-blue?logo=flux&style=for-the-badge)
+![OpenTofu](https://img.shields.io/badge/OpenTofu-1.12-blue?logo=opentofu&style=for-the-badge)
+![Terragrunt](https://img.shields.io/badge/Terragrunt-1.1-blue?logo=terraform&style=for-the-badge)
+
+*All versions are Renovate-managed from a single source of truth: [`kubernetes/platform/versions.env`](kubernetes/platform/versions.env)*
 
 </div>
 
@@ -31,62 +34,86 @@ This repo documents my homelab infrastructure and GitOps configuration. I've rec
 
 ## Overview
 
-This repository contains the infrastructure and GitOps configuration for my homelab. The current iteration is based on Talos Linux and Kubernetes, with everything deployed and reconciled through Flux. Provisioning is handled via PXE boot and Terragrunt modules for Talos-based clusters.
+This repository contains the complete infrastructure and GitOps configuration for my homelab: bare-metal Supermicro nodes PXE-booting into [Talos Linux](https://www.talos.dev/), provisioned by [Terragrunt](https://terragrunt.gruntwork.io/)/[OpenTofu](https://opentofu.org/), and reconciled by [Flux](https://fluxcd.io/) from this repo. Everything is declarative, reproducible, and self-healing — the goal is to push "infrastructure as code" from the BIOS all the way to an SLO dashboard.
 
-The entire stack is declarative, built to be reproducible, and optimized for hands-off operation. My goal here is to push the boundaries of what "infrastructure as code" actually means—starting from the BIOS and ending at an SLO dashboard.
-
----
+The design principle throughout: **changes flow through a promotion pipeline, never directly to production.** A merge to `main` is packaged as an OCI artifact, deployed to an integration cluster, validated by automated canary checks, and only then promoted to the live cluster. Drift is a bug, not an acceptable state.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Directories](#directories)
+- [Repository Structure](#repository-structure)
+- [Clusters & Promotion Pipeline](#clusters--promotion-pipeline)
 - [Architecture](#architecture)
   - [Hardware](#hardware)
-  - [Cloud Dependencies](#cloud-dependencies)
   - [Networking](#networking)
-- [Bare Metal](#bare-metal)
+  - [Cloud Dependencies](#cloud-dependencies)
 - [Provisioning](#provisioning)
-- [Deployment](#deployment)
+- [Platform](#platform)
+  - [GitOps Model](#gitops-model)
+  - [Version Management & Upgrades](#version-management--upgrades)
+  - [Storage & Backup](#storage--backup)
+  - [Security](#security)
+- [Workloads](#workloads)
+- [Tooling](#tooling)
+- [Acknowledgements](#acknowledgements)
 - [License](#license)
 
----
-
-## Directories
+## Repository Structure
 
 ```
 📁
-├─ .github/          # GitHub workflows and actions
-├─ .taskfiles/       # Reusable task automation with taskfile.dev
-├─ docs/             # Runbooks and notes
-├─ infrastructure/   # PXE + cluster provisioning via Terragrunt
-├─ kubernetes/       # Flux-based GitOps manifests per cluster
-├─ Taskfile.yaml     # Root taskfile entry
+├─ .github/          # CI workflows: validation, artifact builds, Renovate
+├─ .taskfiles/       # Task runner definitions (terragrunt, talos, k8s, dr, ...)
+├─ docs/             # Architecture notes, runbooks, investigations
+├─ infrastructure/   # Terragrunt/OpenTofu: PXE, Talos, cluster provisioning
+│  ├─ stacks/        # Stack deployments (dev, integration, live, storage, global)
+│  ├─ units/         # Reusable Terragrunt units (thin wiring layers)
+│  ├─ modules/       # OpenTofu modules (provisioning logic)
+│  └─ inventory.hcl  # Hardware inventory: hosts, MACs, IPs, disks
+└─ kubernetes/
+   ├─ platform/      # Centralized platform: one definition, deployed everywhere
+   └─ clusters/      # Per-cluster bootstrap + cluster-specific workloads
 ```
 
----
+## Clusters & Promotion Pipeline
+
+Three physical clusters with distinct roles form a promotion pipeline:
+
+| Cluster | Hardware | Source | Purpose |
+|---------|----------|--------|---------|
+| `dev` | 1 node | Git (`main`) | Manual experimentation, direct mutation allowed |
+| `integration` | 3-node HA | OCI `integration-*` tags | Automated deployment + validation |
+| `live` | 3-node HA + workers | OCI `validated-*` tags | Production — strict GitOps only |
+
+```mermaid
+flowchart LR
+    PR[Pull Request] --> Main[merge to main]
+    Main --> Artifact[OCI artifact pushed to GHCR]
+    Artifact -->|integration-* tag| Integration[integration cluster]
+    Integration --> Canary[canary-checker validation]
+    Canary -->|validated-* tag| Live[live cluster]
+    Main -.->|git sync| Dev[dev cluster]
+```
+
+A merge to `main` triggers a GitHub Actions workflow that packages the platform as an OCI artifact. The integration cluster auto-deploys it, [canary-checker](https://canarychecker.io/) runs synthetic health checks against the result, and only a passing validation re-tags the artifact for the live cluster to consume. Production never sees a change that hasn't already converged successfully on identical hardware.
 
 ## Architecture
 
-This setup has grown to support multiple environments and workload isolation via dedicated physical clusters. It's designed to withstand full cluster outages without taking down the rest of the network.
-
-The network is segmented using VLANs, with one segment (`citadel`) allocated for Kubernetes infrastructure. PXE, DNS, and initial bootstrapping all happen within this VLAN.
+The network is segmented with VLANs; one segment (`citadel`) is dedicated to Kubernetes infrastructure, where PXE, DNS, and bootstrapping happen.
 
 <details>
-  <summary>Click to see vlan diagram</summary>
+  <summary>Click to see VLAN diagram</summary>
   <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/home-network-firewall.png" align="center" alt="firewall"/>
 </details>
-
----
 
 ### Hardware
 
 | Device | CPU | RAM | Disks | Purpose |
 |--------|-----|-----|-------|---------|
-| Supermicro Nodes | Xeon E5 / D / 8C | 32-128GB | SSDs + HDDs | Talos cluster nodes |
-| Pi 4 | ARM | 2-8GB | microSD | PXE, PXE DHCP, or test clusters |
-| Unifi Aggregation | - | - | - | 10G switch |
-| CyberPower UPS | - | - | - | Battery backup and monitoring |
+| Supermicro nodes | Xeon E5 / D | 32–128GB | SSDs + HDDs | Talos cluster nodes (+ NVIDIA GPU for ML workloads) |
+| Raspberry Pi 4 | ARM | 2–8GB | microSD | PXE boot services |
+| Unifi Aggregation | — | — | — | 10G switching |
+| CyberPower UPS | — | — | — | Battery backup + power monitoring |
 
 <details>
   <summary>Front of rack</summary>
@@ -98,88 +125,96 @@ The network is segmented using VLANs, with one segment (`citadel`) allocated for
   <img src="https://raw.githubusercontent.com/ionfury/homelab/main/docs/images/rack-back.jpg" align="center" alt="rack-back"/>
 </details>
 
----
+### Networking
+
+Networking is handled via Unifi. Cluster nodes live in a dedicated subnet with static MAC-based assignments; each cluster gets its own pod CIDR.
+
+- **CNI**: [Cilium](https://cilium.io/) with kube-proxy replacement and enforced `CiliumNetworkPolicy` — application namespaces opt into network profiles via labels, and unlabeled pods get no connectivity
+- **Service mesh**: [Istio ambient mesh](https://istio.io/latest/docs/ambient/) with mTLS; the mesh CA is shared across clusters via AWS SSM for cross-cluster trust, with [istio-csr](https://cert-manager.io/docs/usage/istio-csr/) bridging certificate issuance to cert-manager
+- **Ingress**: Gateway API via Istio gateways, with dedicated internal and external entry points
+- **DNS**: external-dns manages records; internal and external domains are split per cluster
 
 ### Cloud Dependencies
 
-| Tool       | Purpose                     | Cost        |
-|------------|-----------------------------|-------------|
-| GitHub     | GitOps, CI/CD, tokens       | Free        |
-| Cloudflare | DNS + public exposure       | ~$10/year   |
-| AWS S3     | Terraform state, secrets    | ~$10/year   |
-| Healthchecks.io | Heartbeats, Uptime    | Free        |
+The lab is self-sufficient except for a minimal external footprint:
 
-Total: ~$20/year
+| Service | Purpose | Cost |
+|---------|---------|------|
+| GitHub | Source of truth, CI/CD, OCI artifact registry (GHCR) | Free |
+| Cloudflare | DNS + public exposure | ~$10/year |
+| AWS | S3 (Terraform state, backups), SSM Parameter Store (secrets), DynamoDB (state locking) | ~$10/year |
+| Healthchecks.io | Dead-man's-switch heartbeat | Free |
 
----
-
-
-## Networking
-
-Networking is handled via Unifi. The Talos cluster nodes reside in the `192.168.10.0/24` subnet, statically assigned by MAC. Talos is configured to use this subnet for the control plane VIP, service IPs, and ingress routing.
-
-All cluster networks are Cilium-native and pods are assigned from separate /16 subnets per environment.
-
-Ingress is exposed via NGINX with dedicated internal and external IPs. Blocky provides local DNS resolution and filtering.
-
----
-
-## Bare Metal
-
-Nodes are installed via PXE boot into Talos Linux. The PXE boot environment is managed declaratively through Terragrunt and includes MAC address mapping and static IP assignments.
-
-Supermicro hardware is configured through IPMI with automation for NTP, naming, and password rotation documented in `docs/runbooks`.
-
----
+Total: **~$20/year**
 
 ## Provisioning
 
-Talos clusters are provisioned via `terragrunt apply` from the `infrastructure/clusters` directory. Each cluster environment has its own set of HCL configurations that map hosts, IPs, and versions.
+Bare metal to running cluster, no hands:
 
-Clusters boot directly into Talos, join the cluster, and install Flux which begins reconciling workloads from the `kubernetes/` folder.
+1. **PXE boot** — nodes network-boot into Talos Linux from a declaratively managed PXE environment (MAC-to-IP mapping lives in [`inventory.hcl`](infrastructure/inventory.hcl))
+2. **Terragrunt** — `infrastructure/stacks/<cluster>` provisions Talos machine configs, bootstraps the cluster, and installs Flux
+3. **Flux** — reconciles the platform from `kubernetes/`, and the cluster converges to desired state
 
-Example provisioning command:
+Infrastructure is split into stacks with different lifecycles: cluster stacks (`dev`, `integration`, `live`) are ephemeral and rebuildable at any time, while the `storage` stack (backup buckets, IAM, credentials) persists independently — so a cluster can be destroyed and restored from backup without ceremony.
+
+Supermicro IPMI configuration (NTP, naming, credential rotation) is automated and documented in [`docs/runbooks`](docs/runbooks).
+
+## Platform
+
+### GitOps Model
+
+The platform uses [Flux ResourceSets](https://fluxcd.control-plane.io/operator/resourcesets/introduction/) for centralized, DRY management: every Helm release across all clusters is defined once in [`kubernetes/platform/helm-charts.yaml`](kubernetes/platform/helm-charts.yaml), with per-cluster values substituted from ConfigMaps. Clusters reference the shared platform and layer cluster-specific workloads on top using the same pattern.
+
+Core platform components:
+
+| Concern | Components |
+|---------|-----------|
+| Networking | Cilium, Istio (ambient), Gateway API, external-dns |
+| Storage | Longhorn (block), Garage (S3-compatible object) |
+| Data | CloudNative-PG (Postgres), Dragonfly (Redis-compatible cache) |
+| Observability | kube-prometheus-stack, Grafana, Loki, Alloy, canary-checker, kromgo, hardware exporters (IPMI, SNMP, SMART, DCGM) |
+| Security | cert-manager, external-secrets (AWS SSM), Authelia + LLDAP (SSO), oauth2-proxy |
+| Operations | Flux operator, Tuppr, Velero, Spegel, Reloader, descheduler, silence-operator |
+
+### Version Management & Upgrades
+
+Every version in the platform — Talos, Kubernetes, Helm charts, container images — lives in `versions.env` files annotated for [Renovate](https://docs.renovatebot.com/). Renovate opens PRs; merging one sends the bump through the same promotion pipeline as any other change.
+
+Talos and Kubernetes upgrades are executed *from within the cluster* by [Tuppr](https://github.com/home-operations/tuppr): bump the version in git, and the controller rolls the nodes. No `talosctl upgrade` from a laptop.
+
+### Storage & Backup
+
+- **Longhorn** provides replicated block storage with scheduled snapshot/backup jobs to S3
+- **Velero** backs up cluster state and volumes, with 90-day lifecycle expiration
+- Backup buckets are provisioned by the persistent `storage` stack, decoupled from cluster lifecycle — full disaster recovery works even after complete cluster loss
+
+### Security
+
+- No secrets in git — external-secrets pulls from AWS SSM Parameter Store
+- PodSecurity profiles (`restricted`/`baseline`/`privileged`) enforced per namespace
+- Default-deny network posture: namespaces opt into connectivity via policy profiles
+- SSO via Authelia backed by LLDAP, fronting internal services
+- mTLS everywhere via Istio ambient mesh
+
+## Workloads
+
+The live cluster runs the usual suspects: Immich, Jellyfin + the *arr stack, Home Assistant, Paperless-ngx, Vaultwarden, Tandoor, Homepage, Open WebUI + Ollama (GPU-backed), and game servers (Minecraft, Satisfactory). Cluster-specific workloads are defined in [`kubernetes/clusters/live`](kubernetes/clusters/live) using the same ResourceSet pattern as the platform.
+
+## Tooling
+
+Local tooling is pinned via [mise](https://mise.jdx.dev/) ([`.mise.toml`](.mise.toml)) and orchestrated with [Task](https://taskfile.dev/):
 
 ```sh
-cd infrastructure/clusters/live
-terragrunt apply
+task                  # list all tasks
+task k8s:validate     # full local validation: lint, ResourceSet expansion, helm template, kubeconform
+task tg:validate-live # validate a Terragrunt stack
 ```
 
----
-
-## Deployment
-
-Flux watches the cluster folder and automatically applies all manifests from the corresponding `kubernetes/clusters/<env>` directory.
-
-Components are organized by namespace and include:
-
-- Cert Manager
-- Longhorn
-- Monitoring Stack (Prometheus, Grafana, Loki, etc.)
-- Ingress (NGINX)
-- Cilium
-- External Secrets
-- Custom workloads
-
-Changes are committed to Git and picked up automatically via GitOps.
-
----
-
-## Network Policy
-
-Network security is enforced using `NetworkPolicy` objects. Policies are structured as reusable components inside `.network-policies/`.
-
-Each policy defines a `source/` and `destination/` and is bound to namespaces via Kustomize components and pod labels like `networking/allow-egress-to-postgres`.
-
-A namespace can "opt-in" to default deny behavior by applying `allow-same-namespace`.
-
----
+CI validates every PR: YAML lint, ResourceSet expansion, Helm templating, schema validation (kubeconform), API deprecation checks (pluto), and Terragrunt validation.
 
 ## Acknowledgements
 
-Thanks to the Kubernetes@Home Discord community for all the shared patterns and tools. If you're building something similar, start there.
-
----
+Thanks to the [Home Operations](https://discord.gg/home-operations) Discord community for shared patterns and tools. If you're building something similar, start there — and browse [kubesearch.dev](https://kubesearch.dev/) for real-world chart configurations.
 
 ## License
 
