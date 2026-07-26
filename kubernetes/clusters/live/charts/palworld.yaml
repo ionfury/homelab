@@ -2,8 +2,11 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/app-template-4.6.0/charts/other/app-template/values.schema.json
 controllers:
   palworld:
-    type: statefulset
+    type: deployment
     replicas: 1
+    # Recreate: single replica on a RWO PVC — the new pod cannot mount the
+    # volume until the old one releases it, so never run two at once.
+    strategy: Recreate
 
     pod:
       terminationGracePeriodSeconds: 120
@@ -19,8 +22,8 @@ controllers:
           repository: ghcr.io/thijsvanloef/palworld-server-docker
           tag: "${palworld_server_version}"
         env:
-          PUID: "1000"
-          PGID: "1000"
+          # PUID/PGID are ignored when the container user is overridden
+          # (runAsUser below); volume perms handled by pod fsGroup instead.
           PORT: "8211"
           PLAYERS: "16"
           SERVER_NAME: "Homelab Palworld"
@@ -44,6 +47,13 @@ controllers:
               secretKeyRef:
                 name: palworld-admin-password
                 key: password
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
         # Upstream sizing: 4 cores, 16GB RAM min / 32GB+ for stable operation.
         # Requesting 20Gi guarantees placement on the XL node (node2, 128GiB) —
         # the 16GB workers cannot fit this alongside existing workloads.
