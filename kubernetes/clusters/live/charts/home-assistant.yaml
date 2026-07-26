@@ -29,18 +29,17 @@ controllers:
           - -c
           - |
             set -eu
-            TARGET=/config/custom_components/auth_oidc
-            if [ -f "${TARGET}/.version" ] && [ "$(cat ${TARGET}/.version)" = "${hass_oidc_auth_version}" ]; then
+            if [ -f /config/custom_components/auth_oidc/.version ] && [ "$(cat /config/custom_components/auth_oidc/.version)" = "${hass_oidc_auth_version}" ]; then
               echo "auth_oidc ${hass_oidc_auth_version} already installed, skipping"
               exit 0
             fi
             echo "Installing hass-oidc-auth ${hass_oidc_auth_version}..."
-            rm -rf "${TARGET}"
+            rm -rf /config/custom_components/auth_oidc
             wget -qO /tmp/oidc.tar.gz "https://github.com/christiaangoossens/hass-oidc-auth/archive/refs/tags/${hass_oidc_auth_version}.tar.gz"
             mkdir -p /config/custom_components
             tar -xzf /tmp/oidc.tar.gz -C /tmp
-            cp -r /tmp/hass-oidc-auth-*/custom_components/auth_oidc "${TARGET}"
-            echo "${hass_oidc_auth_version}" > "${TARGET}/.version"
+            cp -r /tmp/hass-oidc-auth-*/custom_components/auth_oidc /config/custom_components/auth_oidc
+            echo "${hass_oidc_auth_version}" > /config/custom_components/auth_oidc/.version
             echo "auth_oidc ${hass_oidc_auth_version} installed"
         securityContext:
           allowPrivilegeEscalation: false
