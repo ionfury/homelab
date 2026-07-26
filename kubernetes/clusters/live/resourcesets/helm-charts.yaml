@@ -232,14 +232,6 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [sonarr, radarr, sonarr4k, radarr4k, bazarr, sabnzbd]
-    - name: paperless
-      namespace: paperless
-      pruneDisabled: true
-      chart:
-        name: app-template
-        version: "${app_template_version}"
-        url: oci://ghcr.io/bjw-s-labs/helm
-      dependsOn: [cloudnative-pg, secret-generator]
     - name: homepage
       namespace: homepage
       chart:
