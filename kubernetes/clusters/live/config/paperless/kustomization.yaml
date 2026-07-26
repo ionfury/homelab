@@ -12,3 +12,4 @@ resources:
   - paperless-secret.yaml
   - canary.yaml
   - imap-egress.yaml
+  - ollama-egress.yaml
