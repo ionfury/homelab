@@ -7,26 +7,17 @@ Enterprise-grade bare-metal Kubernetes platform, managed declaratively from PXE 
 <div align="center">
 
 ![heartbeat](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=heartbeat&query=%24.status&url=https%3A%2F%2Fhealthchecks.io%2Fbadge%2Fb4308338-139b-4907-bee3-37c2da%2FiS3vfgkr-2.json&style=flat-square&logo=kubernetes&logoColor=white)&nbsp;&nbsp;
-[![30D-Availability](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dapiserver_availability_30d&style=flat-square&label=Availability)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
-[![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_node_count&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
-[![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_pod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
-[![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
-[![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_memory_usage&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
-[![Power-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fstats.tomnowak.work%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_power_usage&style=flat-square&label=Power)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Uptime](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_uptime&style=flat-square&label=Uptime)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dnode_count&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dpod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_memory_usage&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 
-</div>
+[![Talos](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dtalos_version&style=flat-square&label=Talos&logo=kubernetes&logoColor=white)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Kubernetes](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dkubernetes_version&style=flat-square&label=Kubernetes&logo=kubernetes&logoColor=white)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Flux](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dflux_version&style=flat-square&label=Flux&logo=flux&logoColor=white)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 
----
-
-<div align="center">
-
-![Talos](https://img.shields.io/badge/Talos-1.13-blue?logo=kubernetes&style=for-the-badge)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.36-blue?logo=kubernetes&style=for-the-badge)
-![Flux](https://img.shields.io/badge/Flux-2.9-blue?logo=flux&style=for-the-badge)
-![OpenTofu](https://img.shields.io/badge/OpenTofu-1.12-blue?logo=opentofu&style=for-the-badge)
-![Terragrunt](https://img.shields.io/badge/Terragrunt-1.1-blue?logo=terraform&style=for-the-badge)
-
-*All versions are Renovate-managed from a single source of truth: [`kubernetes/platform/versions.env`](kubernetes/platform/versions.env)*
+*Live from the production cluster via [kromgo](https://github.com/kashalls/kromgo) — versions shown are observed state, not declared. Declared versions live in [`versions.env`](kubernetes/platform/versions.env).*
 
 </div>
 

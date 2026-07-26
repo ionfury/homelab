@@ -47,3 +47,15 @@ data:
         label: git_version
         colors:
           - { color: "blue", min: 0, max: 0 }
+
+      - name: talos_version
+        query: kromgo:talos_version_info:instant
+        label: version_id
+        colors:
+          - { color: "blue", min: 0, max: 0 }
+
+      - name: flux_version
+        query: kromgo:flux_version_info:instant
+        label: version
+        colors:
+          - { color: "blue", min: 0, max: 0 }
