@@ -428,6 +428,29 @@ configMap:
           grant_types:
             - authorization_code
           token_endpoint_auth_method: client_secret_basic
+        - client_id: home-assistant
+          client_name: Home Assistant
+          client_secret:
+            path: /secrets/home-assistant-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://hass.${internal_domain}/auth/oidc/callback
+          scopes:
+            - openid
+            - profile
+            - groups
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          access_token_signed_response_alg: none
+          userinfo_signed_response_alg: none
+          token_endpoint_auth_method: client_secret_post
 
   regulation:
     max_retries: 3
@@ -456,4 +479,5 @@ secret:
     jellyseerr-oidc-client-secret: { }
     papra-oidc-client-secret: { }
     sure-oidc-client-secret: { }
+    home-assistant-oidc-client-secret: { }
     authelia-smtp-credentials: { }

@@ -11,4 +11,5 @@ resources:
   - hass-database-cluster.yaml
   - hass-database-backup.yaml
   - hass-cnpg-garage-key.yaml
+  - hass-oidc-client-secret-replica.yaml
   - canary.yaml

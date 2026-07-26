@@ -18,6 +18,42 @@ controllers:
         seccompProfile:
           type: RuntimeDefault
 
+    initContainers:
+      install-oidc-component:
+        image:
+          repository: alpine
+          # renovate: datasource=docker depName=alpine
+          tag: "3.22.0"
+        command:
+          - sh
+          - -c
+          - |
+            set -eu
+            TARGET=/config/custom_components/auth_oidc
+            if [ -f "${TARGET}/.version" ] && [ "$(cat ${TARGET}/.version)" = "${hass_oidc_auth_version}" ]; then
+              echo "auth_oidc ${hass_oidc_auth_version} already installed, skipping"
+              exit 0
+            fi
+            echo "Installing hass-oidc-auth ${hass_oidc_auth_version}..."
+            rm -rf "${TARGET}"
+            wget -qO /tmp/oidc.tar.gz "https://github.com/christiaangoossens/hass-oidc-auth/archive/refs/tags/${hass_oidc_auth_version}.tar.gz"
+            mkdir -p /config/custom_components
+            tar -xzf /tmp/oidc.tar.gz -C /tmp
+            cp -r /tmp/hass-oidc-auth-*/custom_components/auth_oidc "${TARGET}"
+            echo "${hass_oidc_auth_version}" > "${TARGET}/.version"
+            echo "auth_oidc ${hass_oidc_auth_version} installed"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+
     containers:
       app:
         image:
@@ -29,6 +65,11 @@ controllers:
               secretKeyRef:
                 name: hass-db-credentials
                 key: uri
+          HASS_OIDC_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: home-assistant-oidc-client-secret
+                key: client-secret
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
