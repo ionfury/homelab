@@ -33,5 +33,16 @@ spec:
         - record: "kromgo:talos_version_info:instant"
           expr: 'topk(1, count by (version_id) (node_os_info{id="talos"}))'
 
+        # OR vector(0) keeps the series present when no alerts fire, so the
+        # badge renders 0 instead of erroring on an empty query result
+        - record: "kromgo:alerts_warning:instant"
+          expr: 'count(ALERTS{alertstate="firing", severity="warning"}) OR on() vector(0)'
+
+        - record: "kromgo:alerts_critical:instant"
+          expr: 'count(ALERTS{alertstate="firing", severity="critical"}) OR on() vector(0)'
+
+        - record: "kromgo:cluster_power_usage_watts:instant"
+          expr: 'max(upsAdvanceOutputPower)'
+
         - record: "kromgo:flux_version_info:instant"
           expr: 'label_replace(flux_instance_info{ready="True"}, "version", "$1", "revision", "^([^@]+)@.*$")'

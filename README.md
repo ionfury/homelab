@@ -12,6 +12,9 @@ Enterprise-grade bare-metal Kubernetes platform, managed declaratively from PXE 
 [![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dpod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 [![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 [![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_memory_usage&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Power-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dcluster_power_usage&style=flat-square&label=Power)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Warning-Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dalerts_warning&style=flat-square&label=Warnings)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
+[![Critical-Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dalerts_critical&style=flat-square&label=Critical)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 
 [![Talos](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dtalos_version&style=flat-square&label=Talos&logo=kubernetes&logoColor=white)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
 [![Kubernetes](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ionfury.tv%2Fquery%3Fformat%3Dendpoint%26metric%3Dkubernetes_version&style=flat-square&label=Kubernetes&logo=kubernetes&logoColor=white)](https://github.com/kashalls/kromgo/)&nbsp;&nbsp;
