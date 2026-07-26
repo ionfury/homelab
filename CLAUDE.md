@@ -67,6 +67,7 @@ If uncertain:
 
 - NEVER use linuxserver.io images (`lscr.io/linuxserver/*`) — ever, for any app
 - Use official upstream images or distroless alternatives instead
+- ALWAYS pin the latest stable release when first adding an image — never guess a tag from training data. Verify the newest tag from the source registry (e.g. `curl` the GHCR/Docker Hub tags list, `skopeo list-tags`, or the upstream GitHub releases/tags) and use it. Prefer a specific semver tag over `latest`; avoid pre-release/`beta`/`rc` tags unless explicitly requested.
 
 ## Destructive Operations
 

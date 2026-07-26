@@ -17,6 +17,21 @@ user-invocable: false
 
 Versions live in `kubernetes/platform/versions.env`. Renovate's custom regex manager in `.github/renovate.json5` parses `# renovate:` annotations on the line above each entry. Flux substitutes `${var}` references into HelmRelease specs at reconcile time.
 
+## Choosing the Initial Version
+
+**Always verify the latest stable tag from the source — never guess from memory.** Training data lags reality by months to years, so a remembered tag is almost always stale. Before writing any `*_version=` entry or hardcoded image tag, look it up:
+
+```bash
+# Docker/OCI registry (GHCR shown; anonymous pull token)
+TOKEN=$(curl -s "https://ghcr.io/token?scope=repository:<org>/<image>:pull&service=ghcr.io" | jq -r .token)
+curl -s -H "Authorization: Bearer $TOKEN" "https://ghcr.io/v2/<org>/<image>/tags/list" | jq -r '.tags[]' | sort -V | tail
+
+skopeo list-tags docker://ghcr.io/<org>/<image>          # if skopeo available
+git ls-remote --tags --refs https://github.com/<org>/<repo>.git | sort -V | tail   # github-releases/tags
+```
+
+Match the tag format the registry actually uses (`v2.7.1` vs `2.7.1`). Pick the newest stable semver; skip `beta`/`rc`/`nightly`/`latest` unless the user asks. Renovate keeps it current afterward, but a fresh deploy must start on the current release, not an ancient one.
+
 ## Annotation Syntax
 
 ```env

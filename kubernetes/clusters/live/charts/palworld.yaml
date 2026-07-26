@@ -1,0 +1,114 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/app-template-4.6.0/charts/other/app-template/values.schema.json
+controllers:
+  palworld:
+    type: deployment
+    replicas: 1
+    # Recreate: single replica on a RWO PVC — the new pod cannot mount the
+    # volume until the old one releases it, so never run two at once.
+    strategy: Recreate
+
+    pod:
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/thijsvanloef/palworld-server-docker
+          tag: "${palworld_server_version}"
+        env:
+          # PUID/PGID are ignored when the container user is overridden
+          # (runAsUser below); volume perms handled by pod fsGroup instead.
+          PORT: "8211"
+          PLAYERS: "16"
+          SERVER_NAME: "Homelab Palworld"
+          SERVER_DESCRIPTION: "Homelab Palworld Dedicated Server"
+          COMMUNITY: "false"
+          MULTITHREADING: "true"
+          RCON_ENABLED: "true"
+          RCON_PORT: "25575"
+          REST_API_ENABLED: "true"
+          REST_API_PORT: "8212"
+          UPDATE_ON_BOOT: "true"
+          BACKUP_ENABLED: "true"
+          BACKUP_CRON_EXPRESSION: "0 * * * *"
+          SERVER_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: palworld-server-password
+                key: password
+          ADMIN_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: palworld-admin-password
+                key: password
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+        # Upstream sizing: 4 cores, 16GB RAM min / 32GB+ for stable operation.
+        # Requesting 20Gi guarantees placement on the XL node (node2, 128GiB) —
+        # the 16GB workers cannot fit this alongside existing workloads.
+        resources:
+          requests:
+            cpu: "4"
+            memory: 20Gi
+          limits:
+            memory: 32Gi
+        probes:
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command:
+                  - pgrep
+                  - -f
+                  - PalServer
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              failureThreshold: 60
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command:
+                  - pgrep
+                  - -f
+                  - PalServer
+              periodSeconds: 30
+              failureThreshold: 3
+          readiness:
+            enabled: false
+
+service:
+  game:
+    controller: palworld
+    type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: ${palworld_ip}
+    ports:
+      game:
+        port: 8211
+        protocol: UDP
+      query:
+        port: 27015
+        protocol: UDP
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass: fast
+    globalMounts:
+      - path: /palworld
