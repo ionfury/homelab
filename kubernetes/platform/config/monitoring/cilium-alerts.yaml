@@ -11,18 +11,6 @@ spec:
   groups:
     - name: cilium-agent
       rules:
-        # Agent availability
-        - alert: CiliumAgentDown
-          expr: up{job="cilium-agent"} == 0
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Cilium agent down on {{ $labels.instance }}"
-            description: >-
-              Cilium agent on {{ $labels.instance }} has been unreachable for 5+ minutes.
-              This affects all pod networking, network policies, and load balancing on the node.
-
         # Health endpoint unreachable (from Deckhouse)
         - alert: CiliumAgentUnreachableHealthEndpoints
           expr: |

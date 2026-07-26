@@ -12,14 +12,6 @@ spec:
   groups:
     - name: exportarr.rules
       rules:
-        - alert: ExportarrTargetDown
-          expr: up{job=~"exportarr-.*"} == 0
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Exportarr target {{ $labels.job }} is down"
-            description: "The exportarr exporter for {{ $labels.job }} has been unreachable for 5 minutes."
         - alert: ArrApplicationUnreachable
           expr: |
             {__name__=~"(sonarr|radarr|prowlarr)_system_status"} == 0

@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: target-down-alerts
+  labels:
+    app.kubernetes.io/name: target-down-alerts
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: target-down
+      rules:
+        # Single critical-tier scrape-down alert replacing per-app copies
+        # (AutheliaDown, GrafanaDown, CiliumAgentDown). All other scrape
+        # targets are covered by kube-prometheus-stack's generic TargetDown
+        # (warning, fires when >10% of a job's targets are down). Add a job
+        # to the regex to escalate its scrape-down severity to critical.
+        - alert: CriticalScrapeTargetDown
+          expr: up{job=~"authelia-metrics|cilium-agent|.*grafana.*"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Critical target {{ $labels.job }} on {{ $labels.instance }} is down"
+            description: >-
+              Prometheus cannot scrape {{ $labels.job }}
+              ({{ $labels.namespace }}/{{ $labels.instance }}) for 5+ minutes.
+              This job is designated critical: its unavailability means loss of
+              authentication, networking, or observability.

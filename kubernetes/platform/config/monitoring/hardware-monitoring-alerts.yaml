@@ -9,30 +9,6 @@ metadata:
     release: kube-prometheus-stack
 spec:
   groups:
-    - name: hardware-monitoring.targets
-      rules:
-        - alert: SnmpTargetDown
-          expr: up{job="scrapeConfig/monitoring/snmp-exporter-targets"} == 0
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "SNMP target {{ $labels.instance }} unreachable"
-            description: >-
-              SNMP exporter cannot reach {{ $labels.instance }} for 5+ minutes.
-              Check BMC network connectivity, SNMP service status, and community string.
-
-        - alert: IpmiTargetDown
-          expr: up{job="scrapeConfig/monitoring/ipmi-exporter-targets"} == 0
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "IPMI target {{ $labels.instance }} unreachable"
-            description: >-
-              IPMI exporter cannot reach {{ $labels.instance }} for 5+ minutes.
-              Check BMC network connectivity, IPMI-over-LAN status, and credentials.
-
     - name: hardware-monitoring.temperature
       rules:
         - alert: HighCpuTemperature

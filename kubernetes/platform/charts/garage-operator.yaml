@@ -16,7 +16,7 @@ serviceMonitor:
 grafanaDashboard:
   enabled: true
 
+# Alert rules live in config/garage/prometheus-rules.yaml; operator-generated
+# rules duplicate them and double-page on garage incidents
 prometheusRules:
-  enabled: true
-  additionalLabels:
-    release: kube-prometheus-stack
+  enabled: false

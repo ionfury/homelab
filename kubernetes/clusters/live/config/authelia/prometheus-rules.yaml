@@ -12,14 +12,6 @@ spec:
   groups:
     - name: authelia.rules
       rules:
-        - alert: AutheliaDown
-          expr: up{job="authelia-metrics"} == 0
-          for: 5m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Authelia authentication portal is unreachable"
-
         - alert: AutheliaHighAuthFailureRate
           expr: |
             (
