@@ -13,7 +13,8 @@ spec:
         timezone: EST
   policy:
     rebootMode: default
-    timeout: 30m
+    timeout: 60m
+    waitForVolumeDetach: true
   healthChecks:
     - apiVersion: v1
       kind: Node
