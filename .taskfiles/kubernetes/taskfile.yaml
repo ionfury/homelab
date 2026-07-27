@@ -31,6 +31,7 @@ vars:
   # Common kubeconform arguments (double-brace escaping for kubeconform templates)
   KUBECONFORM_ARGS: >-
     -schema-location default
+    -schema-location '{{.ROOT_DIR}}/.taskfiles/kubernetes/schemas/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
     -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
     -ignore-missing-schemas
     -summary
@@ -502,5 +503,5 @@ tasks:
           echo "No clusters with .cluster-vars.env found - skipping cluster-specific validation"
           exit 0
         fi
-      - for: {var: CLUSTERS}
+      - for: { var: CLUSTERS }
         task: validate-{{.ITEM}}
