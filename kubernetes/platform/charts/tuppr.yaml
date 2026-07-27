@@ -1,6 +1,6 @@
 ---
 # https://github.com/home-operations/tuppr
-replicaCount: 0
+replicaCount: 3
 monitoring:
   serviceMonitor:
     enabled: true
