@@ -22,6 +22,7 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [cloudnative-pg, secret-generator]
+      driftDetection: true
     - name: zipline
       namespace: zipline
       chart:
@@ -354,6 +355,10 @@ spec:
         strategy:
           name: RetryOnFailure
         timeout: 10m
+      <<- if and (hasKey inputs "driftDetection") inputs.driftDetection >>
+      driftDetection:
+        mode: enabled
+      <<- end >>
       valuesFrom:
         - kind: ConfigMap
           name: cluster-values
