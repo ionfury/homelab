@@ -31,7 +31,7 @@ vars:
   # Common kubeconform arguments (double-brace escaping for kubeconform templates)
   KUBECONFORM_ARGS: >-
     -schema-location default
-    -schema-location '{{.ROOT_DIR}}/.taskfiles/kubernetes/schemas/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
+    -schema-location '{{.EXPANDED_DIR}}/schemas/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
     -schema-location 'https://kubernetes-schemas.pages.dev/{{ "{{.Group}}" }}/{{ "{{.ResourceKind}}" }}_{{ "{{.ResourceAPIVersion}}" }}.json'
     -ignore-missing-schemas
     -summary
@@ -394,10 +394,27 @@ tasks:
       - test -d "{{.MANIFESTS_DIR}}"
       - test -d "{{.EXPANDED_DIR}}/resourcesets"
 
+  _generate-crd-schemas:
+    internal: true
+    desc: Generate kubeconform JSON schemas from Helm chart CRDs for locally-installed operators
+    cmds:
+      - mkdir -p {{.EXPANDED_DIR}}/schemas
+      - |
+        set -a && source "{{.VERSION_VARS}}" && set +a
+        echo "Generating tuppr CRD schemas (v${tuppr_version})..."
+        python3 {{.ROOT_DIR}}/.taskfiles/kubernetes/scripts/generate-crd-schemas.py \
+          {{.EXPANDED_DIR}}/schemas \
+          oci://ghcr.io/home-operations/charts/tuppr \
+          "${tuppr_version}"
+    preconditions:
+      - which helm
+      - which python3
+      - test -f {{.VERSION_VARS}}
+
   _validate-kubeconform-base:
     internal: true
     desc: Validate non-cluster-specific outputs (Helm charts, ResourceSets with defaults)
-    deps: [_template-all-charts, _expand-resourcesets]
+    deps: [_template-all-charts, _expand-resourcesets, _generate-crd-schemas]
     cmds:
       # Skip Kustomization in ResourceSets - they contain ${source_kind} which is cluster-specific
       # Full Kustomization validation happens in validate-* with proper cluster vars
@@ -414,6 +431,7 @@ tasks:
   _validate-kubeconform-cluster:
     internal: true
     desc: Validate cluster-substituted manifests
+    deps: [_generate-crd-schemas]
     requires:
       vars: [CLUSTER, CLUSTER_OUTPUT_DIR]
     cmds:
