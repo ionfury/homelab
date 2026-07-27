@@ -63,6 +63,8 @@ Cluster-specific Helm releases via ResourceSet (mirrors platform pattern). The R
 
 **Migrating an app from the legacy pattern:** ownership transfer between Flux owners races with garbage collection. Always land a prep PR first that annotates the app's objects with `kustomize.toolkit.fluxcd.io/prune: disabled` (config resources) and sets `pruneDisabled: true` on the app's input in `resourcesets/helm-charts.yaml` (generated HelmRepository/HelmRelease/wrapper Kustomization). Only after that deploys, move the files.
 
+**SSA field-ownership leak:** the migration moves the HelmRelease across field managers (flux-operator → kustomize-controller), and server-side apply only removes a field when the *owning* manager applies without it. Any field present in the legacy spec but absent in the new one is orphaned on the live object. In practice this is `spec.valuesFrom`: the new HelmRelease must declare `valuesFrom: []` explicitly to claim the field and clear the stale `cluster-values` reference, otherwise the HelmRelease fails with `key not found` once the values key is removed from `charts/`.
+
 ### Dependency Model
 
 Dependency order: platform → config.yaml, helm-charts.yaml, and apps.yaml (all dependsOn platform).

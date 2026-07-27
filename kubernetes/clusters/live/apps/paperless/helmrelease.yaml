@@ -32,6 +32,11 @@ spec:
     strategy:
       name: RetryOnFailure
     timeout: 10m
+  # Explicit empty list is required (not merely absent): the legacy ResourceSet's
+  # flux-operator field manager still owns spec.valuesFrom on the live object, and
+  # SSA only removes a field when the owning manager applies without it. Setting []
+  # transfers ownership to kustomize-controller; may be dropped after migration.
+  valuesFrom: []
   values:
     # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
     # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
