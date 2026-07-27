@@ -12,10 +12,6 @@ domainFilters:
 
 policy: sync
 
-extraArgs:
-  target:
-    - gw.ionfury.tv
-
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65534
