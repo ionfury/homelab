@@ -14,3 +14,11 @@ data:
   podDisruptionBudget: |
     spec:
       maxUnavailable: 1
+  # Preserve the real client source IP end-to-end. With Cilium L2 the node
+  # holding the LB IP forwards only to a local gateway pod (no SNAT), so the
+  # client IP reaches Envoy's access log — required for geoip enrichment.
+  # HA is retained: Cilium announces the LB IP only from nodes with a ready
+  # gateway pod (external + internal both run multiple replicas).
+  service: |
+    spec:
+      externalTrafficPolicy: Local

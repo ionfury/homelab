@@ -9,6 +9,8 @@ When bootstrapping a new cluster, populate these SSM parameters before the clust
 | `/homelab/kubernetes/<cluster>/cloudflare-api-token` | Cloudflare API token for DNS challenges | JSON: `{"token": "<value>"}` |
 | `/homelab/kubernetes/<cluster>/discord-webhook-secret` | Discord webhook URL for Alertmanager | Plain string: webhook URL |
 | `/homelab/kubernetes/shared/istio-mesh-ca` | Shared Istio mesh root CA (all clusters) | JSON: `{"tls.crt": "<base64>", "tls.key": "<base64>"}` |
+| `/homelab/kubernetes/<cluster>/maxmind-account-id` | MaxMind account ID for GeoLite2 (gateway geoip enrichment) | Plain string: numeric account ID |
+| `/homelab/kubernetes/<cluster>/maxmind-license-key` | MaxMind license key for GeoLite2 downloads | Plain string: license key |
 
 ## Bootstrap-Managed Secrets
 

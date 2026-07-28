@@ -14,6 +14,13 @@ import sys
 
 import yaml
 
+# Some CRDs (e.g. tuppr's matchType) use a bare "=" scalar, which YAML resolves
+# to the tag:yaml.org,2002:value tag. PyYAML's SafeLoader has no constructor for
+# it and crashes, so treat it as a plain string.
+yaml.SafeLoader.add_constructor(
+    "tag:yaml.org,2002:value", yaml.SafeLoader.construct_yaml_str
+)
+
 
 def crd_to_jsonschema(crd: dict) -> list[tuple[str, dict]]:
     """Extract JSON schemas from a CRD, one per version. Returns [(filename, schema)]."""

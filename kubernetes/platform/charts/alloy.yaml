@@ -4,9 +4,69 @@ fullnameOverride: alloy
 controller:
   type: daemonset
   priorityClassName: platform
+  # Shared scratch volume holding the MaxMind GeoLite2 City DB. Per-pod (DaemonSet)
+  # so every node's Alloy has a local copy for access-log geo enrichment.
+  volumes:
+    extra:
+      - name: geoip
+        emptyDir: { }
+  # Blocking one-shot download so the mmdb exists before Alloy starts and its
+  # stage.geoip references a present file (FREQUENCY=0 = run once and exit).
+  initContainers:
+    - name: geoipupdate-init
+      # renovate: datasource=docker depName=ghcr.io/maxmind/geoipupdate
+      image: &geoipupdate ghcr.io/maxmind/geoipupdate:v8.0.0
+      env:
+        - name: GEOIPUPDATE_EDITION_IDS
+          value: GeoLite2-City
+        - name: GEOIPUPDATE_DB_DIR
+          value: /geoip
+        - name: GEOIPUPDATE_FREQUENCY
+          value: "0"
+      envFrom:
+        - secretRef:
+            name: maxmind-geoip-license
+      volumeMounts:
+        - name: geoip
+          mountPath: /geoip
+      resources:
+        requests:
+          cpu: 5m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+  # Sidecar refreshing the DB daily (FREQUENCY in hours). GeoLite2 updates a few
+  # times per week; a long-lived Alloy pod would otherwise drift stale.
+  extraContainers:
+    - name: geoipupdate
+      image: *geoipupdate
+      env:
+        - name: GEOIPUPDATE_EDITION_IDS
+          value: GeoLite2-City
+        - name: GEOIPUPDATE_DB_DIR
+          value: /geoip
+        - name: GEOIPUPDATE_FREQUENCY
+          value: "24"
+      envFrom:
+        - secretRef:
+            name: maxmind-geoip-license
+      volumeMounts:
+        - name: geoip
+          mountPath: /geoip
+      resources:
+        requests:
+          cpu: 5m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
 alloy:
   mounts:
     varlog: true
+    # Read-only view of the geoip DB maintained by the geoipupdate containers.
+    extra:
+      - name: geoip
+        mountPath: /geoip
+        readOnly: true
   configMap:
     content: |
       // Discover pods on this node only (prevents FD exhaustion from cluster-wide scrape)
@@ -42,6 +102,12 @@ alloy:
           source_labels = ["__meta_kubernetes_pod_node_name"]
           target_label  = "node"
         }
+        // Expose the Gateway API gateway name (external / internal) as a label so
+        // geoip enrichment below can scope itself to external ingress access logs.
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_gateway_networking_k8s_io_gateway_name"]
+          target_label  = "gateway"
+        }
         rule {
           source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name"]
           separator     = "/"
@@ -61,6 +127,43 @@ alloy:
           selector = "{app=\"loki\"}"
           action   = "drop"
         }
+
+        // Geo-enrich external ingress access logs. Scoped by the gateway label so
+        // only the external gateway's Envoy JSON access logs pay the parse cost.
+        // The client IP comes from x_forwarded_for (real IP now that the gateway
+        // Service uses externalTrafficPolicy: Local). geoip fields are attached as
+        // structured metadata (geoip_lat/geoip_lon/geoip_country_code) — not stream
+        // labels — so unbounded lat/lon values never inflate Loki's index.
+        stage.match {
+          selector = "{namespace=\"istio-gateway\", gateway=\"external\"}"
+
+          stage.json {
+            expressions = {
+              xff = "x_forwarded_for",
+            }
+          }
+          // x_forwarded_for may be "client, proxy1, ..."; take the first hop.
+          stage.regex {
+            expression = "^(?P<geoip_ip>[^,\\s]+)"
+            source     = "xff"
+          }
+          stage.geoip {
+            source  = "geoip_ip"
+            db      = "/geoip/GeoLite2-City.mmdb"
+            db_type = "city"
+          }
+          // Private/LAN IPs don't resolve, leaving geoip fields empty — those lines
+          // simply carry no coordinates and are ignored by the map.
+          stage.structured_metadata {
+            values = {
+              geoip_country_code = "",
+              geoip_city         = "geoip_city_name",
+              geoip_lat          = "geoip_location_latitude",
+              geoip_lon          = "geoip_location_longitude",
+            }
+          }
+        }
+
         forward_to = [loki.process.drop_old_entries.receiver]
       }
 
