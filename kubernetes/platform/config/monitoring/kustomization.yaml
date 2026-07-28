@@ -46,4 +46,6 @@ resources:
   - velero-dashboard.yaml
   - network-throughput-dashboard.yaml
   - platform-home-dashboard.yaml
+  - gateway-ingress-dashboards.yaml
+  - maxmind-geoip-secret.yaml
   - grafana-dashboard-loki-logs.yaml
