@@ -6,7 +6,7 @@ controllers:
       main:
         image:
           # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
-          tag: v3.0.3
+          tag: v3.1.0
         env:
           DB_HOSTNAME: immich-database-rw.database.svc.cluster.local
           DB_PORT: "5432"
