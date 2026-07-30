@@ -61,7 +61,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\"}[$__rate_interval]))",
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"$code\"}[$__rate_interval])) or vector(0)",
               "legendFormat": "",
               "refId": "A"
             }
@@ -86,7 +86,7 @@ data:
             "overrides": []
           },
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "area",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -97,13 +97,13 @@ data:
               "fields": "",
               "values": false
             },
-            "textMode": "auto"
+            "textMode": "value"
           }
         },
         {
           "type": "stat",
           "title": "Success Rate",
-          "description": "Percent non-5xx. Below SLO fires GatewayAvailabilityBudgetBurning*. Lower is worse.",
+          "description": "Percent non-5xx. Below SLO fires GatewayAvailabilityBudgetBurning*.",
           "gridPos": {
             "h": 5,
             "w": 4,
@@ -117,7 +117,7 @@ data:
           },
           "targets": [
             {
-              "expr": "100 * sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",response_code!~\"5..\"}[$__rate_interval])) / clamp_min(sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\"}[$__rate_interval])), 1e-9)",
+              "expr": "100 * (sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code!~\"5..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\"}[$__rate_interval])), 1e-9)",
               "legendFormat": "",
               "refId": "A"
             }
@@ -150,7 +150,7 @@ data:
             "overrides": []
           },
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -161,13 +161,13 @@ data:
               "fields": "",
               "values": false
             },
-            "textMode": "auto"
+            "textMode": "value"
           }
         },
         {
           "type": "stat",
           "title": "5xx Error Rate",
-          "description": "Percent of 5xx responses. Higher is worse; drives availability error budget.",
+          "description": "Percent of 5xx responses. Drives availability error budget.",
           "gridPos": {
             "h": 5,
             "w": 4,
@@ -181,7 +181,7 @@ data:
           },
           "targets": [
             {
-              "expr": "100 * sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",response_code=~\"5..\"}[$__rate_interval])) / clamp_min(sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\"}[$__rate_interval])), 1e-9)",
+              "expr": "100 * (sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"5..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\"}[$__rate_interval])), 1e-9)",
               "legendFormat": "",
               "refId": "A"
             }
@@ -214,7 +214,7 @@ data:
             "overrides": []
           },
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -225,7 +225,7 @@ data:
               "fields": "",
               "values": false
             },
-            "textMode": "auto"
+            "textMode": "value"
           }
         },
         {
@@ -245,7 +245,7 @@ data:
           },
           "targets": [
             {
-              "expr": "100 * sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",response_code=~\"4..\"}[$__rate_interval])) / clamp_min(sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\"}[$__rate_interval])), 1e-9)",
+              "expr": "100 * (sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"4..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\"}[$__rate_interval])), 1e-9)",
               "legendFormat": "",
               "refId": "A"
             }
@@ -278,7 +278,7 @@ data:
             "overrides": []
           },
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -289,7 +289,7 @@ data:
               "fields": "",
               "values": false
             },
-            "textMode": "auto"
+            "textMode": "value"
           }
         },
         {
@@ -309,7 +309,7 @@ data:
           },
           "targets": [
             {
-              "expr": "histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"source\",source_workload=\"$gateway\"}[$__rate_interval])) by (le))",
+              "expr": "histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\"}[$__rate_interval])) by (le))",
               "legendFormat": "",
               "refId": "A"
             }
@@ -342,7 +342,7 @@ data:
             "overrides": []
           },
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -353,7 +353,7 @@ data:
               "fields": "",
               "values": false
             },
-            "textMode": "auto"
+            "textMode": "value"
           }
         },
         {
@@ -373,7 +373,7 @@ data:
           },
           "targets": [
             {
-              "expr": "histogram_quantile(0.99, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"source\",source_workload=\"$gateway\"}[$__rate_interval])) by (le))",
+              "expr": "histogram_quantile(0.99, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\"}[$__rate_interval])) by (le))",
               "legendFormat": "",
               "refId": "A"
             }
@@ -406,7 +406,7 @@ data:
             "overrides": []
           },
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -417,7 +417,160 @@ data:
               "fields": "",
               "values": false
             },
-            "textMode": "auto"
+            "textMode": "value"
+          }
+        },
+        {
+          "type": "row",
+          "collapsed": false,
+          "title": "Traffic Over Time",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 6
+          },
+          "id": 8
+        },
+        {
+          "type": "timeseries",
+          "title": "Requests by Response Class",
+          "description": "Stacked request rate by HTTP status class over the window. Rising red (5xx) = availability signal; the pulse of the gateway.",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 7
+          },
+          "id": 9,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"$code\",response_code=~\"2..\"}[$__rate_interval]))",
+              "legendFormat": "2xx",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"$code\",response_code=~\"3..\"}[$__rate_interval]))",
+              "legendFormat": "3xx",
+              "refId": "B"
+            },
+            {
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"$code\",response_code=~\"4..\"}[$__rate_interval]))",
+              "legendFormat": "4xx",
+              "refId": "C"
+            },
+            {
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"$code\",response_code=~\"5..\"}[$__rate_interval]))",
+              "legendFormat": "5xx",
+              "refId": "D"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "",
+                "drawStyle": "bars",
+                "barAlignment": 0,
+                "fillOpacity": 90,
+                "gradientMode": "none",
+                "lineWidth": 0,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "reqps",
+              "decimals": 3
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "2xx"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "green"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "3xx"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "blue"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "4xx"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "yellow"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "5xx"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "red"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "right"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
           }
         },
         {
@@ -428,21 +581,21 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 6
+            "y": 15
           },
-          "id": 8
+          "id": 10
         },
         {
           "type": "geomap",
           "title": "Client Origin (external)",
-          "description": "Geo origin of external ingress clients from Alloy geoip-enriched access logs (structured metadata geoip_lat/geoip_lon). Populated once the geo pipeline is deployed; empty for the internal gateway.",
+          "description": "Geo origin of external ingress clients from Alloy geoip-enriched access logs. Heat layer = density, markers = individual clients. Populated once the geo pipeline is deployed; empty for the internal gateway.",
           "gridPos": {
-            "h": 13,
-            "w": 14,
+            "h": 16,
+            "w": 16,
             "x": 0,
-            "y": 7
+            "y": 16
           },
-          "id": 9,
+          "id": 11,
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -508,6 +661,25 @@ data:
             },
             "layers": [
               {
+                "type": "heatmap",
+                "name": "Density",
+                "location": {
+                  "mode": "coords",
+                  "latitude": "geoip_lat",
+                  "longitude": "geoip_lon"
+                },
+                "config": {
+                  "weight": {
+                    "fixed": 1,
+                    "min": 0,
+                    "max": 1
+                  },
+                  "radius": 18,
+                  "blur": 22,
+                  "opacity": 0.5
+                }
+              },
+              {
                 "type": "markers",
                 "name": "Clients",
                 "location": {
@@ -516,7 +688,7 @@ data:
                   "longitude": "geoip_lon"
                 },
                 "config": {
-                  "showLegend": false,
+                  "showLegend": true,
                   "style": {
                     "size": {
                       "fixed": 6
@@ -524,7 +696,11 @@ data:
                     "color": {
                       "fixed": "orange"
                     },
-                    "opacity": 0.6
+                    "opacity": 0.8,
+                    "symbol": {
+                      "fixed": "img/icons/marker/circle.svg",
+                      "mode": "fixed"
+                    }
                   }
                 },
                 "tooltip": true
@@ -537,19 +713,19 @@ data:
           "title": "Traffic Share by Endpoint",
           "description": "Request-rate distribution across upstream apps for the selected gateway (fan-out map).",
           "gridPos": {
-            "h": 7,
-            "w": 10,
-            "x": 14,
-            "y": 7
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 16
           },
-          "id": 10,
+          "id": 12,
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
           },
           "targets": [
             {
-              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\"}[$__range])) by (destination_workload)",
+              "expr": "sum(rate(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\",destination_workload=~\"$endpoint\",response_code=~\"$code\"}[$__range])) by (destination_workload)",
               "legendFormat": "{{destination_workload}}",
               "refId": "A",
               "instant": true,
@@ -590,14 +766,14 @@ data:
         {
           "type": "table",
           "title": "Top Countries (external)",
-          "description": "Request count by client country (geoip_country_code) from enriched access logs. Populated post-deploy.",
+          "description": "Request count by client country from enriched access logs. Populated post-deploy.",
           "gridPos": {
-            "h": 6,
-            "w": 10,
-            "x": 14,
-            "y": 14
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 24
           },
-          "id": 11,
+          "id": 13,
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -640,8 +816,37 @@ data:
             }
           ],
           "fieldConfig": {
-            "defaults": {},
-            "overrides": []
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Requests"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "gradient"
+                    }
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "continuous-GrYlRd"
+                    }
+                  }
+                ]
+              }
+            ]
           },
           "options": {
             "showHeader": true,
@@ -684,6 +889,63 @@ data:
             ],
             "includeAll": false,
             "multi": false
+          },
+          {
+            "name": "endpoint",
+            "label": "Endpoint",
+            "type": "query",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "query": {
+              "query": "label_values(istio_requests_total{reporter=\"source\",source_workload=\"$gateway\"}, destination_workload)",
+              "refId": "endpoint"
+            },
+            "refresh": 2,
+            "includeAll": true,
+            "allValue": ".*",
+            "multi": true,
+            "current": {
+              "text": "All",
+              "value": "$__all"
+            },
+            "sort": 1
+          },
+          {
+            "name": "code",
+            "label": "Response Class",
+            "type": "custom",
+            "query": "2xx : 2.., 3xx : 3.., 4xx : 4.., 5xx : 5..",
+            "includeAll": true,
+            "allValue": ".*",
+            "multi": true,
+            "current": {
+              "text": "All",
+              "value": "$__all"
+            },
+            "options": [
+              {
+                "text": "2xx",
+                "value": "2..",
+                "selected": false
+              },
+              {
+                "text": "3xx",
+                "value": "3..",
+                "selected": false
+              },
+              {
+                "text": "4xx",
+                "value": "4..",
+                "selected": false
+              },
+              {
+                "text": "5xx",
+                "value": "5..",
+                "selected": false
+              }
+            ]
           }
         ]
       },
