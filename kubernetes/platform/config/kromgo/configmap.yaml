@@ -47,3 +47,38 @@ data:
         label: git_version
         colors:
           - { color: "blue", min: 0, max: 0 }
+
+      - name: talos_version
+        query: kromgo:talos_version_info:instant
+        label: version_id
+        colors:
+          - { color: "blue", min: 0, max: 0 }
+
+      - name: flux_version
+        query: kromgo:flux_version_info:instant
+        label: version
+        colors:
+          - { color: "blue", min: 0, max: 0 }
+
+      - name: alerts_warning
+        query: kromgo:alerts_warning:instant
+        suffix: " firing"
+        colors:
+          - { color: "green", min: 0, max: 0 }
+          - { color: "yellow", min: 1, max: 9999 }
+
+      - name: alerts_critical
+        query: kromgo:alerts_critical:instant
+        suffix: " firing"
+        colors:
+          - { color: "green", min: 0, max: 0 }
+          - { color: "red", min: 1, max: 9999 }
+
+      # UPS load capacity is 900W (upsAdvanceIdentLoadPower); thresholds at 70%/90%
+      - name: cluster_power_usage
+        query: kromgo:cluster_power_usage_watts:instant
+        suffix: "W"
+        colors:
+          - { color: "green", min: 0, max: 630 }
+          - { color: "yellow", min: 630, max: 810 }
+          - { color: "red", min: 810, max: 99999 }
