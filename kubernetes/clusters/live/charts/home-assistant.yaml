@@ -54,6 +54,49 @@ controllers:
             memory: 128Mi
 
     containers:
+      code-server:
+        image:
+          repository: codercom/code-server
+          tag: "${code_server_version}"
+        args:
+          - --bind-addr=0.0.0.0:8080
+          - --auth=none
+          - /home/coder/hass-config
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+          runAsNonRoot: false
+          runAsUser: 0
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 30
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              failureThreshold: 3
+
       app:
         image:
           repository: ghcr.io/home-assistant/home-assistant
@@ -118,6 +161,8 @@ service:
     ports:
       http:
         port: 8123
+      code-server:
+        port: 8080
 
 serviceMonitor:
   app:
@@ -149,10 +194,35 @@ route:
       - backendRefs:
           - identifier: app
             port: 8123
+  code-server:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "HA Config Editor"
+      gethomepage.dev/group: "Home"
+      gethomepage.dev/icon: "code.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=home-assistant"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "hass-code.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8080
 
 persistence:
   config:
     existingClaim: hass-config
+    advancedMounts:
+      home-assistant:
+        app:
+          - path: /config
+        install-oidc-component:
+          - path: /config
+        code-server:
+          - path: /home/coder/hass-config
   tmp:
     type: emptyDir
     globalMounts:
@@ -160,7 +230,9 @@ persistence:
   hass-config-yaml:
     type: configMap
     name: hass-config
-    globalMounts:
-      - path: /config/configuration.yaml
-        subPath: configuration.yaml
-        readOnly: true
+    advancedMounts:
+      home-assistant:
+        app:
+          - path: /config/configuration.yaml
+            subPath: configuration.yaml
+            readOnly: true
