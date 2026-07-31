@@ -56,9 +56,10 @@ data:
 
     # Google Calendar via CalDAV (read-only).
     # Credentials are injected from /config/secrets.yaml (mounted from hass-google-caldav-secret).
+    # caldav library discovers calendars via principal lookup — email not needed in URL.
     calendar:
       - platform: caldav
-        url: https://www.google.com/calendar/dav/!secret google_caldav_email/user
+        url: https://apidata.googleusercontent.com/caldav/v2/
         username: !secret google_caldav_email
         password: !secret google_caldav_password
 
