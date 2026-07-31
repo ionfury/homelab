@@ -67,8 +67,8 @@ controllers:
           readOnlyRootFilesystem: false
           capabilities:
             drop: [ALL]
-          runAsNonRoot: false
-          runAsUser: 0
+          runAsNonRoot: true
+          runAsUser: 1000
         resources:
           requests:
             cpu: 50m
