@@ -12,5 +12,4 @@ resources:
   - hass-database-backup.yaml
   - hass-cnpg-garage-key.yaml
   - hass-oidc-client-secret-replica.yaml
-  - hass-google-caldav-secret.yaml
   - canary.yaml
