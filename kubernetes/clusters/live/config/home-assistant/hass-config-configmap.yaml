@@ -54,15 +54,6 @@ data:
       features:
         default_redirect: true
 
-    # Google Calendar via CalDAV (read-only).
-    # Credentials are injected from /config/secrets.yaml (mounted from hass-google-caldav-secret).
-    # caldav library discovers calendars via principal lookup — email not needed in URL.
-    calendar:
-      - platform: caldav
-        url: https://apidata.googleusercontent.com/caldav/v2/
-        username: !secret google_caldav_email
-        password: !secret google_caldav_password
-
     # Core integrations (explicit list — discovery components intentionally omitted)
     config:
     frontend:
