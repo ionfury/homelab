@@ -120,7 +120,8 @@
     },
     {
       "matchDepNames": [
-        "cilium"
+        "cilium",
+        "quay.io/cilium/hubble-relay"
       ],
       "groupName": "cilium",
       "automerge": true
