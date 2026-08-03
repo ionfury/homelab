@@ -1,0 +1,117 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: longhorn-snapshot-hash-alerts
+  labels:
+    app.kubernetes.io/name: longhorn
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: longhorn-snapshot-hash
+      rules:
+        # LonghornSnapshotUnhashed
+        #
+        # Root cause: Longhorn v1.12 performs a fast "checksum-skip" rebuild when a replica is
+        # re-synced after reboot, IF status.checksum is populated on every snapshot. When a
+        # user-created snapshot has an empty checksum, Longhorn falls back to a full block-by-block
+        # delta rebuild (16-24h on HDD volumes). This happens silently on every node reboot.
+        #
+        # The native longhorn_snapshot_actual_size_bytes metric provides snapshot/volume/user_created
+        # labels but has NO checksum field. We expose longhorn_snapshot_info from kube-state-metrics
+        # CustomResourceState with a checksum label (empty string when un-hashed).
+        #
+        # Expression logic:
+        #   - LHS: user_created snapshots that exist (have actual_size_bytes)
+        #   - RHS: user_created snapshots that have a populated checksum (checksum!="")
+        #   - unless: set subtraction — alerts for any snapshot in LHS that has NO matching entry in RHS
+        - alert: LonghornSnapshotUnhashed
+          expr: |
+            count by (volume, snapshot) (
+              longhorn_snapshot_actual_size_bytes{user_created="true"}
+            )
+            unless
+            count by (volume, snapshot) (
+              kube_customresource_longhorn_snapshot_info{
+                customresource_group="longhorn.io",
+                customresource_kind="Snapshot",
+                user_created="true",
+                checksum!=""
+              }
+            )
+          for: 6h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn snapshot {{ $labels.snapshot }} on volume {{ $labels.volume }} has no checksum"
+            description: >-
+              User-created snapshot {{ $labels.snapshot }} on volume {{ $labels.volume }} has an
+              empty status.checksum and has been in this state for over 6 hours.
+              Without a checksum, Longhorn cannot use the fast checksum-skip rebuild path. On every
+              node reboot or replica re-sync, this volume will fall back to a full block-by-block
+              delta rebuild (typically 16-24h on HDD). Fix: ensure the snapshot-data-integrity
+              setting is enabled and trigger a hash operation before any node upgrade or reboot.
+              See: https://longhorn.io/docs/latest/snapshots-and-backups/snapshot-space-management/
+
+        # LonghornSnapshotStale
+        #
+        # Alerts when the oldest/newest snapshot per volume is older than the configured recurring-job
+        # interval plus a margin. The snapshot-frequent job runs weekly (cron: "0 20 * * 5", retain: 2).
+        # Threshold = 8 days (691200s) = 7-day cadence + 1-day margin.
+        #
+        # Uses kube_customresource_longhorn_snapshot_created_seconds emitted by KSM CustomResourceState
+        # from metadata.creationTimestamp. KSM parses RFC3339 timestamps to float unix seconds.
+        #
+        # VALIDATION CAVEAT: The exact float value emitted for metadata.creationTimestamp should be
+        # verified against a live KSM scrape after deployment. If this metric is absent or emits 0,
+        # investigate KSM CRS timestamp parsing (confirmed by KSM docs: "RFC3339 times are parsed to
+        # float timestamp" for Gauge valueFrom fields).
+        - alert: LonghornSnapshotStale
+          expr: |
+            (
+              time()
+              - max by (volume) (
+                  kube_customresource_longhorn_snapshot_created_seconds{
+                    customresource_group="longhorn.io",
+                    customresource_kind="Snapshot"
+                  } > 0
+                )
+            ) > 691200
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} has no recent snapshot"
+            description: >-
+              Volume {{ $labels.volume }} has no snapshot created in the last 8 days (threshold:
+              691200s = 7-day weekly recurring-job cadence + 1-day margin). The snapshot-frequent
+              recurring job runs weekly (Fridays at 20:00). Either the recurring job failed, the
+              volume is not enrolled in the snapshot group, or snapshots are being deleted before
+              the next one is created. Check Longhorn recurring job status and volume snapshot groups.
+
+    - name: longhorn-replica-rebuild
+      rules:
+        # LonghornReplicaRebuildStuck
+        #
+        # Watchdog for longhorn_engine_rebuild_progress (native metric, 0-100 scale).
+        # A value stuck between 0 and 100 for over 2h indicates a stalled rebuild.
+        # Tuned for HDD: a legitimate large delta rebuild on spinning disk can take > 1h,
+        # so 2h is used instead of 1h to avoid noise during normal large rebuilds.
+        # Adjust for your hardware — on all-NVMe setups, 30m is a reasonable threshold.
+        - alert: LonghornReplicaRebuildStuck
+          expr: |
+            longhorn_engine_rebuild_progress > 0
+            and
+            longhorn_engine_rebuild_progress < 100
+          for: 2h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn replica rebuild on {{ $labels.engine }} stuck at {{ $value }}%"
+            description: >-
+              Engine {{ $labels.engine }} (replica from {{ $labels.rebuild_src }} to
+              {{ $labels.rebuild_dst }}) has been rebuilding at {{ $value }}% for over 2 hours.
+              On HDD, a large delta rebuild can legitimately take 1-3h; if this alert persists
+              beyond 4h, investigate disk I/O saturation, network issues, or a stalled engine
+              process. Volume: {{ $labels.pvc }}/{{ $labels.pvc_namespace }}.
