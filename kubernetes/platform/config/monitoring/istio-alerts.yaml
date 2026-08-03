@@ -149,6 +149,29 @@ spec:
               Ztunnel DaemonSet has {{ $value }} pods not ready. Some nodes may
               not have Ambient mode mesh connectivity.
 
+        # Ztunnel CA authentication failures at istiod (projected SA token expired or rejected)
+        # citadel_server_authentication_failure_count is incremented by istiod's CA server
+        # (security/pkg/server/ca/monitoring.go) each time a CSR is rejected due to token
+        # authentication failure — the exact failure mode from kubernetes/kubernetes#138689
+        # where a kubelet bug freezes the projected SA JWT past expiry.
+        # Distinct from IstioCsrTokenRejectionHigh (which tracks istio-csr gRPC rejections):
+        # this metric tracks istiod's own CA endpoint rejecting ztunnel CSRs.
+        - alert: ZtunnelCaAuthFailure
+          expr: |
+            sum(rate(citadel_server_authentication_failure_count[5m])) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Istiod CA is rejecting workload certificate signing requests (token auth failure)"
+            description: >-
+              Istiod's CA server is rejecting CSRs due to authentication failures at
+              {{ $value | humanize }} failures/s. This is the signature of an expired or
+              frozen projected service account token (kubernetes/kubernetes#138689).
+              Ztunnel on affected nodes cannot obtain SPIFFE mTLS certificates, breaking
+              all HBONE mesh paths on those nodes even though ztunnel appears Running.
+              Immediate remediation: kubectl rollout restart ds/ztunnel -n istio-system
+
     - name: istio-csr
       rules:
         # istio-csr availability
