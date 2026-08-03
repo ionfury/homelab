@@ -1,0 +1,119 @@
+---
+# D2 — ztunnel token refresh Job
+#
+# This Job is keyed to ${kubernetes_version}: when Flux substitutes a new
+# version, it creates a new Job (new name) and prunes the old one, guaranteeing
+# a fresh projected SA token is minted by the kubelet after every Kubernetes
+# version bump.
+#
+# RBAC: ServiceAccount ztunnel-refresh with a namespace-scoped Role granting
+# only get/patch on the ztunnel DaemonSet in istio-system.
+#
+# Network: the istio-system CNP already allows kube-apiserver egress on 6443/443.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ztunnel-refresh-k8s-${kubernetes_version}
+  namespace: istio-system
+  labels:
+    app.kubernetes.io/name: ztunnel-refresh
+    app.kubernetes.io/component: maintenance
+spec:
+  activeDeadlineSeconds: 900
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      serviceAccountName: ztunnel-refresh
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: script
+          configMap:
+            name: ztunnel-refresh-script
+            defaultMode: 0555
+      containers:
+        - name: refresh
+          # renovate: datasource=docker depName=bitnamilegacy/kubectl
+          image: docker.io/bitnamilegacy/kubectl:1.33.4
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          command: ["/bin/bash", "/scripts/ztunnel-refresh.sh"]
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ztunnel-refresh-script
+  namespace: istio-system
+data:
+  ztunnel-refresh.sh: |
+    #!/bin/bash
+    # ztunnel-refresh.sh
+    #
+    # D2 mitigation for kubernetes/kubernetes#138689: kubelet bug that freezes
+    # projected SA tokens past expiry during control-plane restart on k8s v1.36.x.
+    #
+    # This Job is keyed to the Kubernetes version (via Job name) so it re-runs on
+    # every version bump, ensuring ztunnel always receives a fresh projected SA token.
+    #
+    # Phases:
+    #   1. Wait for istiod Deployment to be Available (CA reachable).
+    #   2. Wait for istio-csr Deployment to be Available (cert pipeline up).
+    #   3. Patch ztunnel DaemonSet to trigger a rolling restart via restartedAt annotation.
+
+    set -euo pipefail
+
+    POLL_INTERVAL="${POLL_INTERVAL:-10}"
+    ISTIOD_TIMEOUT="${ISTIOD_TIMEOUT:-300}"
+    CSR_TIMEOUT="${CSR_TIMEOUT:-120}"
+    NAMESPACE="${NAMESPACE:-istio-system}"
+    CERT_MANAGER_NS="${CERT_MANAGER_NS:-cert-manager}"
+
+    wait_available() {
+      local ns="$1" kind="$2" name="$3" timeout="$4"
+      local deadline=$(( SECONDS + timeout ))
+      echo "Waiting for $kind/$name in $ns to be Available (timeout ${timeout}s)..."
+      while [ "$SECONDS" -lt "$deadline" ]; do
+        available=$(kubectl get "$kind" "$name" -n "$ns" \
+          -o jsonpath='{.status.conditions[?(@.type=="Available")].status}' 2>/dev/null || true)
+        if [ "$available" = "True" ]; then
+          echo "$kind/$name is Available."
+          return 0
+        fi
+        echo "  $kind/$name not yet Available (${available:-unknown}), retrying in ${POLL_INTERVAL}s..."
+        sleep "$POLL_INTERVAL"
+      done
+      echo "ERROR: $kind/$name in $ns did not become Available within ${timeout}s." >&2
+      return 1
+    }
+
+    # Phase 1: Gate on istiod.
+    wait_available "$NAMESPACE" deployment istiod "$ISTIOD_TIMEOUT"
+
+    # Phase 2: Gate on istio-csr.
+    wait_available "$CERT_MANAGER_NS" deployment cert-manager-istio-csr "$CSR_TIMEOUT"
+
+    # Phase 3: Rolling restart of ztunnel by bumping spec.template annotation.
+    RESTART_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "Patching ztunnel DaemonSet at ${RESTART_TS} to trigger rolling restart..."
+    kubectl patch daemonset ztunnel -n "$NAMESPACE" \
+      --type=merge \
+      -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"${RESTART_TS}\"}}}}}"
+
+    echo "Rolling restart of ztunnel initiated. New pods will obtain fresh projected SA tokens."
+    echo "Done."
