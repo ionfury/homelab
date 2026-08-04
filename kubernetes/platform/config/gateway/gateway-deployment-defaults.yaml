@@ -10,7 +10,15 @@ data:
       template:
         metadata:
           annotations:
-            kubectl.kubernetes.io/restartedAt: "2026-07-12T17:00:00Z"
+            {}
+            # WARNING: never add a static kubectl.kubernetes.io/restartedAt timestamp here.
+            # Istiod regenerates the gateway Deployment from this ConfigMap on every reconcile
+            # loop. A static timestamp makes the pod template hash unchanging, so any operator-
+            # initiated `kubectl rollout restart` is silently stomped back to the static value
+            # and the ReplicaSet is never replaced — the restart appears to succeed but does
+            # nothing. This directly caused a 12-hour mTLS outage (2026-08-03) when the correct
+            # recovery action (cycling gateway pods to obtain fresh audience:istio-ca projected
+            # tokens) was blocked by this trap (kubernetes/kubernetes#138689).
   podDisruptionBudget: |
     spec:
       maxUnavailable: 1
