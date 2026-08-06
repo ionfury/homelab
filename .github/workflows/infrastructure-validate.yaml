@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [aws-set-params, bootstrap, config, talos]
+        module: [aws-set-params, bootstrap, config, talos, unifi-gateway]
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1

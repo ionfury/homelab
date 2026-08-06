@@ -12,6 +12,13 @@ domainFilters:
 
 policy: sync
 
+registry: txt
+txtOwnerId: homelab-${cluster_name}
+txtPrefix: "_externaldns."
+
+extraArgs:
+  - --default-targets=gw.${external_domain}
+
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65534
