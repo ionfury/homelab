@@ -161,7 +161,7 @@ kube-state-metrics:
               namespace: [metadata, namespace]
               volume: [spec, volume]
             metrics:
-              - name: _info
+              - name: info
                 help: >-
                   Longhorn snapshot info. Emits 1 per snapshot; the checksum label is the
                   hash string (empty when not yet computed). Use checksum!="" to identify
@@ -174,7 +174,7 @@ kube-state-metrics:
                       user_created: [status, userCreated]
                       ready_to_use: [status, readyToUse]
                       checksum: [status, checksum]
-              - name: _created_seconds
+              - name: created_seconds
                 help: >-
                   Unix timestamp of when the Longhorn snapshot CR was created
                   (metadata.creationTimestamp parsed to seconds). Use this to detect
