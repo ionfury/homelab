@@ -33,7 +33,7 @@ spec:
             )
             unless
             count by (volume, snapshot) (
-              kube_customresource_longhorn_snapshot_info{
+              longhorn_snapshot_info{
                 customresource_group="longhorn.io",
                 customresource_kind="Snapshot",
                 user_created="true",
@@ -60,7 +60,7 @@ spec:
         # interval plus a margin. The snapshot-frequent job runs weekly (cron: "0 20 * * 5", retain: 2).
         # Threshold = 8 days (691200s) = 7-day cadence + 1-day margin.
         #
-        # Uses kube_customresource_longhorn_snapshot_created_seconds emitted by KSM CustomResourceState
+        # Uses longhorn_snapshot_created_seconds emitted by KSM CustomResourceState
         # from metadata.creationTimestamp. KSM parses RFC3339 timestamps to float unix seconds.
         #
         # VALIDATION CAVEAT: The exact float value emitted for metadata.creationTimestamp should be
@@ -72,7 +72,7 @@ spec:
             (
               time()
               - max by (volume) (
-                  kube_customresource_longhorn_snapshot_created_seconds{
+                  longhorn_snapshot_created_seconds{
                     customresource_group="longhorn.io",
                     customresource_kind="Snapshot"
                   } > 0
