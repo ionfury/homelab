@@ -192,9 +192,81 @@ spec:
               Renewal should have occurred at 72h remaining. cert-manager or istio-csr
               may be failing to rotate the certificate.
 
-        # istio-csr token rejection rate — indicates workloads have stale projected
-        # service account tokens, typically caused by a prolonged mesh outage where
-        # in-memory token caches were not refreshed.
+        # istio-csr CA authentication failure — any rejection rate above a small baseline
+        # is a signal that one or more mesh components hold a frozen or expired
+        # audience:istio-ca projected service account token (kubernetes/kubernetes#138689).
+        # A kubelet bug in v1.36.x freezes these tokens across control-plane restarts; the
+        # affected pod cannot obtain a new SPIFFE cert and istio-csr rejects its CSR
+        # continuously at ~10/min per affected pod. Even a single pod in this state produces
+        # a sustained stream of auth failures pointing directly at the root cause.
+        #
+        # grpc_server_handled_total is exposed by istio-csr's gRPC interceptor and labeled
+        # by grpc_service and grpc_code. Unauthenticated is the canonical gRPC status code
+        # returned when JWT validation fails ("service account token has expired").
+        #
+        # Two severity tiers:
+        #   warning  — any non-zero rejection rate (catches single-pod cases early)
+        #   critical — sustained > 0.05/s (roughly one pod failing continuously, ~3/min)
+        #
+        # Runbook: enumerate audience:istio-ca pods, then cycle them.
+        #   kubectl get pods -A -o json | jq -r '.items[] |
+        #     select(.spec.volumes[]?.projected.sources[]?.serviceAccountToken.audience? == "istio-ca") |
+        #     "\(.metadata.creationTimestamp)  \(.metadata.namespace)/\(.metadata.name)"' | sort
+        #   kubectl rollout restart ds/ztunnel -n istio-system
+        #   kubectl rollout restart deploy/external-istio deploy/internal-istio -n istio-gateway
+        - alert: IstioCsrAuthFailure
+          expr: |
+            sum(rate(grpc_server_handled_total{
+              namespace="cert-manager",
+              grpc_service=~".*IstioCertificateService.*",
+              grpc_code="Unauthenticated"
+            }[5m])) > 0
+          for: 3m
+          labels:
+            severity: warning
+          annotations:
+            summary: "istio-csr is rejecting certificate requests (token auth failure)"
+            description: >-
+              istio-csr is rejecting {{ $value | humanize }} token authentication
+              requests/s via gRPC Unauthenticated errors. This is the signature of an expired
+              or frozen audience:istio-ca projected service account token
+              (kubernetes/kubernetes#138689). Affected pods cannot obtain SPIFFE mTLS
+              certificates; if left unresolved this escalates to mesh 503s within minutes.
+              Enumerate affected pods and cycle them:
+              kubectl get pods -A -o json | jq -r '.items[] |
+                select(.spec.volumes[]?.projected.sources[]?.serviceAccountToken.audience? == "istio-ca") |
+                "\(.metadata.creationTimestamp)  \(.metadata.namespace)/\(.metadata.name)"' | sort
+              Then: kubectl rollout restart ds/ztunnel -n istio-system
+              And: kubectl rollout restart deploy/external-istio deploy/internal-istio -n istio-gateway
+
+        - alert: IstioCsrAuthFailureCritical
+          expr: |
+            sum(rate(grpc_server_handled_total{
+              namespace="cert-manager",
+              grpc_service=~".*IstioCertificateService.*",
+              grpc_code="Unauthenticated"
+            }[5m])) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "istio-csr sustained auth rejection rate — mesh mTLS at risk"
+            description: >-
+              istio-csr is sustaining {{ $value | humanize }} token authentication
+              rejections/s. At this rate one or more audience:istio-ca pods are completely
+              unable to renew SPIFFE certificates, which will cause or has already caused
+              Envoy UC/UF/URX upstream failures and 503s on ingress gateways
+              (kubernetes/kubernetes#138689 — kubelet v1.36.x frozen projected token bug).
+              Immediate action required. Enumerate affected pods and cycle them:
+              kubectl get pods -A -o json | jq -r '.items[] |
+                select(.spec.volumes[]?.projected.sources[]?.serviceAccountToken.audience? == "istio-ca") |
+                "\(.metadata.creationTimestamp)  \(.metadata.namespace)/\(.metadata.name)"' | sort
+              Then: kubectl rollout restart ds/ztunnel -n istio-system
+              And: kubectl rollout restart deploy/external-istio deploy/internal-istio -n istio-gateway
+
+        # istio-csr token rejection rate — retained as warning alias for pre-existing
+        # alert name (referenced in runbooks/dashboards). Prefer IstioCsrAuthFailure above
+        # which fires earlier (3m vs 5m) and includes a full runbook.
         - alert: IstioCsrTokenRejectionHigh
           expr: |
             sum(rate(grpc_server_handled_total{
