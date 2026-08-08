@@ -59,3 +59,15 @@ spec:
         status.phase == 'Ready' &&
           (!has(status.isRollingUpdate) || !status.isRollingUpdate)
       timeout: 10m
+    - apiVersion: apps/v1
+      kind: DaemonSet
+      name: ztunnel
+      namespace: istio-system
+      description: Ztunnel DaemonSet must be fully ready (desired == ready) before the
+        next node is upgraded. Talos upgrades reboot nodes, which restarts the kubelet
+        and allows the projected SA token to be refreshed — but if a prior node already
+        has a frozen token (kubernetes/kubernetes#138689), detecting it here prevents
+        propagating a broken mesh state to additional nodes during a rolling upgrade.
+      expr: |
+        status.desiredNumberScheduled == status.numberReady
+      timeout: 15m
