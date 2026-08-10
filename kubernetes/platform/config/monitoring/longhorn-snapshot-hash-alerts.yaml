@@ -54,41 +54,6 @@ spec:
               setting is enabled and trigger a hash operation before any node upgrade or reboot.
               See: https://longhorn.io/docs/latest/snapshots-and-backups/snapshot-space-management/
 
-        # LonghornSnapshotStale
-        #
-        # Alerts when the oldest/newest snapshot per volume is older than the configured recurring-job
-        # interval plus a margin. The snapshot-frequent job runs weekly (cron: "0 20 * * 5", retain: 2).
-        # Threshold = 8 days (691200s) = 7-day cadence + 1-day margin.
-        #
-        # Uses longhorn_snapshot_created_seconds emitted by KSM CustomResourceState
-        # from metadata.creationTimestamp. KSM parses RFC3339 timestamps to float unix seconds.
-        #
-        # VALIDATION CAVEAT: The exact float value emitted for metadata.creationTimestamp should be
-        # verified against a live KSM scrape after deployment. If this metric is absent or emits 0,
-        # investigate KSM CRS timestamp parsing (confirmed by KSM docs: "RFC3339 times are parsed to
-        # float timestamp" for Gauge valueFrom fields).
-        - alert: LonghornSnapshotStale
-          expr: |
-            (
-              time()
-              - max by (volume) (
-                  longhorn_snapshot_created_seconds{
-                    customresource_group="longhorn.io",
-                    customresource_kind="Snapshot"
-                  } > 0
-                )
-            ) > 691200
-          for: 1h
-          labels:
-            severity: warning
-          annotations:
-            summary: "Longhorn volume {{ $labels.volume }} has no recent snapshot"
-            description: >-
-              Volume {{ $labels.volume }} has no snapshot created in the last 8 days (threshold:
-              691200s = 7-day weekly recurring-job cadence + 1-day margin). The snapshot-frequent
-              recurring job runs weekly (Fridays at 20:00). Either the recurring job failed, the
-              volume is not enrolled in the snapshot group, or snapshots are being deleted before
-              the next one is created. Check Longhorn recurring job status and volume snapshot groups.
 
     - name: longhorn-replica-rebuild
       rules:
