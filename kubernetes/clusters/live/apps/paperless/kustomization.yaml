@@ -21,3 +21,16 @@ resources:
   - ollama-egress.yaml
   - helmrepository.yaml
   - helmrelease.yaml
+configMapGenerator:
+  # Per-app values ConfigMap consumed by the HelmRelease via valuesFrom. A
+  # per-app ConfigMap (vs the legacy shared cluster-values) keeps blast radius
+  # to one app and colocates values in the app folder. disableNameSuffixHash
+  # keeps the name stable so the HelmRelease can reference it; helm-controller
+  # watches it and re-renders on change. Lives in flux-system to match the
+  # HelmRelease namespace (valuesFrom is same-namespace only).
+  - name: paperless-values
+    namespace: flux-system
+    options:
+      disableNameSuffixHash: true
+    files:
+      - values.yaml
