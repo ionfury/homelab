@@ -54,3 +54,27 @@ spec:
         - ports:
             - port: "11434"
               protocol: TCP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+# Permits Sure to reach Yahoo Finance for securities price history (the enabled
+# securities provider). Without this, mutual/index-fund holdings have no price
+# history, so investment balance charts collapse to $0 on all past dates and
+# spike only on the latest sync day.
+# - fc.yahoo.com: cookie fetch for crumb authentication
+# - query1.finance.yahoo.com: data endpoints (getcrumb, search, quoteSummary, chart)
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sure-yahoo-finance-egress
+  namespace: sure
+spec:
+  description: "Allow Sure egress to Yahoo Finance API (fc.yahoo.com, query1.finance.yahoo.com:443)"
+  endpointSelector: { }
+  egress:
+    - toFQDNs:
+        - matchName: fc.yahoo.com
+        - matchName: query1.finance.yahoo.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
