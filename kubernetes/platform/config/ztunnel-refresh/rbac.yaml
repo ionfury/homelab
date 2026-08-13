@@ -1,0 +1,70 @@
+---
+# RBAC for the ztunnel-refresh Job (D2 — kubernetes/kubernetes#138689 mitigation).
+#
+# Minimum verbs required:
+#   istio-system:
+#     - get deployments/istiod        (pre-flight: gate on istiod readiness)
+#     - get/patch daemonsets/ztunnel  (action: trigger rolling restart)
+#   cert-manager:
+#     - get deployments/cert-manager-istio-csr (pre-flight: gate on istio-csr readiness)
+#
+# All roles are scoped to named resources to prevent privilege escalation.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ztunnel-refresh
+  namespace: istio-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ztunnel-refresh
+  namespace: istio-system
+rules:
+  - apiGroups: ["apps"]
+    resources: ["daemonsets"]
+    resourceNames: ["ztunnel"]
+    verbs: ["get", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["istiod"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ztunnel-refresh
+  namespace: istio-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ztunnel-refresh
+subjects:
+  - kind: ServiceAccount
+    name: ztunnel-refresh
+    namespace: istio-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ztunnel-refresh-csr-reader
+  namespace: cert-manager
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["cert-manager-istio-csr"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ztunnel-refresh-csr-reader
+  namespace: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ztunnel-refresh-csr-reader
+subjects:
+  - kind: ServiceAccount
+    name: ztunnel-refresh
+    namespace: istio-system

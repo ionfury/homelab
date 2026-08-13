@@ -103,6 +103,10 @@ spec:
       namespace: ""
       path: kubernetes/platform/config/infrastructure-policies
       dependsOn: [cilium]
+    - name: ztunnel-refresh-config
+      namespace: ""
+      path: kubernetes/platform/config/ztunnel-refresh
+      dependsOn: [istiod, istio-csr]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
