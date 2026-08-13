@@ -103,7 +103,7 @@ route:
       gethomepage.dev/enabled: "true"
       gethomepage.dev/name: "LLDAP"
       gethomepage.dev/group: "Apps"
-      gethomepage.dev/icon: "light-ldap.svg"
+      gethomepage.dev/icon: "lldap.svg"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=lldap"
     parentRefs:
       - name: internal

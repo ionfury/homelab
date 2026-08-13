@@ -147,7 +147,7 @@ route:
       gethomepage.dev/enabled: "true"
       gethomepage.dev/name: "Tandoor"
       gethomepage.dev/group: "Apps"
-      gethomepage.dev/icon: "tandoor.svg"
+      gethomepage.dev/icon: "tandoor-recipes.svg"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=tandoor"
     parentRefs:
       - name: external
