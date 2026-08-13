@@ -16,7 +16,7 @@ controllers:
         image:
           repository: hrfee/jfa-go
           # renovate: datasource=docker depName=hrfee/jfa-go
-          tag: v0.6.0
+          tag: latest@sha256:701cfca823f9278b65f4cf7706b0c7f89b3be33e17ca077f11d89dc119e9f307
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
