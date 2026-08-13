@@ -213,6 +213,14 @@
       ],
       "groupName": "tdarr"
     },
+    {
+      // hrfee/jfa-go publishes only floating tags (latest, unstable) — no semver.
+      // Restrict to digest-only updates to avoid phantom version lookup failures.
+      "matchDepNames": [
+        "hrfee/jfa-go"
+      ],
+      "updateTypes": ["digest"]
+    },
     // ============================================================
     // Version holds — upstream regressions (see .github/version-holds.yaml)
     // ============================================================
