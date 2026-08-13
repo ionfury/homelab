@@ -65,7 +65,8 @@ spec:
           init-run:
             image:
               repository: busybox
-              tag: latest
+              # renovate: datasource=docker depName=busybox
+              tag: "1.38.0"
             command:
               - /bin/sh
               - -c

@@ -15,7 +15,7 @@ controller:
   initContainers:
     - name: geoipupdate-init
       # renovate: datasource=docker depName=ghcr.io/maxmind/geoipupdate
-      image: &geoipupdate ghcr.io/maxmind/geoipupdate:v8.0.0
+      image: ghcr.io/maxmind/geoipupdate:v8.0.0
       env:
         - name: GEOIPUPDATE_EDITION_IDS
           value: GeoLite2-City
@@ -39,7 +39,7 @@ controller:
   # times per week; a long-lived Alloy pod would otherwise drift stale.
   extraContainers:
     - name: geoipupdate
-      image: *geoipupdate
+      image: ghcr.io/maxmind/geoipupdate:v8.0.0
       env:
         - name: GEOIPUPDATE_EDITION_IDS
           value: GeoLite2-City
