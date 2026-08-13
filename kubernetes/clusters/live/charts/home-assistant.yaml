@@ -236,12 +236,3 @@ persistence:
           - path: /config/configuration.yaml
             subPath: configuration.yaml
             readOnly: true
-  hass-google-caldav-secret:
-    type: secret
-    name: hass-google-caldav-secret
-    advancedMounts:
-      home-assistant:
-        app:
-          - path: /config/secrets.yaml
-            subPath: secrets.yaml
-            readOnly: true
