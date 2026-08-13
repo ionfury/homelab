@@ -204,6 +204,13 @@ spec:
         version: "${app_template_version}"
         url: oci://ghcr.io/bjw-s-labs/helm
       dependsOn: [tdarr, nvidia-device-plugin]
+    - name: mealie
+      namespace: mealie
+      chart:
+        name: app-template
+        version: "${app_template_version}"
+        url: oci://ghcr.io/bjw-s-labs/helm
+      dependsOn: [cloudnative-pg, secret-generator]
     - name: tandoor
       namespace: tandoor
       chart:
