@@ -13,4 +13,5 @@ resources:
   - hass-cnpg-garage-key.yaml
   - hass-oidc-client-secret-replica.yaml
   - hass-google-caldav-secret.yaml
+  - hass-ollama-egress.yaml
   - canary.yaml
