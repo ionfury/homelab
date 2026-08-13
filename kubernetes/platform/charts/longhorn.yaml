@@ -21,11 +21,26 @@ defaultSettings:
   createDefaultDiskLabeledNodes: true
   storageReservedPercentageForDefaultDisk: 10
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+  # Wait for a rebooted node to rejoin before replenishing its replicas. Talos
+  # upgrades take a node offline longer than the 600s default, causing Longhorn
+  # to full-rebuild multi-Ti replicas every upgrade. 1800s covers a single-node
+  # upgrade so the node returns and Longhorn does a fast delta rebuild instead.
+  replicaReplenishmentWaitInterval: 1800
   storageOverProvisioningPercentage: 500
   storageMinimalAvailablePercentage: 10
   autoCleanupSystemGeneratedSnapshot: true
   snapshotMaxCount: 3
   longGRPCTimeOut: 345600
+  # Ensure snapshot checksums are computed immediately after every snapshot so
+  # fast-rebuild (changed-blocks-only sync) is available at replica rebuild time.
+  # Without this, checksums are only computed by the 7-day cronjob; a large
+  # base snapshot's checksum is usually absent when a post-upgrade rebuild
+  # starts, and Longhorn silently falls back to a full delta scan (observed:
+  # 8.6Ti volume scanning at <1% per 2 min, ~0 MB/s net transfer). With the
+  # checksum precomputed, Longhorn uses fast-rebuild = minutes instead of ~24h.
+  snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: true
+  engineReplicaTimeout: 30
+  replicaFileSyncHttpClientTimeout: 120
 csi:
   attacherReplicaCount: ${default_replica_count}
   provisionerReplicaCount: ${default_replica_count}

@@ -29,6 +29,17 @@ data:
           "keepTime": true,
           "targetBlank": false,
           "tags": []
+        },
+        {
+          "asDropdown": false,
+          "title": "Rejected \u2192",
+          "type": "link",
+          "url": "/d/gateway-ingress-rejected",
+          "icon": "external link",
+          "includeVars": true,
+          "keepTime": true,
+          "targetBlank": false,
+          "tags": []
         }
       ],
       "panels": [
@@ -1811,5 +1822,703 @@ data:
       "timezone": "",
       "title": "Ingress Gateway Detail",
       "uid": "gateway-ingress-detail",
+      "version": 1
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-gateway-ingress-rejected
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"
+  annotations:
+    grafana_folder: Network
+data:
+  gateway-ingress-rejected.json: |-
+    {
+      "annotations": {
+        "list": []
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [
+        {
+          "asDropdown": false,
+          "title": "\u2190 Overview",
+          "type": "link",
+          "url": "/d/gateway-ingress-overview",
+          "icon": "external link",
+          "includeVars": true,
+          "keepTime": true,
+          "targetBlank": false,
+          "tags": []
+        },
+        {
+          "asDropdown": false,
+          "title": "Detail \u2192",
+          "type": "link",
+          "url": "/d/gateway-ingress-detail",
+          "icon": "external link",
+          "includeVars": true,
+          "keepTime": true,
+          "targetBlank": false,
+          "tags": []
+        }
+      ],
+      "panels": [
+        {
+          "type": "row",
+          "collapsed": false,
+          "title": "Reject Summary (external, last window)",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1
+        },
+        {
+          "type": "stat",
+          "title": "Total Turned Away",
+          "description": "All refused requests in the window: HTTP 4xx/5xx plus connection-level refusals (NR/UH/UF).",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 1
+          },
+          "id": 2,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "instant",
+              "editorMode": "code",
+              "expr": "sum(count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code>=400 or response_flags=~\"NR|UH|UF\" [$__range]))"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "yellow",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "type": "stat",
+          "title": "TLS/SNI Drops",
+          "description": "Raw scanner probes killed before HTTP (filter_chain_not_found) \u2014 no host/path, pure internet background noise.",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 1
+          },
+          "id": 3,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "instant",
+              "editorMode": "code",
+              "expr": "sum(count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code_details=\"filter_chain_not_found\" [$__range]))"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "type": "stat",
+          "title": "HTTP 4xx/5xx",
+          "description": "Requests that reached routing then got refused by an app/policy (auth, not-found, upstream error).",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 1
+          },
+          "id": 4,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "instant",
+              "editorMode": "code",
+              "expr": "sum(count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code>=400 [$__range]))"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "orange",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "type": "stat",
+          "title": "Distinct Scanner IPs",
+          "description": "Unique source IPs behind the TLS/SNI drops \u2014 how many different hosts are probing the gateway.",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 1
+          },
+          "id": 5,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "instant",
+              "editorMode": "code",
+              "expr": "count(sum by (ip) (count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code_details=\"filter_chain_not_found\" | label_format ip=`{{ regexReplaceAll \":[0-9]+$\" .downstream_remote_address \"\" }}` [$__range])))"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "type": "row",
+          "collapsed": false,
+          "title": "Over Time",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 5
+          },
+          "id": 6
+        },
+        {
+          "type": "timeseries",
+          "title": "Reject Rate",
+          "description": "Turned-away request rate. 'TLS/SNI drop' = raw scanner probes killed before HTTP; 'HTTP 4xx/5xx' = requests refused after routing.",
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 6
+          },
+          "id": 7,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "range",
+              "editorMode": "code",
+              "expr": "sum(count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code_details=\"filter_chain_not_found\" [$__interval]))",
+              "legendFormat": "TLS/SNI drop"
+            },
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "B",
+              "queryType": "range",
+              "editorMode": "code",
+              "expr": "sum(count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code>=400 [$__interval]))",
+              "legendFormat": "HTTP 4xx/5xx"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisLabel": "",
+                "drawStyle": "bars",
+                "barAlignment": 0,
+                "fillOpacity": 70,
+                "gradientMode": "none",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "showPoints": "never",
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "TLS/SNI drop"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "red"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "HTTP 4xx/5xx"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "orange"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "table",
+              "placement": "right"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "row",
+          "collapsed": false,
+          "title": "Who & What",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 13
+          },
+          "id": 8
+        },
+        {
+          "type": "table",
+          "title": "Top Scanner Source IPs",
+          "description": "Sources of raw TLS/SNI drops (filter_chain_not_found) \u2014 probes to the gateway IP with no matching listener. Port stripped so each IP aggregates.",
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 14
+          },
+          "id": 9,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "instant",
+              "editorMode": "code",
+              "expr": "topk(50, sum by (ip) (count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code_details=\"filter_chain_not_found\" | label_format ip=`{{ regexReplaceAll \":[0-9]+$\" .downstream_remote_address \"\" }}` [$__range])))"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "ip": "Source IP",
+                  "Value": "Drops",
+                  "Value #A": "Drops"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "sort": [
+                  {
+                    "field": "Drops",
+                    "desc": true
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Drops"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "gradient"
+                    }
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "continuous-GrYlRd"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          }
+        },
+        {
+          "type": "table",
+          "title": "Top Rejected Host / Path",
+          "description": "HTTP-layer rejects (>=400) by vhost + path + status. Reveals what hostnames and URLs are getting turned away.",
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 14
+          },
+          "id": 10,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "instant",
+              "editorMode": "code",
+              "expr": "topk(50, sum by (authority,path,response_code) (count_over_time({namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code>=400 [$__range])))"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "authority": "Host",
+                  "path": "Path",
+                  "response_code": "Code",
+                  "Value": "Requests",
+                  "Value #A": "Requests"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "sort": [
+                  {
+                    "field": "Requests",
+                    "desc": true
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Requests"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "gradient"
+                    }
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "continuous-GrYlRd"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          }
+        },
+        {
+          "type": "row",
+          "collapsed": false,
+          "title": "Live",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 23
+          },
+          "id": 11
+        },
+        {
+          "type": "logs",
+          "title": "Rejected Requests (live feed)",
+          "description": "Live tail of turned-away requests: HTTP 4xx/5xx plus connection-level refusals (NR/UH/UF).",
+          "gridPos": {
+            "h": 11,
+            "w": 24,
+            "x": 0,
+            "y": 24
+          },
+          "id": 12,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "refId": "A",
+              "queryType": "range",
+              "editorMode": "code",
+              "expr": "{namespace=\"istio-gateway\", gateway=\"external\"} | json | response_code>=400 or response_flags=~\"NR|UH|UF\" | line_format `{{.response_code}} {{.response_flags}} {{.response_code_details}} host={{.authority}}{{.path}} src={{.x_forwarded_for}}{{.downstream_remote_address}} ua=\"{{.user_agent}}\"`"
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "showLabels": false,
+            "showCommonLabels": false,
+            "wrapLogMessage": false,
+            "prettifyLogMessage": false,
+            "enableLogDetails": true,
+            "dedupStrategy": "none",
+            "sortOrder": "Descending"
+          }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": [
+        "istio",
+        "gateway",
+        "ingress",
+        "network"
+      ],
+      "templating": {
+        "list": []
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Ingress Gateway Rejected",
+      "uid": "gateway-ingress-rejected",
       "version": 1
     }

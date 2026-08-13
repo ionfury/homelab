@@ -8,5 +8,10 @@ profile: ambient
 # ztunnel authenticates with its own identity but requests certs for workloads on its node
 caAddress: cert-manager-istio-csr.cert-manager.svc:443
 
-podAnnotations:
-  kubectl.kubernetes.io/restartedAt: "2026-07-12T17:00:00Z"
+# WARNING: never add a static kubectl.kubernetes.io/restartedAt annotation here.
+# Although the stomping mechanism differs from the gateway (HelmController only reconciles
+# on drift/schedule, not continuously), a static timestamp still reverts any operator-
+# initiated `kubectl rollout restart ds/ztunnel` on the next Helm reconcile cycle. This
+# silently undoes the recovery action needed when a kubelet bug (kubernetes/kubernetes#138689)
+# freezes the audience:istio-ca projected token past expiry. Remove and leave podAnnotations
+# absent so rollout restarts are not silently reverted.

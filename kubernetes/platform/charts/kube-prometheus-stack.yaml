@@ -140,6 +140,53 @@ kube-state-metrics:
           replacement: $1
           sourceLabels: ["__meta_kubernetes_pod_node_name"]
           targetLabel: kubernetes_node
+  rbac:
+    extraRules:
+      - apiGroups: ["longhorn.io"]
+        resources: ["snapshots"]
+        verbs: ["list", "watch"]
+  customResourceState:
+    enabled: true
+    config:
+      kind: CustomResourceStateMetrics
+      spec:
+        resources:
+          - groupVersionKind:
+              group: longhorn.io
+              version: v1beta2
+              kind: Snapshot
+            metricNamePrefix: longhorn_snapshot
+            labelsFromPath:
+              snapshot: [metadata, name]
+              namespace: [metadata, namespace]
+              volume: [spec, volume]
+            metrics:
+              - name: info
+                help: >-
+                  Longhorn snapshot info. Emits 1 per snapshot; the checksum label is the
+                  hash string (empty when not yet computed). Use checksum!="" to identify
+                  hashed snapshots. user_created="true" snapshots without a checksum will
+                  force a slow block-by-block delta rebuild on every node reboot.
+                each:
+                  type: Info
+                  info:
+                    labelsFromPath:
+                      user_created: [status, userCreated]
+                      ready_to_use: [status, readyToUse]
+                      checksum: [status, checksum]
+              - name: created_seconds
+                help: >-
+                  Unix timestamp of when the Longhorn snapshot CR was created
+                  (metadata.creationTimestamp parsed to seconds). Use this to detect
+                  stale snapshots older than the recurring-job interval.
+                  NOTE: This metric uses metadata.creationTimestamp (not status.creationTime).
+                  Both are RFC3339 strings; KSM natively parses RFC3339 to float unix seconds
+                  for Gauge valueFrom fields.
+                each:
+                  type: Gauge
+                  gauge:
+                    path: [metadata, creationTimestamp]
+                    nilIsZero: true
 grafana:
   enabled: false
   forceDeployDashboards: true

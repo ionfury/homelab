@@ -1,0 +1,12 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: garage-storage
+  namespace: garage
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      garage.rajsingh.info/cluster: garage
+      garage.rajsingh.info/tier: storage

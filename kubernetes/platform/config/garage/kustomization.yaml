@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - admin-secret.yaml
   - garage-cluster.yaml
+  - garage-pdb.yaml
   - garage-s3-ingress.yaml
   - garage-route.yaml
   - garage-canary.yaml
@@ -17,4 +18,3 @@ resources:
   - reference-grant-tandoor.yaml
   - reference-grant-zipline.yaml
   - reference-grant-sure.yaml
-  - reference-grant-papra.yaml

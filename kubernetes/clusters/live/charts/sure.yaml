@@ -19,8 +19,11 @@ controllers:
           RAILS_FORCE_SSL: "false"
           RAILS_ASSUME_SSL: "true"
           RAILS_LOG_TO_STDOUT: "true"
-          # Database — shared CNPG platform cluster via pooler
-          DB_HOST: platform-pooler-rw.database.svc.cluster.local
+          # Database — shared CNPG platform cluster, direct primary (-rw) service.
+          # NOT the pgbouncer pooler: its transaction pool mode breaks Rails DDL
+          # migrations (prepared statements + advisory locks aren't pool-safe),
+          # which crashloops the web container on boot when a migration is pending.
+          DB_HOST: platform-rw.database.svc.cluster.local
           DB_PORT: "5432"
           POSTGRES_DB: sure
           POSTGRES_USER: sure
@@ -140,7 +143,7 @@ controllers:
         env:
           SELF_HOSTED: "true"
           RAILS_LOG_TO_STDOUT: "true"
-          DB_HOST: platform-pooler-rw.database.svc.cluster.local
+          DB_HOST: platform-rw.database.svc.cluster.local
           DB_PORT: "5432"
           POSTGRES_DB: sure
           POSTGRES_USER: sure

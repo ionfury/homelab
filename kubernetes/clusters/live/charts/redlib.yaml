@@ -4,7 +4,12 @@
 controllers:
   redlib:
     type: deployment
-    replicas: 1
+    replicas: 2
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
 
     pod:
       securityContext:
@@ -22,8 +27,15 @@ controllers:
         env:
           TZ: UTC
           REDLIB_PORT: "8080"
+          REDLIB_DEFAULT_THEME: "system"
+          REDLIB_DEFAULT_LAYOUT: "compact"
+          REDLIB_DEFAULT_WIDE: "true"
+          REDLIB_DEFAULT_POST_SORT: "hot"
+          REDLIB_DEFAULT_COMMENT_SORT: "confidence"
+          REDLIB_DEFAULT_VIDEO_QUALITY: "best"
+          REDLIB_DEFAULT_FIXED_NAVBAR: "true"
           REDLIB_DEFAULT_SHOW_NSFW: "false"
-          REDLIB_DEFAULT_HIDE_HLS_NOTIFICATION: "true"
+          REDLIB_DEFAULT_HIDE_HLS_NOTIFICATION: "false"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

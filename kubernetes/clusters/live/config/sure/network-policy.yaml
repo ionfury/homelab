@@ -54,3 +54,29 @@ spec:
         - ports:
             - port: "11434"
               protocol: TCP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+# Permits Sure to reach Twelve Data for securities price history (the enabled
+# securities provider). Without a reachable provider, mutual/index-fund holdings
+# have no price history, so investment balance charts collapse to $0 on all past
+# dates and spike only on the latest sync day.
+#
+# Replaces the previous Yahoo Finance egress: Yahoo's unauthenticated API
+# semi-permanently IP-rate-limits datacenter egress (persistent HTTP 429 from
+# the cluster), making it unusable server-side. Twelve Data is a keyed API with
+# no IP-reputation gating.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sure-twelvedata-egress
+  namespace: sure
+spec:
+  description: "Allow Sure egress to Twelve Data API (api.twelvedata.com:443)"
+  endpointSelector: { }
+  egress:
+    - toFQDNs:
+        - matchName: api.twelvedata.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
