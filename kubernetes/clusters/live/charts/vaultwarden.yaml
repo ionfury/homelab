@@ -59,6 +59,7 @@ controllers:
                 name: vaultwarden-oidc-client-secret
                 key: client-secret
           SSO_SCOPES: "openid profile email offline_access"
+          SSO_ALLOW_EXISTING_USERS: "true"
           ENABLE_METRICS: "true"
           METRICS_TOKEN:
             valueFrom:
