@@ -28,12 +28,22 @@ Platform namespaces (`kube-system`, `monitoring`, `database`, etc.) use hand-cra
 
 Add to the namespace in `kubernetes/platform/namespaces.yaml`:
 
-| Label | Port | Resource |
-|-------|------|---------|
-| `access.network-policy.homelab/postgres: "true"` | 5432 | PostgreSQL (shared platform cluster) |
-| `access.network-policy.homelab/dragonfly: "true"` | 6379 | Dragonfly/Redis cache |
-| `access.network-policy.homelab/garage-s3: "true"` | 3900 | Garage S3 object storage |
-| `access.network-policy.homelab/kube-api: "true"` | 6443 | Kubernetes API |
+| Label | Port | Resource | Notes |
+|-------|------|---------|-------|
+| `access.network-policy.homelab/postgres: "true"` | 5432 | PostgreSQL (shared platform cluster) | Add to requesting namespace |
+| `access.network-policy.homelab/dragonfly: "true"` | 6379 | Dragonfly/Redis cache | Add to requesting namespace |
+| `access.network-policy.homelab/garage-s3: "true"` | 3900 | Garage S3 object storage | Add to requesting namespace |
+| `access.network-policy.homelab/kube-api: "true"` | 6443 | Kubernetes API | Add to requesting namespace |
+| `access.network-policy.homelab/home-assistant: "true"` | per-app | Allows HA egress into this namespace | Add to TARGET app namespace |
+
+> **`home-assistant` label — inverted semantics.** Unlike the other labels (which go on the requester and
+> grant fixed-port egress to a platform service), this label goes on the **target app namespace** and
+> allows Home Assistant to reach that app. The shared CCNP (`access-home-assistant.yaml`) is L3-only
+> (no `toPorts`); the actual port is enforced by a per-app `CiliumNetworkPolicy` in the target namespace
+> granting ingress from the `home-assistant` namespace on the app's API port. Cilium intersects both
+> rules — the effective allowed port is what the per-app ingress CNP declares.
+> Two changes are required per integration: (1) add this label to the target app namespace, and
+> (2) create a per-app ingress CNP pinning the app's API port.
 
 ## Drop Classification
 
@@ -45,6 +55,7 @@ Add to the namespace in `kubernetes/platform/namespaces.yaml`:
 | Egress to internet `:443` dropped | Profile doesn't allow HTTPS egress | Switch to `internal-egress` or `standard` |
 | Ingress from `istio-gateway` dropped | Profile doesn't allow gateway ingress | Switch to `internal`, `internal-egress`, or `standard` |
 | Ingress from `monitoring:prometheus` dropped | Missing baseline | Should not happen — check baseline CCNP |
+| HA egress to app namespace dropped | Target app namespace missing `access.network-policy.homelab/home-assistant=true` AND/OR missing per-app ingress CNP | Add the label to the target namespace and create a per-app CNP allowing ingress from `home-assistant` on the app's API port |
 
 ## Hubble Debug Commands
 
