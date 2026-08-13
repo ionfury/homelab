@@ -1,0 +1,113 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/app-template-4.6.2/charts/other/app-template/values.schema.json
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    annotations:
+      reloader.stakater.com/auto: "true"
+
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    containers:
+      app:
+        image:
+          repository: ghcr.io/mealie-recipes/mealie
+          tag: ${mealie_version}
+        env:
+          # Server configuration
+          API_PORT: "9000"
+          BASE_URL: "https://mealie.${internal_domain}"
+          TZ: UTC
+          ALLOW_SIGNUP: "false"
+          # Database — shared platform CNPG cluster
+          DB_ENGINE: postgres
+          POSTGRES_SERVER: platform-pooler-rw.database.svc.cluster.local
+          POSTGRES_PORT: "5432"
+          POSTGRES_DB: mealie
+          POSTGRES_USER: mealie
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: mealie-db-credentials
+                key: password
+          # OIDC/SSO via Authelia
+          OIDC_AUTH_ENABLED: "true"
+          OIDC_SIGNUP_ENABLED: "true"
+          OIDC_REQUIRES_EMAIL_VERIFICATION: "false"
+          OIDC_CONFIGURATION_URL: "https://auth.${external_domain}/.well-known/openid-configuration"
+          OIDC_CLIENT_ID: mealie
+          OIDC_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: mealie-oidc-client-secret
+                key: client-secret
+          OIDC_USER_GROUP: recipes
+          OIDC_ADMIN_GROUP: admins
+          OIDC_AUTO_REDIRECT: "false"
+          OIDC_PROVIDER_NAME: Authelia
+          OIDC_REMEMBER_ME: "true"
+          OIDC_GROUPS_CLAIM: groups
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              initialDelaySeconds: 20
+              periodSeconds: 5
+              failureThreshold: 30
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+service:
+  app:
+    controller: main
+    ports:
+      http:
+        port: 9000
+
+route:
+  internal:
+    enabled: true
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Mealie"
+      gethomepage.dev/group: "Apps"
+      gethomepage.dev/icon: "mealie.svg"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=mealie"
+    parentRefs:
+      - name: internal
+        namespace: istio-gateway
+    hostnames:
+      - "mealie.${internal_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 9000
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    existingClaim: mealie-data
+    globalMounts:
+      - path: /app/data

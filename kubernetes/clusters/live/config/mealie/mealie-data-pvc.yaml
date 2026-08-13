@@ -1,0 +1,14 @@
+---
+# Mealie app data — stores uploaded recipe images and attachments.
+# Recipes themselves are stored in PostgreSQL.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mealie-data
+  namespace: mealie
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

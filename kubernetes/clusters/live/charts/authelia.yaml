@@ -451,6 +451,26 @@ configMap:
           access_token_signed_response_alg: none
           userinfo_signed_response_alg: none
           token_endpoint_auth_method: client_secret_post
+        - client_id: mealie
+          client_name: Mealie
+          client_secret:
+            path: /secrets/mealie-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: recipes
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://mealie.${internal_domain}/login
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_post
 
   regulation:
     max_retries: 3
@@ -480,4 +500,5 @@ secret:
     papra-oidc-client-secret: { }
     sure-oidc-client-secret: { }
     home-assistant-oidc-client-secret: { }
+    mealie-oidc-client-secret: { }
     authelia-smtp-credentials: { }

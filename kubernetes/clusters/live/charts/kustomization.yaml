@@ -21,6 +21,7 @@ configMapGenerator:
       - houndarr.yaml
       - immich.yaml
       - it-tools.yaml
+      - mealie.yaml
       - konflate.yaml
       - jellyfin-exporter.yaml
       - jfa-go.yaml
