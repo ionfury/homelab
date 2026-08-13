@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - admin-secret.yaml
   - garage-cluster.yaml
+  - garage-pdb.yaml
   - garage-s3-ingress.yaml
   - garage-route.yaml
   - garage-canary.yaml
