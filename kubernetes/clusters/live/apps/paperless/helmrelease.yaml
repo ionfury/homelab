@@ -131,7 +131,7 @@ spec:
                     key: client-secret
               PAPERLESS_SOCIALACCOUNT_PROVIDERS:
                 dependsOn: PAPERLESS_OIDC_CLIENT_SECRET
-                value: '{"openid_connect": {"OAUTH_PKCE_ENABLED": true, "APPS": [{"provider_id": "authelia", "name": "Authelia", "client_id": "paperless", "secret": "$(PAPERLESS_OIDC_CLIENT_SECRET)", "settings": {"server_url": "https://auth.${external_domain}/.well-known/openid-configuration"}}]}}'
+                value: '{"openid_connect": {"OAUTH_PKCE_ENABLED": true, "APPS": [{"provider_id": "authelia", "name": "Authelia", "client_id": "paperless", "secret": "$(PAPERLESS_OIDC_CLIENT_SECRET)", "settings": {"server_url": "https://auth.${external_domain}/.well-known/openid-configuration", "token_auth_method": "client_secret_basic"}}]}}'
               # Filename format — organise media into year/correspondent/date-title hierarchy
               # NOTE: changing PAPERLESS_FILENAME_FORMAT on an existing instance causes paperless
               # to re-file every document in the media volume on next startup (high I/O on the
