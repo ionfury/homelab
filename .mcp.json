@@ -10,9 +10,7 @@
     "homeassistant": {
       "type": "sse",
       "url": "https://hass.internal.tomnowak.work/mcp_server/sse",
-      "headers": {
-        "Authorization": "Bearer ${HASS_TOKEN}"
-      }
+      "headersHelper": "printf '{\"Authorization\":\"Bearer %s\"}' \"${HASS_TOKEN}\""
     }
   }
 }
