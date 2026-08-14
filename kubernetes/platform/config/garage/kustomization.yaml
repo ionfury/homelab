@@ -15,6 +15,5 @@ resources:
   - dragonfly-bucket.yaml
   - reference-grant-database.yaml
   - reference-grant-cache.yaml
-  - reference-grant-tandoor.yaml
   - reference-grant-zipline.yaml
   - reference-grant-sure.yaml

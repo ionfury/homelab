@@ -8,5 +8,5 @@ metadata:
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/audit: baseline
     pod-security.kubernetes.io/warn: baseline
-    network-policy.homelab/profile: internal
+    network-policy.homelab/profile: standard
     access.network-policy.homelab/postgres: "true"

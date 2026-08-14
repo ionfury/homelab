@@ -25,7 +25,7 @@ controllers:
         env:
           # Server configuration
           API_PORT: "9000"
-          BASE_URL: "https://mealie.${internal_domain}"
+          BASE_URL: "https://recipes.${external_domain}"
           TZ: UTC
           ALLOW_SIGNUP: "false"
           # Database — shared platform CNPG cluster
@@ -87,7 +87,7 @@ service:
         port: 9000
 
 route:
-  internal:
+  external:
     enabled: true
     annotations:
       gethomepage.dev/enabled: "true"
@@ -96,10 +96,21 @@ route:
       gethomepage.dev/icon: "mealie.svg"
       gethomepage.dev/pod-selector: "app.kubernetes.io/name=mealie"
     parentRefs:
+      - name: external
+        namespace: istio-gateway
+    hostnames:
+      - "recipes.${external_domain}"
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 9000
+  internal:
+    enabled: true
+    parentRefs:
       - name: internal
         namespace: istio-gateway
     hostnames:
-      - "mealie.${internal_domain}"
+      - "recipes.${internal_domain}"
     rules:
       - backendRefs:
           - identifier: app
