@@ -192,7 +192,7 @@ Talos and Kubernetes upgrades are executed *from within the cluster* by [Tuppr](
 
 ## Workloads
 
-The live cluster runs the usual suspects: Immich, Jellyfin + the *arr stack, Home Assistant, Paperless-ngx, Vaultwarden, Tandoor, Homepage, Open WebUI + Ollama (GPU-backed), and game servers (Minecraft, Satisfactory). Cluster-specific workloads are defined in [`kubernetes/clusters/live`](kubernetes/clusters/live) using the same ResourceSet pattern as the platform.
+The live cluster runs the usual suspects: Immich, Jellyfin + the *arr stack, Home Assistant, Paperless-ngx, Vaultwarden, Mealie, Homepage, Open WebUI + Ollama (GPU-backed), and game servers (Minecraft, Satisfactory). Cluster-specific workloads are defined in [`kubernetes/clusters/live`](kubernetes/clusters/live) using the same ResourceSet pattern as the platform.
 
 ## Tooling
 
