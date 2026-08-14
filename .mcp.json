@@ -6,6 +6,13 @@
       "env": {
         "GRAFANA_URL": "http://localhost:3000"
       }
+    },
+    "homeassistant": {
+      "type": "sse",
+      "url": "https://hass.internal.tomnowak.work/mcp_server/sse",
+      "headers": {
+        "Authorization": "Bearer ${HASS_TOKEN}"
+      }
     }
   }
 }
