@@ -26,7 +26,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline"
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline"
             }[5m])) by (destination_workload, source_workload)
 
         - record: gateway:requests:rate30m
@@ -34,7 +34,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline"
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline"
             }[30m])) by (destination_workload, source_workload)
 
         - record: gateway:requests:rate1h
@@ -42,7 +42,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline"
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline"
             }[1h])) by (destination_workload, source_workload)
 
         - record: gateway:requests:rate6h
@@ -50,7 +50,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline"
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline"
             }[6h])) by (destination_workload, source_workload)
 
         # 5xx errors ── all four burn-rate windows
@@ -59,7 +59,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline",
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline",
               response_code=~"5.."
             }[5m])) by (destination_workload, source_workload)
 
@@ -68,7 +68,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline",
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline",
               response_code=~"5.."
             }[30m])) by (destination_workload, source_workload)
 
@@ -77,7 +77,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline",
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline",
               response_code=~"5.."
             }[1h])) by (destination_workload, source_workload)
 
@@ -86,7 +86,7 @@ spec:
             sum(rate(istio_requests_total{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|tandoor|zipline",
+              destination_workload=~"authelia|oauth2-proxy|immich-server|kromgo|jellyfin|jellyseerr|jfa-go|mealie|zipline",
               response_code=~"5.."
             }[6h])) by (destination_workload, source_workload)
 
@@ -136,13 +136,13 @@ spec:
               le="500.0"
             }[6h])) by (destination_workload, source_workload)
 
-        # 1000ms threshold: kromgo, jfa-go, tandoor
+        # 1000ms threshold: kromgo, jfa-go, mealie
         - record: gateway:requests_fast:rate5m
           expr: |
             sum(rate(istio_request_duration_milliseconds_bucket{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"kromgo|jfa-go|tandoor",
+              destination_workload=~"kromgo|jfa-go|mealie",
               le="1000.0"
             }[5m])) by (destination_workload, source_workload)
 
@@ -151,7 +151,7 @@ spec:
             sum(rate(istio_request_duration_milliseconds_bucket{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"kromgo|jfa-go|tandoor",
+              destination_workload=~"kromgo|jfa-go|mealie",
               le="1000.0"
             }[30m])) by (destination_workload, source_workload)
 
@@ -160,7 +160,7 @@ spec:
             sum(rate(istio_request_duration_milliseconds_bucket{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"kromgo|jfa-go|tandoor",
+              destination_workload=~"kromgo|jfa-go|mealie",
               le="1000.0"
             }[1h])) by (destination_workload, source_workload)
 
@@ -169,7 +169,7 @@ spec:
             sum(rate(istio_request_duration_milliseconds_bucket{
               reporter="source",
               source_workload=~"external-istio.*|internal-istio.*",
-              destination_workload=~"kromgo|jfa-go|tandoor",
+              destination_workload=~"kromgo|jfa-go|mealie",
               le="1000.0"
             }[6h])) by (destination_workload, source_workload)
 

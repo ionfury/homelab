@@ -344,27 +344,6 @@ configMap:
           grant_types:
             - authorization_code
           token_endpoint_auth_method: client_secret_basic
-        - client_id: tandoor
-          client_name: Tandoor
-          client_secret:
-            path: /secrets/tandoor-oidc-client-secret/client-secret
-          public: false
-          authorization_policy: two_factor
-          consent_mode: implicit
-          require_pkce: true
-          pkce_challenge_method: S256
-          redirect_uris:
-            - https://recipes.${internal_domain}/accounts/oidc/authelia/login/callback/
-            - https://recipes.${external_domain}/accounts/oidc/authelia/login/callback/
-          scopes:
-            - openid
-            - profile
-            - email
-          response_types:
-            - code
-          grant_types:
-            - authorization_code
-          token_endpoint_auth_method: client_secret_post
         - client_id: vaultwarden
           client_name: Vaultwarden
           client_secret:
@@ -441,7 +420,7 @@ configMap:
           require_pkce: true
           pkce_challenge_method: S256
           redirect_uris:
-            - https://mealie.${internal_domain}/login
+            - https://recipes.${external_domain}/login
           scopes:
             - openid
             - profile
@@ -476,7 +455,6 @@ secret:
     zipline-oidc-client-secret: { }
     vaultwarden-oidc-client-secret: { }
     paperless-oidc-client-secret: { }
-    tandoor-oidc-client-secret: { }
     jellyseerr-oidc-client-secret: { }
     sure-oidc-client-secret: { }
     home-assistant-oidc-client-secret: { }

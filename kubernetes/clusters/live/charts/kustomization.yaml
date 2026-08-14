@@ -43,7 +43,6 @@ configMapGenerator:
       - sonarr.yaml
       - sure.yaml
       - sonarr4k.yaml
-      - tandoor.yaml
       - tdarr-node.yaml
       - tdarr.yaml
       - valheim.yaml

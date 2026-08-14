@@ -15,7 +15,6 @@ resources:
   - zipline-oidc-client-secret.yaml
   - vaultwarden-oidc-client-secret.yaml
   - paperless-oidc-client-secret.yaml
-  - tandoor-oidc-client-secret.yaml
   - sure-oidc-client-secret.yaml
   - jellyseerr-oidc-client-secret.yaml
   - home-assistant-oidc-client-secret.yaml

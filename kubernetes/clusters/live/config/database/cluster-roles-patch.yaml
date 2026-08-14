@@ -56,11 +56,6 @@ spec:
         login: true
         passwordSecret:
           name: zipline-role-password
-      - name: tandoor
-        ensure: present
-        login: true
-        passwordSecret:
-          name: tandoor-role-password
       - name: paperless
         ensure: present
         login: true
