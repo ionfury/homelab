@@ -446,6 +446,7 @@ configMap:
             - openid
             - profile
             - email
+            - groups
           response_types:
             - code
           grant_types:
