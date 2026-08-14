@@ -19,7 +19,7 @@ terraform {
     }
     time = {
       source  = "hashicorp/time"
-      version = "0.14.0"
+      version = "0.14.1"
     }
     null = {
       source  = "hashicorp/null"
