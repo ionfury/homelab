@@ -16,7 +16,8 @@ controllers:
         image:
           repository: hrfee/jfa-go
           # renovate: datasource=docker depName=hrfee/jfa-go
-          tag: v0.6.0
+          # upstream publishes no semver tags on Docker Hub — only latest/unstable
+          tag: latest
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
