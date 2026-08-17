@@ -1,13 +1,13 @@
 [tools]
 # Infrastructure
 opentofu = "1.12.5"
-terragrunt = "1.1.2"
+terragrunt = "1.1.3"
 
 # Kubernetes validation
-helm = "4.2.3"
+helm = "4.2.4"
 kustomize = "5.8.1"
 kubeconform = "0.8.0"
-"aqua:FairwindsOps/pluto" = "5.24.1"  # API deprecation checker
+"aqua:FairwindsOps/pluto" = "5.24.3"  # API deprecation checker
 yq = "4.53.3"
 yamllint = "1.38.0"
 
