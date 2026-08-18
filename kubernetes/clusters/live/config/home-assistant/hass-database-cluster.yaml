@@ -17,6 +17,12 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:${postgresql_image_version}
   instances: ${default_replica_count}
   primaryUpdateStrategy: unsupervised
+  # Wait 30s after the primary is detected unhealthy before triggering
+  # failover. Rides out transient cluster-wide disruptions (e.g. kubelet
+  # probe storms during control-plane instability) that are not genuine
+  # primary failures, avoiding unnecessary promotions and replica
+  # divergence. See incident 2026-08-18.
+  failoverDelay: 30
 
   postgresql:
     parameters:
