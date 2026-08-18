@@ -17,6 +17,8 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:${postgresql_image_version}
   instances: ${default_replica_count}
   primaryUpdateStrategy: unsupervised
+  # Grace period before promoting, so transient probe failures do not fail over.
+  failoverDelay: 30
 
   postgresql:
     parameters:

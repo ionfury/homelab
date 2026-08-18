@@ -17,6 +17,8 @@ spec:
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:${vectorchord_version:-17.7-1.0.0}
   instances: ${default_replica_count}
   primaryUpdateStrategy: unsupervised
+  # Grace period before promoting, so transient probe failures do not fail over.
+  failoverDelay: 30
 
   postgresql:
     shared_preload_libraries:
