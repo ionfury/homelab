@@ -40,7 +40,7 @@ hubble:
     enabled: true
     image:
       # renovate: datasource=docker depName=quay.io/cilium/hubble-relay
-      tag: v1.20.0
+      tag: v1.20.1
   ui:
     enabled: true
 # L2 announcements kept active during BGP migration for rollback capability
