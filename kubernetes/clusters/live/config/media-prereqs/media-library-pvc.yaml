@@ -9,7 +9,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: slow
+  storageClassName: slow-media
+  # Binds to the static PV above rather than provisioning a new volume.
+  volumeName: media-library
   resources:
     requests:
       storage: 10Ti
