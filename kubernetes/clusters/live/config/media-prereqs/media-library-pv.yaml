@@ -1,0 +1,32 @@
+---
+# Static PV bound to the pre-existing Longhorn volume. The volume predates the
+# slow-media class and is rebound rather than reprovisioned, so no data moves.
+# volumeHandle is the Longhorn volume name and must not change.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-library
+spec:
+  capacity:
+    storage: 10Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: slow-media
+  volumeMode: Filesystem
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: media-library
+    namespace: media
+  csi:
+    driver: driver.longhorn.io
+    fsType: xfs
+    volumeHandle: pvc-cd6ba345-906b-4a8a-be87-bbc8328b3219
+    volumeAttributes:
+      fsType: xfs
+      numberOfReplicas: "3"
+      staleReplicaTimeout: "30"
+      dataLocality: disabled
+      diskSelector: slow
+      share: "true"
