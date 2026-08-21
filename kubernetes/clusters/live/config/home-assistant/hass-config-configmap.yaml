@@ -28,7 +28,7 @@ data:
     # Recorder: PostgreSQL backend — connection URI injected from CNPG-generated secret
     recorder:
       db_url: !env_var HASS_RECORDER_DB_URL
-      purge_keep_days: 30
+      purge_keep_days: 10
       commit_interval: 30
 
     # Prometheus metrics integration (requires a Long-Lived Access Token — see PR notes)

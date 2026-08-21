@@ -6,5 +6,8 @@ metadata:
 spec:
   clusterRef:
     name: garage
+  # 60Gi quota vs ~21Gi steady-state (7d retentionPolicy, ~3Gi/day growth) gives ~3x
+  # headroom, rather than the zero headroom that caused repeated CNPGBackupFailed
+  # boundary-thrashing at the previous 40Gi ceiling (see PR #1573).
   quotas:
-    maxSize: "40Gi"
+    maxSize: "60Gi"
