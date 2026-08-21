@@ -63,7 +63,6 @@ spec:
               BASE_URL: "https://feeds.${internal_domain}"
               RUN_MIGRATIONS: "1"
               LOG_LEVEL: "info"
-              # Database — dedicated app user via secret-generator, shared platform CNPG cluster
               MINIFLUX_DB_PASSWORD:
                 valueFrom:
                   secretKeyRef:
@@ -72,7 +71,6 @@ spec:
               DATABASE_URL:
                 dependsOn: MINIFLUX_DB_PASSWORD
                 value: "user=miniflux password=$(MINIFLUX_DB_PASSWORD) dbname=miniflux host=platform-pooler-rw.database.svc.cluster.local port=5432 sslmode=disable"
-              # Bootstrap local admin — break-glass access if Authelia is unavailable.
               CREATE_ADMIN: "1"
               ADMIN_USERNAME:
                 valueFrom:
@@ -84,7 +82,6 @@ spec:
                   secretKeyRef:
                     name: miniflux-admin-credentials
                     key: password
-              # OIDC/SSO via Authelia
               OAUTH2_PROVIDER: "oidc"
               OAUTH2_CLIENT_ID: "miniflux"
               OAUTH2_CLIENT_SECRET:
@@ -92,11 +89,10 @@ spec:
                   secretKeyRef:
                     name: miniflux-oidc-client-secret
                     key: client-secret
-              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://auth.${external_domain}/.well-known/openid-configuration"
+              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://auth.${external_domain}"
               OAUTH2_OIDC_PROVIDER_NAME: "Authelia"
               OAUTH2_REDIRECT_URL: "https://feeds.${internal_domain}/oauth2/oidc/callback"
               OAUTH2_USER_CREATION: "1"
-              # Prometheus metrics — scraped by the ServiceMonitor below
               METRICS_COLLECTOR: "1"
               METRICS_ALLOWED_NETWORKS: "${cluster_pod_subnet}"
             securityContext:
