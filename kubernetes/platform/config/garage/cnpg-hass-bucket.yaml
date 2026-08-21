@@ -7,4 +7,4 @@ spec:
   clusterRef:
     name: garage
   quotas:
-    maxSize: "40Gi"
+    maxSize: "80Gi"
