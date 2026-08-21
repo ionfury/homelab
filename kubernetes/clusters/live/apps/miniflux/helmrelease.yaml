@@ -1,0 +1,176 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: miniflux
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: cloudnative-pg
+    - name: secret-generator
+  chart:
+    spec:
+      chart: app-template
+      version: "${app_template_version}"
+      interval: 10m
+      sourceRef:
+        kind: HelmRepository
+        name: miniflux
+  install:
+    createNamespace: false
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  interval: 10m
+  maxHistory: 3
+  releaseName: miniflux
+  targetNamespace: miniflux
+  uninstall:
+    keepHistory: false
+  upgrade:
+    crds: CreateReplace
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  valuesFrom: []
+  values:
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+    # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+    controllers:
+      miniflux:
+        type: deployment
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            fsGroup: 65532
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+
+        containers:
+          app:
+            image:
+              repository: ghcr.io/miniflux/miniflux
+              tag: "${miniflux_version}"
+            env:
+              LISTEN_ADDR: "0.0.0.0:8080"
+              BASE_URL: "https://feeds.${internal_domain}"
+              RUN_MIGRATIONS: "1"
+              LOG_LEVEL: "info"
+              # Database — dedicated app user via secret-generator, shared platform CNPG cluster
+              MINIFLUX_DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: miniflux-db-credentials
+                    key: password
+              DATABASE_URL:
+                dependsOn: MINIFLUX_DB_PASSWORD
+                value: "user=miniflux password=$(MINIFLUX_DB_PASSWORD) dbname=miniflux host=platform-pooler-rw.database.svc.cluster.local port=5432 sslmode=disable"
+              # Bootstrap local admin — break-glass access if Authelia is unavailable.
+              CREATE_ADMIN: "1"
+              ADMIN_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: miniflux-admin-credentials
+                    key: username
+              ADMIN_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: miniflux-admin-credentials
+                    key: password
+              # OIDC/SSO via Authelia
+              OAUTH2_PROVIDER: "oidc"
+              OAUTH2_CLIENT_ID: "miniflux"
+              OAUTH2_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: miniflux-oidc-client-secret
+                    key: client-secret
+              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://auth.${external_domain}/.well-known/openid-configuration"
+              OAUTH2_OIDC_PROVIDER_NAME: "Authelia"
+              OAUTH2_REDIRECT_URL: "https://feeds.${internal_domain}/oauth2/oidc/callback"
+              OAUTH2_USER_CREATION: "1"
+              # Prometheus metrics — scraped by the ServiceMonitor below
+              METRICS_COLLECTOR: "1"
+              METRICS_ALLOWED_NETWORKS: "${cluster_pod_subnet}"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  failureThreshold: 30
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  periodSeconds: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: 8080
+                  periodSeconds: 10
+
+    service:
+      app:
+        controller: miniflux
+        ports:
+          http:
+            port: 8080
+
+    serviceMonitor:
+      app:
+        enabled: true
+        serviceName: miniflux
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+
+    route:
+      internal:
+        enabled: true
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: "Miniflux"
+          gethomepage.dev/group: "Apps"
+          gethomepage.dev/icon: "miniflux.svg"
+          gethomepage.dev/pod-selector: "app.kubernetes.io/name=miniflux"
+        parentRefs:
+          - name: internal
+            namespace: istio-gateway
+        hostnames:
+          - "feeds.${internal_domain}"
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 8080

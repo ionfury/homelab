@@ -81,3 +81,8 @@ spec:
         login: true
         passwordSecret:
           name: mealie-role-password
+      - name: miniflux
+        ensure: present
+        login: true
+        passwordSecret:
+          name: miniflux-role-password
