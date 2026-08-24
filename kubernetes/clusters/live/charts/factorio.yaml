@@ -17,7 +17,7 @@ controllers:
         image:
           repository: factoriotools/factorio
           # renovate: datasource=docker depName=factoriotools/factorio
-          tag: "2.1.14"
+          tag: "2.1.15"
           pullPolicy: Always
         env:
           LOAD_LATEST_SAVE: "true"
