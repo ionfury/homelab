@@ -1,6 +1,6 @@
 [tools]
 # Infrastructure
-opentofu = "1.12.5"
+opentofu = "1.12.6"
 terragrunt = "1.1.3"
 
 # Kubernetes validation
@@ -8,14 +8,14 @@ helm = "4.2.4"
 kustomize = "5.8.1"
 kubeconform = "0.8.0"
 "aqua:FairwindsOps/pluto" = "5.24.3"  # API deprecation checker
-yq = "4.53.3"
+yq = "4.53.6"
 yamllint = "1.38.0"
 
 # Task runner
-task = "3.52.0"
+task = "3.53.1"
 
 # Cluster operations
-talosctl = "1.13.8"
+talosctl = "1.13.9"
 "aqua:cilium/cilium-cli" = "0.19.7"
 
 # Node.js (for renovate validation)
@@ -25,7 +25,7 @@ node = "24"
 # NOTE: This section MUST be at the end because TOML nested tables
 # terminate the parent [tools] section's inline definitions
 [tools."github:controlplaneio-fluxcd/flux-operator"]
-version = "0.58.0"
+version = "0.58.1"
 
 [tools."github:controlplaneio-fluxcd/flux-operator".platforms]
 linux-x64 = { asset_pattern = "flux-operator_*_linux_amd64.tar.gz" }
