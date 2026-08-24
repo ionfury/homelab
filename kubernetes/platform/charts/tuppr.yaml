@@ -1,6 +1,8 @@
 ---
 # https://github.com/home-operations/tuppr
 replicaCount: 3
+deploymentAnnotations:
+  reloader.stakater.com/auto: "true"
 monitoring:
   serviceMonitor:
     enabled: true
