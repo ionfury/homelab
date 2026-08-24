@@ -42,7 +42,7 @@ defaultSettings:
   # 8.6Ti volume scanning at <1% per 2 min, ~0 MB/s net transfer). With the
   # checksum precomputed, Longhorn uses fast-rebuild = minutes instead of ~24h.
   snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: true
-  snapshotDataIntegrityCronjob: "0 0 * * *"
+  snapshotDataIntegrityCronjob: "0 */4 * * *"
   engineReplicaTimeout: 30
   replicaFileSyncHttpClientTimeout: 120
 csi:
