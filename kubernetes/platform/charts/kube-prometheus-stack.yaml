@@ -84,6 +84,32 @@ prometheus:
         networking/allow-ingress-internal: "true"
     externalLabels:
       prometheus_source: ${cluster_name}
+    additionalAlertRelabelConfigs:
+      - action: replace
+        source_labels: [job]
+        regex: tuppr-metrics-service
+        target_label: pod
+        replacement: ""
+      - action: replace
+        source_labels: [job]
+        regex: tuppr-metrics-service
+        target_label: instance
+        replacement: ""
+      - action: replace
+        source_labels: [alertname]
+        regex: KubeJobFailed
+        target_label: pod
+        replacement: ""
+      - action: replace
+        source_labels: [alertname]
+        regex: KubeJobFailed
+        target_label: instance
+        replacement: ""
+      - action: replace
+        source_labels: [alertname]
+        regex: KubeJobFailed
+        target_label: kubernetes_node
+        replacement: ""
     podMonitorSelectorNilUsesHelmValues: false
     probeSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
@@ -212,12 +238,13 @@ additionalPrometheusRulesMap:
               runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodediskiosaturation
               summary: Disk IO queue is high.
             expr: |
-              (
+              max by (instance, device) (
                 rate(node_disk_io_time_weighted_seconds_total{job="node-exporter", device=~"(/dev/)?(mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|md.+|dasd.+)"}[5m])
               * on(instance, device) group_left()
                 node_disk_info{model!="VIRTUAL-DISK"}
               ) > 10
             for: 30m
+            keep_firing_for: 30m
             labels:
               severity: warning
   oom-rules:
