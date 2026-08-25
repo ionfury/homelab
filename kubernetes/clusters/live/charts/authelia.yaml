@@ -81,11 +81,6 @@ configMap:
 
   access_control:
     default_policy: two_factor
-    rules:
-      - domain: "ember.${internal_domain}"
-        policy: two_factor
-        subject:
-          - "group:ember"
 
   session:
     cookies:
@@ -436,26 +431,6 @@ configMap:
           grant_types:
             - authorization_code
           token_endpoint_auth_method: client_secret_basic
-        - client_id: miniflux
-          client_name: Miniflux
-          client_secret:
-            path: /secrets/miniflux-oidc-client-secret/client-secret
-          public: false
-          authorization_policy: two_factor
-          consent_mode: implicit
-          require_pkce: true
-          pkce_challenge_method: S256
-          redirect_uris:
-            - https://feeds.${internal_domain}/oauth2/oidc/callback
-          scopes:
-            - openid
-            - profile
-            - email
-          response_types:
-            - code
-          grant_types:
-            - authorization_code
-          token_endpoint_auth_method: client_secret_basic
         - client_id: freshrss
           client_name: FreshRSS
           client_secret:
@@ -505,6 +480,5 @@ secret:
     sure-oidc-client-secret: { }
     home-assistant-oidc-client-secret: { }
     mealie-oidc-client-secret: { }
-    miniflux-oidc-client-secret: { }
     freshrss-oidc-client-secret: { }
     authelia-smtp-credentials: { }

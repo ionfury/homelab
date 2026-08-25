@@ -242,18 +242,6 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: miniflux-database
-  namespace: database
-spec:
-  name: miniflux
-  owner: miniflux
-  cluster:
-    name: platform
-  databaseReclaimPolicy: retain
----
-apiVersion: postgresql.cnpg.io/v1
-kind: Database
-metadata:
   name: freshrss-database
   namespace: database
 spec:
