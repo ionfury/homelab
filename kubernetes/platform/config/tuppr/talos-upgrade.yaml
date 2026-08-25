@@ -14,7 +14,6 @@ spec:
   policy:
     rebootMode: default
     timeout: 60m
-    waitForVolumeDetach: true
   healthChecks:
     - apiVersion: v1
       kind: Node

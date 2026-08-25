@@ -29,10 +29,7 @@ defaultSettings:
   storageOverProvisioningPercentage: 500
   storageMinimalAvailablePercentage: 10
   autoCleanupSystemGeneratedSnapshot: true
-  # Peak snapshot count during a rebuild is the pinned base plus the system
-  # snapshots Longhorn creates before and after, which is exactly 3. At a limit
-  # of 3 there is no headroom and snapshot creation fails mid-rebuild.
-  snapshotMaxCount: 5
+  snapshotMaxCount: 250
   longGRPCTimeOut: 345600
   # Ensure snapshot checksums are computed immediately after every snapshot so
   # fast-rebuild (changed-blocks-only sync) is available at replica rebuild time.
