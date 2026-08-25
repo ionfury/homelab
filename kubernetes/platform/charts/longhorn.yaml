@@ -21,6 +21,7 @@ defaultSettings:
   createDefaultDiskLabeledNodes: true
   storageReservedPercentageForDefaultDisk: 10
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+  nodeDrainPolicy: allow-if-replica-is-stopped
   # Wait for a rebooted node to rejoin before replenishing its replicas. Talos
   # upgrades take a node offline longer than the 600s default, causing Longhorn
   # to full-rebuild multi-Ti replicas every upgrade. 1800s covers a single-node
