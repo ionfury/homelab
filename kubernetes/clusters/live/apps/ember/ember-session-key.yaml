@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ember-session-key
+  namespace: ember
+  annotations:
+    secret-generator.v1.mittwald.de/autogenerate: session-key
+    secret-generator.v1.mittwald.de/length: "32"
+    secret-generator.v1.mittwald.de/encoding: base64
+data: { }

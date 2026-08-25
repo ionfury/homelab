@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - ember-admin-credentials.yaml
+  - ember-session-key.yaml
+  - ember-auth-policy.yaml
+  - ember-ollama-egress.yaml
+  - canary.yaml
+  - prometheus-rules.yaml
+  - helmrepository.yaml
+  - helmrelease.yaml

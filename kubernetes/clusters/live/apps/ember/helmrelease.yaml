@@ -1,0 +1,157 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ember
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: secret-generator
+  chart:
+    spec:
+      chart: app-template
+      version: "${app_template_version}"
+      interval: 10m
+      sourceRef:
+        kind: HelmRepository
+        name: ember
+  install:
+    createNamespace: false
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  interval: 10m
+  maxHistory: 3
+  releaseName: ember
+  targetNamespace: ember
+  uninstall:
+    keepHistory: false
+  upgrade:
+    crds: CreateReplace
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  valuesFrom: []
+  values:
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+    # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+    controllers:
+      ember:
+        type: deployment
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            fsGroup: 65532
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+
+        containers:
+          app:
+            image:
+              repository: ghcr.io/brandonhon/ember
+              tag: "${ember_version}"
+            env:
+              EMBER_ADDR: ":8080"
+              EMBER_DB_PATH: "/data/ember.db"
+              EMBER_PUBLIC_URL: "https://ember.${internal_domain}"
+              EMBER_SECURE_COOKIES: "1"
+              EMBER_TRUSTED_PROXIES: "${cluster_pod_subnet}"
+              EMBER_LOG_LEVEL: "info"
+              EMBER_SESSION_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: ember-session-key
+                    key: session-key
+              EMBER_ADMIN_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: ember-admin-credentials
+                    key: username
+              EMBER_ADMIN_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: ember-admin-credentials
+                    key: password
+              EMBER_OLLAMA_URL: "http://ollama.ai.svc.cluster.local:11434"
+              EMBER_OLLAMA_MODEL: "qwen2.5:0.5b"
+              EMBER_DISABLE_SUMMARIES: "0"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  failureThreshold: 30
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  periodSeconds: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: 8080
+                  periodSeconds: 10
+
+    service:
+      app:
+        controller: ember
+        ports:
+          http:
+            port: 8080
+
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        storageClass: fast
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /data
+
+    route:
+      internal:
+        enabled: true
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: "Ember"
+          gethomepage.dev/group: "Apps"
+          gethomepage.dev/icon: "rss.svg"
+          gethomepage.dev/pod-selector: "app.kubernetes.io/name=ember"
+        parentRefs:
+          - name: internal
+            namespace: istio-gateway
+        hostnames:
+          - "ember.${internal_domain}"
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 8080
