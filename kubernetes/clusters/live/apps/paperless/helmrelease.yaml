@@ -32,6 +32,8 @@ spec:
     strategy:
       name: RetryOnFailure
     timeout: 10m
+  driftDetection:
+    mode: enabled
   # Explicit empty list is required (not merely absent): the legacy ResourceSet's
   # flux-operator field manager still owns spec.valuesFrom on the live object, and
   # SSA only removes a field when the owning manager applies without it. Setting []

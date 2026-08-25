@@ -20,6 +20,9 @@ spec:
     - name: miniflux
       path: kubernetes/clusters/live/apps/miniflux
       dependsOn: [cloudnative-pg, secret-generator]
+    - name: ember
+      path: kubernetes/clusters/live/apps/ember
+      dependsOn: [secret-generator]
     - name: freshrss
       path: kubernetes/clusters/live/apps/freshrss
       dependsOn: [cloudnative-pg, secret-generator]

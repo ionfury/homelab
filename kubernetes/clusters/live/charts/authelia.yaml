@@ -81,6 +81,11 @@ configMap:
 
   access_control:
     default_policy: two_factor
+    rules:
+      - domain: "ember.${internal_domain}"
+        policy: two_factor
+        subject:
+          - "group:ember"
 
   session:
     cookies:
@@ -501,6 +506,7 @@ configMap:
     endpoints:
       automatic_authz_implementations:
         - ForwardAuth
+        - ExtAuthz
 
 secret:
   existingSecret: "authelia-secrets"

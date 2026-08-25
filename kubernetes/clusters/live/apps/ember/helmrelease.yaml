@@ -2,11 +2,10 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: miniflux
+  name: ember
   namespace: flux-system
 spec:
   dependsOn:
-    - name: cloudnative-pg
     - name: secret-generator
   chart:
     spec:
@@ -15,7 +14,7 @@ spec:
       interval: 10m
       sourceRef:
         kind: HelmRepository
-        name: miniflux
+        name: ember
   install:
     createNamespace: false
     strategy:
@@ -23,8 +22,8 @@ spec:
     timeout: 10m
   interval: 10m
   maxHistory: 3
-  releaseName: miniflux
-  targetNamespace: miniflux
+  releaseName: ember
+  targetNamespace: ember
   uninstall:
     keepHistory: false
   upgrade:
@@ -32,14 +31,12 @@ spec:
     strategy:
       name: RetryOnFailure
     timeout: 10m
-  driftDetection:
-    mode: enabled
   valuesFrom: []
   values:
     # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
     # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
     controllers:
-      miniflux:
+      ember:
         type: deployment
         replicas: 1
         annotations:
@@ -58,45 +55,33 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/miniflux/miniflux
-              tag: "${miniflux_version}"
+              repository: ghcr.io/brandonhon/ember
+              tag: "${ember_version}"
             env:
-              LISTEN_ADDR: "0.0.0.0:8080"
-              BASE_URL: "https://feeds.${internal_domain}"
-              RUN_MIGRATIONS: "1"
-              LOG_LEVEL: "info"
-              MINIFLUX_DB_PASSWORD:
+              EMBER_ADDR: ":8080"
+              EMBER_DB_PATH: "/data/ember.db"
+              EMBER_PUBLIC_URL: "https://ember.${internal_domain}"
+              EMBER_SECURE_COOKIES: "1"
+              EMBER_TRUSTED_PROXIES: "${cluster_pod_subnet}"
+              EMBER_LOG_LEVEL: "info"
+              EMBER_SESSION_KEY:
                 valueFrom:
                   secretKeyRef:
-                    name: miniflux-db-credentials
-                    key: password
-              DATABASE_URL:
-                dependsOn: MINIFLUX_DB_PASSWORD
-                value: "user=miniflux password=$(MINIFLUX_DB_PASSWORD) dbname=miniflux host=platform-pooler-rw.database.svc.cluster.local port=5432 sslmode=disable"
-              CREATE_ADMIN: "1"
-              ADMIN_USERNAME:
+                    name: ember-session-key
+                    key: session-key
+              EMBER_ADMIN_USER:
                 valueFrom:
                   secretKeyRef:
-                    name: miniflux-admin-credentials
+                    name: ember-admin-credentials
                     key: username
-              ADMIN_PASSWORD:
+              EMBER_ADMIN_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: miniflux-admin-credentials
+                    name: ember-admin-credentials
                     key: password
-              OAUTH2_PROVIDER: "oidc"
-              OAUTH2_CLIENT_ID: "miniflux"
-              OAUTH2_CLIENT_SECRET:
-                valueFrom:
-                  secretKeyRef:
-                    name: miniflux-oidc-client-secret
-                    key: client-secret
-              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://auth.${external_domain}"
-              OAUTH2_OIDC_PROVIDER_NAME: "Authelia"
-              OAUTH2_REDIRECT_URL: "https://feeds.${internal_domain}/oauth2/oidc/callback"
-              OAUTH2_USER_CREATION: "1"
-              METRICS_COLLECTOR: "1"
-              METRICS_ALLOWED_NETWORKS: "${cluster_pod_subnet}"
+              EMBER_OLLAMA_URL: "http://ollama.ai.svc.cluster.local:11434"
+              EMBER_OLLAMA_MODEL: "qwen2.5:0.5b"
+              EMBER_DISABLE_SUMMARIES: "0"
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -138,36 +123,34 @@ spec:
 
     service:
       app:
-        controller: miniflux
+        controller: ember
         ports:
           http:
             port: 8080
 
-    serviceMonitor:
-      app:
-        enabled: true
-        serviceName: miniflux
-        endpoints:
-          - port: http
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        storageClass: fast
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /data
 
     route:
       internal:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/name: "Miniflux"
+          gethomepage.dev/name: "Ember"
           gethomepage.dev/group: "Apps"
-          gethomepage.dev/icon: "miniflux.svg"
-          gethomepage.dev/pod-selector: "app.kubernetes.io/name=miniflux"
+          gethomepage.dev/icon: "rss.svg"
+          gethomepage.dev/pod-selector: "app.kubernetes.io/name=ember"
         parentRefs:
           - name: internal
             namespace: istio-gateway
         hostnames:
-          - "feeds.${internal_domain}"
+          - "ember.${internal_domain}"
         rules:
           - backendRefs:
               - identifier: app

@@ -72,6 +72,10 @@ spec:
         strategy:
           name: RetryOnFailure
         timeout: 10m
+      <<- if not (and (hasKey inputs "driftDetectionDisabled") inputs.driftDetectionDisabled) >>
+      driftDetection:
+        mode: enabled
+      <<- end >>
       valuesFrom:
         - kind: ConfigMap
           name: cluster-values

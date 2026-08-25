@@ -7,7 +7,7 @@ metadata:
 spec:
   route:
     groupBy: ["alertname", "job"]
-    groupInterval: 10m
+    groupInterval: 1h
     groupWait: 1m
     receiver: discord
     repeatInterval: 12h
