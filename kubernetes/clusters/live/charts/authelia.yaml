@@ -431,6 +431,26 @@ configMap:
           grant_types:
             - authorization_code
           token_endpoint_auth_method: client_secret_basic
+        - client_id: freshrss
+          client_name: FreshRSS
+          client_secret:
+            path: /secrets/freshrss-oidc-client-secret/client-secret
+          public: false
+          authorization_policy: two_factor
+          consent_mode: implicit
+          require_pkce: true
+          pkce_challenge_method: S256
+          redirect_uris:
+            - https://freshrss.${internal_domain}/i/oidc/
+          scopes:
+            - openid
+            - profile
+            - email
+          response_types:
+            - code
+          grant_types:
+            - authorization_code
+          token_endpoint_auth_method: client_secret_basic
 
   regulation:
     max_retries: 3
@@ -460,4 +480,5 @@ secret:
     sure-oidc-client-secret: { }
     home-assistant-oidc-client-secret: { }
     mealie-oidc-client-secret: { }
+    freshrss-oidc-client-secret: { }
     authelia-smtp-credentials: { }

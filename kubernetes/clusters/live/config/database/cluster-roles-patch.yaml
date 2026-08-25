@@ -81,3 +81,8 @@ spec:
         login: true
         passwordSecret:
           name: mealie-role-password
+      - name: freshrss
+        ensure: present
+        login: true
+        passwordSecret:
+          name: freshrss-role-password

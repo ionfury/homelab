@@ -6,15 +6,14 @@ metadata:
 spec:
   talos:
     version: ${talos_version}
-  # maintenance:
-  #   windows:
-  #     - start: "0 2 * * 6"  # Every Saturday at 2:00 AM
-  #       duration: 4h
-  #       timezone: EST
+  maintenance:
+    windows:
+      - start: "0 2 * * 6"
+        duration: 4h
+        timezone: EST
   policy:
     rebootMode: default
     timeout: 60m
-    waitForVolumeDetach: true
   healthChecks:
     - apiVersion: v1
       kind: Node

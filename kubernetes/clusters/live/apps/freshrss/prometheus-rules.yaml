@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: freshrss-alerts
+  namespace: freshrss
+  labels:
+    app.kubernetes.io/name: freshrss
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: freshrss.rules
+      rules:
+        - alert: FreshRSSDeploymentReplicasUnavailable
+          expr: |
+            kube_deployment_status_replicas_available{namespace="freshrss", deployment="freshrss"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "FreshRSS has no available replicas"
+            description: "FreshRSS does not expose Prometheus metrics, so availability is inferred from the Deployment's available replica count via kube-state-metrics. No replicas have been available for 5 minutes."
+        - alert: FreshRSSPodCrashLooping
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="freshrss"}[15m]) > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "FreshRSS pod {{ $labels.pod }} is crash looping"
+            description: "{{ $labels.pod }} has restarted {{ $value | humanize }} times in the last 15 minutes."
