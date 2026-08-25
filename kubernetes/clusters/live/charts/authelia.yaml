@@ -526,4 +526,6 @@ secret:
     home-assistant-oidc-client-secret: { }
     mealie-oidc-client-secret: { }
     miniflux-oidc-client-secret: { }
+    freshrss-oidc-client-secret: { }
+    fusion-oidc-client-secret: { }
     authelia-smtp-credentials: { }
