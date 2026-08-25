@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: fusion-alerts
+  namespace: fusion
+  labels:
+    app.kubernetes.io/name: fusion
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: fusion.rules
+      rules:
+        - alert: FusionDeploymentReplicasUnavailable
+          expr: |
+            kube_deployment_status_replicas_available{namespace="fusion", deployment="fusion"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Fusion has no available replicas"
+            description: "Fusion does not expose Prometheus metrics, so availability is inferred from the Deployment's available replica count via kube-state-metrics. No replicas have been available for 5 minutes."
+        - alert: FusionPodCrashLooping
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="fusion"}[15m]) > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Fusion pod {{ $labels.pod }} is crash looping"
+            description: "{{ $labels.pod }} has restarted {{ $value | humanize }} times in the last 15 minutes."

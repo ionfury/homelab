@@ -1,0 +1,188 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: freshrss
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: cloudnative-pg
+    - name: secret-generator
+  chart:
+    spec:
+      chart: app-template
+      version: "${app_template_version}"
+      interval: 10m
+      sourceRef:
+        kind: HelmRepository
+        name: freshrss
+  install:
+    createNamespace: false
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  interval: 10m
+  maxHistory: 3
+  releaseName: freshrss
+  targetNamespace: freshrss
+  uninstall:
+    keepHistory: false
+  upgrade:
+    crds: CreateReplace
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  valuesFrom: []
+  values:
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+    # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+    controllers:
+      freshrss:
+        type: deployment
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+
+        pod:
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+
+        initContainers:
+          fetch-ai-summary-extension:
+            image:
+              repository: alpine
+              tag: "3.24.1"
+            command:
+              - sh
+              - -c
+              - |
+                set -e
+                mkdir -p /extensions/xExtension-AiSummary
+                wget -qO- "https://github.com/deimosfr/xExtension-AiSummary/archive/refs/tags/v${freshrss_ai_summary_extension_version}.tar.gz" \
+                  | tar -xz -C /extensions/xExtension-AiSummary --strip-components=1
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+
+        containers:
+          app:
+            image:
+              repository: ghcr.io/freshrss/freshrss
+              tag: "${freshrss_version}"
+            env:
+              TZ: "America/Chicago"
+              CRON_MIN: "13,43"
+              FRESHRSS_DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: freshrss-db-credentials
+                    key: password
+              FRESHRSS_INSTALL:
+                dependsOn: FRESHRSS_DB_PASSWORD
+                value: |-
+                  --api-enabled
+                  --auth-type http_auth
+                  --base-url https://freshrss.${internal_domain}
+                  --db-base freshrss
+                  --db-host platform-pooler-rw.database.svc.cluster.local
+                  --db-password $(FRESHRSS_DB_PASSWORD)
+                  --db-type pgsql
+                  --db-user freshrss
+                  --default-user ionfury
+                  --language en
+              OIDC_ENABLED: "1"
+              OIDC_PROVIDER_METADATA_URL: "https://auth.${external_domain}/.well-known/openid-configuration"
+              OIDC_CLIENT_ID: "freshrss"
+              OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: freshrss-oidc-client-secret
+                    key: client-secret
+              OIDC_CLIENT_CRYPTO_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: freshrss-oidc-crypto-key
+                    key: crypto-key
+              OIDC_SCOPES: "openid profile"
+              OIDC_X_FORWARDED_HEADERS: "X-Forwarded-Proto"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop: ["ALL"]
+                add: ["CHOWN", "DAC_OVERRIDE", "FOWNER", "SETUID", "SETGID", "NET_BIND_SERVICE"]
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["php", "/var/www/FreshRSS/cli/health.php"]
+                  initialDelaySeconds: 15
+                  periodSeconds: 5
+                  failureThreshold: 60
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["php", "/var/www/FreshRSS/cli/health.php"]
+                  periodSeconds: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["php", "/var/www/FreshRSS/cli/health.php"]
+                  periodSeconds: 10
+
+    service:
+      app:
+        controller: freshrss
+        ports:
+          http:
+            port: 80
+
+    route:
+      internal:
+        enabled: true
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: "FreshRSS"
+          gethomepage.dev/group: "Apps"
+          gethomepage.dev/icon: "freshrss.svg"
+          gethomepage.dev/pod-selector: "app.kubernetes.io/name=freshrss"
+        parentRefs:
+          - name: internal
+            namespace: istio-gateway
+        hostnames:
+          - "freshrss.${internal_domain}"
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 80
+
+    persistence:
+      data:
+        existingClaim: freshrss-data
+        advancedMounts:
+          freshrss:
+            app:
+              - path: /var/www/FreshRSS/data
+      extensions:
+        type: emptyDir
+        advancedMounts:
+          freshrss:
+            app:
+              - path: /var/www/FreshRSS/extensions
+            fetch-ai-summary-extension:
+              - path: /extensions

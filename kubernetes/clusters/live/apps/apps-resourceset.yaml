@@ -20,6 +20,12 @@ spec:
     - name: miniflux
       path: kubernetes/clusters/live/apps/miniflux
       dependsOn: [cloudnative-pg, secret-generator]
+    - name: freshrss
+      path: kubernetes/clusters/live/apps/freshrss
+      dependsOn: [cloudnative-pg, secret-generator]
+    - name: fusion
+      path: kubernetes/clusters/live/apps/fusion
+      dependsOn: [secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

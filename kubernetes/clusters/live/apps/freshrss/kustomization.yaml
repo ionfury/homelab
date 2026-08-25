@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - freshrss-data-pvc.yaml
+  - freshrss-db-credentials.yaml
+  - freshrss-oidc-client-secret-replica.yaml
+  - freshrss-oidc-crypto-key.yaml
+  - freshrss-ollama-egress.yaml
+  - canary.yaml
+  - prometheus-rules.yaml
+  - helmrepository.yaml
+  - helmrelease.yaml

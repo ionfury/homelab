@@ -1,0 +1,140 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: fusion
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: secret-generator
+  chart:
+    spec:
+      chart: app-template
+      version: "${app_template_version}"
+      interval: 10m
+      sourceRef:
+        kind: HelmRepository
+        name: fusion
+  install:
+    createNamespace: false
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  interval: 10m
+  maxHistory: 3
+  releaseName: fusion
+  targetNamespace: fusion
+  uninstall:
+    keepHistory: false
+  upgrade:
+    crds: CreateReplace
+    strategy:
+      name: RetryOnFailure
+    timeout: 10m
+  valuesFrom: []
+  values:
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/values.schema.json
+    # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/other/app-template
+    controllers:
+      fusion:
+        type: deployment
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+
+        pod:
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+
+        containers:
+          app:
+            image:
+              repository: ghcr.io/0x2e/fusion
+              tag: "${fusion_version}"
+            env:
+              FUSION_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: fusion-credentials
+                    key: password
+              FUSION_OIDC_ISSUER: "https://auth.${external_domain}"
+              FUSION_OIDC_CLIENT_ID: "fusion"
+              FUSION_OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: fusion-oidc-client-secret
+                    key: client-secret
+              FUSION_OIDC_REDIRECT_URI: "https://fusion.${internal_domain}/api/oidc/callback"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/oidc/enabled
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  failureThreshold: 30
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/oidc/enabled
+                    port: 8080
+                  periodSeconds: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/oidc/enabled
+                    port: 8080
+                  periodSeconds: 10
+
+    service:
+      app:
+        controller: fusion
+        ports:
+          http:
+            port: 8080
+
+    route:
+      internal:
+        enabled: true
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: "Fusion"
+          gethomepage.dev/group: "Apps"
+          gethomepage.dev/icon: "rss.svg"
+          gethomepage.dev/pod-selector: "app.kubernetes.io/name=fusion"
+        parentRefs:
+          - name: internal
+            namespace: istio-gateway
+        hostnames:
+          - "fusion.${internal_domain}"
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 8080
+
+    persistence:
+      data:
+        existingClaim: fusion-data
+        advancedMounts:
+          fusion:
+            app:
+              - path: /data
