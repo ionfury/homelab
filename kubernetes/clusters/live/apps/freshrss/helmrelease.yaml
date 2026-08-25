@@ -91,7 +91,7 @@ spec:
                   --db-password $(FRESHRSS_DB_PASSWORD)
                   --db-type pgsql
                   --db-user freshrss
-                  --default-user ionfury
+                  --default-user thomasnowak
                   --language en
               OIDC_ENABLED: "1"
               OIDC_PROVIDER_METADATA_URL: "https://auth.${external_domain}/.well-known/openid-configuration"
