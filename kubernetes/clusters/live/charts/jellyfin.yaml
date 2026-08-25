@@ -116,6 +116,8 @@ persistence:
     accessMode: ReadWriteOnce
     size: 200Gi
     storageClass: fast-ephemeral
+    labels:
+      velero.io/exclude-from-backup: "true"
     advancedMounts:
       jellyfin:
         app:

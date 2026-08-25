@@ -26,6 +26,11 @@ spec:
         #   - LHS: user_created snapshots that exist (have actual_size_bytes)
         #   - RHS: user_created snapshots that have a populated checksum (checksum!="")
         #   - unless: set subtraction — alerts for any snapshot in LHS that has NO matching entry in RHS
+        #   - final unless: drops single-replica volumes, which can never satisfy this alert.
+        #     On-demand hashing (Volume.Spec.SnapshotHashingRequestedAt) requires at least two
+        #     replicas, so a snapshot on a one-replica volume stays un-hashed permanently and the
+        #     alert re-fires forever. Observed on jellyfin-transcodes, which Velero snapshots
+        #     weekly. Such volumes are also excluded from the tuppr Talos upgrade health check.
         - alert: LonghornSnapshotUnhashed
           expr: |
             count by (volume, snapshot) (
@@ -39,6 +44,9 @@ spec:
                 user_created="true",
                 checksum!=""
               }
+            )
+            unless on (volume) (
+              count by (volume) (longhorn_replica_info) < 2
             )
           for: 6h
           labels:
