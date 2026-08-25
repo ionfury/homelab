@@ -6,7 +6,6 @@ resources:
   - namespace.yaml
   - ember-admin-credentials.yaml
   - ember-session-key.yaml
-  - ember-auth-policy.yaml
   - ember-ollama-egress.yaml
   - canary.yaml
   - prometheus-rules.yaml
