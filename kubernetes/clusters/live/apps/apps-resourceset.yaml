@@ -17,12 +17,6 @@ spec:
     - name: paperless
       path: kubernetes/clusters/live/apps/paperless
       dependsOn: [cloudnative-pg, secret-generator]
-    - name: miniflux
-      path: kubernetes/clusters/live/apps/miniflux
-      dependsOn: [cloudnative-pg, secret-generator]
-    - name: ember
-      path: kubernetes/clusters/live/apps/ember
-      dependsOn: [secret-generator]
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1

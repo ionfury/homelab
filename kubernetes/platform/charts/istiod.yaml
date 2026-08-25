@@ -8,32 +8,6 @@ meshConfig:
   accessLogEncoding: JSON
   enablePrometheusMerge: true
   extensionProviders:
-    - name: authelia
-      envoyExtAuthzHttp:
-        service: authelia.authelia.svc.cluster.local
-        port: 80
-        pathPrefix: /api/authz/ext-authz/
-        headersToDownstreamOnDeny:
-          - content-type
-          - set-cookie
-          - location
-        headersToUpstreamOnAllow:
-          - remote-user
-          - remote-groups
-          - remote-name
-          - remote-email
-        headersToDownstreamOnAllow:
-          - set-cookie
-        includeRequestHeadersInCheck:
-          - accept
-          - cookie
-          - authorization
-          - proxy-authorization
-          - x-forwarded-proto
-          - x-forwarded-host
-          - x-forwarded-for
-        includeAdditionalHeadersInCheck:
-          x-forwarded-proto: "https"
     - name: oauth2-proxy
       envoyExtAuthzHttp:
         service: oauth2-proxy.oauth2-proxy.svc.cluster.local
