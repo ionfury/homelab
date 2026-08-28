@@ -4,17 +4,34 @@ name: Kubernetes Validate
 
 on:
   pull_request:
-    paths:
-      - "kubernetes/**"
-      - ".github/workflows/kubernetes-validate.yaml"
-      - ".yamllint.yaml"
-      - ".taskfiles/kubernetes/**"
-      - ".mise.toml"
   workflow_dispatch:
 
 jobs:
+  # Job 0: Path filtering. Runs on every PR so the gate always reports a status.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      kubernetes: ${{ steps.filter.outputs.kubernetes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v4.0.3
+        with:
+          filters: |
+            kubernetes:
+              - 'kubernetes/**'
+              - '.github/workflows/kubernetes-validate.yaml'
+              - '.yamllint.yaml'
+              - '.taskfiles/kubernetes/**'
+              - '.mise.toml'
+
   # Job 1: Cluster-independent validation (lint, ResourceSets, Helm)
   validate-base:
+    needs: changes
+    if: needs.changes.outputs.kubernetes == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -53,6 +70,8 @@ jobs:
 
   # Job 2: Discover clusters with .cluster-vars.env
   discover-clusters:
+    needs: changes
+    if: needs.changes.outputs.kubernetes == 'true'
     runs-on: ubuntu-latest
     outputs:
       clusters: ${{ steps.discover.outputs.clusters }}
@@ -115,3 +134,16 @@ jobs:
         env:
           CLUSTER: ${{ matrix.cluster }}
         run: task k8s:validate-$CLUSTER
+
+  # Gate: the single required status check. Matrix contexts are dynamic, so
+  # branch protection tracks this aggregate instead of individual job names.
+  kubernetes-validate:
+    if: always()
+    needs: [changes, validate-base, discover-clusters, validate-cluster]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check job results
+        uses: re-actors/alls-green@v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}
+          allowed-skips: validate-base,discover-clusters,validate-cluster
