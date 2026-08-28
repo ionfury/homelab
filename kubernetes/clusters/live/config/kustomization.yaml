@@ -21,5 +21,4 @@ resources:
   - homepage
   - palworld
   - velero
-  - silences
   - cluster-config-resourceset.yaml
