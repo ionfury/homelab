@@ -4,14 +4,31 @@ name: Infrastructure Validate
 
 on:
   pull_request:
-    paths:
-      - "infrastructure/**"
-      - ".github/workflows/infrastructure-validate.yaml"
-      - ".mise.toml"
   workflow_dispatch:
 
 jobs:
+  # Path filtering. Runs on every PR so the gate always reports a status.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v4.0.3
+        with:
+          filters: |
+            infrastructure:
+              - 'infrastructure/**'
+              - '.github/workflows/infrastructure-validate.yaml'
+              - '.mise.toml'
+
   format:
+    needs: changes
+    if: needs.changes.outputs.infrastructure == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,3 +65,16 @@ jobs:
       - name: Run tests
         working-directory: infrastructure/modules/${{ matrix.module }}
         run: tofu test
+
+  # Gate: the single required status check. Matrix contexts are dynamic, so
+  # branch protection tracks this aggregate instead of individual job names.
+  infrastructure-validate:
+    if: always()
+    needs: [changes, format, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check job results
+        uses: re-actors/alls-green@v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}
+          allowed-skips: format,test
