@@ -225,15 +225,6 @@
       "allowedVersions": "!/^v3\\.41\\./"
     },
     {
-      // Kubernetes is capped to what the pinned Talos release supports.
-      // Talos v1.13.9 supports 1.31.0 - 1.36.99; validate-base enforces this.
-      // Raise this ceiling only alongside a Talos bump that widens the range.
-      "matchDepNames": [
-        "kubernetes"
-      ],
-      "allowedVersions": "< 1.37.0"
-    },
-    {
       // talos v1.13.3: RenderConfigsStaticPodController panics on scheduler.config integer fields
       // Upstream: https://github.com/siderolabs/talos/issues/13445
       "matchDepNames": [

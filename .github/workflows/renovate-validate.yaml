@@ -4,18 +4,55 @@ name: Renovate Validate
 
 on:
   pull_request:
-    paths:
-      - ".github/renovate.json5"
-      - ".github/renovate-*.json5"
-      - ".github/workflows/renovate-validate.yaml"
   workflow_dispatch:
 
 jobs:
+  # Path filtering. Runs on every PR so the gate always reports a status.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      renovate: ${{ steps.filter.outputs.renovate }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v4.0.3
+        with:
+          filters: |
+            renovate:
+              - '.github/renovate.json5'
+              - '.github/renovate-*.json5'
+              - '.renovate/**'
+              - '.github/workflows/renovate-validate.yaml'
+
   validate:
+    needs: changes
+    if: needs.changes.outputs.renovate == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
 
+      # Presets are resolved from the default branch when validating the base
+      # config, so the local preset files are passed explicitly to validate the
+      # versions in this PR.
       - name: Validate Renovate config
-        run: npx --yes --package renovate@41 -- renovate-config-validator --strict
+        run: |
+          npx --yes --package renovate@41 -- renovate-config-validator --strict \
+            .github/renovate.json5 \
+            .renovate/automerge.json5 \
+            .renovate/labels.json5
+
+  # Gate: the single required status check.
+  renovate-validate:
+    if: always()
+    needs: [changes, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check job results
+        uses: re-actors/alls-green@v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}
+          allowed-skips: validate
