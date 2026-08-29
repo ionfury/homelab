@@ -9,8 +9,8 @@ variable "features" {
   default     = ["gateway-api", "longhorn", "prometheus", "spegel"]
 
   validation {
-    condition     = alltrue([for feature in var.features : contains(["gateway-api", "longhorn", "prometheus", "spegel"], feature)])
-    error_message = "Each feature must be one of: gateway-api, longhorn, prometheus, spegel."
+    condition     = alltrue([for feature in var.features : contains(["gateway-api", "longhorn", "prometheus", "spegel", "thread-ipv6"], feature)])
+    error_message = "Each feature must be one of: gateway-api, longhorn, prometheus, spegel, thread-ipv6."
   }
 }
 
