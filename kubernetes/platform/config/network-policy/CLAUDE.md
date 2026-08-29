@@ -47,8 +47,9 @@ network-policy/
 │   └── system-upgrade.yaml        # Tuppr upgrade controller
 ├── shared-resources/    # Opt-in access to shared services
 │   ├── access-dragonfly.yaml      # Dragonfly (Redis) access
-│   ├── access-postgres.yaml       # Database access
-│   └── access-garage-s3.yaml      # Object storage access
+│   ├── access-garage-s3.yaml      # Object storage access
+│   ├── access-home-assistant.yaml # Home Assistant egress to labeled app namespaces
+│   └── access-postgres.yaml       # Database access
 └── kustomization.yaml
 ```
 
@@ -71,8 +72,18 @@ Namespaces can opt-in to additional capabilities via labels:
 |-------|------------|
 | `access.network-policy.homelab/kube-api=true` | Egress to Kubernetes API (port 6443) |
 | `access.network-policy.homelab/dragonfly=true` | Egress to Dragonfly in cache namespace (port 6379) |
-| `access.network-policy.homelab/postgres=true` | Egress to PostgreSQL in database namespace (port 5432) |
 | `access.network-policy.homelab/garage-s3=true` | Egress to Garage S3 in garage namespace (port 3900) |
+| `access.network-policy.homelab/home-assistant=true` | Allows Home Assistant to egress into this namespace (see note below) |
+| `access.network-policy.homelab/postgres=true` | Egress to PostgreSQL in database namespace (port 5432) |
+
+> **Note — `home-assistant` label semantics differ from the others.** All other access labels go on the
+> **requesting** namespace and open egress to a fixed platform service+port. The `home-assistant` label
+> goes on the **target app** namespace and grants Home Assistant egress access inbound to that app.
+> The shared CCNP (`access-home-assistant.yaml`) is intentionally L3-only (no `toPorts`); port enforcement
+> is provided by a per-app `CiliumNetworkPolicy` in the target namespace that allows ingress from the
+> `home-assistant` namespace on the app's specific API port. Cilium intersects the two rules, so the
+> effective port is what the app's ingress CNP declares — not a global shared value. Do not add this
+> label to the `home-assistant` namespace itself; add it to the namespaces of apps that HA needs to call.
 
 ## Escape Hatch
 
