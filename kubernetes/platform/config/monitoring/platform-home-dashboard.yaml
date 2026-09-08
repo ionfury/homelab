@@ -623,8 +623,52 @@ data:
           "type": "stat"
         },
         {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Free space remaining inside provisioned volumes, grouped by StorageClass.",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "orange", "value": 53687091200 },
+                  { "color": "yellow", "value": 107374182400 },
+                  { "color": "green", "value": 214748364800 }
+                ]
+              },
+              "unit": "bytes",
+              "min": 0
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 20 },
+          "id": 63,
+          "options": {
+            "displayMode": "gradient",
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "valueMode": "color"
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "sum by (storageclass) (kubelet_volume_stats_available_bytes * on(namespace, persistentvolumeclaim) group_left(storageclass) kube_persistentvolumeclaim_info)",
+              "legendFormat": "{{storageclass}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Available Space by StorageClass",
+          "type": "bargauge"
+        },
+        {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 20 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
           "id": 50,
           "title": "Database & Cache",
           "type": "row"
@@ -648,7 +692,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 8, "x": 0, "y": 21 },
+          "gridPos": { "h": 4, "w": 8, "x": 0, "y": 27 },
           "id": 51,
           "options": {
             "colorMode": "background",
@@ -690,7 +734,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 21 },
+          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 27 },
           "id": 52,
           "options": {
             "minVizHeight": 75,
@@ -733,7 +777,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 21 },
+          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 27 },
           "id": 53,
           "options": {
             "minVizHeight": 75,
@@ -757,7 +801,7 @@ data:
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
           "id": 60,
           "title": "Backup & Alerts",
           "type": "row"
@@ -780,7 +824,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 6, "w": 8, "x": 0, "y": 26 },
+          "gridPos": { "h": 6, "w": 8, "x": 0, "y": 32 },
           "id": 61,
           "options": {
             "colorMode": "background",
@@ -849,7 +893,7 @@ data:
               }
             ]
           },
-          "gridPos": { "h": 6, "w": 16, "x": 8, "y": 26 },
+          "gridPos": { "h": 6, "w": 16, "x": 8, "y": 32 },
           "id": 62,
           "options": {
             "showHeader": true,
