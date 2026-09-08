@@ -125,25 +125,34 @@ spec:
             summary: "Longhorn replica rebuild stalled on {{ $labels.volume }}"
             description: "Volume {{ $labels.volume }} has been rebuilding for over 30 minutes at {{ $value }}%. This may indicate disk I/O issues or network problems."
 
-        # SSD Endurance - Warning
+    # SMART attribute 231 raw is percent of SSD life REMAINING (Kingston).
+    # SMART attribute 202 raw is percent of SSD life CONSUMED (Crucial/Micron).
+    # Normalise both to a single remaining-percent series before alerting.
+    - name: longhorn-endurance
+      rules:
+        - record: longhorn:disk_endurance_remaining_percent
+          expr: |
+            max by (node, disk) (longhorn_disk_health_attribute_raw{attribute_id="231"})
+            or
+            max by (node, disk) (100 - longhorn_disk_health_attribute_raw{attribute_id="202"})
+
         - alert: LonghornDiskEnduranceWarning
-          expr: max by (disk, node) (longhorn_disk_health_attribute_raw{attribute_id=~"202|231"}) < 30
+          expr: longhorn:disk_endurance_remaining_percent < 30
           for: 5m
           labels:
             severity: warning
           annotations:
             summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} endurance < 30%"
-            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value }}% SSD lifetime remaining. Plan disk replacement."
+            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value | printf \"%.0f\" }}% SSD lifetime remaining. Plan disk replacement."
 
-        # SSD Endurance - Critical
         - alert: LonghornDiskEnduranceCritical
-          expr: max by (disk, node) (longhorn_disk_health_attribute_raw{attribute_id=~"202|231"}) < 10
+          expr: longhorn:disk_endurance_remaining_percent < 10
           for: 5m
           labels:
             severity: critical
           annotations:
             summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} endurance < 10%"
-            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value }}% SSD lifetime remaining. Immediate replacement required to prevent data loss."
+            description: "Disk {{ $labels.disk }} on node {{ $labels.node }} has {{ $value | printf \"%.0f\" }}% SSD lifetime remaining. Immediate replacement required to prevent data loss."
 
     # Recording rules that aggregate disk metrics by storage pool (fast/slow)
     # based on disk name patterns from inventory (ssd = fast, hdd = slow).
