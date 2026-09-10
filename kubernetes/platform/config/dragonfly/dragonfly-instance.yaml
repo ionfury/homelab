@@ -29,13 +29,14 @@ spec:
   resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 512Mi
     limits:
       memory: 2Gi
 
   args:
     - "--maxmemory"
-    - "768mb"
+    - "1gb"
+    - "--rss_oom_deny_ratio=1.5"
     - "--cache_mode"
     - "--proactor_threads"
     - "2"
