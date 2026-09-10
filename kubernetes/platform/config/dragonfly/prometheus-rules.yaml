@@ -42,43 +42,61 @@ spec:
               configured maxmemory. Sustained eviction is likely; consider
               raising --maxmemory in dragonfly-instance.yaml.
 
-        - alert: DragonflyRssNearConnectionRefusal
+        - alert: DragonflyMemoryNearContainerLimit
           expr: |
-            (dragonfly_used_memory_rss_bytes{namespace="cache"}
-            / (dragonfly_memory_max_bytes{namespace="cache"} * 1.5)) > 0.8
+            (container_memory_working_set_bytes{namespace="cache",container="dragonfly"}
+            / on(pod) kube_pod_container_resource_limits{namespace="cache",container="dragonfly",resource="memory"}) > 0.8
           for: 10m
           labels:
             severity: warning
           annotations:
-            summary: "Dragonfly RSS at {{ $value | humanizePercentage }} of the OOM-deny ceiling on {{ $labels.pod }}"
+            summary: "Dragonfly container memory at {{ $value | humanizePercentage }} of its limit on {{ $labels.pod }}"
             description: >-
-              Process RSS on {{ $labels.pod }} is approaching the
-              rss_oom_deny_ratio ceiling (maxmemory x 1.5, matching
-              --rss_oom_deny_ratio in dragonfly-instance.yaml). At 100%
-              Dragonfly refuses all new client connections on the non-admin
-              port. RSS can exceed the dataset size by orders of magnitude
-              through allocator fragmentation, so compare against
-              dragonfly_memory_used_bytes before raising maxmemory. Restarting
-              the pod clears fragmented RSS.
+              {{ $labels.pod }} is approaching its container memory limit and
+              will be OOMKilled if it continues. The limit is a runaway
+              containment threshold derived from node capacity, not from
+              working set, and sits several times above any legitimate
+              ceiling. Reaching it means the process is malfunctioning.
+              Compare
+              container_memory_working_set_bytes against
+              dragonfly_memory_used_bytes: if they diverge by orders of
+              magnitude the cause is allocator fragmentation rather than real
+              data, and a restart clears it.
 
-        - alert: DragonflyRefusingConnections
+        - alert: DragonflyOOMKilled
           expr: |
-            (dragonfly_used_memory_rss_bytes{namespace="cache"}
-            / (dragonfly_memory_max_bytes{namespace="cache"} * 1.5)) >= 1
-          for: 2m
+            kube_pod_container_status_last_terminated_reason{namespace="cache",container="dragonfly",reason="OOMKilled"} == 1
+          for: 1m
           labels:
             severity: critical
           annotations:
-            summary: "Dragonfly is refusing new connections on {{ $labels.pod }}"
+            summary: "Dragonfly container was OOMKilled on {{ $labels.pod }}"
             description: >-
-              Process RSS on {{ $labels.pod }} has crossed the
-              rss_oom_deny_ratio ceiling (maxmemory x 1.5). Dragonfly has
-              stopped accepting new client connections; existing connections
-              survive but every client that reconnects gets an immediate EOF.
-              This affects all namespaces sharing this instance. This state
-              does not self-heal when the dataset is small, because cache_mode
-              eviction keys off dataset size rather than RSS. Restart the pod
-              to clear fragmented RSS.
+              {{ $labels.pod }} exceeded its container memory limit and was
+              killed, dropping every client connection on that pod. The limit
+              is a runaway containment threshold that legitimate operation
+              cannot reach, so treat this as an incident rather than as
+              routine recovery. Detection of the known fragmentation
+              pathology is handled by DragonflyMemoryFragmentation well
+              before this point.
+
+        - alert: DragonflyMemoryFragmentation
+          expr: |
+            (dragonfly_used_memory_rss_bytes{namespace="cache"}
+            / dragonfly_memory_used_bytes{namespace="cache"}) > 20
+            and
+            dragonfly_used_memory_rss_bytes{namespace="cache"} > 536870912
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Dragonfly RSS is {{ $value | humanize }}x its dataset size on {{ $labels.pod }}"
+            description: >-
+              Process RSS on {{ $labels.pod }} has grown far beyond the logical
+              dataset, which means allocator fragmentation rather than real
+              data. cache_mode eviction keys off dataset size and will not
+              reclaim this. Restarting the pod clears it. Repeated full resyncs
+              from replication flapping are a known driver.
 
         - alert: DragonflyReplicationBroken
           expr: dragonfly_master_link_status{namespace="cache"} == 0
@@ -103,8 +121,7 @@ spec:
             description: >-
               {{ $labels.pod }} has reconnected to its master more than twice
               in 30 minutes. Repeated full resyncs drive allocator
-              fragmentation on the master, which can escalate into the
-              rss_oom_deny_ratio connection refusal.
+              fragmentation on the master.
 
         - alert: DragonflyMetricsMissing
           expr: absent(dragonfly_memory_max_bytes{namespace="cache"})
