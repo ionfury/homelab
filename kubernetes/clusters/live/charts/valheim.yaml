@@ -18,8 +18,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/community-valheim-tools/valheim-server
-          # renovate: datasource=docker depName=ghcr.io/community-valheim-tools/valheim-server
-          tag: 1.2.0
+          tag: "${valheim_version}"
         env:
           # Server configuration
           SERVER_NAME: "Valheim Dedicated"
