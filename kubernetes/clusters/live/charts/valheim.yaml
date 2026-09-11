@@ -17,9 +17,8 @@ controllers:
     containers:
       app:
         image:
-          repository: ghcr.io/lloesche/valheim-server
-          # renovate: datasource=docker depName=ghcr.io/lloesche/valheim-server
-          tag: latest
+          repository: ghcr.io/community-valheim-tools/valheim-server
+          tag: "${valheim_version}"
         env:
           # Server configuration
           SERVER_NAME: "Valheim Dedicated"
