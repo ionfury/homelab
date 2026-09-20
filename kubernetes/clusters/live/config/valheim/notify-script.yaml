@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: valheim-notify
+  namespace: valheim
+data:
+  notify.py: |
+    import json
+    import os
+    import sys
+    import urllib.request
+
+    EVENTS = {
+        "online": "\U0001F7E2 Valheim server is online",
+        "shutdown": "\U0001F534 Valheim server is shutting down",
+        "restart": "⏳ Valheim server is restarting",
+    }
+
+
+    def post(content):
+        url = os.environ.get("DISCORD_WEBHOOK", "").strip()
+        if not url:
+            return
+        body = json.dumps({"username": "Valheim", "content": content}).encode()
+        request = urllib.request.Request(
+            url,
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "valheim-notify (homelab, 1.0)",
+            },
+        )
+        try:
+            urllib.request.urlopen(request, timeout=5).close()
+        except Exception as error:
+            print("valheim-notify: {}".format(error), file=sys.stderr)
+
+
+    def player_message(line):
+        _, marker, tail = line.partition("ZDOID from ")
+        if not marker:
+            return None
+        name, separator, zdoid = tail.rpartition(" : ")
+        if not separator:
+            return None
+        name = name.strip()
+        if not name:
+            return None
+        if zdoid.strip() == "0:0":
+            return "\U0001F480 **{}** died".format(name)
+        return "⚔️ **{}** joined".format(name)
+
+
+    def main():
+        mode = sys.argv[1] if len(sys.argv) > 1 else ""
+        if mode == "player":
+            message = player_message(sys.stdin.readline())
+        else:
+            message = EVENTS.get(mode)
+        if message:
+            post(message)
+
+
+    main()

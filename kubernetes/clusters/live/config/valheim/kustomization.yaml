@@ -5,4 +5,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - secret.yaml
+  - discord-webhook.yaml
+  - notify-script.yaml
   - network-policy.yaml
