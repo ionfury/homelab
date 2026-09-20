@@ -63,6 +63,55 @@ run "lifecycle_rules_scoped_to_velero_prefixes" {
     condition     = aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule[1].filter[0].prefix == "restores/"
     error_message = "Restore metadata lifecycle rule must be scoped to restores/ prefix only"
   }
+
+  assert {
+    condition     = length([for r in aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule : r if length(r.expiration) > 0 && r.filter[0].prefix == "kopia/"]) == 0
+    error_message = "Kopia repository blobs must never be expired by lifecycle policy"
+  }
+}
+
+run "transitions_kopia_blobs_to_cold_storage" {
+  command = plan
+  providers = {
+    aws = aws.mock
+  }
+
+  variables {
+    clusters = ["dev"]
+    region   = "us-east-2"
+  }
+
+  assert {
+    condition     = aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule[2].filter[0].prefix == "kopia/"
+    error_message = "Transition rule must be scoped to the kopia/ prefix"
+  }
+
+  assert {
+    condition     = one(aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule[2].transition).storage_class == "GLACIER_IR"
+    error_message = "Kopia blobs should transition to Glacier Instant Retrieval, which Kopia can read without a restore job"
+  }
+
+  assert {
+    condition     = one(aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule[2].transition).days >= 30
+    error_message = "Transition must wait at least 30 days so short-lived blobs do not incur the Glacier IR 90-day minimum charge"
+  }
+}
+
+run "aborts_incomplete_multipart_uploads" {
+  command = plan
+  providers = {
+    aws = aws.mock
+  }
+
+  variables {
+    clusters = ["dev"]
+    region   = "us-east-2"
+  }
+
+  assert {
+    condition     = one(aws_s3_bucket_lifecycle_configuration.velero_backup["dev"].rule[3].abort_incomplete_multipart_upload).days_after_initiation == 7
+    error_message = "Incomplete multipart uploads should be aborted after 7 days"
+  }
 }
 
 run "stores_credentials_in_ssm" {

@@ -13,7 +13,7 @@ spec:
       - csi
     snapshotMoveData: true
     csiSnapshotTimeout: 15m0s
-    ttl: 672h0m0s
+    ttl: 336h0m0s
     includedNamespaces:
       - garage
       - database
