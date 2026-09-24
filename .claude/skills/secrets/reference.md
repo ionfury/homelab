@@ -42,8 +42,8 @@ Defined in `kubernetes/platform/config/monitoring/external-secrets-alerts.yaml`:
 
 | Alert | Condition | Severity |
 |-------|-----------|----------|
-| `ExternalSecretSyncFailure` | Sync errors increasing over 5m | critical |
-| `ExternalSecretNotReady` | Not ready for 10m+ | warning |
+| `ExternalSecretNotReady` | Not ready for 15m+ | warning |
+| `ExternalSecretNotReadyCritical` | Not ready for 1h+ | critical |
 | `ClusterSecretStoreUnhealthy` | Store not ready for 5m | critical |
 
 ---
