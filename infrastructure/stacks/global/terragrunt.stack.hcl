@@ -34,3 +34,8 @@ unit "authelia_secrets" {
   source = "../../units/authelia-secrets"
   path   = "authelia-secrets"
 }
+
+unit "unifi_gateway" {
+  source = "../../units/unifi-gateway"
+  path   = "unifi-gateway"
+}
