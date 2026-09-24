@@ -26,23 +26,27 @@ spec:
         - alert: CanaryCheckHighFailureRate
           expr: |
             (
-              sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+              sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[1h]))
               /
-              (
-                sum by (canary_name, exported_namespace, type) (increase(canary_check_success_count[15m]))
-                +
-                sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[15m]))
+              clamp_min(
+                sum by (canary_name, exported_namespace, type) (
+                  increase(canary_check_success_count[1h]) + increase(canary_check_failed_count[1h])
+                ),
+                1
               )
             ) > 0.2
-          for: 5m
+            and
+            sum by (canary_name, exported_namespace, type) (increase(canary_check_failed_count[1h])) >= 3
+          for: 15m
+          keep_firing_for: 30m
           labels:
             severity: warning
           annotations:
             summary: "Canary check {{ $labels.canary_name }} has high failure rate"
             description: >-
               Canary check {{ $labels.canary_name }} (type: {{ $labels.type }}) in namespace
-              {{ $labels.exported_namespace }} has a failure rate above 20% over the
-              last 15 minutes. Investigate potential intermittent issues.
+              {{ $labels.exported_namespace }} has failed at least 3 probes and a failure rate
+              above 20% over the last hour. Investigate potential intermittent issues.
 
     - name: canary-checker.sla
       interval: 5m

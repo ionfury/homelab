@@ -6,7 +6,7 @@ metadata:
   name: alertmanager
 spec:
   route:
-    groupBy: ["alertname", "job"]
+    groupBy: ["alertname", "namespace"]
     groupInterval: 1h
     groupWait: 1m
     receiver: discord
@@ -30,6 +30,25 @@ spec:
           - name: severity
             value: critical
             matchType: =
+  inhibitRules:
+    - sourceMatch:
+        - name: alertname
+          value: KubePodCrashLooping
+          matchType: =
+      targetMatch:
+        - name: alertname
+          value: KubePodNotReady
+          matchType: =
+      equal: ["namespace"]
+    - sourceMatch:
+        - name: alertname
+          value: KubePodCrashLooping
+          matchType: =
+      targetMatch:
+        - name: alertname
+          value: KubeDeploymentReplicasMismatch
+          matchType: =
+      equal: ["namespace"]
   receivers:
     - name: "null"
     - name: heartbeat
