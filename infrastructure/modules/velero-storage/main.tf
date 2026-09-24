@@ -48,12 +48,12 @@ resource "aws_s3_bucket_public_access_block" "velero_backup" {
   restrict_public_buckets = true
 }
 
-# Lifecycle rules - expire Velero metadata after 35 days (safety net beyond Velero's 28-day TTL)
+# Lifecycle rules - expire Velero metadata as a safety net beyond Velero's own TTL.
 #
-# Rules are scoped to Velero-managed prefixes (backups/, restores/) only.
-# The kopia/ prefix is intentionally excluded: Kopia uses a shared repository model
-# where pack/index files are referenced across multiple backups. An unscoped rule
-# would expire kopia repository metadata, corrupting all repositories in the bucket.
+# The kopia/ prefix is never expired by lifecycle policy: Kopia uses a shared repository
+# model where pack/index files are referenced across multiple backups, so an expiration
+# rule would corrupt every repository in the bucket. It is only transitioned to a colder
+# storage class, which preserves readability.
 resource "aws_s3_bucket_lifecycle_configuration" "velero_backup" {
   for_each = var.clusters
   bucket   = aws_s3_bucket.velero_backup[each.key].id
@@ -89,6 +89,31 @@ resource "aws_s3_bucket_lifecycle_configuration" "velero_backup" {
 
     noncurrent_version_expiration {
       noncurrent_days = 7
+    }
+  }
+
+  rule {
+    id     = "transition-kopia-to-glacier-ir"
+    status = "Enabled"
+
+    filter {
+      prefix = "kopia/"
+    }
+
+    transition {
+      days          = 30
+      storage_class = "GLACIER_IR"
+    }
+  }
+
+  rule {
+    id     = "abort-incomplete-multipart-uploads"
+    status = "Enabled"
+
+    filter {}
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
     }
   }
 }
