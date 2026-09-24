@@ -17,9 +17,8 @@ controllers:
     containers:
       app:
         image:
-          repository: ghcr.io/lloesche/valheim-server
-          # renovate: datasource=docker depName=ghcr.io/lloesche/valheim-server
-          tag: latest
+          repository: ghcr.io/community-valheim-tools/valheim-server
+          tag: "${valheim_version}"
         env:
           # Server configuration
           SERVER_NAME: "Valheim Dedicated"
@@ -44,12 +43,22 @@ controllers:
           BACKUPS_MAX_COUNT: "10"
           BACKUPS_IF_IDLE: "true"
           BACKUPS_IDLE_GRACE_PERIOD: "3600"
+          DISCORD_WEBHOOK:
+            valueFrom:
+              secretKeyRef:
+                name: valheim-discord-webhook
+                key: url
+          POST_SERVER_LISTENING_HOOK: "python3 /scripts/notify.py online"
+          PRE_SERVER_SHUTDOWN_HOOK: "python3 /scripts/notify.py shutdown"
+          PRE_RESTART_HOOK: "python3 /scripts/notify.py restart"
+          VALHEIM_LOG_FILTER_CONTAINS_Player: "Got character ZDOID from"
+          ON_VALHEIM_LOG_FILTER_CONTAINS_Player: "python3 /scripts/notify.py player"
         resources:
           requests:
             cpu: "4"
             memory: 6Gi
           limits:
-            memory: 8Gi
+            memory: 32Gi
         probes:
           startup:
             enabled: true
@@ -103,3 +112,12 @@ persistence:
       valheim:
         app:
           - path: /config
+  notify:
+    type: configMap
+    name: valheim-notify
+    advancedMounts:
+      valheim:
+        app:
+          - path: /scripts/notify.py
+            subPath: notify.py
+            readOnly: true

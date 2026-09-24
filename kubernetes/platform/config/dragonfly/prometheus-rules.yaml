@@ -13,33 +13,125 @@ spec:
       rules:
         - alert: DragonflyHighMemoryUsage
           expr: |
-            (dragonfly_used_memory_bytes{namespace="cache"}
-            / dragonfly_maxmemory_bytes{namespace="cache"}) > 0.9
+            (dragonfly_memory_used_bytes{namespace="cache"}
+            / dragonfly_memory_max_bytes{namespace="cache"}) > 0.9
             and
-            (dragonfly_used_memory_bytes{namespace="cache"}
-            / dragonfly_maxmemory_bytes{namespace="cache"}) <= 0.95
+            (dragonfly_memory_used_bytes{namespace="cache"}
+            / dragonfly_memory_max_bytes{namespace="cache"}) <= 0.95
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Dragonfly memory usage > 90% on {{ $labels.pod }}"
+            summary: "Dragonfly dataset memory > 90% of maxmemory on {{ $labels.pod }}"
+            description: >-
+              Logical dataset size on {{ $labels.pod }} is above 90% of the
+              configured maxmemory. cache_mode eviction engages near this
+              threshold, so expect keys to start being evicted.
 
         - alert: DragonflyHighMemoryUsageCritical
           expr: |
-            (dragonfly_used_memory_bytes{namespace="cache"}
-            / dragonfly_maxmemory_bytes{namespace="cache"}) > 0.95
+            (dragonfly_memory_used_bytes{namespace="cache"}
+            / dragonfly_memory_max_bytes{namespace="cache"}) > 0.95
           for: 2m
           labels:
             severity: critical
           annotations:
-            summary: "Dragonfly memory usage > 95% on {{ $labels.pod }}"
+            summary: "Dragonfly dataset memory > 95% of maxmemory on {{ $labels.pod }}"
+            description: >-
+              Logical dataset size on {{ $labels.pod }} is above 95% of the
+              configured maxmemory. Sustained eviction is likely; consider
+              raising --maxmemory in dragonfly-instance.yaml.
+
+        - alert: DragonflyMemoryNearContainerLimit
+          expr: |
+            (container_memory_working_set_bytes{namespace="cache",container="dragonfly"}
+            / on(pod) kube_pod_container_resource_limits{namespace="cache",container="dragonfly",resource="memory"}) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Dragonfly container memory at {{ $value | humanizePercentage }} of its limit on {{ $labels.pod }}"
+            description: >-
+              {{ $labels.pod }} is approaching its container memory limit and
+              will be OOMKilled if it continues. The limit is a runaway
+              containment threshold derived from node capacity, not from
+              working set, and sits several times above any legitimate
+              ceiling. Reaching it means the process is malfunctioning.
+              Compare
+              container_memory_working_set_bytes against
+              dragonfly_memory_used_bytes: if they diverge by orders of
+              magnitude the cause is allocator fragmentation rather than real
+              data, and a restart clears it.
+
+        - alert: DragonflyOOMKilled
+          expr: |
+            kube_pod_container_status_last_terminated_reason{namespace="cache",container="dragonfly",reason="OOMKilled"} == 1
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Dragonfly container was OOMKilled on {{ $labels.pod }}"
+            description: >-
+              {{ $labels.pod }} exceeded its container memory limit and was
+              killed, dropping every client connection on that pod. The limit
+              is a runaway containment threshold that legitimate operation
+              cannot reach, so treat this as an incident rather than as
+              routine recovery. Detection of the known fragmentation
+              pathology is handled by DragonflyMemoryFragmentation well
+              before this point.
+
+        - alert: DragonflyMemoryFragmentation
+          expr: |
+            (dragonfly_used_memory_rss_bytes{namespace="cache"}
+            / dragonfly_memory_used_bytes{namespace="cache"}) > 20
+            and
+            dragonfly_used_memory_rss_bytes{namespace="cache"} > 536870912
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Dragonfly RSS is {{ $value | humanize }}x its dataset size on {{ $labels.pod }}"
+            description: >-
+              Process RSS on {{ $labels.pod }} has grown far beyond the logical
+              dataset, which means allocator fragmentation rather than real
+              data. cache_mode eviction keys off dataset size and will not
+              reclaim this. Restarting the pod clears it. Repeated full resyncs
+              from replication flapping are a known driver.
 
         - alert: DragonflyReplicationBroken
-          expr: |
-            dragonfly_connected_replicas{namespace="cache"}
-            < (dragonfly_total_replicas{namespace="cache"} - 1)
+          expr: dragonfly_master_link_status{namespace="cache"} == 0
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "Dragonfly replication broken for {{ $labels.pod }}"
+            summary: "Dragonfly replica {{ $labels.pod }} lost its master link"
+            description: >-
+              {{ $labels.pod }} reports master_link_status down. Writes to the
+              master are not reaching this replica, so a failover would lose
+              data.
+
+        - alert: DragonflyReplicationFlapping
+          expr: |
+            increase(dragonfly_replica_reconnect_count{namespace="cache"}[30m]) > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Dragonfly replica {{ $labels.pod }} is reconnecting repeatedly"
+            description: >-
+              {{ $labels.pod }} has reconnected to its master more than twice
+              in 30 minutes. Repeated full resyncs drive allocator
+              fragmentation on the master.
+
+        - alert: DragonflyMetricsMissing
+          expr: absent(dragonfly_memory_max_bytes{namespace="cache"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Dragonfly metrics are not being scraped"
+            description: >-
+              dragonfly_memory_max_bytes has no series in the cache namespace.
+              Either the PodMonitor has stopped scraping or a Dragonfly upgrade
+              renamed the metric, which would silently disable every alert in
+              this group.
