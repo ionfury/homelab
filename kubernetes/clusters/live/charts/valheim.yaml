@@ -53,6 +53,10 @@ controllers:
           PRE_RESTART_HOOK: "python3 /scripts/notify.py restart"
           VALHEIM_LOG_FILTER_CONTAINS_Player: "Got character ZDOID from"
           ON_VALHEIM_LOG_FILTER_CONTAINS_Player: "python3 /scripts/notify.py player"
+          VALHEIM_LOG_FILTER_CONTAINS_Connect: "Got connection SteamID"
+          ON_VALHEIM_LOG_FILTER_CONTAINS_Connect: "python3 /scripts/notify.py connect"
+          VALHEIM_LOG_FILTER_CONTAINS_Disconnect: "Closing socket"
+          ON_VALHEIM_LOG_FILTER_CONTAINS_Disconnect: "python3 /scripts/notify.py disconnect"
         resources:
           requests:
             cpu: "4"
