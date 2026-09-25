@@ -6,10 +6,14 @@ metadata:
   namespace: valheim
 data:
   notify.py: |
+    import contextlib
+    import fcntl
     import json
     import os
     import sys
     import urllib.request
+
+    STATE_PATH = "/tmp/valheim-notify-sessions.json"
 
     EVENTS = {
         "online": "\U0001F7E2 Valheim server is online",
@@ -37,6 +41,55 @@ data:
             print("valheim-notify: {}".format(error), file=sys.stderr)
 
 
+    @contextlib.contextmanager
+    def sessions():
+        with open(STATE_PATH, "a+") as handle:
+            fcntl.flock(handle, fcntl.LOCK_EX)
+            handle.seek(0)
+            try:
+                state = json.loads(handle.read())
+            except ValueError:
+                state = {}
+            state.setdefault("pending", [])
+            state.setdefault("players", {})
+            yield state
+            handle.seek(0)
+            handle.truncate()
+            handle.write(json.dumps(state))
+
+
+    def steam_id(line, marker):
+        _, found, tail = line.partition(marker)
+        if not found:
+            return None
+        return tail.strip().split(" ")[0] or None
+
+
+    def connect_message(line):
+        player = steam_id(line, "Got connection SteamID ")
+        if not player:
+            return None
+        with sessions() as state:
+            state["players"].pop(player, None)
+            if player in state["pending"]:
+                state["pending"].remove(player)
+            state["pending"].append(player)
+        return None
+
+
+    def disconnect_message(line):
+        player = steam_id(line, "Closing socket ")
+        if not player:
+            return None
+        with sessions() as state:
+            if player in state["pending"]:
+                state["pending"].remove(player)
+            name = state["players"].pop(player, None)
+        if not name:
+            return None
+        return "\U0001F44B **{}** left".format(name)
+
+
     def player_message(line):
         _, marker, tail = line.partition("ZDOID from ")
         if not marker:
@@ -49,13 +102,25 @@ data:
             return None
         if zdoid.strip() == "0:0":
             return "\U0001F480 **{}** died".format(name)
+        with sessions() as state:
+            if name in state["players"].values():
+                return None
+            if state["pending"]:
+                state["players"][state["pending"].pop(0)] = name
         return "⚔️ **{}** joined".format(name)
+
+
+    HANDLERS = {
+        "connect": connect_message,
+        "disconnect": disconnect_message,
+        "player": player_message,
+    }
 
 
     def main():
         mode = sys.argv[1] if len(sys.argv) > 1 else ""
-        if mode == "player":
-            message = player_message(sys.stdin.readline())
+        if mode in HANDLERS:
+            message = HANDLERS[mode](sys.stdin.readline())
         else:
             message = EVENTS.get(mode)
         if message:
