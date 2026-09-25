@@ -266,7 +266,7 @@ Key audit questions:
 
 Key audit questions:
 - Do Flux alerts fire during normal reconciliation cycles?
-- Is `ExternalSecretSyncFailure` distinguishing transient vs persistent failures?
+- Is `ExternalSecretNotReady` distinguishing transient vs persistent failures?
 
 #### Tier 8: Applications
 
