@@ -25,7 +25,9 @@ spec:
         # Expression logic:
         #   - LHS: user_created snapshots that exist (have actual_size_bytes)
         #   - RHS: user_created snapshots that have a populated checksum (checksum!="")
-        #   - unless: set subtraction — alerts for any snapshot in LHS that has NO matching entry in RHS
+        #   - unless: set subtraction — any snapshot in LHS with NO matching entry in RHS
+        #   - the result is aggregated to one series per volume so that snapshot rotation does not
+        #     resolve and re-fire the alert under a new snapshot UID
         #   - final unless: drops single-replica volumes, which can never satisfy this alert.
         #     On-demand hashing (Volume.Spec.SnapshotHashingRequestedAt) requires at least two
         #     replicas, so a snapshot on a one-replica volume stays un-hashed permanently and the
@@ -33,29 +35,32 @@ spec:
         #     weekly. Such volumes are also excluded from the tuppr Talos upgrade health check.
         - alert: LonghornSnapshotUnhashed
           expr: |
-            count by (volume, snapshot) (
-              longhorn_snapshot_actual_size_bytes{user_created="true"}
-            )
-            unless
-            count by (volume, snapshot) (
-              longhorn_snapshot_info{
-                customresource_group="longhorn.io",
-                customresource_kind="Snapshot",
-                user_created="true",
-                checksum!=""
-              }
+            count by (volume) (
+              count by (volume, snapshot) (
+                longhorn_snapshot_actual_size_bytes{user_created="true"}
+              )
+              unless
+              count by (volume, snapshot) (
+                longhorn_snapshot_info{
+                  customresource_group="longhorn.io",
+                  customresource_kind="Snapshot",
+                  user_created="true",
+                  checksum!=""
+                }
+              )
             )
             unless on (volume) (
               count by (volume) (longhorn_replica_info) < 2
             )
-          for: 6h
+          for: 24h
+          keep_firing_for: 6h
           labels:
             severity: warning
           annotations:
-            summary: "Longhorn snapshot {{ $labels.snapshot }} on volume {{ $labels.volume }} has no checksum"
+            summary: "Volume {{ $labels.volume }} has {{ $value }} snapshots with no checksum"
             description: >-
-              User-created snapshot {{ $labels.snapshot }} on volume {{ $labels.volume }} has an
-              empty status.checksum and has been in this state for over 6 hours.
+              Volume {{ $labels.volume }} has {{ $value }} user-created snapshot(s) with an
+              empty status.checksum, sustained for over 24 hours.
               Without a checksum, Longhorn cannot use the fast checksum-skip rebuild path. On every
               node reboot or replica re-sync, this volume will fall back to a full block-by-block
               delta rebuild (typically 16-24h on HDD). Fix: ensure the snapshot-data-integrity
