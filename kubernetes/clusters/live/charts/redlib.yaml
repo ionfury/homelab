@@ -8,6 +8,7 @@ controllers:
     strategy: RollingUpdate
 
     pod:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -18,7 +19,7 @@ controllers:
     containers:
       app:
         image:
-          repository: quay.io/redlib/redlib
+          repository: ghcr.io/nachtalb/redlib
           tag: "${redlib_version}"
         env:
           TZ: UTC

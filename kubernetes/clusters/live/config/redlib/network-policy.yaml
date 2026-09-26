@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: redlib-reddit-egress
+  namespace: redlib
+spec:
+  description: "Allow redlib egress only to the Reddit API, Reddit media CDNs, and Giphy (443)"
+  endpointSelector: { }
+  egress:
+    - toFQDNs:
+        - matchName: reddit.com
+        - matchPattern: "*.reddit.com"
+        - matchName: redd.it
+        - matchPattern: "*.redd.it"
+        - matchPattern: "*.redditmedia.com"
+        - matchPattern: "*.thumbs.redditmedia.com"
+        - matchName: www.redditstatic.com
+        - matchName: reddit-econ-prod-assets-permanent.s3.amazonaws.com
+        - matchName: media.giphy.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

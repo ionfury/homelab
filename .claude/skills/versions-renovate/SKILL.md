@@ -85,7 +85,13 @@ cert_manager_version=1.19.3
 # Non-semver versions
 # renovate: datasource=docker depName=cloudnative-vectorchord packageName=ghcr.io/tensorchord/cloudnative-vectorchord versioning=loose
 vectorchord_version=18.1-1.0.0
+
+# Digest-pinned image (untrusted/single-maintainer sources, or unorderable sha-* tags)
+# renovate: datasource=docker depName=redlib packageName=ghcr.io/nachtalb/redlib
+redlib_version=latest@sha256:87aea2023774129c0b82b04735f23203dac0ee97f67343253afe6cb5b8ae7d9f
 ```
+
+A trailing `@sha256:<64 hex>` is captured as `currentDigest`; Renovate raises `digest` updates and rewrites only the hash. Digest updates automerge by default (`.renovate/automerge.json5`), so pair a digest pin on an untrusted image with an `automerge: false` rule there.
 
 ## YAML Container Image Annotations
 
