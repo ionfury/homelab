@@ -59,14 +59,6 @@
       ],
       "automerge": false
     },
-    {
-      "description": "Never automerge redlib — single-maintainer fork image, every digest bump needs human review",
-      "matchDepNames": [
-        "redlib"
-      ],
-      "automerge": false,
-      "minimumReleaseAge": null
-    },
     // Never automerge major updates - breaking changes need review
     {
       "description": "Never automerge major updates",
