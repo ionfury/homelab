@@ -31,6 +31,23 @@ spec:
             summary: "Longhorn volume {{ $labels.volume }} is degraded"
             description: "Volume {{ $labels.volume }} in namespace {{ $labels.pvc_namespace }} has robustness state 'degraded'. Replica count is below desired. Check node health and disk availability."
 
+        # Volume Attachment
+        - alert: LonghornVolumeAttachmentStuck
+          expr: |
+            max by (volumeattachment, node, volumename) (
+              (1 - kube_volumeattachment_status_attached)
+              * on (volumeattachment) group_left (node)
+                max by (volumeattachment, node) (kube_volumeattachment_info{attacher="driver.longhorn.io"})
+              * on (volumeattachment) group_left (volumename)
+                max by (volumeattachment, volumename) (kube_volumeattachment_spec_source_persistentvolume)
+            ) == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volumename }} has not attached to {{ $labels.node }} for 30m"
+            description: "VolumeAttachment {{ $labels.volumeattachment }} for PV {{ $labels.volumename }} on node {{ $labels.node }} has been unattached for over 30 minutes, so every pod mounting it is stuck in ContainerCreating. For RWX volumes this usually means the share-manager cannot start: check `kubectl -n longhorn-system get sharemanager` and the share-manager pod logs for mount errors such as 'Structure needs cleaning'."
+
         # Volume Space - filesystem usage inside the volume
         - alert: LonghornVolumeFillingUp
           expr: |
