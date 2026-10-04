@@ -4,6 +4,8 @@ kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: slow-media
+  annotations:
+    kustomize.toolkit.fluxcd.io/force: enabled
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 reclaimPolicy: Retain
@@ -11,7 +13,7 @@ volumeBindingMode: Immediate
 parameters:
   numberOfReplicas: ${storage_replica_count}
   fsType: xfs
-  staleReplicaTimeout: "30"
+  staleReplicaTimeout: "2880"
   # Multi-Ti volumes on this class are large enough that satisfying locality
   # costs a full rebuild. With best-effort, Longhorn builds an extra local
   # replica whenever the volume attaches to a node without one, which for
