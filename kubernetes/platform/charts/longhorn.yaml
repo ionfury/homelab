@@ -22,11 +22,7 @@ defaultSettings:
   storageReservedPercentageForDefaultDisk: 10
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
   nodeDrainPolicy: allow-if-replica-is-stopped
-  # Wait for a rebooted node to rejoin before replenishing its replicas. Talos
-  # upgrades take a node offline longer than the 600s default, causing Longhorn
-  # to full-rebuild multi-Ti replicas every upgrade. 1800s covers a single-node
-  # upgrade so the node returns and Longhorn does a fast delta rebuild instead.
-  replicaReplenishmentWaitInterval: 1800
+  replicaReplenishmentWaitInterval: 3600
   storageOverProvisioningPercentage: 500
   storageMinimalAvailablePercentage: 10
   autoCleanupSystemGeneratedSnapshot: true
