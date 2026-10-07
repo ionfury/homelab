@@ -25,6 +25,8 @@ spec:
     data:
       storageClassName: fast
       size: ${garage_data_volume_size}
+    metadataFsync: true
+    metadataAutoSnapshotInterval: 6h
     resources:
       requests:
         cpu: 100m
