@@ -80,10 +80,11 @@ locals {
   cluster_path     = "${var.accounts.github.repository_path}/${var.name}"
 
   # Feature detection
-  longhorn_enabled   = contains(var.features, "longhorn")
-  spegel_enabled     = contains(var.features, "spegel")
-  prometheus_enabled = contains(var.features, "prometheus")
-  gateway_enabled    = contains(var.features, "gateway-api")
+  longhorn_enabled    = contains(var.features, "longhorn")
+  spegel_enabled      = contains(var.features, "spegel")
+  prometheus_enabled  = contains(var.features, "prometheus")
+  gateway_enabled     = contains(var.features, "gateway-api")
+  thread_ipv6_enabled = contains(var.features, "thread-ipv6")
 
   # Filter machines belonging to this cluster
   cluster_machines = {
@@ -107,12 +108,23 @@ locals {
     name => try(machine.features.hugepages, null)
   }
 
+  # IPv6 RA acceptance for OTBR Route Information Option (Thread OMR prefix)
+  thread_ipv6_sysctls = {
+    "net.ipv6.conf.all.disable_ipv6"                   = "0"
+    "net.ipv6.conf.default.disable_ipv6"               = "0"
+    "net.ipv6.conf.all.accept_ra"                      = "2"
+    "net.ipv6.conf.default.accept_ra"                  = "2"
+    "net.ipv6.conf.all.accept_ra_rt_info_max_plen"     = "64"
+    "net.ipv6.conf.default.accept_ra_rt_info_max_plen" = "64"
+  }
+
   # 2M pages → sysctl (runtime, no reboot)
   machine_sysctls = {
     for name, hp in local.machine_hugepages :
-    name => hp != null && hp.size == "2M" ? {
-      "vm.nr_hugepages" = tostring(hp.count)
-    } : {}
+    name => merge(
+      hp != null && hp.size == "2M" ? { "vm.nr_hugepages" = tostring(hp.count) } : {},
+      local.thread_ipv6_enabled ? local.thread_ipv6_sysctls : {}
+    )
   }
 
   # 1G pages → kernel cmdline (boot-time, requires reboot)
