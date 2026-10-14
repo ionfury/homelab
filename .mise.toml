@@ -5,7 +5,7 @@ terragrunt = "1.1.6"
 
 # Kubernetes validation
 helm = "4.3.0"
-kustomize = "5.8.2"
+kustomize = "5.8.3"
 kubeconform = "0.8.0"
 "aqua:FairwindsOps/pluto" = "5.24.4"  # API deprecation checker
 yq = "4.54.1"
