@@ -5,4 +5,5 @@ kind: Kustomization
 resources:
   - access-dragonfly.yaml
   - access-garage-s3.yaml
+  - access-home-assistant.yaml
   - access-postgres.yaml

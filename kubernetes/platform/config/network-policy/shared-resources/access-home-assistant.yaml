@@ -1,0 +1,35 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cilium.io/ciliumclusterwidenetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: access-home-assistant-egress
+spec:
+  description: >-
+    Allow Home Assistant to egress to app namespaces labeled for HA integration.
+    Port enforcement is delegated to the per-app ingress CNP; Cilium intersects
+    the egress (this rule, L3-only) with the ingress (per-app CNP, L3+port) so
+    the effective allowed port is what the app declares — not this policy.
+    Usage: Add label access.network-policy.homelab/home-assistant=true to the
+    TARGET app namespace, plus a per-app CiliumNetworkPolicy allowing ingress
+    from the home-assistant namespace on the app's API port.
+    Example per-app ingress CNP (in the target app namespace):
+      spec:
+        endpointSelector: {}
+        ingress:
+          - fromEndpoints:
+              - matchLabels:
+                  io.kubernetes.pod.namespace: home-assistant
+            toPorts:
+              - ports:
+                  - port: "8000"
+                    protocol: TCP
+  endpointSelector:
+    matchLabels:
+      io.kubernetes.pod.namespace: home-assistant
+  egress:
+    - toEndpoints:
+        - matchExpressions:
+            - key: io.cilium.k8s.namespace.labels.access.network-policy.homelab/home-assistant
+              operator: In
+              values: ["true"]
