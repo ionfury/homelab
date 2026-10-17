@@ -85,6 +85,25 @@ spec:
             summary: "Longhorn node(s) offline"
             description: "One or more Longhorn nodes are not ready. This affects volume scheduling and may degrade existing volumes."
 
+        # Instance Manager Missing
+        - alert: LonghornNodeMissingInstanceManager
+          expr: |
+            count by (node) (longhorn_node_status{condition="ready"})
+            and on (node)
+            count by (node) (kube_node_status_condition{condition="Ready", status="true"} == 1)
+            unless
+            count by (node) (
+              kube_pod_info{namespace="longhorn-system", pod=~"instance-manager-.*"}
+              * on (namespace, pod) group_left()
+              (kube_pod_status_phase{namespace="longhorn-system", phase="Running"} == 1)
+            )
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn node {{ $labels.node }} has no running instance-manager"
+            description: "Node {{ $labels.node }} is Ready and known to Longhorn, but has had no Running instance-manager pod in longhorn-system for over 15 minutes. Volumes scheduled to this node cannot attach or rebuild. This commonly follows a stuck drain (e.g. a tuppr upgrade job) that evicted the instance-manager pod without it being rescheduled."
+
         # Instance Manager CPU
         - alert: LonghornInstanceManagerCPUUsageWarning
           expr: max by (instance_manager) (longhorn_instance_manager_cpu_usage_millicpu / longhorn_instance_manager_cpu_requests_millicpu) * 100 > 300
