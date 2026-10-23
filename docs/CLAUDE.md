@@ -41,6 +41,8 @@ Architecture docs describe **how the system works today** — living documents u
 | `supermicro-machine-setup.md` | New hardware - initial BIOS/IPMI config | ~20 min | infrastructure/CLAUDE.md |
 | `terragrunt-validation-state-issues.md` | Terragrunt validate fails with partial state | ~10 min | infrastructure/CLAUDE.md |
 | `version-holds.md` | Upstream regression in automerged dependency | ~5 min | `.github/renovate.json5` |
+| `longhorn-rwx-xfs-corruption.md` | RWX volume stuck attaching, share-manager mount fails with `Structure needs cleaning` | ~1 h | kubernetes/platform/CLAUDE.md |
+| `garage-metadata-recovery.md` | Garage storage node crash-loops with `MDB_CORRUPTED` | ~20 min | kubernetes/platform/CLAUDE.md |
 
 ---
 
