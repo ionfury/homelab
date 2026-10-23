@@ -31,6 +31,13 @@ spec:
         status.state != 'attached' ||
           status.robustness == 'healthy'
       timeout: 30m
+    - apiVersion: longhorn.io/v1beta2
+      kind: ShareManager
+      namespace: longhorn-system
+      description: All Longhorn RWX share-managers must be serving or cleanly stopped
+      expr: |
+        status.state == 'running' || status.state == 'stopped'
+      timeout: 30m
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
       name: platform
