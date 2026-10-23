@@ -267,6 +267,12 @@
       "overrideDatasource": "github-releases",
       "overridePackageName": "cilium/cilium-cli",
       "extractVersion": "^v(?<version>.+)$"
+    },
+    {
+      "description": "Strip v prefix from zipline GitHub release tags to match image tags",
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["diced/zipline"],
+      "extractVersion": "^v(?<version>.+)$"
     }
   ]
 }
