@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get Token
-        uses: actions/create-github-app-token@v3.2.0
+        uses: actions/create-github-app-token@v3.3.0
         id: token
         with:
           app-id: ${{ secrets.RENOVATE_APP_ID }}
@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Run Renovate
-        uses: renovatebot/github-action@v46.3.6
+        uses: renovatebot/github-action@v46.3.9
         env:
           LOG_LEVEL: ${{ inputs.logLevel }}
           RENOVATE_AUTODISCOVER: true
