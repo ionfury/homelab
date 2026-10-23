@@ -106,6 +106,24 @@ spec:
               {{ $labels.reason }} for more than 30m. Check the upgrade's status conditions
               and message.
 
+    - name: tuppr.nodes
+      rules:
+        - alert: NodeCordonedTooLong
+          expr: |
+            max by (node) (kube_node_spec_unschedulable) == 1
+          for: 2h
+          keep_firing_for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.node }} has been cordoned for over 2 hours"
+            description: >-
+              Node {{ $labels.node }} has been unschedulable for more than 2 hours. This is
+              the typical signature of a stuck tuppr upgrade job (e.g. a drain that exceeded
+              policy.drainTimeout) leaving the node half-upgraded. Check for a Failed or stuck
+              TalosUpgrade/KubernetesUpgrade and confirm whether the cordon is still required
+              before uncordoning.
+
     - name: tuppr.jobs
       rules:
         - alert: UpgradeJobRunningTooLong
