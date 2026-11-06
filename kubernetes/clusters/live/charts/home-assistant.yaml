@@ -23,7 +23,7 @@ controllers:
         image:
           repository: alpine
           # renovate: datasource=docker depName=alpine
-          tag: "3.24.3"
+          tag: "3.24.4"
         command:
           - sh
           - -c
