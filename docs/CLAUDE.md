@@ -8,6 +8,7 @@ The `docs/` directory contains operational runbooks, architecture documents, pla
 
 ```
 docs/
+├── adr/                # Architecture decision records (see root CLAUDE.md)
 ├── architecture/       # Living descriptions of current system design
 ├── runbooks/           # Emergency and operational procedures
 ├── plans/              # Pre-implementation design proposals

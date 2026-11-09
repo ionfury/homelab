@@ -35,6 +35,19 @@ If uncertain:
 
 **Correctness > speed. Always.**
 
+# ARCHITECTURE DECISION RECORDS
+
+Architectural decisions live in `docs/adr/`, in Matt Pocock's ADR format (`mattpocock/skills`, `skills/engineering/domain-modeling/ADR-FORMAT.md`).
+
+- Read the relevant ADRs before changing anything they cover. Never reverse a recorded decision silently: raise it with the user, and if they agree, write a new ADR and set the old one's Status frontmatter to `superseded by ADR-NNNN`.
+- Offer an ADR only when the decision is architectural (system shape, integration patterns, technology choices with lock-in, boundaries, deliberate deviations from the obvious design) and all three are true:
+  1. Hard to reverse
+  2. Surprising without context
+  3. The result of a real trade-off
+- Settings, guardrails and process decisions are not ADRs. Their reasoning belongs in the commit body; run `git log -S'<setting>'` and read the bodies before changing a setting. Hard rules belong in this file.
+- Format: `docs/adr/NNNN-slug.md`, numbered one above the highest existing file. A title plus 1-3 sentences: context, decision, why. Optional sections only when they add real value: Status frontmatter, Considered Options, Consequences.
+- ADRs record decisions only. No TODOs, tech debt or follow-up notes.
+
 # SYSTEM MODEL
 
 ## Deployment Model
