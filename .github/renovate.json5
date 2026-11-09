@@ -116,7 +116,7 @@
         "kubernetes"
       ],
       "groupName": "talos-platform",
-      "automerge": true
+      "automerge": false
     },
     {
       "matchDepNames": [
