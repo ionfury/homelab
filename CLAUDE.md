@@ -54,16 +54,16 @@ Architectural decisions live in `docs/adr/`, in Matt Pocock's ADR format (`mattp
 
 - `main` = desired production state
 - Changes flow: PR → merge → stable OCI artifact → live (direct; canary-checker validates post-deploy)
-- Integration and live are **strict GitOps (Flux-managed)**
-- Dev cluster allows controlled experimentation
+- Live is the only running cluster and is **strict GitOps (Flux-managed)**
+- Dev and integration are offline with no plan to bring them back; there is no staging or experimentation cluster, so changes are validated in CI and by canaries on live
 
 ## Cluster Permissions
 
 | Cluster | Access |
 |--------|-------|
-| `dev` | Controlled mutation allowed for experimentation |
-| `integration` | Read-only |
 | `live` | Read-only |
+| `dev` | Offline |
+| `integration` | Offline |
 
 ## Guiding Priority
 
@@ -99,10 +99,19 @@ Require explicit human approval:
 
 ## Kubernetes Safety
 
-- No direct changes to integration or live clusters
-- Dev cluster is the only place for direct mutation
+- No direct changes to the live cluster; no cluster currently allows direct mutation
 - Do not use unsafe flags (`--force`, `--grace-period=0`)
 - Do not modify CRDs without understanding compatibility
+
+## Storage Safety
+
+- NEVER allow Longhorn to be uninstalled by Helm; losing it destroys every volume
+- NEVER change StorageClass parameters, and never use Flux force or replace annotations to recreate a StorageClass. Parameters are immutable, recreating a StorageClass is a resource deletion, and existing volumes keep their old values anyway. Per-volume settings belong on the Longhorn `Volume` object
+- Irreversible filesystem repairs such as `xfs_repair -L` are human-gated break-glass steps; never automate them
+
+## Upgrade Safety
+
+- Do not set tuppr `policy.waitForVolumeDetach` on the TalosUpgrade. It switches tuppr to its own drain, which never retries, and passes `--drain=false` to talosctl. Talos owns the node drain
 
 ## Declarative Requirement
 
