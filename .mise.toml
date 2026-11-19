@@ -19,7 +19,7 @@ talosctl = "1.14.6"
 "aqua:cilium/cilium-cli" = "0.20.3"
 
 # Node.js (for renovate validation)
-node = "24"
+node = "26"
 
 # flux-operator: use asset_pattern to select CLI (not MCP variant)
 # NOTE: This section MUST be at the end because TOML nested tables
